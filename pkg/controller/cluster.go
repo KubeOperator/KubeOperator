@@ -20,7 +20,6 @@ type ClusterController struct {
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
-	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
@@ -33,7 +32,6 @@ func NewClusterController() *ClusterController {
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
-		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
@@ -121,7 +119,7 @@ func (c ClusterController) Post() (*dto.Cluster, error) {
 	operator := c.Ctx.Values().GetString("operator")
 	go log_save.LogSave(operator, constant.CREATE_CLUSTER, req.Name)
 
-	return &item, nil
+	return item, nil
 }
 
 func (c ClusterController) PostInitBy(name string) error {
@@ -309,17 +307,16 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
-func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, error) {
+func (c ClusterController) PostNodeBatchBy(clusterName string) error {
 	var req dto.NodeBatch
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	cns, err := c.ClusterNodeService.Batch(clusterName, req)
+	err = c.ClusterNodeService.Batch(clusterName, req)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
 	operator := c.Ctx.Values().GetString("operator")
 	node := ""
 	for _, item := range req.Nodes {
@@ -331,7 +328,7 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, erro
 		go log_save.LogSave(operator, constant.CREATE_CLUSTER_NODE, clusterName+"-"+node)
 	}
 
-	return cns, nil
+	return nil
 }
 
 func (c ClusterController) GetWebkubectlBy(clusterName string) (*dto.WebkubectlToken, error) {
@@ -349,15 +346,6 @@ func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, 
 		return nil, err
 	}
 	return &sec, nil
-}
-
-func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
-	ls, err := c.ClusterLogService.List(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	return ls, nil
-
 }
 
 func (c ClusterController) GetCisBy(clusterName string) (*page.Page, error) {

@@ -74,7 +74,7 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 	}
 	var resourceIds []string
 	for _, pr := range projectResources {
-		resourceIds = append(resourceIds, pr.ResourceId)
+		resourceIds = append(resourceIds, pr.ResourceID)
 	}
 
 	if err := db.DB.Model(model.Cluster{}).

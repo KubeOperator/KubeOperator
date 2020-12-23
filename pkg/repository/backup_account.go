@@ -48,7 +48,7 @@ func (b backupAccountRepository) List(projectName string) ([]model.BackupAccount
 		}
 		var resourceIds []string
 		for _, pr := range projectResources {
-			resourceIds = append(resourceIds, pr.ResourceId)
+			resourceIds = append(resourceIds, pr.ResourceID)
 		}
 		err = db.DB.Model(model.BackupAccount{}).Where("id in (?)", resourceIds).Find(&backupAccounts).Error
 		if err != nil {

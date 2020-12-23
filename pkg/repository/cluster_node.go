@@ -12,7 +12,8 @@ type ClusterNodeRepository interface {
 	List(clusterName string) ([]model.ClusterNode, error)
 	ListByRole(clusterName string, role string) ([]model.ClusterNode, error)
 	Save(node *model.ClusterNode) error
-	FirstMaster(ClusterId string) (model.ClusterNode, error)
+	FirstMaster(clusterId string) (model.ClusterNode, error)
+	AllMaster(clusterId string) ([]model.ClusterNode, error)
 	Delete(id string) error
 	BatchSave(nodes []*model.ClusterNode) error
 }
@@ -101,10 +102,10 @@ func (c clusterNodeRepository) ListByRole(clusterName string, role string) ([]mo
 
 }
 
-func (c clusterNodeRepository) FirstMaster(ClusterId string) (model.ClusterNode, error) {
+func (c clusterNodeRepository) FirstMaster(clusterId string) (model.ClusterNode, error) {
 	var master model.ClusterNode
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: ClusterId, Role: constant.NodeRoleNameMaster}).
+		Where(model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
 		Preload("Host").
 		Preload("Host.Credential").
 		First(&master).
@@ -112,6 +113,19 @@ func (c clusterNodeRepository) FirstMaster(ClusterId string) (model.ClusterNode,
 		return master, err
 	}
 	return master, nil
+}
+
+func (c clusterNodeRepository) AllMaster(clusterId string) ([]model.ClusterNode, error) {
+	var masters []model.ClusterNode
+	if err := db.DB.
+		Where(model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
+		Preload("Host").
+		Preload("Host.Credential").
+		Find(&masters).
+		Error; err != nil {
+		return nil, err
+	}
+	return masters, nil
 }
 
 func (c clusterNodeRepository) Delete(id string) error {

@@ -88,7 +88,7 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 		return ""
 	}
 	var project model.Project
-	proResources, err := m.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+	proResources, err := m.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 	if err != nil {
 		return ""
 	}
@@ -245,7 +245,7 @@ func (m messageService) GetUserMessages(message model.Message) ([]model.UserMess
 	var userMessages []model.UserMessage
 	var userIds []string
 	msgReceivers := make(map[string][]string)
-	proResources, err := m.projectResourceRepo.ListByResourceIdAndType(message.ClusterID, constant.ResourceCluster)
+	proResources, err := m.projectResourceRepo.ListByResourceIDAndType(message.ClusterID, constant.ResourceCluster)
 	if err != nil {
 		return nil, err
 	}

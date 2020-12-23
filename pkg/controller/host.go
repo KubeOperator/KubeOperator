@@ -129,7 +129,7 @@ func (h HostController) Post() (*dto.Host, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/{name}/ [delete]
-func (h HostController) Delete(name string) error {
+func (h HostController) DeleteBy(name string) error {
 	operator := h.Ctx.Values().GetString("operator")
 	go log_save.LogSave(operator, constant.DELETE_HOST, name)
 

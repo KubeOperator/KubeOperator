@@ -2,8 +2,6 @@ package server
 
 import (
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/plugin/xpack"
-
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/data"
@@ -11,7 +9,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/plugin"
+	"github.com/KubeOperator/KubeOperator/pkg/plugin/xpack"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
+	"github.com/KubeOperator/KubeOperator/pkg/server/hook"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
 )
@@ -67,8 +67,8 @@ func Start() error {
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))
 
-	if err := s.Run(iris.Addr(bind)); err != nil {
+	if err := hook.BeforeApplicationStart.Run(); err != nil {
 		return err
 	}
-	return nil
+	return s.Run(iris.Addr(bind))
 }

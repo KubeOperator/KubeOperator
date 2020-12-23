@@ -1,8 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {LicenseService} from './business/setting/license/license.service';
-import {BusinessLicenseService} from './shared/service/business-license.service';
-import {error} from '@angular/compiler/src/util';
 
 
 @Component({

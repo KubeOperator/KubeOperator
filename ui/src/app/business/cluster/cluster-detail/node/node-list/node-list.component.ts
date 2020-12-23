@@ -48,20 +48,15 @@ export class NodeListComponent implements OnInit, OnDestroy {
             this.items = d.items;
             this.total = d.total;
             this.loading = false;
+        }, error => {
+            this.loading = false;
+            this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 
 
     getInternalIp(item: Node) {
-        let result = 'N/A';
-        if (item.status === 'Running') {
-            for (const addr of item.info.status.addresses) {
-                if (addr.type === 'InternalIP') {
-                    result = addr.address;
-                }
-            }
-        }
-        return result;
+        return item.ip ? item.ip : 'N/a';
     }
 
     getVersion(item: Node) {

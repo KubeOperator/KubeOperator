@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/jinzhu/gorm"
@@ -68,16 +68,23 @@ func (h *Host) BeforeDelete(tx *gorm.DB) error {
 		if !notFound {
 			return errors.New("DELETE_HOST_FAILED")
 		}
-
 	}
 	var projectResources []ProjectResource
-	err := tx.Where(ProjectResource{ResourceId: h.ID}).Find(&projectResources).Error
+	err := tx.Where(ProjectResource{ResourceID: h.ID}).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}
 	if len(projectResources) > 0 {
 		return errors.New("DELETE_HOST_FAILED_BY_PROJECT")
 	}
-
+	var ip Ip
+	tx.Where(Ip{Address: h.Ip}).First(&ip)
+	if ip.ID != "" {
+		ip.Status = constant.IpAvailable
+		if err := tx.Save(&ip).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	return nil
 }

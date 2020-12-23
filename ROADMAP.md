@@ -128,14 +128,26 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 集群事件支持启用、禁用 npd；
  - [x] restapi 开启 rbac 认证；
  - [x] 支持 session 和 jwt 两种认证方式；
-
- ## v3.4 (计划中)
  
- - [ ] 多集群配置管理（X-Pack）；
- - [ ] GPU 支持；
- - [ ] 系统操作日志；
- - [ ] 集群日志，支持 Loki；
- - [ ] 备份支持到本地盘和 SFTP；
- - [ ] 批量导入主机；
- - [ ] 忘记密码；
- - [ ] 应用商店增加 Kuboard、TensorFlow；
+ Release Note: https://blog.fit2cloud.com/?p=1612
+
+ ## v3.4 (已发布)
+ 
+ - [x] 多集群配置管理（X-Pack）；
+ - [x] GPU 支持；
+ - [x] 系统操作日志；
+ - [x] 集群日志，支持 Loki；
+ - [x] 备份支持到本地盘和 SFTP；
+ - [x] 批量导入主机；
+ - [x] 忘记密码；
+ - [x] 应用商店增加 Kuboard、TensorFlow；
+ 
+ Release Note: https://blog.fit2cloud.com/?p=1669
+
+ ## v3.5 (开发中)
+ 
+ - [ ] 集群异常状态诊断及修复；
+ - [ ] 支持 Istio；
+ - [ ] 自动模式创建主机支持 IP 池；
+ - [ ] 支持自定义 Ansible、Terraform 并发参数；
+ - [ ] 版本管理支持上传 K8s 离线包；

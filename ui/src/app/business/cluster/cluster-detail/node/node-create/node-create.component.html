@@ -3,8 +3,6 @@
     <div class="modal-body modal-height">
         <form clrForm #itemForm='ngForm'>
             <div *ngIf="currentCluster.provider==='bareMetal'">
-                <h4>Select Host</h4>
-                <br>
                 <l-select2 name="workers" [(ngModel)]="workers" [data]="hosts" [options]="options" required></l-select2>
             </div>
 
@@ -20,7 +18,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="isSubmitGoing||itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

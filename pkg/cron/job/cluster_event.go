@@ -30,15 +30,18 @@ func (c *ClusterEvent) Run() {
 	sem := make(chan struct{}, 5) // 信号量
 	clusters, _ := c.clusterService.List()
 	for _, cluster := range clusters {
+		if cluster.Status != constant.StatusRunning {
+			return
+		}
 		secret, err := c.clusterService.GetSecrets(cluster.Name)
 		if err != nil {
 			continue
 		}
+		endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
 		if cluster.Status == constant.ClusterRunning {
 			client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 				Token: secret.KubernetesToken,
-				Port:  cluster.Spec.KubeApiServerPort,
-				Host:  cluster.Spec.KubeRouter,
+				Hosts: endpoints,
 			})
 			if err != nil {
 				continue

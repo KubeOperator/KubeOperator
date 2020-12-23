@@ -18,7 +18,6 @@ export class ProjectMemberService extends BaseModelService<any> {
     }
 
     getByUser(username: string, projectName: string): Observable<ProjectMember> {
-        console.log(projectName);
         return this.http.get<ProjectMember>(`${this.baseUrl}/${username}`, {
             headers: {project: encodeURI(projectName)},
         });

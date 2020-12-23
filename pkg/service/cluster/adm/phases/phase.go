@@ -5,14 +5,15 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"github.com/spf13/viper"
 	"io"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
 )
 
 const (
-	PhaseInterval = 5 * time.Second
-	PhaseTimeout  = 30 * time.Minute
+	PhaseInterval             = 5 * time.Second
+	DefaultPhaseTimeoutMinute = 100
 )
 
 var log = logger.Default
@@ -37,7 +38,11 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName string, writer io.Wr
 			}
 		}()
 	}
-	err = wait.Poll(PhaseInterval, PhaseTimeout, func() (done bool, err error) {
+	timeout := viper.GetInt("job.timeout")
+	if timeout < DefaultPhaseTimeoutMinute {
+		timeout = DefaultPhaseTimeoutMinute
+	}
+	err = wait.Poll(PhaseInterval, time.Duration(timeout)*time.Minute, func() (done bool, err error) {
 		res, err := b.GetResult(taskId)
 		if err != nil {
 			return true, err

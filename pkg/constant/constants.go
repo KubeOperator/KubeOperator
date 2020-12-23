@@ -22,6 +22,11 @@ const (
 	StatusRunning       = "Running"
 	StatusSuccess       = "Success"
 	StatusFailed        = "Failed"
+	StatusLost          = "Lost"
+	StatusCreating      = "Creating"
+	StatusInitializing  = "Initializing"
+	StatusTerminating   = "Terminating"
+	StatusWaiting       = "Waiting"
 )
 
 var (

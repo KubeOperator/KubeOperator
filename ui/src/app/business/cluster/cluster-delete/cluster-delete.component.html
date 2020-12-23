@@ -5,6 +5,6 @@
     </div>
     <div class="modal-footer">
         <button class="btn" (click)="onCancel()">{{"APP_CANCEL"|translate}}</button>
-        <button class="btn btn-primary" (click)="onSubmit()" *ngIf="!isSubmitGoing">{{"APP_COMMIT"|translate}}</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing">{{"APP_COMMIT"|translate}}</button>
     </div>
 </clr-modal>

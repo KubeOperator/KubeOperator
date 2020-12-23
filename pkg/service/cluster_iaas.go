@@ -13,8 +13,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
-	"strconv"
 	"strings"
+	"sync"
 )
 
 type ClusterIaasService interface {
@@ -76,14 +76,14 @@ func (c clusterIaasService) Init(name string) error {
 	}
 
 	var projectResources []model.ProjectResource
-	prs, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+	prs, err := c.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 	if err != nil {
 		return err
 	}
 	for _, host := range hosts {
 		projectResources = append(projectResources, model.ProjectResource{
 			ProjectID:    prs[0].ProjectID,
-			ResourceId:   host.ID,
+			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
 		})
 	}
@@ -177,14 +177,14 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		}
 		hosts = append(hosts, &host)
 	}
-	var selectedIps []string
 	group := allocateZone(plan.Zones, hosts)
 	for k, v := range group {
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = plan.Region.Provider
+		providerVars["datacenter"] = plan.Region.Datacenter
 		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
-		err := allocateIpAddr(cloudClient, *k, v, selectedIps)
+		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -311,37 +311,47 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 	return groupMap
 }
 
-func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host, selectedIps []string) error {
+func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host, clusterId string) error {
 	zoneVars := map[string]string{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
-	pool, err := p.GetIpInUsed(zoneVars["network"])
+	pool, _ := p.GetIpInUsed(zoneVars["network"])
 	var hs []model.Host
 	db.DB.Model(model.Host{}).Find(&hs)
 	for i := range hs {
 		pool = append(pool, hs[i].Ip)
 	}
-	subnet := zoneVars["subnet"]
-	subnetCidr := zoneVars["subnetCidr"]
-	startIp := zoneVars["ipStart"]
-	endIp := zoneVars["ipEnd"]
-	var ss string
-	if strings.Contains(subnet, "/") {
-		ss = subnet
-	} else {
-		ss = subnetCidr
+	var ips []model.Ip
+	db.DB.Where(model.Ip{IpPoolID: zone.IpPoolID, Status: constant.IpAvailable}).Order("inet_aton(address)").Find(&ips)
+	var wg sync.WaitGroup
+	for i := range ips {
+		wg.Add(1)
+		go func(i int) {
+			err := ipaddr.Ping(ips[i].Address)
+			if err == nil {
+				ips[i].Status = constant.IpReachable
+				db.DB.Save(&ips[i])
+			}
+			wg.Done()
+		}(i)
 	}
-	cs := strings.Split(ss, "/")
-	mask, _ := strconv.Atoi(cs[1])
-	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
-	if err != nil {
-		return err
+	wg.Wait()
+
+	var aIps []model.Ip
+	for i := range ips {
+		if ips[i].Status != constant.IpReachable {
+			aIps = append(aIps, ips[i])
+		}
 	}
+
+	var usedIps []model.Ip
+	var uIps []string
 end:
-	for _, h := range hosts {
-		for i := range ips {
-			if !exists(ips[i], pool) && !exists(ips[i], selectedIps) {
-				h.Ip = ips[i]
-				selectedIps = append(selectedIps, h.Ip)
+	for i := range hosts {
+		for j := range aIps {
+			if !exists(aIps[j].Address, pool) && !exists(aIps[j].Address, uIps) {
+				hosts[i].Ip = aIps[j].Address
+				usedIps = append(usedIps, aIps[j])
+				uIps = append(uIps, aIps[j].Address)
 				continue end
 			}
 		}
@@ -350,6 +360,11 @@ end:
 		if h.Ip == "" {
 			return errors.New("NO_IP_AVAILABLE")
 		}
+	}
+	for i := range usedIps {
+		usedIps[i].ClusterID = clusterId
+		usedIps[i].Status = constant.IpUsed
+		db.DB.Save(&usedIps[i])
 	}
 	return nil
 }

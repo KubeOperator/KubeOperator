@@ -8,6 +8,7 @@ import (
 type Node struct {
 	model.ClusterNode
 	Info v1.Node `json:"info"`
+	Ip   string  `json:"ip"`
 }
 
 type NodeBatch struct {

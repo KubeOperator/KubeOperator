@@ -43,7 +43,7 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 	}
 	var resourceIds []string
 	for _, mo := range mos {
-		resourceIds = append(resourceIds, mo.ResourceId)
+		resourceIds = append(resourceIds, mo.ResourceID)
 	}
 
 	if len(resourceIds) > 0 {
@@ -137,13 +137,13 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 				if len(clusterResources) > 0 {
 					for _, clusterResource := range clusterResources {
 						var backupStrategy model.ClusterBackupStrategy
-						err = db.DB.Where(model.ClusterBackupStrategy{BackupAccountID: resourceId, ClusterID: clusterResource.ResourceId}).First(&backupStrategy).Error
+						err = db.DB.Where(model.ClusterBackupStrategy{BackupAccountID: resourceId, ClusterID: clusterResource.ResourceID}).First(&backupStrategy).Error
 						if err != nil && !gorm.IsRecordNotFoundError(err) {
 							return err
 						}
 						if backupStrategy.ID != "" {
 							var backupFiles []model.ClusterBackupFile
-							err = db.DB.Where(model.ClusterBackupFile{ClusterBackupStrategyID: backupStrategy.ID, ClusterID: clusterResource.ResourceId}).Find(&backupFiles).Error
+							err = db.DB.Where(model.ClusterBackupFile{ClusterBackupStrategyID: backupStrategy.ID, ClusterID: clusterResource.ResourceID}).Find(&backupFiles).Error
 							if err != nil && !gorm.IsRecordNotFoundError(err) {
 								return err
 							}
@@ -159,7 +159,7 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 		opItems = append(opItems, model.ProjectResource{
 			BaseModel:    common.BaseModel{},
 			ID:           itemId,
-			ResourceId:   resourceId,
+			ResourceID:   resourceId,
 			ResourceType: item.ResourceType,
 			ProjectID:    item.ProjectID,
 		})
@@ -188,7 +188,7 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 		}
 	}
 	for _, pr := range projectResources {
-		resourceIds = append(resourceIds, pr.ResourceId)
+		resourceIds = append(resourceIds, pr.ResourceID)
 	}
 	if len(resourceIds) == 0 {
 		resourceIds = append(resourceIds, "1")

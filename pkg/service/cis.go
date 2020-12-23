@@ -133,7 +133,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		return nil, err
 	}
 
-	endpoint, err := c.clusterService.GetApiServerEndpoint(cluster.Name)
+	endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -144,9 +144,8 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		return nil, err
 	}
 	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		tx.Rollback()

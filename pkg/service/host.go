@@ -140,15 +140,7 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 		_ = h.hostRepo.Save(&host)
 		return dto.Host{Host: host}, err
 	}
-	err = h.GetHostGpu(&host)
-	if err != nil {
-		return dto.Host{Host: host}, err
-	}
 	host.Status = constant.ClusterRunning
-	err = h.GetHostMem(&host)
-	if err != nil {
-		return dto.Host{Host: host}, err
-	}
 	err = h.hostRepo.Save(&host)
 	if err != nil {
 		return dto.Host{Host: host}, err
@@ -246,18 +238,6 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 	if err != nil {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
-		_ = h.hostRepo.Save(&host)
-		return
-	}
-	err = h.GetHostMem(&host)
-	if err != nil {
-		return
-	}
-	err = h.GetHostGpu(&host)
-	if err != nil {
-		host.GpuNum = 0
-		host.GpuInfo = ""
-		host.HasGpu = false
 		_ = h.hostRepo.Save(&host)
 		return
 	}
@@ -370,6 +350,20 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		}
 		host.Volumes = volumes
 	}
+	err = h.GetHostMem(host)
+	if err != nil {
+		return err
+	}
+	err = h.GetHostGpu(host)
+	if err != nil {
+		host.GpuNum = 0
+		host.GpuInfo = ""
+		host.HasGpu = false
+		_ = h.hostRepo.Save(host)
+		return nil
+	}
+	host.Status = constant.ClusterRunning
+	_ = h.hostRepo.Save(host)
 	return nil
 }
 

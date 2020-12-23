@@ -29,7 +29,7 @@ type ZoneService interface {
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (*dto.Zone, error)
-	Update(creation dto.ZoneUpdate) (dto.Zone, error)
+	Update(creation dto.ZoneUpdate) (*dto.Zone, error)
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
@@ -40,6 +40,7 @@ type zoneService struct {
 	zoneRepo             repository.ZoneRepository
 	regionRepo           repository.RegionRepository
 	systemSettingService SystemSettingService
+	ipPoolService        IpPoolService
 }
 
 func NewZoneService() ZoneService {
@@ -47,6 +48,7 @@ func NewZoneService() ZoneService {
 		zoneRepo:             repository.NewZoneRepository(),
 		systemSettingService: NewSystemSettingService(),
 		regionRepo:           repository.NewRegionRepository(),
+		ipPoolService:        NewIpPoolService(),
 	}
 }
 
@@ -87,10 +89,19 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 			return page, err
 		}
 		zoneDTO.CloudVars = m
-
 		zoneDTO.RegionName = mo.Region.Name
 		zoneDTO.Provider = mo.Region.Provider
-
+		ipUsed := 0
+		for _, ip := range mo.IpPool.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
+		zoneDTO.IpPool = dto.IpPool{
+			IpUsed: ipUsed,
+			IpPool: mo.IpPool,
+		}
+		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
 	page.Total = total
@@ -120,11 +131,6 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	}
 
 	param := creation.CloudVars.(map[string]interface{})
-	if param["subnet"] != nil {
-		index := strings.Index(param["subnet"].(string), "/")
-		networkCidr := param["subnet"].(string)
-		param["netMask"] = networkCidr[index+1:]
-	}
 	region, err := NewRegionService().Get(creation.RegionName)
 	if err != nil {
 		return nil, err
@@ -158,6 +164,20 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		}
 	}
 
+	ipPool, err := z.ipPoolService.Get(creation.IpPoolName)
+	if err != nil {
+		return nil, err
+	}
+	if len(ipPool.Ips) == 0 {
+		return nil, errors.New("IP_SHORT")
+	}
+	index := strings.Index(ipPool.Subnet, "/")
+	networkCidr := ipPool.Subnet
+	param["netMask"] = networkCidr[index+1:]
+	param["gateway"] = ipPool.Ips[0].Gateway
+	param["dns1"] = ipPool.Ips[0].DNS1
+	param["dns2"] = ipPool.Ips[0].DNS2
+
 	vars, _ := json.Marshal(creation.CloudVars)
 	zone := model.Zone{
 		BaseModel:    common.BaseModel{},
@@ -165,6 +185,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		Vars:         string(vars),
 		RegionID:     creation.RegionID,
 		CredentialID: creation.CredentialId,
+		IpPoolID:     ipPool.ID,
 		Status:       constant.Ready,
 	}
 
@@ -172,20 +193,34 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		zone.Status = constant.Initializing
 	}
 	err = z.zoneRepo.Save(&zone)
-
-	if param["templateType"] != nil && param["templateType"].(string) == "default" {
-		go z.uploadZoneImage(creation)
-	}
 	if err != nil {
 		return nil, err
+	}
+	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+		go z.uploadZoneImage(creation)
 	}
 	return &dto.Zone{Zone: zone}, err
 }
 
-func (z zoneService) Update(creation dto.ZoneUpdate) (dto.Zone, error) {
+func (z zoneService) Update(creation dto.ZoneUpdate) (*dto.Zone, error) {
+
+	param := creation.CloudVars.(map[string]interface{})
+	ipPool, err := z.ipPoolService.Get(creation.IpPoolName)
+	if err != nil {
+		return nil, err
+	}
+	if len(ipPool.Ips) == 0 {
+		return nil, errors.New("IP_SHORT")
+	}
+
+	index := strings.Index(ipPool.Subnet, "/")
+	networkCidr := ipPool.Subnet
+	param["netMask"] = networkCidr[index+1:]
+	param["gateway"] = ipPool.Ips[0].Gateway
+	param["dns1"] = ipPool.Ips[0].DNS1
+	param["dns2"] = ipPool.Ips[0].DNS2
 
 	vars, _ := json.Marshal(creation.CloudVars)
-
 	zone := model.Zone{
 		BaseModel: common.BaseModel{},
 		Name:      creation.Name,
@@ -194,11 +229,11 @@ func (z zoneService) Update(creation dto.ZoneUpdate) (dto.Zone, error) {
 		ID:        creation.ID,
 	}
 
-	err := z.zoneRepo.Save(&zone)
+	err = z.zoneRepo.Save(&zone)
 	if err != nil {
-		return dto.Zone{}, err
+		return nil, err
 	}
-	return dto.Zone{Zone: zone}, err
+	return &dto.Zone{Zone: zone}, err
 }
 
 func (z zoneService) Batch(op dto.ZoneOp) error {

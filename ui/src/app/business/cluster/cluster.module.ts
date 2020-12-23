@@ -52,9 +52,6 @@ import { NodeCreateComponent } from './cluster-detail/node/node-create/node-crea
 import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
 import { NodeStatusComponent } from './cluster-detail/node/node-status/node-status.component';
 import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
-import { LogComponent } from './cluster-detail/log/log.component';
-import { LogListComponent } from './cluster-detail/log/log-list/log-list.component';
-import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.component';
 import { StorageProvisionerCreateExternalCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
 import { StorageProvisionerCreateRookCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
 import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
@@ -108,9 +105,6 @@ import { F5Component } from './cluster-detail/f5/f5.component';
         NodeDeleteComponent,
         NodeStatusComponent,
         WebkubectlComponent,
-        LogComponent,
-        LogListComponent,
-        LogDetailComponent,
         StorageProvisionerCreateExternalCephComponent,
         StorageProvisionerCreateRookCephComponent,
         StorageProvisionerCreateVsphereComponent,

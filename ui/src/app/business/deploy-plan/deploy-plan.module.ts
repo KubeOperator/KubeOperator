@@ -6,6 +6,7 @@ import {CoreModule} from '../../core/core.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {VmConfigModule} from './vm-config/vm-config.module';
+import {IpPoolModule} from './ip-pool/ip-pool.module';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import {VmConfigModule} from './vm-config/vm-config.module';
         RouterModule,
         CoreModule,
         PlanModule,
-        VmConfigModule
+        VmConfigModule,
+        IpPoolModule
     ]
 })
 export class DeployPlanModule {

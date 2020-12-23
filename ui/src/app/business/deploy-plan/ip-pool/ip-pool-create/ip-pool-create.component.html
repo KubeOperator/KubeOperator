@@ -1,0 +1,71 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #ipPoolForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_NAME'|translate}}:</label>
+                <input clrInput size=45 maxlength="30" [(ngModel)]="item.name" pattern="{{namePattern}}"
+                       name="name" required>
+                <clr-control-helper>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-error>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_DESCRIPTION'|translate}}:</label>
+                <input clrInput size=45 maxlength="30" [(ngModel)]="item.description" name="description" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_SUBNET'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.subnet" name="subnet"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_IP_START'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.ipStart" name="ipStart"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{'APP_IP_END'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.ipEnd" name="ipEnd"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.gateway" name="gateway"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_NETWORK_DNS1'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.dns1" name="dns1"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_NETWORK_DNS2'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.dns2" name="dns2"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                    [disabled]="ipPoolForm.invalid">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+

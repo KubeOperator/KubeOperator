@@ -1,0 +1,53 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #ipForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_IP_START'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.ipStart" name="ipStart"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{'APP_IP_END'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.ipEnd" name="ipEnd"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.gateway" name="gateway"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_NETWORK_DNS1'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.dns1" name="dns1"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_NETWORK_DNS2'|translate}}</label>
+                <input clrInput size=45 type="text" [(ngModel)]="item.dns2" name="dns2"
+                       required>
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                    [disabled]="ipForm.invalid">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+

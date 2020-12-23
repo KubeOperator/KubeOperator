@@ -21,6 +21,7 @@ type Cluster struct {
 	StatusID                 string                   `json:"-"`
 	PlanID                   string                   `json:"-"`
 	LogId                    string                   `json:"logId"`
+	Dirty                    bool                     `json:"dirty"`
 	Plan                     Plan                     `json:"-"`
 	Spec                     ClusterSpec              `gorm:"save_associations:false" json:"spec"`
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
@@ -144,7 +145,7 @@ func (c Cluster) BeforeDelete() error {
 						return err
 					}
 					var projectResources []ProjectResource
-					if err := tx.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
+					if err := tx.Where(ProjectResource{ResourceID: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 						return err
 					}
 					if len(projectResources) > 0 {
@@ -204,7 +205,7 @@ func (c Cluster) BeforeDelete() error {
 	}
 
 	var projectResource ProjectResource
-	tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
+	tx.Where(ProjectResource{ResourceID: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
 	if projectResource.ID != "" {
 		if err := tx.Delete(&projectResource).Error; err != nil {
 			tx.Rollback()
@@ -250,6 +251,17 @@ func (c Cluster) BeforeDelete() error {
 		if err := tx.Where("message_id in (?)", messageIds).Delete(&userMessages).Error; err != nil {
 			tx.Rollback()
 			return err
+		}
+	}
+
+	var ips []Ip
+	tx.Where(Ip{ClusterID: c.ID}).Find(&ips)
+	if len(ips) > 0 {
+		for _, i := range ips {
+			if err := tx.Delete(&i).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	}
 

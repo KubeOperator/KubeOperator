@@ -93,7 +93,7 @@ func (u UserController) Post() (*dto.User, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [delete]
-func (u UserController) Delete(name string) error {
+func (u UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
 	log_save.LogSave(operator, constant.DELETE_USER, name)
 
