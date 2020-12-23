@@ -227,6 +227,7 @@ func (z zoneService) Update(creation dto.ZoneUpdate) (*dto.Zone, error) {
 		Vars:      string(vars),
 		RegionID:  creation.RegionID,
 		ID:        creation.ID,
+		IpPoolID:  ipPool.ID,
 	}
 
 	err = z.zoneRepo.Save(&zone)
