@@ -594,5 +594,6 @@
   "IP_LOCK": "占用",
   "IP_USED": "使用中",
   "IP_REACHABLE":"可达",
-  "IP_PROMPT": "占用:被手动占用;使用中:主机中有使用此IP的机器;可达:IP可以被Ping通;"
+  "IP_PROMPT": "占用:被手动占用;使用中:主机中有使用此IP的机器;可达:IP可以被Ping通;",
+  "IP_SYNC": "开始同步,请稍后"
 }

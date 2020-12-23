@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../../../shared/class/BaseModelService';
-import {Ip} from './ip';
+import {Ip, IpSync} from './ip';
 import {HttpClient} from '@angular/common/http';
 import {Page} from '../../../../shared/class/Page';
 import {Observable} from 'rxjs';
@@ -50,5 +50,13 @@ export class IpService extends BaseModelService<Ip> {
             url = this.baseUrl.replace('{name}', ipPoolName);
         }
         return this.http.patch<Ip>(url, item);
+    }
+
+    sync(item: IpSync): Observable<any> {
+        let url = this.baseUrl + '/sync';
+        if (item.ipPoolName) {
+            url = url.replace('{name}', item.ipPoolName);
+        }
+        return this.http.post<any>(url, item);
     }
 }

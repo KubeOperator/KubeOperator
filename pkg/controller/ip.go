@@ -102,3 +102,17 @@ func (i IpController) Patch() (*dto.Ip, error) {
 	}
 	return i.IpService.Update(req)
 }
+
+func (i IpController) PostSync() error {
+	var req dto.IpSync
+	err := i.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	return i.IpService.Sync(req.IpPoolName)
+}

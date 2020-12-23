@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {BaseModelDirective} from '../../../../../shared/class/BaseModelDirective';
-import {Ip, IpUpdate} from '../ip';
+import {Ip, IpSync, IpUpdate} from '../ip';
 import {IpService} from '../ip.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {IpPool} from '../../ip-pool';
@@ -52,6 +52,16 @@ export class IpListComponent extends BaseModelDirective<Ip> implements OnInit {
         this.ipService.update(update.address, update, this.ipPoolName).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.refresh();
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
+    sync() {
+        const ipSync = new IpSync();
+        ipSync.ipPoolName = this.ipPoolName;
+        this.ipService.sync(ipSync).subscribe(data => {
+            this.commonAlertService.showAlert(this.translateService.instant('IP_SYNC'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

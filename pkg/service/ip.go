@@ -19,6 +19,7 @@ type IpService interface {
 	Page(num, size int, ipPoolName string) (page.Page, error)
 	Batch(op dto.IpOp) error
 	Update(update dto.IpUpdate) (*dto.Ip, error)
+	Sync(ipPoolName string) error
 }
 
 type ipService struct {
@@ -156,4 +157,29 @@ func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 	}
 	tx.Commit()
 	return &dto.Ip{Ip: ip}, err
+}
+
+func (i ipService) Sync(ipPoolName string) error {
+	var ipPool model.IpPool
+	err := db.DB.Where(model.IpPool{Name: ipPoolName}).First(&ipPool).Error
+	if err != nil {
+		return err
+	}
+	var ips []model.Ip
+	err = db.DB.Where(model.Ip{IpPoolID: ipPool.ID}).Find(&ips).Error
+	if err != nil {
+		return err
+	}
+	for i := range ips {
+		if ips[i].Status != constant.IpUsed && ips[i].Status != constant.IpLock {
+			go func(i int) {
+				err := ipaddr.Ping(ips[i].Address)
+				if err == nil {
+					ips[i].Status = constant.IpReachable
+					db.DB.Save(&ips[i])
+				}
+			}(i)
+		}
+	}
+	return nil
 }
