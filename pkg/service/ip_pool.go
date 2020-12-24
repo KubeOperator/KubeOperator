@@ -15,6 +15,7 @@ type IpPoolService interface {
 	Page(num, size int) (page.Page, error)
 	Create(creation dto.IpPoolCreate) (dto.IpPool, error)
 	Batch(op dto.IpPoolOp) error
+	List() ([]dto.IpPool, error)
 }
 
 type ipPoolService struct {
@@ -65,6 +66,28 @@ func (i ipPoolService) Page(num, size int) (page.Page, error) {
 	return page, err
 }
 
+func (i ipPoolService) List() ([]dto.IpPool, error) {
+	var ipPoolDTOS []dto.IpPool
+	var ipPools []model.IpPool
+	err := db.DB.Model(model.IpPool{}).Preload("Ips").Find(&ipPools).Error
+	if err != nil {
+		return ipPoolDTOS, err
+	}
+	for _, mo := range ipPools {
+		ipUsed := 0
+		for _, ip := range mo.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
+		ipPoolDTOS = append(ipPoolDTOS, dto.IpPool{
+			IpPool: mo,
+			IpUsed: ipUsed,
+		})
+	}
+	return ipPoolDTOS, nil
+}
+
 func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 	var ipPoolDTO dto.IpPool
 	ipPool := model.IpPool{
@@ -87,7 +110,7 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 		IpPoolName: ipPool.Name,
 		DNS1:       creation.DNS1,
 		DNS2:       creation.DNS2,
-	})
+	}, tx)
 	if err != nil {
 		tx.Rollback()
 		return ipPoolDTO, err

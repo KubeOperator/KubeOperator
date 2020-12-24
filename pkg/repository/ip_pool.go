@@ -23,7 +23,7 @@ func NewIpPoolRepository() IpPoolRepository {
 func (i ipPoolRepository) Get(name string) (model.IpPool, error) {
 	var ipPool model.IpPool
 	ipPool.Name = name
-	if err := db.DB.Where(ipPool).First(&ipPool).Error; err != nil {
+	if err := db.DB.Where(ipPool).Preload("Ips").First(&ipPool).Error; err != nil {
 		return ipPool, err
 	}
 	return ipPool, nil

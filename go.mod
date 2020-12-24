@@ -27,6 +27,7 @@ require (
 	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/go-ping/ping v0.0.0-20201115131931-3300c582a663
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
@@ -95,3 +96,4 @@ replace github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.8
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
 
 replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.12
+

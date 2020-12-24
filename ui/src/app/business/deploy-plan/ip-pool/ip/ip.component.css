@@ -3,3 +3,7 @@
     font-size: 12px;
     cursor: pointer;
 }
+.prompt {
+    font-style: italic;
+}
+

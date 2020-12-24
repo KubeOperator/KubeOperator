@@ -37,7 +37,14 @@ func (i IpPoolController) Get() (page.Page, error) {
 		size, _ := i.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return i.IpPoolService.Page(num, size)
 	} else {
-		return page.Page{}, nil
+		var p page.Page
+		items, err := i.IpPoolService.List()
+		if err != nil {
+			return page.Page{}, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return p, nil
 	}
 }
 

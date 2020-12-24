@@ -34,6 +34,10 @@
             <a class="nav-link" href="javascript:void(0)" routerLink="tool"
                routerLinkActive="active">{{"APP_TOOLS"|translate}}</a>
         </li>
+        <li class="nav-item" *ngIf="currentCluster.spec.architectures =='amd64'">
+            <a class="nav-link" href="javascript:void(0)" routerLink="istio"
+               routerLinkActive="active">{{"APP_ISTIO"|translate}}</a>
+        </li>
         <li class="nav-item" *ngIf="currentCluster.source !='external'">
             <a class="nav-link" href="javascript:void(0)" routerLink="backup"
                routerLinkActive="active">{{'APP_BACKUP'|translate}}</a>

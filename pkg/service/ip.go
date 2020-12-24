@@ -8,16 +8,18 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
+	"github.com/jinzhu/gorm"
 	"strconv"
 	"strings"
 )
 
 type IpService interface {
 	Get(ip string) (dto.Ip, error)
-	Create(create dto.IpCreate) error
+	Create(create dto.IpCreate, tx *gorm.DB) error
 	Page(num, size int, ipPoolName string) (page.Page, error)
 	Batch(op dto.IpOp) error
 	Update(update dto.IpUpdate) (*dto.Ip, error)
+	Sync(ipPoolName string) error
 }
 
 type ipService struct {
@@ -40,16 +42,20 @@ func (i ipService) Get(ip string) (dto.Ip, error) {
 	return ipDTO, nil
 }
 
-func (i ipService) Create(create dto.IpCreate) error {
+func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
+	if tx == nil {
+		tx = db.DB.Begin()
+	}
 	var ipPool model.IpPool
-	err := db.DB.Where(model.IpPool{Name: create.IpPoolName}).First(&ipPool).Error
+	err := tx.Where(model.IpPool{Name: create.IpPoolName}).First(&ipPool).Error
 	if err != nil {
 		return err
 	}
 	cs := strings.Split(create.Subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
-	ips := ipaddr.GenerateIps(cs[0], mask, create.IpStart, create.IpEnd)
-	tx := db.DB.Begin()
+	startIp := strings.Replace(create.IpStart, " ", "", -1)
+	endIp := strings.Replace(create.IpEnd, " ", "", -1)
+	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	for _, ip := range ips {
 		var old model.Ip
 		tx.Where(model.Ip{Address: ip}).First(&old)
@@ -57,18 +63,26 @@ func (i ipService) Create(create dto.IpCreate) error {
 			tx.Rollback()
 			return errors.New("IP_EXISTS")
 		}
-		err := tx.Create(&model.Ip{
+		insert := model.Ip{
 			Address:  ip,
 			Gateway:  create.Gateway,
 			DNS1:     create.DNS1,
 			DNS2:     create.DNS2,
 			IpPoolID: ipPool.ID,
 			Status:   constant.IpAvailable,
-		}).Error
+		}
+		err := tx.Create(&insert).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
+		go func() {
+			err := ipaddr.Ping(insert.Address)
+			if err == nil {
+				insert.Status = constant.IpReachable
+				db.DB.Save(&insert)
+			}
+		}()
 	}
 	tx.Commit()
 	return nil
@@ -84,7 +98,7 @@ func (i ipService) Page(num, size int, ipPoolName string) (page.Page, error) {
 	if err != nil {
 		return page, err
 	}
-	err = db.DB.Model(model.Ip{}).Where(model.Ip{IpPoolID: ipPool.ID}).Order("inet_aton(address)").Count(&total).Find(&ips).Offset((num - 1) * size).Limit(size).Error
+	err = db.DB.Model(model.Ip{}).Where(model.Ip{IpPoolID: ipPool.ID}).Order("inet_aton(address)").Count(&total).Offset((num - 1) * size).Limit(size).Find(&ips).Error
 	if err != nil {
 		return page, err
 	}
@@ -143,4 +157,33 @@ func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 	}
 	tx.Commit()
 	return &dto.Ip{Ip: ip}, err
+}
+
+func (i ipService) Sync(ipPoolName string) error {
+	var ipPool model.IpPool
+	err := db.DB.Where(model.IpPool{Name: ipPoolName}).First(&ipPool).Error
+	if err != nil {
+		return err
+	}
+	var ips []model.Ip
+	err = db.DB.Where(model.Ip{IpPoolID: ipPool.ID}).Find(&ips).Error
+	if err != nil {
+		return err
+	}
+	for i := range ips {
+		if ips[i].Status != constant.IpUsed && ips[i].Status != constant.IpLock {
+			go func(i int) {
+				err := ipaddr.Ping(ips[i].Address)
+				if err == nil && ips[i].Status != constant.IpReachable {
+					ips[i].Status = constant.IpReachable
+					db.DB.Save(&ips[i])
+				}
+				if err != nil && ips[i].Status == constant.IpReachable {
+					ips[i].Status = constant.IpAvailable
+					db.DB.Save(&ips[i])
+				}
+			}(i)
+		}
+	}
+	return nil
 }

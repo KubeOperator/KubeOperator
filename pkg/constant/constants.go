@@ -26,6 +26,7 @@ const (
 	StatusCreating      = "Creating"
 	StatusInitializing  = "Initializing"
 	StatusTerminating   = "Terminating"
+	StatusWaiting       = "Waiting"
 )
 
 var (

@@ -48,6 +48,9 @@ export class NodeListComponent implements OnInit, OnDestroy {
             this.items = d.items;
             this.total = d.total;
             this.loading = false;
+        }, error => {
+            this.loading = false;
+            this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 
