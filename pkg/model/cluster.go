@@ -68,6 +68,11 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 	if len(cluster.Nodes) > 0 {
+		if err := tx.Model(Host{}).Where(Host{ClusterID: c.ID}).Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+
 		for _, node := range cluster.Nodes {
 			if err := tx.Where(ClusterNode{ID: node.ID}).
 				Delete(ClusterNode{}).Error; err != nil {
@@ -80,19 +85,7 @@ func (c Cluster) BeforeDelete() error {
 					tx.Rollback()
 					return err
 				}
-				if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
-					host.ClusterID = ""
-					if err := tx.Save(&host).Error; err != nil {
-						tx.Rollback()
-						return err
-					}
-				}
 				if cluster.Spec.Provider == constant.ClusterProviderPlan {
-					host.ClusterID = ""
-					if err := tx.Save(&host).Error; err != nil {
-						tx.Rollback()
-						return err
-					}
 					var projectResources []ProjectResource
 					if err := tx.Where(ProjectResource{ResourceID: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 						return err
