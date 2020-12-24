@@ -129,9 +129,9 @@
     </form>
 </div>
 
-<button class="btn btn-sm btn-primary" [clrLoading]="enableLoading" *ngIf="!baseCfg.enable" type="button"  (click)="submit('start')">{{'APP_ENABLE'|translate}} Istio</button>
-<button class="btn btn-sm btn-primary" [clrLoading]="enableLoading" *ngIf="baseCfg.enable" type="button"  (click)="submit('restart')">{{'APP_ISTIO_RESAVE'|translate}}</button>
-<button class="btn btn-sm btn-danger" [clrLoading]="disableLoading" *ngIf="baseCfg.enable" type="button"  (click)="stopIstio()">{{'APP_DISABLE'|translate}} Istio</button>
+<button class="btn btn-sm btn-primary" [disabled]="btnStartDisable" *ngIf="!baseCfg.enable" type="button"  (click)="submit('start')">{{'APP_ENABLE'|translate}} Istio</button>
+<button class="btn btn-sm btn-primary" [disabled]="btnStartDisable" *ngIf="baseCfg.enable" type="button"  (click)="submit('restart')">{{'APP_ISTIO_RESAVE'|translate}}</button>
+<button class="btn btn-sm btn-danger" [disabled]="btnStopDisable" *ngIf="baseCfg.enable" type="button"  (click)="stopIstio()">{{'APP_DISABLE'|translate}} Istio</button>
 
 
 
