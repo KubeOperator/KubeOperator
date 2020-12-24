@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_zone` ADD COLUMN `ip_pool_id` varchar(64) NULL AFTER `credential_id`;
