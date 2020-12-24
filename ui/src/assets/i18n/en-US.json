@@ -606,5 +606,7 @@
   "IP_REACHABLE":"Reachable",
   "IP_PROMPT": "Occupied: Manually occupied; In use: There are machines using this IP in the host; Reachable: The host can be pinged;",
   "IP_SYNC": "Start syncing, please wait",
+  "IP_STATUS": "IP usage",
+  "IP_SYNC": "Start syncing, please wait",
   "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace："
 }

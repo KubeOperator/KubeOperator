@@ -29,28 +29,28 @@
                     <td>{{item.cloudVars['network']}}</td>
                 </tr>
                 <tr>
+                    <th>{{'APP_IP_POOL'|translate}}</th>
+                    <td>{{item.ipPool.name}}</td>
+                </tr>
+                <tr>
                     <th>{{'APP_SUBNET'|translate}}</th>
-                    <td>{{item.cloudVars['subnet']}}</td>
+                    <td>{{item.ipPool.subnet}}</td>
                 </tr>
                 <tr>
-                    <th>{{'APP_IP_START'|translate}}</th>
-                    <td>{{item.cloudVars['ipStart']}}</td>
-                </tr>
-                <tr>
-                    <th>{{'APP_IP_END'|translate}}</th>
-                    <td>{{item.cloudVars['ipEnd']}}</td>
+                    <th>{{'IP_STATUS'|translate}}</th>
+                    <td>{{item.ipPool.ipUsed}}/{{item.ipPool.ips.length}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_GATEWAY'|translate}}</th>
-                    <td>{{item.cloudVars['gateway']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].gateway}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_DNS1'|translate}}</th>
-                    <td>{{item.cloudVars['dns1']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns1}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_DNS2'|translate}}</th>
-                    <td>{{item.cloudVars['dns2']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns2}}</td>
                 </tr>
                 <tr *ngIf="item.cloudVars['templateType'] === 'customize'">
                     <th>{{'APP_TEMPLATE'|translate}}</th>
@@ -86,28 +86,28 @@
                     <td>{{item.cloudVars['portgroup']}}</td>
                 </tr>
                 <tr>
+                    <th>{{'APP_IP_POOL'|translate}}</th>
+                    <td>{{item.ipPool.name}}</td>
+                </tr>
+                <tr>
                     <th>{{'APP_SUBNET'|translate}}</th>
-                    <td>{{item.cloudVars['subnet']}}</td>
+                    <td>{{item.ipPool.subnet}}</td>
                 </tr>
                 <tr>
-                    <th>{{'APP_IP_START'|translate}}</th>
-                    <td>{{item.cloudVars['ipStart']}}</td>
-                </tr>
-                <tr>
-                    <th>{{'APP_IP_END'|translate}}</th>
-                    <td>{{item.cloudVars['ipEnd']}}</td>
+                    <th>{{'IP_STATUS'|translate}}</th>
+                    <td>{{item.ipPool.ipUsed}}/{{item.ipPool.ips.length}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_GATEWAY'|translate}}</th>
-                    <td>{{item.cloudVars['gateway']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].gateway}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_DNS1'|translate}}</th>
-                    <td>{{item.cloudVars['dns1']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns1}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_NETWORK_DNS2'|translate}}</th>
-                    <td>{{item.cloudVars['dns2']}}</td>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns2}}</td>
                 </tr>
                 <tr *ngIf="item.cloudVars['templateType'] === 'customize'">
                     <th>{{'APP_TEMPLATE'|translate}}</th>
@@ -148,12 +148,28 @@
                     <td>{{item.cloudVars['network']}}</td>
                 </tr>
                 <tr>
-                    <th>{{'APP_IP_START'|translate}}</th>
-                    <td>{{item.cloudVars['ipStart']}}</td>
+                    <th>{{'APP_IP_POOL'|translate}}</th>
+                    <td>{{item.ipPool.name}}</td>
                 </tr>
                 <tr>
-                    <th>{{'APP_IP_END'|translate}}</th>
-                    <td>{{item.cloudVars['ipEnd']}}</td>
+                    <th>{{'APP_SUBNET'|translate}}</th>
+                    <td>{{item.ipPool.subnet}}</td>
+                </tr>
+                <tr>
+                    <th>{{'IP_STATUS'|translate}}</th>
+                    <td>{{item.ipPool.ipUsed}}/{{item.ipPool.ips.length}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_GATEWAY'|translate}}</th>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].gateway}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS1'|translate}}</th>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns1}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS2'|translate}}</th>
+                    <td *ngIf="item.ipPool.ips.length>0">{{item.ipPool.ips[0].dns2}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_OPENSTACK_SECURITY_GROUP'|translate}}</th>
