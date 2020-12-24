@@ -57,7 +57,7 @@ type Client struct {
 	Architectures         string
 }
 
-func NewClient(config Config) (*Client, error) {
+func NewClient(config *Config) (*Client, error) {
 	var aliveHost kubernetes.Host
 	aliveHost, err := kubernetes.SelectAliveHost(config.Hosts)
 	if err != nil {
