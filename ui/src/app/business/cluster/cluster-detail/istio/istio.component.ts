@@ -22,8 +22,8 @@ export class IstioComponent implements OnInit {
     ) {}
 
     accordionLoading: boolean = false;
-    enableLoading: boolean = false;
-    disableLoading: boolean = false;
+    btnStartDisable: boolean = false;
+    btnStopDisable: boolean = false;
     currentCluster: Cluster;
     stepOpen: boolean = true;
     baseCfg: IstioHelper = new IstioHelper;
@@ -40,7 +40,7 @@ export class IstioComponent implements OnInit {
         this.accordionLoading = false;
     }
     submit (operation: string) {
-        this.enableLoading = true;
+        this.btnStartDisable = true;
         var items: IstioHelper[] = [];
         if (operation === 'start') {
             this.baseCfg.enable = true;
@@ -51,24 +51,24 @@ export class IstioComponent implements OnInit {
         this.getOperation(items, this.ingressCfg);
         this.getOperation(items, this.egressCfg);
         this.istioService.enable(this.currentCluster.name, items).subscribe(data => {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_RESTORE_START_SUCCESS'), AlertLevels.SUCCESS);
-            this.enableLoading = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ISTIO_START_SUCCESS'), AlertLevels.SUCCESS);
+            this.btnStartDisable = false;
         }, error => {
-            this.enableLoading = false;
+            this.btnStartDisable = false;
         });
     }
     stopIstio () {
-        this.disableLoading = true;
+        this.btnStopDisable = true;
         var items: IstioHelper[] = [];
         this.disAble(items, this.baseCfg);
         this.disAble(items, this.pilotCfg);
         this.disAble(items, this.ingressCfg);
         this.disAble(items, this.egressCfg);
         this.istioService.disable(this.currentCluster.name, items).subscribe(data => {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_RESTORE_START_SUCCESS'), AlertLevels.SUCCESS);
-            this.disableLoading = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ISTIO_STOP_SUCCESS'), AlertLevels.SUCCESS);
+            this.btnStopDisable = false;
         }, error => {
-            this.disableLoading = false;
+            this.btnStopDisable = false;
         });
     }
     disAble(items: IstioHelper[], istio: IstioHelper) {
@@ -117,8 +117,8 @@ export class IstioComponent implements OnInit {
         this.pilotCfg.vars = {
             'pilot.resources.requests.cpu': 500,
             'pilot.resources.requests.memory': 2048, 
-            'pilot.resources.limits.cpu': 1000,
-            'pilot.resources.limits.memory': 4096,
+            'pilot.resources.limits.cpu': 500,
+            'pilot.resources.limits.memory': 2048,
             'pilot.traceSampling': 1,
         };
         this.ingressCfg.vars = {

@@ -594,8 +594,8 @@
   "APP_ISTIO_TRACE_SAMPLING": "跟踪抽样比例(%)",
   "APP_ISTIO_GATEWAY_TYPE": "网关服务类型",
   "APP_ISTIO_RESAVE": "重新保存",
-  "APP_ISTIO_START_SUCCESS": "启用成功",
-  "APP_ISTIO_STOP_SUCCESS": "禁用成功",
+  "APP_ISTIO_START_SUCCESS": "启用集群istio成功",
+  "APP_ISTIO_STOP_SUCCESS": "禁用集群istio成功",
   "APP_HOST_IMPORT_FILE_ERROR": "不支持的文件格式",
   "APP_SYSTEM_LOG": "系统日志",
   "APP_MASTER_HELPER": "Master 节点的数量必须为1或者3",
@@ -606,5 +606,6 @@
   "IP_USED": "使用中",
   "IP_REACHABLE":"可达",
   "IP_PROMPT": "占用:被手动占用;使用中:主机中有使用此IP的机器;可达:IP可以被Ping通;",
-  "IP_SYNC": "开始同步,请稍后"
+  "IP_SYNC": "开始同步,请稍后",
+  "APP_DELETE_NS_ERR": "删除失败,该命名空间下已存在工具："
 }
