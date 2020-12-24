@@ -217,7 +217,7 @@
   "APP_REGISTRY_PROTOCOL": "Registry Protocol",
   "APP_REGISTRY_IP": "Registry IP",
   "APP_SYSTEM_IP": "System IP",
-  "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of Kubeoperator",
+  "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of KubeOperator",
   "APP_SYSTEM_PROTOCOL_HELPER": "Required, nexus access address, http or https",
   "APP_SYSTEM_LANGUAGE_CN": "简体中文",
   "APP_SYSTEM_LANGUAGE_US": "English",

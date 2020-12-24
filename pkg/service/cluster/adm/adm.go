@@ -82,8 +82,10 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	}
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	repo := repository.NewSystemSettingRepository()
-	val, _ := repo.Get("ip")
-	c.Kobe.SetVar(facts.LocalHostnameFactName, val.Value)
+	registryIp, _ := repo.Get("ip")
+	registryProtocol, _ := repo.Get("REGISTRY_PROTOCOL")
+	c.Kobe.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
+	c.Kobe.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
 	maniFest, _ := GetVarsBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
