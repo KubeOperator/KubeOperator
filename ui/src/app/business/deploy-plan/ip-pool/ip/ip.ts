@@ -22,3 +22,7 @@ export class IpUpdate extends BaseRequest {
     address: string;
     operation: string;
 }
+
+export class IpSync extends BaseRequest {
+    ipPoolName: string;
+}

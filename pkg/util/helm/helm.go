@@ -57,7 +57,7 @@ type Client struct {
 	Architectures         string
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config Config) (*Client, error) {
 	var aliveHost kubernetes.Host
 	aliveHost, err := kubernetes.SelectAliveHost(config.Hosts)
 	if err != nil {
@@ -145,12 +145,15 @@ func updateRepo() error {
 	}
 	r := repository.NewSystemSettingRepository()
 	s, err := r.Get("ip")
+	p, err := r.Get("REGISTRY_PROTOCOL")
+	fmt.Println("打印ip 协议", s.Value, p.Value)
 	if err != nil {
 		return errors.New("invalid local host ip")
 	}
 	if !flag {
-		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications", s.Value), "admin", "admin123")
+		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, s.Value), "admin", "admin123")
 		if err != nil {
+			fmt.Println("添加 helm repo 错误:", err)
 			return err
 		}
 	}

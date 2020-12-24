@@ -6,10 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
-var (
-	DeleteZoneError = "DELETE_ZONE_FAILED_RESOURCE"
-)
-
 type ZoneRepository interface {
 	Get(name string) (model.Zone, error)
 	List() ([]model.Zone, error)
@@ -47,7 +43,7 @@ func (z zoneRepository) ListByRegionId(id string) ([]model.Zone, error) {
 
 func (z zoneRepository) List() ([]model.Zone, error) {
 	var zones []model.Zone
-	err := db.DB.Model(model.Zone{}).Find(&zones).Error
+	err := db.DB.Model(model.Zone{}).Preload("IpPool").Find(&zones).Error
 	return zones, err
 }
 
@@ -58,6 +54,7 @@ func (z zoneRepository) Page(num, size int) (int, []model.Zone, error) {
 		Count(&total).
 		Preload("Region").
 		Preload("IpPool").
+		Preload("IpPool.Ips").
 		Find(&zones).
 		Offset((num - 1) * size).
 		Limit(size).

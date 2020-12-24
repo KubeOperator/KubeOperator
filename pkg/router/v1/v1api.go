@@ -2,6 +2,8 @@ package v1
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
 	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
@@ -10,7 +12,6 @@ import (
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/mvc"
 	E "github.com/pkg/errors"
-	"net/http"
 )
 
 var AuthScope iris.Party
@@ -36,6 +37,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/settings")).HandleError(ErrorHandler).Handle(controller.NewSystemSettingController())
 	mvc.New(AuthScope.Party("/logs")).HandleError(ErrorHandler).Handle(controller.NewSystemLogController())
 	mvc.New(AuthScope.Party("/projects")).HandleError(ErrorHandler).Handle(controller.NewProjectController())
+	mvc.New(AuthScope.Party("/clusters/istio")).HandleError(ErrorHandler).Handle(controller.NewClusterIstioController())
 	mvc.New(AuthScope.Party("/backupaccounts")).HandleError(ErrorHandler).Handle(controller.NewBackupAccountController())
 	mvc.New(AuthScope.Party("/clusters/backup")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupStrategyController())
 	mvc.New(AuthScope.Party("/license")).Handle(ErrorHandler).Handle(controller.NewLicenseController())

@@ -32,7 +32,8 @@ const (
 	EtcdDataDirFactName                  = "etcd_data_dir"
 	BinDirFactName                       = "bin_dir"
 	BaseDirFactName                      = "base_dir"
-	LocalHostnameFactName                = "local_hostname"
+	RegistryHostnameFactName             = "registry_hostname"
+	RegistryProtocolFactName             = "registry_protocol"
 	RepoPortFactName                     = "repo_port"
 	RegistryPortFactName                 = "registry_port"
 	CorednsImageFactName                 = "coredns_image"
@@ -79,7 +80,7 @@ var DefaultFacts = map[string]string{
 	EtcdDataDirFactName:                  "/var/lib/etcd",
 	BinDirFactName:                       "/usr/local/bin",
 	BaseDirFactName:                      "/opt/kubeoperator",
-	LocalHostnameFactName:                "172.16.10.64",
+	RegistryHostnameFactName:             "172.16.10.64",
 	RepoPortFactName:                     "8081",
 	RegistryPortFactName:                 "8082",
 	KubeImageRepositoryFactName:          "docker.io/kubeoperator",

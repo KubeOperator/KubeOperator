@@ -27,10 +27,12 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
         this.listSystemSettings();
     }
 
-
     listSystemSettings() {
         this.systemService.singleGet().subscribe(res => {
             this.item = res;
+            if ( this.item.vars['REGISTRY_PROTOCOL'] === undefined || this.item.vars['REGISTRY_PROTOCOL'] === '' ) {
+                    this.item.vars['REGISTRY_PROTOCOL'] = 'http';
+                }
         });
     }
 

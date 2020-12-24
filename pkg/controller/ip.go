@@ -62,7 +62,7 @@ func (i IpController) Post() error {
 	if err != nil {
 		return err
 	}
-	return i.IpService.Create(req)
+	return i.IpService.Create(req, nil)
 }
 
 func (i IpController) PostBatch() error {
@@ -101,4 +101,18 @@ func (i IpController) Patch() (*dto.Ip, error) {
 		return nil, err
 	}
 	return i.IpService.Update(req)
+}
+
+func (i IpController) PostSync() error {
+	var req dto.IpSync
+	err := i.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	return i.IpService.Sync(req.IpPoolName)
 }

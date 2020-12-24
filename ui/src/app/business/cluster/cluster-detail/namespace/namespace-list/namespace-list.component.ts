@@ -17,7 +17,7 @@ export class NamespaceListComponent implements OnInit {
     page = 1;
     @Output() deleteEvent = new EventEmitter<string>();
     @Output() createEvent = new EventEmitter<string>();
-    defaultNamespaces: string[] = ['default', 'kube-node-lease', 'kube-operator', 'kube-public', 'kube-system'];
+    defaultNamespaces: string[] = ['default', 'kube-node-lease', 'kube-operator', 'kube-public', 'kube-system', 'istio-system'];
     @Input() currentCluster: Cluster;
 
     constructor(private service: KubernetesService, private route: ActivatedRoute) {

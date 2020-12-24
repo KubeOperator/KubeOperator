@@ -24,6 +24,7 @@ import {StorageClassListComponent} from './cluster-detail/storage/storage-class/
 import {LoggingComponent} from './cluster-detail/logging/logging.component';
 import {EfComponent} from './cluster-detail/logging/ef/ef.component';
 import {LokiComponent} from './cluster-detail/logging/loki/loki.component';
+import {IstioComponent} from './cluster-detail/istio/istio.component';
 
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
@@ -79,7 +80,7 @@ import { F5Component } from './cluster-detail/f5/f5.component';
         OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent,
         StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent,
         NodeListComponent, NodeDetailComponent, PersistentVolumeClaimListComponent,
-        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent,
+        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent,
         MonitorComponent, MonitorDashboardComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,

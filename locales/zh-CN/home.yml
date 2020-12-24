@@ -100,6 +100,10 @@ VM_CONFIG_DELETE_FAILED: "配置已经属于部署计划！不能进行此操作
 IP_EXISTS: "填写的IP段与已有IP段冲突，请重新填写"
 IP_NOT_AVAILABLE: "IP %s 被占用，不能被释放"
 
+#ip-pool
+IP_POOL_DELETE_FAILED: "Ip 池已经关联可用区，无法删除"
+
+
 
 
 

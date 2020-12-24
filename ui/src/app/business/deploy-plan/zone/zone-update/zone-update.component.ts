@@ -6,7 +6,6 @@ import {RegionService} from '../../region/region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
-import * as ipaddr from 'ipaddr.js';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {NgForm} from '@angular/forms';
 import {IpPool} from '../../ip-pool/ip-pool';
@@ -22,8 +21,8 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
 
     opened = false;
     item: ZoneUpdateRequest = new ZoneUpdateRequest();
-    networkError = [];
     ipPools: IpPool[] = [];
+    currentPool: IpPool = new IpPool();
     @Output() updated = new EventEmitter();
     @ViewChild('editForm') editForm: NgForm;
 
@@ -40,51 +39,21 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     open(item) {
-        Object.assign(this.item, item);
-        this.item.cloudVars = JSON.parse(item.vars);
-        this.opened = true;
-        this.listIpPool();
-    }
-
-
-    listIpPool() {
         this.ipPoolService.list().subscribe(res => {
             this.ipPools = res.items;
+            Object.assign(this.item, item);
+            this.item.cloudVars = JSON.parse(item.vars);
+            this.changeIpPool(this.item.ipPoolName);
+            this.opened = true;
         }, error => {
         });
     }
 
-    checkIp() {
-        this.networkError = [];
-        let result = true;
-        const ipStart = this.item.cloudVars['ipStart'];
-        const ipEnd = this.item.cloudVars['ipEnd'];
-        if (!ipaddr.isValid(ipStart)) {
-            result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_START_INVALID'));
-        }
-        if (!ipaddr.isValid(ipEnd)) {
-            result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_END_INVALID'));
-        }
-        if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
-            const start = ipaddr.parse(ipStart).toByteArray();
-            const end = ipaddr.parse(ipEnd).toByteArray();
-            for (let i = 0; i < 4; i++) {
-                if (start[i] > end[i]) {
-                    result = false;
-                    this.networkError.push(this.translateService.instant('APP_IP_START_MUST'));
-                    break;
-                }
-            }
-        }
-        return result;
-    }
 
     onCancel() {
         this.opened = false;
-        this.networkError = [];
-        this.editForm.resetForm(this.networkError);
+        this.currentPool = new IpPool();
+        this.editForm.resetForm(this.currentPool);
     }
 
     onConfirm() {
@@ -96,5 +65,22 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
             this.onCancel();
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
+    }
+
+    changeIpPool(ipPoolName) {
+        if (ipPoolName === '') {
+            return;
+        }
+        this.item.ipPoolName = ipPoolName;
+        for (const p of this.ipPools) {
+            if (ipPoolName === p.name) {
+                this.currentPool = p;
+                break;
+            }
+        }
+        if (this.currentPool.name === '') {
+            this.currentPool = new IpPool();
+            return;
+        }
     }
 }

@@ -343,7 +343,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		cluster.Plan = planDTO.Plan
 		hosts, err := c.createHostModels(cluster, item.Increase)
 		if err != nil {
-			return fmt.Errorf("can not create host models")
+			return fmt.Errorf("can not create host models err %s", err.Error())
 		}
 		ns, err := c.createNodeModels(cluster, currentNodes, hosts)
 		if err != nil {
@@ -507,6 +507,7 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 	for k, v := range group {
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = cluster.Plan.Region.Provider
+		providerVars["datacenter"] = cluster.Plan.Region.Datacenter
 		_ = json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
@@ -525,6 +526,13 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		if err := tx.Create(newHosts[i]).Error; err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("can not save host %s reasone %s", newHosts[i].Name, err.Error())
+		}
+		var ip model.Ip
+		tx.Where(model.Ip{Address: newHosts[i].Ip}).First(&ip)
+		if ip.ID != "" {
+			ip.Status = constant.IpUsed
+			ip.ClusterID = cluster.ID
+			tx.Save(&ip)
 		}
 		hostProjectResource := model.ProjectResource{
 			ResourceType: constant.ResourceHost,

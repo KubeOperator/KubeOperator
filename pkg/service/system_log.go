@@ -49,14 +49,14 @@ func (u systemLogService) Page(num, size int, queryOption, queryInfo string) (pa
 	if len(queryInfo) != 0 {
 		switch queryOption {
 		case "name":
-			err = db.DB.Model(model.SystemLog{}).Where("name LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+			err = db.DB.Model(model.SystemLog{}).Where("name LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 		case "operation":
-			err = db.DB.Model(model.SystemLog{}).Where("operation LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+			err = db.DB.Model(model.SystemLog{}).Where("operation LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 		case "operationInfo":
-			err = db.DB.Model(model.SystemLog{}).Where("operation_info LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+			err = db.DB.Model(model.SystemLog{}).Where("operation_info LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 		}
 	} else {
-		err = db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+		err = db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 	}
 
 	if err != nil {

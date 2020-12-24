@@ -89,10 +89,19 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 			return page, err
 		}
 		zoneDTO.CloudVars = m
-
 		zoneDTO.RegionName = mo.Region.Name
 		zoneDTO.Provider = mo.Region.Provider
-
+		ipUsed := 0
+		for _, ip := range mo.IpPool.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
+		zoneDTO.IpPool = dto.IpPool{
+			IpUsed: ipUsed,
+			IpPool: mo.IpPool,
+		}
+		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
 	page.Total = total
@@ -218,6 +227,7 @@ func (z zoneService) Update(creation dto.ZoneUpdate) (*dto.Zone, error) {
 		Vars:      string(vars),
 		RegionID:  creation.RegionID,
 		ID:        creation.ID,
+		IpPoolID:  ipPool.ID,
 	}
 
 	err = z.zoneRepo.Save(&zone)
