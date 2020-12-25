@@ -1,0 +1,1 @@
+INSERT INTO `ko`.`ko_system_setting`(`id`,`key`,`value`,`created_at`, `updated_at`) VALUES ('9b912318-4d35-4c2b-997d-676d622450e0','REGISTRY_PROTOCOL','http',date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR));
