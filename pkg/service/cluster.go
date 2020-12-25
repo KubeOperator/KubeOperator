@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -315,6 +316,16 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
+		}
+	}
+	if spec.Architectures == "amd64" {
+		for _, istio := range cluster.PrepareIstios() {
+			istio.ClusterID = cluster.ID
+			err := tx.Create(&istio).Error
+			if err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("can not prepare cluster istio %s reason %s", istio.Name, err.Error())
+			}
 		}
 	}
 	tx.Commit()

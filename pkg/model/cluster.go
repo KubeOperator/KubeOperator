@@ -28,6 +28,7 @@ type Cluster struct {
 	Status                   ClusterStatus            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
 	Tools                    []ClusterTool            `gorm:"save_associations:false" json:"-"`
+	Istios                   []ClusterIstio           `gorm:"save_associations:false" json:"-"`
 	MultiClusterRepositories []MultiClusterRepository `gorm:"many2many:cluster_multi_cluster_repository"`
 }
 
@@ -45,6 +46,7 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Spec").
 		Preload("Nodes").
 		Preload("Tools").
+		Preload("Istios").
 		Preload("MultiClusterRepositories").
 		First(&cluster).Error; err != nil {
 		return err
@@ -119,6 +121,16 @@ func (c Cluster) BeforeDelete() error {
 		for _, tool := range cluster.Tools {
 			if tool.ID != "" {
 				if err := tx.Delete(&tool).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+	}
+	if len(cluster.Istios) > 0 {
+		for _, istio := range cluster.Istios {
+			if istio.ID != "" {
+				if err := tx.Delete(&istio).Error; err != nil {
 					tx.Rollback()
 					return err
 				}
