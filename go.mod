@@ -31,7 +31,7 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gofrs/flock v0.7.1
+	github.com/gofrs/flock v0.8.0
 	github.com/golang-migrate/migrate/v4 v4.12.1
 	github.com/gophercloud/gophercloud v0.12.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -74,21 +74,21 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	helm.sh/helm/v3 v3.2.3
-	k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver v0.18.6
-	k8s.io/apimachinery v0.18.8
-	k8s.io/cli-runtime v0.18.6
-	k8s.io/client-go v0.18.6
+	helm.sh/helm/v3 v3.4.2
+	k8s.io/api v0.19.4
+	k8s.io/apiextensions-apiserver v0.19.4
+	k8s.io/apimachinery v0.19.4
+	k8s.io/cli-runtime v0.19.4
+	k8s.io/client-go v0.19.4
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
 replace (
-	k8s.io/api => k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.6
-	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
-	k8s.io/client-go => k8s.io/client-go v0.18.6
+	k8s.io/api => k8s.io/api v0.19.4
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.19.4
+	k8s.io/apimachinery => k8s.io/apimachinery v0.19.4
+	k8s.io/client-go => k8s.io/client-go v0.19.4
 )
 
 replace github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.8
@@ -96,4 +96,3 @@ replace github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.8
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
 
 replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.12
-
