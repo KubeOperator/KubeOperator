@@ -61,11 +61,12 @@ export class ClusterConditionComponent implements OnInit {
     }
 
     onRetry() {
-        this.opened = false;
         switch (this.cluster.preStatus) {
             case 'Upgrading':
                 this.service.upgrade(this.cluster.name, this.cluster.spec.upgradeVersion).subscribe(data => {
                     this.retry.emit();
+                    this.polling();
+                    this.opened = false;
                 });
                 break;
             case 'Terminating':
@@ -73,14 +74,17 @@ export class ClusterConditionComponent implements OnInit {
                 delItems.push(this.cluster)
                 this.service.batch('delete', delItems).subscribe(data => {
                     this.retry.emit();
+                    this.polling();
+                    this.opened = false;
                 });
                 break;
             default:
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
+                    this.polling();
+                    this.opened = false;
                 });
         }
-        this.polling();
     }
 
     onOpenLogger() {
