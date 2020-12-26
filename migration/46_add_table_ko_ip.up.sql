@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS  `ko_ip_pool` (
 
 CREATE TABLE IF NOT EXISTS `ko_ip` (
   `id` varchar(64) NOT NULL,
-  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `address` varchar(255)  DEFAULT NULL,
   `mask` varchar(255) DEFAULT NULL,
   `gateway` varchar(255) DEFAULT NULL,
   `dns1` varchar(255) DEFAULT NULL,
