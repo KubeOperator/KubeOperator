@@ -22,6 +22,7 @@ const (
 	ClusterInstall      = "CLUSTER_INSTALL"
 	ClusterUnInstall    = "CLUSTER_UN_INSTALL"
 	ClusterUpgrade      = "CLUSTER_UPGRADE"
+	ClusterDelete       = "CLUSTER_DELETE"
 	ClusterScale        = "CLUSTER_SCALE"
 	ClusterAddWorker    = "CLUSTER_ADD_WORKER"
 	ClusterRemoveWorker = "CLUSTER_REMOVE_WORKER"

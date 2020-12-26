@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -351,32 +352,45 @@ func (c *clusterService) Delete(name string) error {
 		switch cluster.Status {
 		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed:
 			cluster.Cluster.Status.Phase = constant.StatusTerminating
-			if err := db.DB.Save(&cluster.Cluster.Status).Error; err != nil {
+			cluster.Cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
+			condition := model.ClusterStatusCondition{
+				Name:          "DeleteCluster",
+				Status:        constant.ConditionUnknown,
+				OrderNum:      0,
+				LastProbeTime: time.Now(),
+			}
+			cluster.Cluster.Status.ClusterStatusConditions = append(cluster.Cluster.Status.ClusterStatusConditions, condition)
+			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
+
 			switch cluster.Spec.Provider {
 			case constant.ClusterProviderBareMetal:
-				go func() {
-					log.Infof("start uninstall cluster %s", cluster.Name)
-					if err := c.uninstallCluster(&cluster.Cluster); err != nil {
-						log.Errorf("uninstall cluster %s error %s", cluster.Name, err.Error())
-					}
-					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-						log.Errorf("delete cluster error %s", err.Error())
-					}
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-				}()
+				log.Infof("start uninstall cluster %s", cluster.Name)
+				if err := c.uninstallCluster(&cluster.Cluster); err != nil {
+					c.errClusterDelete(&cluster.Cluster, "uninstall cluster err: "+err.Error())
+					log.Errorf("uninstall cluster %s error %s", cluster.Name, err.Error())
+					return err
+				}
+				if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+					c.errClusterDelete(&cluster.Cluster, "delete cluster err: "+err.Error())
+					log.Errorf("delete cluster error %s", err.Error())
+					return err
+				}
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 			case constant.ClusterProviderPlan:
-				go func() {
-					log.Infof("start destroy cluster %s", cluster.Name)
-					if err := c.destroyCluster(&cluster.Cluster); err != nil {
-						log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
-					}
-					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-						log.Errorf("delete cluster error %s", err.Error())
-					}
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-				}()
+				log.Infof("start destroy cluster %s", cluster.Name)
+				if err := c.destroyCluster(&cluster.Cluster); err != nil {
+					c.errClusterDelete(&cluster.Cluster, "destroy cluster err: "+err.Error())
+					log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+					return err
+				}
+				if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+					c.errClusterDelete(&cluster.Cluster, "delete cluster err: "+err.Error())
+					log.Errorf("delete luster error %s", err.Error())
+					return err
+				}
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -390,6 +404,17 @@ func (c *clusterService) Delete(name string) error {
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
+}
+
+func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string) {
+	cluster.Status.Phase = constant.ClusterFailed
+	cluster.Status.Message = errStr
+	if len(cluster.Status.ClusterStatusConditions) == 1 {
+		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionFalse
+		cluster.Status.ClusterStatusConditions[0].Message = errStr
+	}
+	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, errStr), cluster.Name, constant.ClusterUpgrade)
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
