@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -8,11 +10,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
-	"sync"
 )
 
 type ClusterTerminalService interface {
-	Terminal(cluster model.Cluster)
+	Terminal(cluster model.Cluster) error
 }
 
 func NewCLusterTerminalService() ClusterTerminalService {
@@ -31,50 +32,60 @@ type clusterTerminalService struct {
 	messageService    MessageService
 }
 
-func (c clusterTerminalService) Terminal(cluster model.Cluster) {
-	if cluster.Status.Phase == constant.ClusterTerminating {
-		return
-	}
+func (c clusterTerminalService) Terminal(cluster model.Cluster) error {
+	// if cluster.Status.Phase == constant.ClusterTerminating {
+	// 	return
+	// }
 	cluster.Status.Phase = constant.ClusterTerminating
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
-
-	var waitGroup sync.WaitGroup
-	switch cluster.Spec.Provider {
-	case constant.ClusterProviderBareMetal:
-		waitGroup.Add(1)
-		go doBareMetalTerminal(&waitGroup, &cluster)
-	case constant.ClusterProviderPlan:
-		waitGroup.Add(1)
-		go doPlanTerminal(&waitGroup, &cluster)
-	default:
-		return
+	cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
+	condition := model.ClusterStatusCondition{
+		Name:          "DeleteCluster",
+		Status:        constant.ConditionUnknown,
+		OrderNum:      0,
+		LastProbeTime: time.Now(),
 	}
-	waitGroup.Wait()
+	cluster.Status.ClusterStatusConditions = append(cluster.Status.ClusterStatusConditions, condition)
+	if err := c.clusterStatusRepo.Save(&cluster.Status); err != nil {
+		return err
+	}
+
+	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+		if err := doBareMetalTerminal(&cluster); err != nil {
+			c.errClusterDelete(&cluster, "uninstall cluster err: "+err.Error())
+			return err
+		}
+	} else {
+		if err := doPlanTerminal(&cluster); err != nil {
+			c.errClusterDelete(&cluster, "uninstall cluster err: "+err.Error())
+			return err
+		}
+	}
+
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	err := c.clusterRepo.Delete(cluster.Name)
 	if err != nil {
 		log.Error(err)
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
-	} else {
-		log.Error(err)
+		c.errClusterDelete(&cluster, "uninstall cluster err: "+err.Error())
+		return err
 	}
+	return nil
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
 
-func doPlanTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
-	defer wg.Done()
+func doPlanTerminal(cluster *model.Cluster) error {
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
 	_, err := k.Destroy()
 	if err != nil {
 		log.Error(err)
 		messageService := NewMessageService()
 		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
+		return err
 	}
+	return nil
 }
 
-func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
-	defer wg.Done()
+func doBareMetalTerminal(cluster *model.Cluster) error {
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
@@ -86,10 +97,22 @@ func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil)
-	if err != nil {
+	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil); err != nil {
 		log.Error(err)
 		messageService := NewMessageService()
 		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
+		return err
 	}
+	return nil
+}
+
+func (c *clusterTerminalService) errClusterDelete(cluster *model.Cluster, errStr string) {
+	cluster.Status.Phase = constant.ClusterFailed
+	cluster.Status.Message = errStr
+	if len(cluster.Status.ClusterStatusConditions) == 1 {
+		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionFalse
+		cluster.Status.ClusterStatusConditions[0].Message = errStr
+	}
+	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, errStr), cluster.Name, constant.ClusterUpgrade)
 }

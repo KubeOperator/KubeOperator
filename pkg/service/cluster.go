@@ -345,7 +345,9 @@ func (c clusterService) Delete(name string) error {
 	case constant.ClusterSourceLocal:
 		switch cluster.Status {
 		case constant.ClusterRunning:
-			go c.clusterTerminalService.Terminal(cluster.Cluster)
+			if err := c.clusterTerminalService.Terminal(cluster.Cluster); err != nil {
+				return err
+			}
 		case constant.ClusterCreating, constant.ClusterInitializing:
 			return errors.New("CLUSTER_DELETE_FAILED")
 		case constant.ClusterFailed:
@@ -353,7 +355,9 @@ func (c clusterService) Delete(name string) error {
 				var hosts []model.Host
 				db.DB.Where(model.Host{ClusterID: cluster.ID}).Find(&hosts)
 				if len(hosts) > 0 {
-					go c.clusterTerminalService.Terminal(cluster.Cluster)
+					if err := c.clusterTerminalService.Terminal(cluster.Cluster); err != nil {
+						return err
+					}
 				} else {
 					_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 					err = c.clusterRepo.Delete(name)
@@ -362,7 +366,9 @@ func (c clusterService) Delete(name string) error {
 					}
 				}
 			} else {
-				go c.clusterTerminalService.Terminal(cluster.Cluster)
+				if err := c.clusterTerminalService.Terminal(cluster.Cluster); err != nil {
+					return err
+				}
 			}
 		}
 	case constant.ClusterSourceExternal:
