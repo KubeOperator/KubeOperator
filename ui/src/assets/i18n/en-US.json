@@ -406,6 +406,7 @@
   "APP_CLUSTER_IMPORT_ROUTER_HELPER": "IP address of any node with kube-proxy and accessible",
   "APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE": "The cluster is not running and cannot be upgraded!",
   "APP_UPGRADE_START_SUCCESS": "Upgrade has started! Please check the cluster history later",
+  "APP_DELETE_START": "Deletion has started! please wait a moment...",
   "CLUSTER_UPGRADE": "Cluster Upgrade",
   "APP_USER_TYPE": "source",
   "APP_USER_LOCAL": "Local",
