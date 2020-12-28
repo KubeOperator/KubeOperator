@@ -83,6 +83,13 @@ export class Image {
     name: string;
 }
 
+export class CloudDatastore {
+    name: string;
+    capacity: number;
+    freeSpace: number;
+}
+
+
 
 
 

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
-import {CloudTemplate, CloudZone, CloudZoneRequest, Subnet, Zone, ZoneCreateRequest} from '../zone';
+import {CloudDatastore, CloudTemplate, CloudZone, CloudZoneRequest, Subnet, Zone, ZoneCreateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
 import {Region} from '../../region/region';
@@ -42,6 +42,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     portgroups: string[] = [];
     isSubmitGoing = false;
     ipPools: IpPool[] = [];
+    cloudDatastores: CloudDatastore[] = [];
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -66,6 +67,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.listCredentials();
         this.listIpPool();
         this.item.cloudVars['templateType'] = 'default';
+        this.item.cloudVars['datastoreType'] = 'value';
     }
 
     onCancel() {
@@ -119,6 +121,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
                 this.cloudZone = cloudZone;
             }
         });
+        this.listDatastores();
     }
 
 
@@ -156,6 +159,16 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.templateLoading = true;
         this.zoneService.listTemplates(this.cloudZoneRequest).subscribe(res => {
             this.cloudTemplates = res.result;
+            this.templateLoading = false;
+        }, error => {
+            this.templateLoading = false;
+        });
+    }
+
+    listDatastores() {
+        this.templateLoading = true;
+        this.zoneService.listDatastores(this.cloudZoneRequest).subscribe(res => {
+            this.cloudDatastores = res;
             this.templateLoading = false;
         }, error => {
             this.templateLoading = false;

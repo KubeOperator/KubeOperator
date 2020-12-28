@@ -41,3 +41,9 @@ type ZoneUpdate struct {
 	RegionID   string      `json:"regionID" validate:"required"`
 	IpPoolName string      `json:"ipPoolName" validate:"required"`
 }
+
+type CloudDatastore struct {
+	Name      string `json:"name"`
+	Capacity  int    `json:"capacity"`
+	FreeSpace int    `json:"freeSpace"`
+}

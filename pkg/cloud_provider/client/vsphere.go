@@ -33,7 +33,7 @@ func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
 }
 
 func (v *vSphereClient) ListDatacenter() ([]string, error) {
-	 err := v.GetConnect()
+	err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 }
 
 func (v *vSphereClient) ListClusters() ([]interface{}, error) {
-	 err := v.GetConnect()
+	err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
@@ -258,7 +258,6 @@ func (v *vSphereClient) UploadImage() error {
 		return err
 	}
 	client := v.Client.Client
-
 	ctx := context.TODO()
 
 	file, _, err := OpenRemoteFile(v.Vars["ovfPath"].(string))
@@ -437,4 +436,50 @@ func (v *vSphereClient) CreateDefaultFolder() error {
 	}
 
 	return nil
+}
+
+func (v *vSphereClient) ListDatastores() ([]DatastoreResult, error) {
+
+	var result []DatastoreResult
+	if err := v.GetConnect(); err != nil {
+		return result, err
+	}
+	client := v.Client.Client
+	ctx := context.TODO()
+	m := view.NewManager(client)
+
+	vi, err := m.CreateContainerView(ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
+	if err != nil {
+		return result, err
+	}
+	defer func() {
+		if err := vi.Destroy(ctx); err != nil {
+			fmt.Printf("func (v *vSphereClient) GetIpInUsed vi.Destroy(ctx) err: %v\n", err)
+		}
+	}()
+	var clusters []mo.ClusterComputeResource
+	err = vi.Retrieve(ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
+	if err != nil {
+		return result, err
+	}
+	var dss []mo.Datastore
+	for _, d := range clusters {
+		if d.Name == v.Vars["cluster"].(string) {
+			pc := property.DefaultCollector(v.Client.Client)
+			err := pc.Retrieve(ctx, d.ComputeResource.Datastore, []string{"summary", "name"}, &dss)
+			if err != nil {
+				return result, err
+			}
+		}
+	}
+
+	for i := range dss {
+		result = append(result, DatastoreResult{
+			Name:      dss[i].Summary.Name,
+			Capacity:  int(dss[i].Summary.Capacity / (1024 * 1024 * 1024)),
+			FreeSpace: int(dss[i].Summary.FreeSpace / (1024 * 1024 * 1024)),
+		})
+	}
+
+	return result, nil
 }

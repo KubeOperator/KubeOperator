@@ -409,3 +409,8 @@ func (v *openStackClient) DefaultImageExist() (bool, error) {
 func (v *openStackClient) CreateDefaultFolder() error {
 	return nil
 }
+
+func (v *openStackClient) ListDatastores() ([]DatastoreResult, error) {
+	var results []DatastoreResult
+	return results, nil
+}

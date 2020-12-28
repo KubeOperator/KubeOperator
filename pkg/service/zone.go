@@ -34,6 +34,7 @@ type ZoneService interface {
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListByRegionName(regionName string) ([]dto.Zone, error)
+	ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudDatastore, error)
 }
 
 type zoneService struct {
@@ -436,4 +437,23 @@ func (z zoneService) ListByRegionName(regionName string) ([]dto.Zone, error) {
 		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
 	}
 	return zoneDTOs, err
+}
+
+func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudDatastore, error) {
+	var result []dto.CloudDatastore
+	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	datastores, err := cloudClient.ListDatastores()
+
+	for i := range datastores {
+		result = append(result, dto.CloudDatastore{
+			Name:      datastores[i].Name,
+			Capacity:  datastores[i].Capacity,
+			FreeSpace: datastores[i].FreeSpace,
+		})
+	}
+
+	if err != nil {
+		return result, err
+	}
+	return result, err
 }

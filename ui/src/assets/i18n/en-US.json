@@ -607,6 +607,10 @@
   "IP_PROMPT": "Occupied: Manually occupied; In use: There are machines using this IP in the host; Reachable: The host can be pinged;",
   "IP_SYNC": "Start syncing, please wait",
   "IP_STATUS": "IP usage",
-  "IP_SYNC": "Start syncing, please wait",
-  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace："
+  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace：",
+  "APP_DATASTORE_TYPE": "placement method",
+  "APP_DATASTORE_TYPE_USAGE": "By usage",
+  "APP_DATASTORE_TYPE_VALUE": "By remaining amount",
+  "APP_DATASTIORE_USAGE_HELPER": "Prefer datastore with low usage rate",
+  "APP_DATASTIORE_VALUE_HELPER": "Prefer datastore with more remaining volume"
 }

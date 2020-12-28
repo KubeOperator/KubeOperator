@@ -514,6 +514,10 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		if err != nil {
 			return nil, err
 		}
+		err = allocateDatastore(cloudClient, *k, v)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var clusterResource model.ProjectResource
