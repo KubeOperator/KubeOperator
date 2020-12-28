@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `ko_cis_task` (
 CREATE TABLE IF NOT EXISTS `ko_cis_task_result` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `id` varchar(255)  NULL,
+  `id` varchar(255)  NOT NULL,
   `cis_task_id` varchar(255)  DEFAULT NULL,
   `number` varchar(255)  DEFAULT NULL,
   `desc` varchar(255)  DEFAULT NULL,
