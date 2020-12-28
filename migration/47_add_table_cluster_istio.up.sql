@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `ko_cluster_istio` (
   `message` mediumtext,
   `vars` mediumtext,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 
 INSERT INTO `ko_cluster_istio`(`created_at`, `updated_at`, `id`, `name`, `cluster_id`, `version`, `describe`, `status`, `message`, `vars`
 ) SELECT date_add(now(), interval 8 HOUR) AS `created_at`,

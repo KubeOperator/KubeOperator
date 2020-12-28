@@ -3,6 +3,7 @@ import {ClusterService} from '../cluster.service';
 import {Cluster} from '../cluster';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-cluster-delete',
@@ -16,7 +17,7 @@ export class ClusterDeleteComponent implements OnInit {
     items: Cluster[] = [];
     @Output() deleted = new EventEmitter();
 
-    constructor(private service: ClusterService, private commonAlert: CommonAlertService) {
+    constructor(private service: ClusterService, private translateService: TranslateService, private commonAlert: CommonAlertService) {
     }
 
 
@@ -39,12 +40,13 @@ export class ClusterDeleteComponent implements OnInit {
         this.isSubmitGoing = true;
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
-            this.opened = false;
             this.isSubmitGoing = false;
+            this.opened = false;
+            this.commonAlert.showAlert(this.translateService.instant('APP_DELETE_START'), AlertLevels.SUCCESS);
         }, error => {
             this.deleted.emit();
-            this.opened = false;
             this.isSubmitGoing = false;
+            this.opened = false;
             this.commonAlert.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -19,7 +21,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sync"
 )
 
 type ClusterNodeService interface {
@@ -275,10 +276,10 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 			if err := db.DB.Model(model.Host{}).Where(model.Host{ID: notDirtyNodes[i].HostID}).Updates(map[string]interface{}{
 				"ClusterID": "",
 			}).Error; err != nil {
-				log.Error("can not update host clusterID %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
+				log.Errorf("can not update host clusterID %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
 			}
 			if err := db.DB.Delete(&notDirtyNodes[i]).Error; err != nil {
-				log.Error("can not delete node %s reason %s", notDirtyNodes[i].Name, err.Error())
+				log.Errorf("can not delete node %s reason %s", notDirtyNodes[i].Name, err.Error())
 			}
 
 			if cluster.Spec.Provider == constant.ClusterProviderPlan {
@@ -287,11 +288,11 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 					log.Errorf("can not find project resource reason %s", err.Error())
 				}
 				if err := db.DB.Delete(&projectResource).Error; err != nil {
-					log.Error("can not delete project resource reason %s", err.Error())
+					log.Errorf("can not delete project resource reason %s", err.Error())
 				}
 				notDirtyNodes[i].Host.ClusterID = ""
 				if err := db.DB.Delete(&notDirtyNodes[i].Host).Error; err != nil {
-					log.Error("can not delete host %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
+					log.Errorf("can not delete host %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
 				}
 			}
 		}
@@ -401,7 +402,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 				go func(ho *model.Host) {
 					_, err := c.hostService.Sync(ho.Name)
 					if err != nil {
-						log.Error("sync host %s status error %s", ho.Name, err.Error())
+						log.Errorf("sync host %s status error %s", ho.Name, err.Error())
 					}
 					defer wg.Done()
 				}(h)

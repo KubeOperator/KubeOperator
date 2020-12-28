@@ -1,11 +1,11 @@
-<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected" >
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected" (clrDgSelectedChange)="selectionChanged()">
     <clr-dg-action-bar>
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="isDeleteButtonDisable">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
@@ -47,10 +47,10 @@
         </clr-dg-cell>
         <clr-dg-cell>
 
-            <span *ngIf="item.status === 'Initializing' || item.status === 'Upgrading'||item.status === 'Failed'">
+            <span *ngIf="item.status === 'Initializing' || item.status === 'Upgrading'||item.status === 'Failed' || (item.status === 'Terminating' && item.provider === 'bareMetal')">
                <a (click)="onStatusDetail(item)" href="javascript:void(0)">{{item.status}}</a>
             </span>
-            <span *ngIf="item.status!=='Initializing' && item.status!=='Failed'&& item.status !== 'Upgrading'">
+            <span *ngIf="(item.status!=='Initializing' && item.status!=='Failed'&& item.status !== 'Upgrading' && item.status !== 'Terminating') || (item.status === 'Terminating' && item.provider === 'plan') ">
                {{item.status}}
             </span>
             <clr-spinner clrAssertive clrInline

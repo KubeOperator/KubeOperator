@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS  `ko_message` (
   `type` varchar(255) DEFAULT NULL,
   `level` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 
 CREATE TABLE IF NOT EXISTS  `ko_user_message` (
   `id` varchar(64) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS  `ko_user_message` (
   `send_status` varchar(64) DEFAULT NULL,
   `read_status` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 
 CREATE TABLE IF NOT EXISTS `ko_user_notification_config` (
   `id` varchar(64) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `ko_user_notification_config` (
   `created_at` datetime DEFAULT NULL,
     `user_id` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 
 CREATE TABLE IF NOT EXISTS `ko_user_receiver` (
   `id` varchar(64) NOT NULL,
@@ -40,5 +40,5 @@ CREATE TABLE IF NOT EXISTS `ko_user_receiver` (
   `updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 

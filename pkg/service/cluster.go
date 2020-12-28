@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -10,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
@@ -351,32 +353,25 @@ func (c *clusterService) Delete(name string) error {
 		switch cluster.Status {
 		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed:
 			cluster.Cluster.Status.Phase = constant.StatusTerminating
-			if err := db.DB.Save(&cluster.Cluster.Status).Error; err != nil {
+			cluster.Cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
+			condition := model.ClusterStatusCondition{
+				Name:          "DeleteCluster",
+				Status:        constant.ConditionUnknown,
+				OrderNum:      0,
+				LastProbeTime: time.Now(),
+			}
+			cluster.Cluster.Status.ClusterStatusConditions = append(cluster.Cluster.Status.ClusterStatusConditions, condition)
+			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
+
 			switch cluster.Spec.Provider {
 			case constant.ClusterProviderBareMetal:
-				go func() {
-					log.Infof("start uninstall cluster %s", cluster.Name)
-					if err := c.uninstallCluster(&cluster.Cluster); err != nil {
-						log.Errorf("uninstall cluster %s error %s", cluster.Name, err.Error())
-					}
-					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-						log.Errorf("delete cluster error %s", err.Error())
-					}
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-				}()
+				log.Infof("start uninstall cluster %s", cluster.Name)
+				go c.uninstallCluster(&cluster.Cluster)
 			case constant.ClusterProviderPlan:
-				go func() {
-					log.Infof("start destroy cluster %s", cluster.Name)
-					if err := c.destroyCluster(&cluster.Cluster); err != nil {
-						log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
-					}
-					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-						log.Errorf("delete cluster error %s", err.Error())
-					}
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-				}()
+				log.Infof("start destroy cluster %s", cluster.Name)
+				go c.destroyCluster(&cluster.Cluster)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -392,9 +387,27 @@ func (c *clusterService) Delete(name string) error {
 	return nil
 }
 
+func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string) {
+	cluster.Status.Phase = constant.ClusterFailed
+	cluster.Status.Message = errStr
+	if len(cluster.Status.ClusterStatusConditions) == 1 {
+		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionFalse
+		cluster.Status.ClusterStatusConditions[0].Message = errStr
+	}
+	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, errStr), cluster.Name, constant.ClusterUpgrade)
+}
+
 const terminalPlaybookName = "99-reset-cluster.yml"
 
-func (c *clusterService) uninstallCluster(cluster *model.Cluster) error {
+func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	cluster.LogId = logId
+	_ = db.DB.Save(cluster)
+
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
@@ -406,20 +419,43 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) error {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil)
-	if err != nil {
-		return err
+	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, writer); err != nil {
+		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		return
 	}
-	return nil
+
+	if err := db.DB.Delete(&cluster).Error; err != nil {
+		log.Errorf("delete luster error %s", err.Error())
+		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
+		return
+	}
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	return
 }
 
-func (c *clusterService) destroyCluster(cluster *model.Cluster) error {
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	_, err := k.Destroy()
+func (c *clusterService) destroyCluster(cluster *model.Cluster) {
+	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
-		return err
+		log.Error(err)
 	}
-	return nil
+	cluster.LogId = logId
+	_ = db.DB.Save(cluster)
+
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	if _, err := k.Destroy(); err != nil {
+		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		return
+	}
+
+	if err := db.DB.Delete(&cluster).Error; err != nil {
+		log.Errorf("delete luster error %s", err.Error())
+		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
+		return
+	}
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	return
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {

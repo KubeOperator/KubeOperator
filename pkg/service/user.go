@@ -219,11 +219,11 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 			return nil, err
 		}
 	} else {
-		password, err = encrypt.StringEncrypt(password)
+		uPassword, err := encrypt.StringDecrypt(dbUser.Password)
 		if err != nil {
 			return nil, err
 		}
-		if dbUser.Password != password {
+		if uPassword != password {
 			return nil, NameOrPasswordErr
 		}
 	}

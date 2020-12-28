@@ -103,6 +103,7 @@ func (c Client) Install(name string, chartName string, values map[string]interfa
 	client := action.NewInstall(c.installActionConfig)
 	client.ReleaseName = name
 	client.Namespace = c.Namespace
+	client.ChartPathOptions.InsecureSkipTLSverify = true
 	p, err := client.ChartPathOptions.LocateChart(chartName, c.settings)
 	if err != nil {
 		return nil, err
