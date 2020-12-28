@@ -29,10 +29,12 @@ export class ZoneUpdateRequest extends BaseRequest {
     regionID: string;
     cloudVars: {} = {};
     ipPoolName: string;
+    provider: string;
 }
 
 export class CloudZoneRequest extends BaseRequest {
     cloudVars: {} = {};
+    regionName: string;
     datacenter: string;
 }
 

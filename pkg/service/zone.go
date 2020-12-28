@@ -441,7 +441,24 @@ func (z zoneService) ListByRegionName(regionName string) ([]dto.Zone, error) {
 
 func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudDatastore, error) {
 	var result []dto.CloudDatastore
-	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	var clientVars map[string]interface{}
+	if creation.RegionName != "" {
+		region, err := z.regionRepo.Get(creation.RegionName)
+		if err != nil {
+			return result, err
+		}
+		creation.Datacenter = region.Datacenter
+		m := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(region.Vars), &m); err != nil {
+			return result, err
+		}
+		vars := creation.CloudVars.(map[string]interface{})
+		m["cluster"] = vars["cluster"].(string)
+		clientVars = m
+	} else {
+		clientVars = creation.CloudVars.(map[string]interface{})
+	}
+	cloudClient := cloud_provider.NewCloudClient(clientVars)
 	datastores, err := cloudClient.ListDatastores()
 
 	for i := range datastores {

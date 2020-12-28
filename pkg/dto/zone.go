@@ -31,7 +31,8 @@ type CloudZoneResponse struct {
 
 type CloudZoneRequest struct {
 	CloudVars  interface{} `json:"cloudVars" validate:"required"`
-	Datacenter string      `json:"datacenter" validate:"required"`
+	Datacenter string      `json:"datacenter"`
+	RegionName string      `json:"RegionName"`
 }
 
 type ZoneUpdate struct {

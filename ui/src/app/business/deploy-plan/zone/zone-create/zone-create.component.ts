@@ -121,6 +121,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
                 this.cloudZone = cloudZone;
             }
         });
+        this.cloudZoneRequest.cloudVars['cluster'] = this.item.cloudVars['cluster'];
         this.listDatastores();
     }
 
