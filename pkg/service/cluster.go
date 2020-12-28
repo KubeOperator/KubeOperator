@@ -368,30 +368,10 @@ func (c *clusterService) Delete(name string) error {
 			switch cluster.Spec.Provider {
 			case constant.ClusterProviderBareMetal:
 				log.Infof("start uninstall cluster %s", cluster.Name)
-				if err := c.uninstallCluster(&cluster.Cluster); err != nil {
-					c.errClusterDelete(&cluster.Cluster, "uninstall cluster err: "+err.Error())
-					log.Errorf("uninstall cluster %s error %s", cluster.Name, err.Error())
-					return err
-				}
-				if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-					c.errClusterDelete(&cluster.Cluster, "delete cluster err: "+err.Error())
-					log.Errorf("delete cluster error %s", err.Error())
-					return err
-				}
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+				go c.uninstallCluster(&cluster.Cluster)
 			case constant.ClusterProviderPlan:
 				log.Infof("start destroy cluster %s", cluster.Name)
-				if err := c.destroyCluster(&cluster.Cluster); err != nil {
-					c.errClusterDelete(&cluster.Cluster, "destroy cluster err: "+err.Error())
-					log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
-					return err
-				}
-				if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-					c.errClusterDelete(&cluster.Cluster, "delete cluster err: "+err.Error())
-					log.Errorf("delete luster error %s", err.Error())
-					return err
-				}
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+				go c.destroyCluster(&cluster.Cluster)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -420,7 +400,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string)
 
 const terminalPlaybookName = "99-reset-cluster.yml"
 
-func (c *clusterService) uninstallCluster(cluster *model.Cluster) error {
+func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
@@ -440,12 +420,21 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) error {
 		k.SetVar(key, value)
 	}
 	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, writer); err != nil {
-		return err
+		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		return
 	}
-	return nil
+
+	if err := db.DB.Delete(&cluster).Error; err != nil {
+		log.Errorf("delete luster error %s", err.Error())
+		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
+		return
+	}
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	return
 }
 
-func (c *clusterService) destroyCluster(cluster *model.Cluster) error {
+func (c *clusterService) destroyCluster(cluster *model.Cluster) {
 	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
@@ -455,9 +444,18 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster) error {
 
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
 	if _, err := k.Destroy(); err != nil {
-		return err
+		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		return
 	}
-	return nil
+
+	if err := db.DB.Delete(&cluster).Error; err != nil {
+		log.Errorf("delete luster error %s", err.Error())
+		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
+		return
+	}
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	return
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
