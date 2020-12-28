@@ -444,6 +444,7 @@
   "APP_SMTP_STATUS": "Status",
   "APP_SMTP_CHECK": "Check",
   "UpgradeCluster": "Upgrade Cluster",
+  "DeleteCluster": "Delete Cluster",
   "APP_WORK_WEIXIN_TAB": "Work Weixin",
   "APP_WORK_WEIXIN_USER": "Test User",
   "APP_WORK_WEIXIN_USER_HELPER": "Test user for sending test messages",

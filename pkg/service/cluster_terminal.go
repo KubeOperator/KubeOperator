@@ -4,10 +4,12 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 )
@@ -61,31 +63,42 @@ func (c clusterTerminalService) Terminal(cluster model.Cluster) error {
 		}
 	}
 
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	err := c.clusterRepo.Delete(cluster.Name)
 	if err != nil {
 		log.Error(err)
-		c.errClusterDelete(&cluster, "uninstall cluster err: "+err.Error())
+		c.errClusterDelete(&cluster, "delete cluster err: "+err.Error())
 		return err
 	}
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	return nil
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
 
 func doPlanTerminal(cluster *model.Cluster) error {
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	_, err := k.Destroy()
+	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
-		messageService := NewMessageService()
-		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
+	}
+	cluster.LogId = logId
+	_ = db.DB.Save(cluster)
+
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	if _, err := k.Destroy(); err != nil {
+		log.Error(err)
 		return err
 	}
 	return nil
 }
 
 func doBareMetalTerminal(cluster *model.Cluster) error {
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	cluster.LogId = logId
+	_ = db.DB.Save(cluster)
+
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
@@ -97,10 +110,8 @@ func doBareMetalTerminal(cluster *model.Cluster) error {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil); err != nil {
+	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, writer); err != nil {
 		log.Error(err)
-		messageService := NewMessageService()
-		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
 		return err
 	}
 	return nil

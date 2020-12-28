@@ -69,12 +69,11 @@ export class ClusterConditionComponent implements OnInit {
                 });
                 break;
             case 'Terminating':
-                let delItems: Cluster[] = []
-                delItems.push(this.cluster)
+                let delItems: Cluster[] = [];
+                delItems.push(this.cluster);
                 this.service.batch('delete', delItems).subscribe(data => {
                     this.retry.emit();
                     this.polling();
-                    this.opened = false;
                 });
                 break;
             default:
@@ -109,7 +108,7 @@ export class ClusterConditionComponent implements OnInit {
                 }
             }, error => {
                 this.opened = false
-            });
+            });        
         }, 3000);
     }
 

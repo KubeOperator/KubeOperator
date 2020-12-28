@@ -450,6 +450,7 @@
   "APP_SMTP_STATUS": "状态",
   "APP_SMTP_CHECK": "校验",
   "UpgradeCluster": "升级集群",
+  "DeleteCluster": "删除集群",
   "APP_WORK_WEIXIN_TAB": "企业微信",
   "APP_WORK_WEIXIN_USER": "测试用户",
   "APP_WORK_WEIXIN_USER_HELPER": "测试用户 用于发送测试消息",
