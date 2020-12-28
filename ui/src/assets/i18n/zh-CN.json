@@ -417,6 +417,7 @@
   "APP_CLUSTER_IMPORT_ROUTER_HELPER": "装有 kube-proxy 的任意节点的且可以被访问到的 IP 地址",
   "APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE": "集群不在运行状态，无法升级！",
   "APP_UPGRADE_START_SUCCESS": "已经开始升级！请稍后查看集群历史",
+  "APP_DELETE_START": "已经开始删除！请稍候...",
   "CLUSTER_UPGRADE": "集群升级",
   "APP_USER_TYPE": "来源",
   "APP_USER_LOCAL": "本地",
@@ -455,6 +456,7 @@
   "APP_SMTP_STATUS": "状态",
   "APP_SMTP_CHECK": "校验",
   "UpgradeCluster": "升级集群",
+  "DeleteCluster": "删除集群",
   "APP_WORK_WEIXIN_TAB": "企业微信",
   "APP_WORK_WEIXIN_USER": "测试用户",
   "APP_WORK_WEIXIN_USER_HELPER": "测试用户 用于发送测试消息",
@@ -609,8 +611,7 @@
   "IP_USED": "使用中",
   "IP_REACHABLE":"可达",
   "IP_PROMPT": "占用:被手动占用;使用中:主机中有使用此IP的机器;可达:IP可以被Ping通;",
-  "IP_SYNC": "开始同步,请稍后",
+  "IP_SYNC": "开始同步,请稍候",
   "IP_STATUS": "IP 使用情况",
-  "IP_SYNC": "开始同步,请稍后",
   "APP_DELETE_NS_ERR": "删除失败,该命名空间下已存在工具："
 }
