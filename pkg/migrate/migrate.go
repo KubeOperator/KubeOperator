@@ -3,7 +3,11 @@ package migrate
 import (
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
@@ -57,12 +61,23 @@ func (i *InitMigrateDBPhase) Init() error {
 	if err != nil {
 		return err
 	}
+	// 初始化默认用户
+	v, _, _ := m.Version()
 	if err := m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			log.Info("no databases change,skip migrate")
 			return nil
 		}
 		return err
+	}
+	dp, err := encrypt.StringEncrypt(constant.DefaultPassword)
+	if err != nil {
+		return fmt.Errorf("can not init default user")
+	}
+	if !(v > 0) {
+		if err := db.DB.Model(model.User{}).Where(model.User{Name: "admin"}).Updates(map[string]interface{}{"Password": dp}).Error; err != nil {
+			return fmt.Errorf("can not update default user")
+		}
 	}
 	return nil
 }
