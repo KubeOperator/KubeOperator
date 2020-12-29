@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -13,6 +14,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
+	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -110,10 +113,10 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 		role := getHostRole(host.Name)
 		no := 0
 		if role == constant.NodeRoleNameMaster {
-			masterNum += 1
+			masterNum++
 			no = masterNum
 		} else {
-			workerNum += 1
+			workerNum++
 			no = workerNum
 		}
 		node := model.ClusterNode{
@@ -182,9 +185,16 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = plan.Region.Provider
 		providerVars["datacenter"] = plan.Region.Datacenter
+		zoneVars := map[string]interface{}{}
+		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		providerVars["cluster"] = zoneVars["cluster"]
 		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
+		if err != nil {
+			return nil, err
+		}
+		err = allocateDatastore(cloudClient, *k, v)
 		if err != nil {
 			return nil, err
 		}
@@ -256,6 +266,7 @@ func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interf
 		hMap["memory"] = h.Memory
 		hMap["ip"] = h.Ip
 		hMap["zone"] = zoneVars
+		hMap["datastore"] = h.Datastore
 		results = append(results, hMap)
 	}
 	return results
@@ -274,6 +285,7 @@ func parseFusionComputeHosts(hosts []*model.Host, plan model.Plan) []map[string]
 		hMap["memory"] = h.Memory
 		hMap["ip"] = h.Ip
 		hMap["zone"] = zoneVars
+		hMap["datastore"] = h.Datastore
 		results = append(results, hMap)
 	}
 	return results
@@ -383,4 +395,74 @@ func formatZoneName(name string) string {
 		return lang.Pinyin(name)
 	}
 	return name
+}
+
+func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host) error {
+
+	zoneVars := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
+	_, ok := zoneVars["datastore"].(string)
+	if ok {
+		return nil
+	}
+
+	var CDatastores []string
+	if reflect.TypeOf(zoneVars["datastore"]).Kind() == reflect.Slice {
+		s := reflect.ValueOf(zoneVars["datastore"])
+		for i := 0; i < s.Len(); i++ {
+			ele := s.Index(i)
+			CDatastores = append(CDatastores, ele.Interface().(string))
+		}
+	}
+
+	if len(CDatastores) == 1 {
+		for i := range hosts {
+			hosts[i].Datastore = CDatastores[0]
+		}
+		return nil
+	}
+	results, err := p.ListDatastores()
+	if err != nil {
+		return err
+	}
+	var datastores []client.DatastoreResult
+	for i := range results {
+		for j := range CDatastores {
+			if results[i].Name == CDatastores[j] {
+				datastores = append(datastores, results[i])
+			}
+		}
+	}
+
+	var chooseDatastore string
+
+	if zoneVars["datastoreType"] == constant.Usage {
+		remaining := 0.0
+		for i := range datastores {
+			dRemaining, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(datastores[i].FreeSpace)/float64(datastores[i].Capacity)), 64)
+			if i == 0 {
+				remaining = dRemaining
+			}
+			if dRemaining >= remaining {
+				chooseDatastore = datastores[i].Name
+			}
+		}
+	}
+	if zoneVars["datastoreType"] == constant.Value {
+		value := 0
+		for i := range datastores {
+			if i == 0 {
+				value = datastores[i].FreeSpace
+			}
+			if datastores[i].FreeSpace >= value {
+				chooseDatastore = datastores[i].Name
+			}
+		}
+	}
+
+	for i := range hosts {
+		hosts[i].Datastore = chooseDatastore
+	}
+
+	return nil
 }

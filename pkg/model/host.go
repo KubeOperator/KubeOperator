@@ -36,23 +36,23 @@ type Host struct {
 	Cluster      Cluster    `json:"-" gorm:"save_associations:false" `
 	Status       string     `json:"status" gorm:"type:varchar(64)"`
 	Message      string     `json:"message" gorm:"type:text(65535)"`
+	Datastore    string     `json:"datastore" gorm:"type:varchar(64)"`
 }
 
 func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {
-	var err error = nil
 	password := ""
 	privateKey := []byte("")
-	if "password" == h.Credential.Type {
-		pwd, err := encrypt.StringDecrypt(h.Credential.Password)
-		password = pwd
+	switch h.Credential.Type {
+	case "password":
+		p, err := encrypt.StringDecrypt(h.Credential.Password)
 		if err != nil {
-			return password, privateKey, err
+			return "", nil, err
 		}
-	}
-	if "privateKey" == h.Credential.Type {
+		password = p
+	case "privateKey":
 		privateKey = []byte(h.Credential.PrivateKey)
 	}
-	return password, privateKey, err
+	return password, privateKey, nil
 }
 
 func (h *Host) BeforeCreate() error {

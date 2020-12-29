@@ -14,6 +14,7 @@ type CloudClient interface {
 	UploadImage() error
 	DefaultImageExist() (bool, error)
 	CreateDefaultFolder() error
+	ListDatastores() ([]client.DatastoreResult, error)
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {

@@ -114,6 +114,13 @@ exit:
 		}
 		for _, kn := range kubeNodes.Items {
 			if node.Name == kn.Name {
+				if cluster.Source == constant.ClusterSourceExternal {
+					for _, addr := range kn.Status.Addresses {
+						if addr.Type == "InternalIP" {
+							n.Ip = addr.Address
+						}
+					}
+				}
 				n.Info = kn
 				nodes = append(nodes, n)
 				continue exit
@@ -172,6 +179,13 @@ exit:
 		}
 		for _, kn := range kubeNodes.Items {
 			if node.Name == kn.Name {
+				if cluster.Source == constant.ClusterSourceExternal {
+					for _, addr := range kn.Status.Addresses {
+						if addr.Type == "InternalIP" {
+							n.Ip = addr.Address
+						}
+					}
+				}
 				n.Info = kn
 				nodes = append(nodes, n)
 				continue exit
@@ -509,9 +523,16 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = cluster.Plan.Region.Provider
 		providerVars["datacenter"] = cluster.Plan.Region.Datacenter
+		zoneVars := map[string]interface{}{}
+		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		providerVars["cluster"] = zoneVars["cluster"]
 		_ = json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
+		if err != nil {
+			return nil, err
+		}
+		err = allocateDatastore(cloudClient, *k, v)
 		if err != nil {
 			return nil, err
 		}

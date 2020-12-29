@@ -213,4 +213,12 @@ export class ClusterCreateComponent implements OnInit {
             this.helmVersions = ['v3', 'v2'];
         }
     }
+
+    getHostName(hosts: any) {
+        let hostName = '';
+        for (const h of hosts) {
+            hostName = h['text'] + ',';
+        }
+        return hostName;
+    }
 }

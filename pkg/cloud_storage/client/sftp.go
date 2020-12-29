@@ -21,7 +21,7 @@ func NewSftpClient(vars map[string]interface{}) (*sftpClient, error) {
 	if _, ok := vars["address"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["port"]; !ok {
+	if _, ok := vars["port"].(float64); !ok {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["password"]; !ok {

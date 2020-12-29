@@ -10,14 +10,12 @@
     <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid || nameChecking || !nameValid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_INFO"|translate}}</ng-template>
         <form clrForm #basicForm='ngForm'>
-
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name"
                        pattern="[a-z]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
                        (blur)="onNameCheck()"
                        required/>
-
                 <clr-control-helper>
                     <span *ngIf="nameChecking"><clr-spinner clrInline></clr-spinner>
                         {{'APP_CHECKING'|translate}}<br/>
@@ -28,8 +26,6 @@
                     {{'APP_CLUSTER_NAME_HELPER'|translate}}<br/>
                 </clr-control-helper>
             </clr-input-container>
-
-
             <clr-select-container>
                 <label>{{"APP_PROVIDER"|translate}}</label>
                 <select clrSelect name="provider" [(ngModel)]="item.provider" required>
@@ -38,7 +34,6 @@
                     <option value="plan">{{"APP_PLAN"|translate}}</option>
                 </select>
             </clr-select-container>
-
             <clr-select-container>
                 <label>{{"APP_VERSION"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.version" required>
@@ -46,7 +41,6 @@
                     <option *ngFor="let v of versions" [value]="v">{{v}}</option>
                 </select>
             </clr-select-container>
-
             <clr-select-container>
                 <label>{{"APP_ARCHITECTURE"|translate}}</label>
                 <select clrSelect name="arch" [(ngModel)]="item.architectures" (change)="changeArch(item.architectures)"
@@ -56,79 +50,24 @@
                     <option value="amd64">AMD64</option>
                 </select>
             </clr-select-container>
-
         </form>
     </clr-wizard-page>
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="seniorForm.invalid">
-        <ng-template clrPageTitle>{{"APP_SENIOR"|translate}} {{"APP_OPTION"|translate}}</ng-template>
-
-        <form clrForm #seniorForm='ngForm'>
-            <clr-select-container>
-                <label>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</label>
-                <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="docker">docker</option>
-                    <option value="containerd" *ngIf="item.architectures =='amd64'">containerd</option>
-                </select>
-            </clr-select-container>
-
-            <clr-input-container *ngIf="item.runtimeType == 'docker'">
-                <label>{{"APP_DOCKER_STORAGE_DIR"|translate}}</label>
-                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.dockerStorageDir"/>
-            </clr-input-container>
-            <clr-input-container *ngIf="item.runtimeType == 'containerd'">
-                <label>{{"APP_CONTAINERD_STORAGE_DIR"|translate}}</label>
-                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.containerdStorageDir"/>
-            </clr-input-container>
-
-            <clr-select-container>
-                <label>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</label>
-                <select clrSelect name="network" [(ngModel)]="item.networkType" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="flannel">flannel</option>
-                    <option value="calico">calico</option>
-                </select>
-            </clr-select-container>
-
-
-            <clr-select-container *ngIf="item.networkType === 'flannel'">
-                <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend">
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="host-gw">host-gw</option>
-                    <option value="vxlan">vxlan</option>
-                </select>
-            </clr-select-container>
-
-            <clr-select-container *ngIf="item.networkType === 'calico'">
-                <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip">
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="off">bgp</option>
-                    <option value="Always">ipip</option>
-                </select>
-            </clr-select-container>
-            <clr-input-container>
-                <label>Pod {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"/>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>Service {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>Container {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="docker_subnet" [(ngModel)]="item.dockerSubnet"/>
-            </clr-input-container>
-
+    <clr-wizard-page [clrWizardPageNextDisabled]="setupForm.invalid">
+        <ng-template clrPageTitle>{{"APP_CLUSTER_SETUP"|translate}}</ng-template>
+        <form clrForm #setupForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</label>
                 <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPods">
             </clr-input-container>
-
+            <clr-input-container>
+                <label>Pod {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"/>
+            </clr-input-container>
+            <clr-input-container>
+                <label>Service {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
+            </clr-input-container>
             <clr-select-container>
                 <label>kube-proxy {{"APP_MODE"|translate}}</label>
                 <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
@@ -137,16 +76,6 @@
                     <option value="ipvs">ipvs</option>
                 </select>
             </clr-select-container>
-
-            <clr-select-container>
-                <label>ingress {{"APP_TYPE"|translate}}</label>
-                <select clrSelect name="ingress_controller_type" [(ngModel)]="item.ingressControllerType">
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="nginx">nginx</option>
-                    <option value="traefik">traefik</option>
-                </select>
-            </clr-select-container>
-
             <clr-select-container>
                 <label>Kubernetes {{"APP_AUDIT"|translate}}</label>
                 <select clrSelect name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
@@ -155,7 +84,74 @@
                     <option value="no">{{"APP_DISABLE"|translate}}</option>
                 </select>
             </clr-select-container>
+        </form>
+    </clr-wizard-page>
 
+
+    <clr-wizard-page [clrWizardPageNextDisabled]="runtimeForm.invalid">
+        <ng-template clrPageTitle>{{"APP_RUNTIME_SETUP"|translate}}</ng-template>
+        <form clrForm #runtimeForm='ngForm'>
+            <clr-select-container>
+                <label>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</label>
+                <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="docker">docker</option>
+                    <option value="containerd" *ngIf="item.architectures =='amd64'">containerd</option>
+                </select>
+            </clr-select-container>
+            <clr-input-container *ngIf="item.runtimeType == 'docker'">
+                <label>{{"APP_DOCKER_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.dockerStorageDir"/>
+            </clr-input-container>
+            <clr-input-container *ngIf="item.runtimeType == 'containerd'">
+                <label>{{"APP_CONTAINERD_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.containerdStorageDir"/>
+            </clr-input-container>
+            <clr-input-container *ngIf="item.runtimeType == 'docker'">
+                <label>Container {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="docker_subnet" [(ngModel)]="item.dockerSubnet"/>
+            </clr-input-container>
+        </form>
+    </clr-wizard-page>
+
+    <clr-wizard-page [clrWizardPageNextDisabled]="containerSetupForm.invalid">
+        <ng-template clrPageTitle>{{"APP_CONTAINER_SETUP"|translate}}</ng-template>
+        <form clrForm #containerSetupForm='ngForm'>
+            <clr-input-container>
+                <label>{{"NETWORK_INTERFACE"|translate}}</label>
+                <input clrInput type="text" size="34" name="kube_network_interface" [(ngModel)]="item.networkInterface">
+                <clr-control-helper>{{'NETWORK_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <clr-select-container>
+                <label>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</label>
+                <select clrSelect name="network" [(ngModel)]="item.networkType" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="flannel">flannel</option>
+                    <option value="calico">calico</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container *ngIf="item.networkType === 'flannel'">
+                <label>{{"APP_NETWORK_MODE"|translate}}</label>
+                <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="host-gw">host-gw</option>
+                    <option value="vxlan">vxlan</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container *ngIf="item.networkType === 'calico'">
+                <label>{{"APP_NETWORK_MODE"|translate}}</label>
+                <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="off">bgp</option>
+                    <option value="Always">ipip</option>
+                </select>
+            </clr-select-container>
+        </form>
+    </clr-wizard-page>
+
+    <clr-wizard-page [clrWizardPageNextDisabled]="seniorForm.invalid">
+        <ng-template clrPageTitle>{{"APP_COMPONENT_SETUP"|translate}}</ng-template>
+        <form clrForm #seniorForm='ngForm'>
             <clr-select-container>
                 <label>helm</label>
                 <select clrSelect name="helmVersion" [(ngModel)]="item.helmVersion">
@@ -163,7 +159,14 @@
                     <option *ngFor="let version of helmVersions" [value]="version"> {{version}}</option>
                 </select>
             </clr-select-container>
-
+            <clr-select-container>
+                <label>ingress {{"APP_TYPE"|translate}}</label>
+                <select clrSelect name="ingress_controller_type" [(ngModel)]="item.ingressControllerType">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="nginx">nginx</option>
+                    <option value="traefik">traefik</option>
+                </select>
+            </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_GPU_INSTALL"|translate}}</label>
                 <select clrSelect name="support_gpu" [(ngModel)]="item.supportGpu">
@@ -172,12 +175,6 @@
                     <option value="disable">{{"APP_DISABLE"|translate}}</option>
                 </select>
             </clr-select-container>
-
-            <clr-input-container>
-                <label>{{"NETWORK_INTERFACE"|translate}}</label>
-                <input clrInput type="text" size="34" name="kube_network_interface" [(ngModel)]="item.networkInterface">
-                <clr-control-helper>{{'NETWORK_HELPER'|translate}}</clr-control-helper>
-            </clr-input-container>
         </form>
     </clr-wizard-page>
 
@@ -222,33 +219,148 @@
     </clr-wizard-page>
 
     <clr-wizard-page>
-        <ng-template clrPageTitle>{{"APP_CONFIRM_INFO"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CONFIGUARTION_PREVIEW"|translate}}</ng-template>
         <form>
             <div>
-                <table class="table table-vertical">
+                <h4>{{'APP_BASIC_CONFIGURATION'|translate}}</h4>
+                <table class="table table-noborder" width="100%" style="table-layout:fixed">
                     <tbody>
                     <tr>
-                        <th>{{"APP_NAME"|translate}}</th>
-                        <td>{{item.name}}</td>
+                        <td class="left bold" width="50">{{"APP_NAME"|translate}}</td>
+                        <td class="left" width="50">{{item.name}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_VERSION"|translate}}</th>
-                        <td>{{item.version}}</td>
+                        <td class="left bold" width="50">{{"APP_PROVIDER"|translate}}</td>
+                        <td class="left" width="50">{{item.provider}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_PROVIDER"|translate}}</th>
-                        <td>{{item.provider}}</td>
+                        <td class="left bold" width="50">{{"APP_VERSION"|translate}}</td>
+                        <td class="left" width="50">{{item.version}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</th>
-                        <td>{{item.networkType}}</td>
-                    </tr>
-                    <tr>
-                        <th>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</th>
-                        <td>{{item.runtimeType}}</td>
+                        <td class="left bold" width="50">{{"APP_ARCHITECTURE"|translate}}</td>
+                        <td class="left" width="50">{{item.architectures}}</td>
                     </tr>
                     </tbody>
                 </table>
+                <hr>
+                <h4>{{'APP_CLUSTER_SETUP'|translate}}</h4>
+                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                    <tbody>
+                    <tr>
+                        <td class="left bold" width="50">{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</td>
+                        <td class="left" width="50">{{item.kubeMaxPods}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">Pod {{"APP_SUBNET"|translate}}</td>
+                        <td class="left" width="50">{{item.kubePodSubnet}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">Service {{"APP_SUBNET"|translate}}</td>
+                        <td class="left" width="50">{{item.kubeServiceSubnet}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">kube-proxy {{"APP_MODE"|translate}}</td>
+                        <td class="left" width="50">{{item.kubeProxyMode}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h4>{{'APP_RUNTIME_SETUP'|translate}}</h4>
+                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                    <tbody>
+                    <tr>
+                        <td class="left bold" width="50">{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</td>
+                        <td class="left" width="50">{{item.runtimeType}}</td>
+                    </tr>
+                    <tr *ngIf="item.runtimeType == 'docker'">
+                        <td class="left bold" width="50">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
+                        <td class="left" width="50">{{item.dockerStorageDir}}</td>
+                    </tr>
+                    <tr *ngIf="item.runtimeType == 'containerd'">
+                        <td class="left bold" width="50">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
+                        <td class="left" width="50">{{item.containerdStorageDir}}</td>
+                    </tr>
+                    <tr *ngIf="item.runtimeType == 'docker'">
+                        <td class="left bold" width="50">Container {{"APP_SUBNET"|translate}}</td>
+                        <td class="left" width="50">{{item.dockerSubnet}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h4>{{'APP_CONTAINER_SETUP'|translate}}</h4>
+                <table class="table table-noborder"  width="100%" style="table-layout:fixed">
+                    <tbody>
+                    <tr>
+                        <td class="left bold" width="50">{{"NETWORK_INTERFACE"|translate}}</td>
+                        <td class="left" width="50">{{item.networkInterface}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</td>
+                        <td class="left" width="50">{{item.networkType}}</td>
+                    </tr>
+                    <tr *ngIf="item.networkType === 'flannel'">
+                        <td class="left bold" width="50">{{"APP_NETWORK_MODE"|translate}}</td>
+                        <td class="left" width="50">{{item.flannelBackend}}</td>
+                    </tr>
+                    <tr *ngIf="item.networkType === 'calico'">
+                        <td class="left bold" width="50">Container {{"APP_NETWORK_MODE"|translate}}</td>
+                        <td class="left" width="50">{{item.calicoIpv4poolIpip}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h4>{{'APP_COMPONENT_SETUP'|translate}}</h4>
+                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                    <tbody>
+                    <tr>
+                        <td class="left bold" width="50">helm</td>
+                        <td class="left" width="50">{{item.helmVersion}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">ingress {{"APP_TYPE"|translate}}</td>
+                        <td class="left" width="50">{{item.ingressControllerType}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold" width="50">{{"APP_GPU_INSTALL"|translate}}</td>
+                        <td class="left" width="50">{{item.supportGpu}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <div *ngIf="item.provider === 'bareMetal'">
+                    <h4>{{'APP_NODE_INFO'|translate}}</h4>
+                    <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                        <tbody>
+                        <tr>
+                            <td class="left bold" width="50">Masters</td>
+                            <td class="left" width="50">{{getHostName(masters)}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left bold" width="50">Workers</td>
+                            <td class="left" width="50">{{getHostName(workers)}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                </div>
+                <div *ngIf="item.provider === 'plan'">
+                    <h4>{{'APP_NODE_INFO'|translate}}</h4>
+                    <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                        <tbody>
+                        <tr>
+                            <td class="left bold" width="50">{{"APP_DEPLOY_PLAN"|translate}}</td>
+                            <td class="left" width="50">{{item.plan}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left bold" width="50">{{"APP_WORKER_AMOUNT"|translate}}</td>
+                            <td class="left" width="50">{{item.workerAmount}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+
+                </div>
             </div>
         </form>
     </clr-wizard-page>
