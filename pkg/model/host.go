@@ -36,6 +36,7 @@ type Host struct {
 	Cluster      Cluster    `json:"-" gorm:"save_associations:false" `
 	Status       string     `json:"status" gorm:"type:varchar(64)"`
 	Message      string     `json:"message" gorm:"type:text(65535)"`
+	Datastore    string     `json:"datastore" gorm:"type:varchar(64)"`
 }
 
 func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {

@@ -31,6 +31,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     timer;
     currentProject: Project;
     loading = false;
+    isDeleteButtonDisable: boolean = true;
 
 
     ngOnInit(): void {
@@ -107,5 +108,21 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
             return;
         }
         this.upgradeEvent.emit(item);
+    }
+
+    selectionChanged() {
+        if (this.selected.length === 0) {
+            this.isDeleteButtonDisable = true;
+            return;
+        }
+        let isOk: boolean = true;
+        for (const item of this.selected) {
+            if (item.status !== 'Running' && item.status !== 'Failed') {
+                isOk = false;
+                break;
+            }
+        }
+
+        this.isDeleteButtonDisable = !isOk;
     }
 }

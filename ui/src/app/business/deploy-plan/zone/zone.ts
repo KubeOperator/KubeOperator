@@ -29,10 +29,12 @@ export class ZoneUpdateRequest extends BaseRequest {
     regionID: string;
     cloudVars: {} = {};
     ipPoolName: string;
+    provider: string;
 }
 
 export class CloudZoneRequest extends BaseRequest {
     cloudVars: {} = {};
+    regionName: string;
     datacenter: string;
 }
 
@@ -82,6 +84,13 @@ export class Image {
     id: string;
     name: string;
 }
+
+export class CloudDatastore {
+    name: string;
+    capacity: number;
+    freeSpace: number;
+}
+
 
 
 

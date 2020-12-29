@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_host`ADD COLUMN `datastore` varchar(255) NULL AFTER `has_gpu`;

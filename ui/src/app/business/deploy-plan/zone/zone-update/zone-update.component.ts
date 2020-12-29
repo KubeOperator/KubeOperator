@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
-import {Zone, ZoneUpdateRequest} from '../zone';
+import {CloudDatastore, CloudZoneRequest, Zone, ZoneUpdateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -23,6 +23,9 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     item: ZoneUpdateRequest = new ZoneUpdateRequest();
     ipPools: IpPool[] = [];
     currentPool: IpPool = new IpPool();
+    cloudDatastores: CloudDatastore[] = [];
+    cloudZoneRequest: CloudZoneRequest = new CloudZoneRequest();
+    newDatastores: string[] = [];
     @Output() updated = new EventEmitter();
     @ViewChild('editForm') editForm: NgForm;
 
@@ -38,13 +41,19 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     ngOnInit(): void {
     }
 
-    open(item) {
+    open(item: Zone) {
+        this.newDatastores = [];
         this.ipPoolService.list().subscribe(res => {
             this.ipPools = res.items;
             Object.assign(this.item, item);
             this.item.cloudVars = JSON.parse(item.vars);
             this.changeIpPool(this.item.ipPoolName);
             this.opened = true;
+            if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute'){
+                this.cloudZoneRequest.regionName = item.regionName;
+                this.cloudZoneRequest.cloudVars = this.item.cloudVars;
+                this.listDatastores();
+            }
         }, error => {
         });
     }
@@ -57,6 +66,16 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     onConfirm() {
+
+        if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute') {
+            if (this.item.cloudVars['datastore'] instanceof Array) {
+                this.item.cloudVars['datastore'] = this.item.cloudVars['datastore'].concat(this.newDatastores);
+            } else {
+                this.newDatastores.push(this.item.cloudVars['datastore']);
+                this.item.cloudVars['datastore'] = this.newDatastores;
+            }
+        }
+
         this.zoneService.update(this.item.name, this.item).subscribe(res => {
             this.onCancel();
             this.updated.emit();
@@ -83,4 +102,34 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
             return;
         }
     }
+
+    listDatastores() {
+        this.cloudDatastores = [];
+        this.zoneService.listDatastores(this.cloudZoneRequest).subscribe(res => {
+
+            if (this.item.cloudVars['datastore'] instanceof Array) {
+                const old = this.item.cloudVars['datastore'];
+                for (const n of res) {
+                    let exist = false;
+                    for (const o of old) {
+                        if (n.name === o) {
+                            exist = true;
+                        }
+                    }
+                    if (!exist) {
+                        this.cloudDatastores.push(n);
+                    }
+                }
+            } else {
+                const old = this.item.cloudVars['datastore'];
+                for (const n of res) {
+                    if (n.name !== old) {
+                        this.cloudDatastores.push(n);
+                    }
+                }
+            }
+        }, error => {
+        });
+    }
+
 }

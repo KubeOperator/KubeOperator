@@ -340,3 +340,44 @@ func (f *fusionComputeClient) newFusionComputeClient() client.FusionComputeClien
 	password := f.Vars["password"].(string)
 	return client.NewFusionComputeClient(server, user, password)
 }
+
+func (f *fusionComputeClient) ListDatastores() ([]DatastoreResult, error) {
+	var results []DatastoreResult
+	siteName := f.Vars["datacenter"].(string)
+	c := f.newFusionComputeClient()
+	if err := c.Connect(); err != nil {
+		return results, err
+	}
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
+	sm := site.NewManager(c)
+	ss, err := sm.ListSite()
+	if err != nil {
+		return results, err
+	}
+	siteUri := ""
+	for _, s := range ss {
+		if s.Name == siteName {
+			siteUri = s.Uri
+		}
+	}
+	if siteUri == "" {
+		return results, fmt.Errorf("site %s not found", siteName)
+	}
+	dm := storage.NewManager(c, siteUri)
+	datastores, err := dm.ListDataStore()
+	if err != nil {
+		return results, err
+	}
+	for i := range datastores {
+		results = append(results, DatastoreResult{
+			Name:      datastores[i].Name,
+			Capacity:  datastores[i].CapacityGB,
+			FreeSpace: datastores[i].FreeSizeGB,
+		})
+	}
+	return results, nil
+}

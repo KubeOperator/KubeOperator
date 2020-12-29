@@ -38,14 +38,15 @@ export class ClusterDeleteComponent implements OnInit {
             return;
         }
         this.isSubmitGoing = true;
-        this.opened = false;
-        this.commonAlert.showAlert(this.translateService.instant('APP_DELETE_START'), AlertLevels.SUCCESS);
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.isSubmitGoing = false;
+            this.opened = false;
+            this.commonAlert.showAlert(this.translateService.instant('APP_DELETE_START'), AlertLevels.SUCCESS);
         }, error => {
             this.deleted.emit();
             this.isSubmitGoing = false;
+            this.opened = false;
             this.commonAlert.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

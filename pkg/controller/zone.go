@@ -182,3 +182,12 @@ func (z ZoneController) PostTemplates() (dto.CloudZoneResponse, error) {
 
 	return dto.CloudZoneResponse{Result: data}, err
 }
+
+func (z ZoneController) PostDatastores() ([]dto.CloudDatastore, error) {
+	var req dto.CloudZoneRequest
+	err := z.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	return z.ZoneService.ListDatastores(req)
+}
