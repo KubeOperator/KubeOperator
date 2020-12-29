@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -53,6 +55,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		address = clusterImport.ApiServer
 		port = 80
 	}
+	tx := db.DB.Begin()
 	cluster := model.Cluster{
 		Name:   clusterImport.Name,
 		Source: constant.ClusterSourceExternal,
@@ -69,12 +72,51 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			KubernetesToken: clusterImport.Token,
 		},
 	}
+	if err := tx.Create(&cluster.Spec).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not create cluster spec %s", err.Error())
+	}
+	if err := tx.Create(&cluster.Status).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not create cluster status %s", err.Error())
+	}
+	if err := tx.Create(&cluster.Secret).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not create cluster secret %s", err.Error())
+	}
+	cluster.SpecID = cluster.Spec.ID
+	cluster.StatusID = cluster.Status.ID
+	cluster.SecretID = cluster.Secret.ID
+	if err := tx.Create(&cluster).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not create cluster secret %s", err.Error())
+	}
+
 	if err := gatherClusterInfo(&cluster); err != nil {
-		return err
+		tx.Rollback()
+		return fmt.Errorf("can not  gather cluster info %s", err.Error())
 	}
-	if err := c.clusterRepo.Save(&cluster); err != nil {
-		return err
+
+	if err := tx.Save(&cluster.Spec).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not  update spec %s", err.Error())
 	}
+	for _, node := range cluster.Nodes {
+		node.ClusterID = cluster.ID
+		if err := tx.Create(&node).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not save node %s", err.Error())
+		}
+	}
+	tools := cluster.PrepareTools()
+	for _, tool := range tools {
+		tool.ClusterID = cluster.ID
+		if err := tx.Create(&tool).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not save tool %s", err.Error())
+		}
+	}
+	tx.Commit()
 	project, err := c.projectRepository.Get(clusterImport.ProjectName)
 	if err != nil {
 		return err
@@ -92,7 +134,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 func gatherClusterInfo(cluster *model.Cluster) error {
 	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: []kubeUtil.Host{kubeUtil.Host(cluster.Spec.LbKubeApiserverIp)},
+		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort))},
 		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {

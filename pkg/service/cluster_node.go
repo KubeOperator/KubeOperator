@@ -114,6 +114,13 @@ exit:
 		}
 		for _, kn := range kubeNodes.Items {
 			if node.Name == kn.Name {
+				if cluster.Source == constant.ClusterSourceExternal {
+					for _, addr := range kn.Status.Addresses {
+						if addr.Type == "InternalIP" {
+							n.Ip = addr.Address
+						}
+					}
+				}
 				n.Info = kn
 				nodes = append(nodes, n)
 				continue exit
