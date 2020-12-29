@@ -90,6 +90,11 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
 		for i := range items {
+			var projectResource model.ProjectResource
+			tx.Where(model.ProjectResource{ResourceID: items[i].ResourceID, ProjectID: items[i].ProjectID}).First(&projectResource)
+			if projectResource.ID != "" {
+				continue
+			}
 			if err := tx.Model(model.ProjectResource{}).Create(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
