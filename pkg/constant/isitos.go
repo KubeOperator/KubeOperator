@@ -4,7 +4,7 @@ const (
 	IstioNamespace         = "istio-system"
 	IstioOperatorNamespace = "istio-operator-help"
 
-	BaseChartName     = "nexus/base"
+	BaseChartName     = "nexus/istio-base"
 	CniChartName      = "nexus/istio-cni"
 	PilotChartName    = "nexus/istio-discovery"
 	IngressChartName  = "nexus/istio-ingress"

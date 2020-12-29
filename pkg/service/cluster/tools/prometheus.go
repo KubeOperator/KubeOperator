@@ -92,6 +92,13 @@ func (c Prometheus) Install() error {
 }
 
 func (c Prometheus) Uninstall() error {
+	gClient := grafana.NewClient()
+	if err := gClient.DeleteDashboard(c.Cluster.Name); err != nil {
+		return err
+	}
+	if err := gClient.DeleteDataSource(c.Cluster.Name); err != nil {
+		return err
+	}
 	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultPrometheusIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }
 
