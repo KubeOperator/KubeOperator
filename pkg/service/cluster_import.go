@@ -212,7 +212,7 @@ func getNetworkType(cluster *model.Cluster, client *kubernetes.Clientset, wg *sy
 	for _, dp := range dps.Items {
 		for i := range networkMap {
 			if strings.Contains(dp.Name, i) {
-				networkMap[i] += 1
+				networkMap[i]++
 			}
 		}
 	}

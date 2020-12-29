@@ -113,10 +113,10 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 		role := getHostRole(host.Name)
 		no := 0
 		if role == constant.NodeRoleNameMaster {
-			masterNum += 1
+			masterNum++
 			no = masterNum
 		} else {
-			workerNum += 1
+			workerNum++
 			no = workerNum
 		}
 		node := model.ClusterNode{
