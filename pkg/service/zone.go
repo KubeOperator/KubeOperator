@@ -454,6 +454,7 @@ func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudD
 		}
 		vars := creation.CloudVars.(map[string]interface{})
 		m["cluster"] = vars["cluster"].(string)
+		m["datacenter"] = region.Datacenter
 		clientVars = m
 	} else {
 		clientVars = creation.CloudVars.(map[string]interface{})
