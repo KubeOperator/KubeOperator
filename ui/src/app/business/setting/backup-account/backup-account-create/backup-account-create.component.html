@@ -89,7 +89,7 @@
                 </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_LDAP_PORT'|translate}}</label>
-                    <input clrInput size=45 type="number" [(ngModel)]="item.credentialVars['port']"
+                    <input clrInput size=45 type="number" oninput="if(value<1)value=1" min="1"  [(ngModel)]="item.credentialVars['port']"
                            name="port" required>
                 </clr-input-container>
                 <clr-input-container>
