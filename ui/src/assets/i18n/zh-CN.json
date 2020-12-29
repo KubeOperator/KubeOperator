@@ -618,6 +618,11 @@
   "APP_DATASTORE_TYPE_USAGE": "按使用率",
   "APP_DATASTORE_TYPE_VALUE": "按剩余量",
   "APP_DATASTIORE_USAGE_HELPER": "优先选择使用率低的 datastore",
-  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore"
-
+  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore",
+  "APP_CLUSTER_SETUP": "集群设置",
+  "APP_RUNTIME_SETUP": "运行时设置",
+  "APP_CONTAINER_SETUP": "容器网络设置",
+  "APP_COMPONENT_SETUP": "组件设置",
+  "APP_CONFIGUARTION_PREVIEW": "配置预览",
+  "APP_BASIC_CONFIGURATION": "基本配置"
 }
