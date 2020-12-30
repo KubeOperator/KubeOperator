@@ -7,7 +7,7 @@ require (
 	github.com/Azure/azure-storage-blob-go v0.10.0
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.0.8
-	github.com/KubeOperator/kotf v0.0.9
+	github.com/KubeOperator/kotf v0.0.10
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
