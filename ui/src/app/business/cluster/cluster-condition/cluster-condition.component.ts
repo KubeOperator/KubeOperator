@@ -41,9 +41,12 @@ export class ClusterConditionComponent implements OnInit {
         this.service.status(this.cluster.name).subscribe(data => {
             for (const co of data.conditions) {
                 if (co.message.length !== 0) {
-                    let msgItem = JSON.stringify(co.message);
-                    co.message = msgItem.replace(/[\\]/g, '');
-                    co.message = (co.message === '"waiting process"') ? '' : co.message;
+                    let msgItem =co.message;
+                    msgItem = msgItem.replace(/\\n/gi,'\n');
+                    msgItem = msgItem.replace(/\\u/gi,'%u');
+                    msgItem = msgItem.replace(/\\/gi,'');
+                    msgItem = unescape(msgItem)
+                    co.message = (co.message === '"waiting process"') ? '' : msgItem;
                 }
             }
             this.item = data;
@@ -98,8 +101,11 @@ export class ClusterConditionComponent implements OnInit {
             this.service.status(this.cluster.name).subscribe(data => {
                 for (const co of data.conditions) {
                     if (co.message.length !== 0) {
-                        let msgItem = JSON.stringify(co.message);
-                        co.message = msgItem.replace(/[\\]/g, '');
+                        let msgItem = co.message;
+                        msgItem = msgItem.replace(/\\n/gi,'\n');
+                        msgItem = msgItem.replace(/\\u/gi,'%u');
+                        msgItem = msgItem.replace(/\\/gi,'');
+                        msgItem = unescape(msgItem)
                         co.message = (co.message === '"waiting process"') ? '' : co.message;
                     }
                 }

@@ -624,5 +624,12 @@
   "EnsureUpgradeETCD": "升级 ETCD",
   "EnsureUpgradeKubernetes": "升级 Kubernetes",
   "EnsureUpdateCertificates": "更新证书",
-  "EnsureUpgradeTaskStart": "调度任务"
+  "EnsureUpgradeTaskStart": "调度任务",
+  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore",
+  "APP_CLUSTER_SETUP": "集群设置",
+  "APP_RUNTIME_SETUP": "运行时设置",
+  "APP_CONTAINER_SETUP": "容器网络设置",
+  "APP_COMPONENT_SETUP": "组件设置",
+  "APP_CONFIGUARTION_PREVIEW": "配置预览",
+  "APP_BASIC_CONFIGURATION": "基本配置"
 }

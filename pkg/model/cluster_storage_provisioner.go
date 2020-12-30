@@ -7,7 +7,7 @@ import (
 
 type ClusterStorageProvisioner struct {
 	common.BaseModel
-	ID        string `json:"-"`
+	ID        string `json:"id"`
 	Type      string `json:"type"`
 	Status    string `json:"status"`
 	Name      string `json:"name"    gorm:"not null;unique"`

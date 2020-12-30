@@ -116,6 +116,9 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     changeCloudZone() {
+        if (this.item.cloudVars['cluster'] === null) {
+            return;
+        }
         this.cloudZones.forEach(cloudZone => {
             if (cloudZone.cluster === this.item.cloudVars['cluster']) {
                 this.cloudZone = cloudZone;
@@ -138,6 +141,14 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.cloudZone.switchs.forEach(sw => {
             if (sw.name === this.item.cloudVars['switch']) {
                 this.portgroups = sw.portgroups;
+            }
+        });
+    }
+
+    changeTemplate() {
+        this.cloudTemplates.forEach(template => {
+            if (template.imageName === this.item.cloudVars['imageName']) {
+                this.item.cloudVars['imageDisks'] = template.imageDisks;
             }
         });
     }

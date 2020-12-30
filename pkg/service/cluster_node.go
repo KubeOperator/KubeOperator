@@ -523,6 +523,9 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = cluster.Plan.Region.Provider
 		providerVars["datacenter"] = cluster.Plan.Region.Datacenter
+		zoneVars := map[string]interface{}{}
+		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		providerVars["cluster"] = zoneVars["cluster"]
 		_ = json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
