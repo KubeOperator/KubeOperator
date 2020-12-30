@@ -618,7 +618,6 @@
   "APP_DATASTORE_TYPE_USAGE": "按使用率",
   "APP_DATASTORE_TYPE_VALUE": "按剩余量",
   "APP_DATASTIORE_USAGE_HELPER": "优先选择使用率低的 datastore",
-  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore",
   "EnsureBackupETCD": "备份集群",
   "EnsureUpgradeRuntime": "升级容器引擎",
   "EnsureUpgradeETCD": "升级 ETCD",

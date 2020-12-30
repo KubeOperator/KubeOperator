@@ -621,7 +621,6 @@
   "EnsureUpgradeKubernetes": "Upgrade Kubernetes",
   "EnsureUpdateCertificates": "Update Certificates",
   "EnsureUpgradeTaskStart": "Scheduling Task",
-  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace：",
   "APP_CLUSTER_SETUP": "Cluster settings",
   "APP_RUNTIME_SETUP": "Runtime settings",
   "APP_CONTAINER_SETUP": "Container network settings",
