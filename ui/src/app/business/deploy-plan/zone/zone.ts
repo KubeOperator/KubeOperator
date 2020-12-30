@@ -62,6 +62,7 @@ export class Switch {
 export class CloudTemplate {
     imageName: string;
     guestId: string;
+    imageDisks: [] = [];
 }
 
 export class Storage {

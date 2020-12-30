@@ -254,7 +254,7 @@
                             <div *ngIf="!templateLoading">
                                 <clr-select-container>
                                     <label>{{'APP_TEMPLATE'|translate}}</label>
-                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required
+                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required (ngModelChange)="changeTemplate()"
                                             clrSelect>
                                         <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
                                         <option *ngFor="let temp of cloudTemplates"
