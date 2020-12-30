@@ -23,5 +23,5 @@ func (c ControllerPhase) Run(b kobe.Interface, writer io.Writer) error {
 	if c.IngressControllerType != "" {
 		b.SetVar(facts.IngressControllerTypeFactName, c.IngressControllerType)
 	}
-	return phases.RunPlaybookAndGetResult(b, ingressPlaybook, writer)
+	return phases.RunPlaybookAndGetResult(b, ingressPlaybook, "", writer)
 }

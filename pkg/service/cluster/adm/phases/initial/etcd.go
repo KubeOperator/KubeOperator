@@ -11,6 +11,7 @@ const (
 )
 
 type EtcdPhase struct {
+	Upgrade bool
 }
 
 func (s EtcdPhase) Name() string {
@@ -18,5 +19,9 @@ func (s EtcdPhase) Name() string {
 }
 
 func (s EtcdPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, initEtcd, writer)
+	var tag string
+	if s.Upgrade {
+		tag = "upgrade"
+	}
+	return phases.RunPlaybookAndGetResult(b, initEtcd, tag, writer)
 }

@@ -108,6 +108,10 @@ github.com/KubeOperator/FusionComputeGolangSDK v0.0.4 h1:IvGPzD4eeZad6cEWXExm3/C
 github.com/KubeOperator/FusionComputeGolangSDK v0.0.4/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
 github.com/KubeOperator/kobe v0.0.8 h1:NN0TCmSh1oTt0n9CEf45fnf462iQjw07AzU1xfsi0Lw=
 github.com/KubeOperator/kobe v0.0.8/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
+github.com/KubeOperator/kobe v0.0.9 h1:KrmuemDFrBKQIxRnrK+h621aI6x1qIUXDs4tT3poWM0=
+github.com/KubeOperator/kobe v0.0.9/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
+github.com/KubeOperator/kobe v0.0.10 h1:h7r0M578ZJZ2Ojb08RyzV7noi/OD4t7oqkGVNWTS1Lo=
+github.com/KubeOperator/kobe v0.0.10/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kotf v0.0.8 h1:uo9WeEeZMZkZjuLIqBWPVT/ei2TYmChQWusxSbNgzF8=
 github.com/KubeOperator/kotf v0.0.8/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KubeOperator/kotf v0.0.9 h1:8VmEYtAo8qNwzDMr3JXQj/xruQLAhHZnz+9qj4ocRTA=

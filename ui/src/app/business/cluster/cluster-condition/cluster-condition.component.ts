@@ -30,6 +30,8 @@ export class ClusterConditionComponent implements OnInit {
 
     open(cluster: Cluster) {
         this.cluster = cluster;
+        this.item.phase = this.cluster.status;
+        this.item.prePhase = this.cluster.preStatus;
         this.getStatus();
         this.polling();
     }
@@ -61,7 +63,7 @@ export class ClusterConditionComponent implements OnInit {
     }
 
     onRetry() {
-        switch (this.cluster.preStatus) {
+        switch (this.item.prePhase) {
             case 'Upgrading':
                 this.service.upgrade(this.cluster.name, this.cluster.spec.upgradeVersion).subscribe(data => {
                     this.retry.emit();
@@ -70,15 +72,15 @@ export class ClusterConditionComponent implements OnInit {
                 });
                 break;
             case 'Terminating':
-                let delItems: Cluster[] = []
-                delItems.push(this.cluster)
+                const delItems: Cluster[] = [];
+                delItems.push(this.cluster);
                 this.service.batch('delete', delItems).subscribe(data => {
                     this.retry.emit();
                     this.polling();
                     this.opened = false;
                 });
                 break;
-            default:
+            case 'Initializing':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
                     this.polling();
@@ -109,8 +111,11 @@ export class ClusterConditionComponent implements OnInit {
                 if (this.item.phase !== data.phase) {
                     this.item.phase = data.phase;
                 }
+                if (this.item.prePhase !== data.prePhase) {
+                    this.item.prePhase = data.prePhase;
+                }
             }, error => {
-                this.opened = false
+                this.opened = false;
             });
         }, 3000);
     }

@@ -17,6 +17,6 @@ func (m MetricsServerPhase) Name() string {
 	return "Npd Init"
 }
 
-func (m MetricsServerPhase) Run(b kobe.Interface,writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, initMetricsServer,writer)
+func (m MetricsServerPhase) Run(b kobe.Interface, writer io.Writer) error {
+	return phases.RunPlaybookAndGetResult(b, initMetricsServer, "", writer)
 }

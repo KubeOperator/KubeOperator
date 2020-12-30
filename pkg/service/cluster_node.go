@@ -613,7 +613,7 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	registryProtocol, _ := c.systemSettingRepo.Get("REGISTRY_PROTOCOL")
 	k.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
 	k.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
-	err = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, writer)
+	err = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, "", writer)
 	if err != nil {
 		return err
 	}
@@ -651,7 +651,7 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	val, _ := c.systemSettingRepo.Get("ip")
 	k.SetVar(facts.RegistryHostnameFactName, val.Value)
-	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, writer)
+	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, "", writer)
 	if err != nil {
 		return err
 	}

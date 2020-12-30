@@ -18,5 +18,5 @@ func (NetworkPhase) Name() string {
 }
 
 func (s NetworkPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, initNetwork, writer)
+	return phases.RunPlaybookAndGetResult(b, initNetwork, "", writer)
 }

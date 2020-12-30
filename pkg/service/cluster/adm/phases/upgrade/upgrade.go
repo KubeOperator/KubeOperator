@@ -22,5 +22,5 @@ func (upgrade UpgradeClusterPhase) Run(b kobe.Interface, writer io.Writer) error
 	if upgrade.Version != "" {
 		b.SetVar("kube_upgrade_version", upgrade.Version)
 	}
-	return phases.RunPlaybookAndGetResult(b, upgradeCluster, writer)
+	return phases.RunPlaybookAndGetResult(b, upgradeCluster, "", writer)
 }

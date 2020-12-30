@@ -23,5 +23,5 @@ func (n RookCephStoragePhase) Run(b kobe.Interface, writer io.Writer) error {
 		b.SetVar("storage_rook_path", n.StorageRookPath)
 	}
 	b.SetVar("storage_rook_enabled", "true")
-	return phases.RunPlaybookAndGetResult(b, rookCephStorage, writer)
+	return phases.RunPlaybookAndGetResult(b, rookCephStorage, "", writer)
 }

@@ -18,5 +18,5 @@ func (s LoadBalancerPhase) Name() string {
 }
 
 func (s LoadBalancerPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, prepareLoadBalancer, writer)
+	return phases.RunPlaybookAndGetResult(b, prepareLoadBalancer, "", writer)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Interface interface {
-	RunPlaybook(name string) (string, error)
+	RunPlaybook(name, tag string) (string, error)
 	Watch(writer io.Writer, taskId string) error
 	GetResult(taskId string) (*api.Result, error)
 	SetVar(key string, value string)
@@ -35,8 +35,8 @@ func NewAnsible(c *Config) *Kobe {
 	}
 }
 
-func (k *Kobe) RunPlaybook(name string) (string, error) {
-	result, err := k.client.RunPlaybook(k.Project, name, k.Inventory)
+func (k *Kobe) RunPlaybook(name, tag string) (string, error) {
+	result, err := k.client.RunPlaybook(k.Project, name, tag, k.Inventory)
 	if err != nil {
 		return "", err
 	}
@@ -63,6 +63,6 @@ func (k *Kobe) Watch(writer io.Writer, taskId string) error {
 	return nil
 }
 
-func (a *Kobe) GetResult(taskId string) (*api.Result, error) {
-	return a.client.GetResult(taskId)
+func (k *Kobe) GetResult(taskId string) (*api.Result, error) {
+	return k.client.GetResult(taskId)
 }

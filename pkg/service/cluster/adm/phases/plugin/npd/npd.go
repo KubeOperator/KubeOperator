@@ -18,5 +18,5 @@ func (NpdPhase) Name() string {
 }
 
 func (c NpdPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, npdPlaybook, writer)
+	return phases.RunPlaybookAndGetResult(b, npdPlaybook, "", writer)
 }

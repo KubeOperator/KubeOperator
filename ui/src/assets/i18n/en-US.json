@@ -605,7 +605,7 @@
   "IP_AVAILABLE": "Available",
   "IP_LOCK": "Lock",
   "IP_USED": "Using",
-  "IP_REACHABLE":"Reachable",
+  "IP_REACHABLE": "Reachable",
   "IP_PROMPT": "Occupied: Manually occupied; In use: There are machines using this IP in the host; Reachable: The host can be pinged;",
   "IP_SYNC": "Start syncing, please wait",
   "IP_STATUS": "IP usage",
@@ -614,5 +614,11 @@
   "APP_DATASTORE_TYPE_VALUE": "By remaining amount",
   "APP_DATASTIORE_USAGE_HELPER": "Prefer datastore with low usage rate",
   "APP_DATASTIORE_VALUE_HELPER": "Prefer datastore with more remaining volume",
-  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace："
+  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace：",
+  "EnsureBackupETCD": "Backup Cluster",
+  "EnsureUpgradeRuntime": "Upgrade Runtime",
+  "EnsureUpgradeETCD": "Upgrade ETCD",
+  "EnsureUpgradeKubernetes": "Upgrade Kubernetes",
+  "EnsureUpdateCertificates": "Update Certificates",
+  "EnsureUpgradeTaskStart": "Scheduling Task"
 }

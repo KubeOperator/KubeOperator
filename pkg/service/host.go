@@ -125,7 +125,7 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 	if err != nil {
 		return dto.Host{}, err
 	}
-	go h.RunGetHostConfig(host)
+	go h.RunGetHostConfig(&host)
 	return dto.Host{Host: host}, err
 }
 
@@ -232,18 +232,18 @@ func (h hostService) GetHostMem(host *model.Host) error {
 	return err
 }
 
-func (h hostService) RunGetHostConfig(host model.Host) {
+func (h hostService) RunGetHostConfig(host *model.Host) {
 	host.Status = constant.ClusterInitializing
-	_ = h.hostRepo.Save(&host)
-	err := h.GetHostConfig(&host)
+	_ = h.hostRepo.Save(host)
+	err := h.GetHostConfig(host)
 	if err != nil {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
-		_ = h.hostRepo.Save(&host)
+		_ = h.hostRepo.Save(host)
 		return
 	}
 	host.Status = constant.ClusterRunning
-	_ = h.hostRepo.Save(&host)
+	_ = h.hostRepo.Save(host)
 }
 
 func (h hostService) GetHostConfig(host *model.Host) error {
@@ -456,7 +456,7 @@ func (h hostService) ImportHosts(file []byte) error {
 			ip.Status = constant.IpUsed
 			db.DB.Save(&ip)
 		}
-		go h.RunGetHostConfig(host)
+		go h.RunGetHostConfig(&host)
 	}
 	if len(errs) > 0 {
 		return errs

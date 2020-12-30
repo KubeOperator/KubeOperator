@@ -1,14 +1,12 @@
 package adm
 
 import (
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/ingress"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
-	"io"
 	"reflect"
 	"runtime"
 	"strings"
@@ -40,7 +38,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 			LastProbeTime: now,
 		})
 
-		nextConditionType := ca.getNextConditionName(condition.Name)
+		nextConditionType := ca.getNextCreateConditionName(condition.Name)
 		if nextConditionType == ConditionTypeDone {
 			c.Status.Phase = constant.ClusterRunning
 		} else {
@@ -54,6 +52,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	return nil
 }
+
 func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) *model.ClusterStatusCondition {
 	if len(c.Status.ClusterStatusConditions) == 0 {
 		return &model.ClusterStatusCondition{
@@ -79,7 +78,7 @@ func (ca *ClusterAdm) getCreateHandler(conditionName string) Handler {
 	}
 	return nil
 }
-func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
+func (ca *ClusterAdm) getNextCreateConditionName(conditionName string) string {
 	var (
 		i int
 		f Handler
@@ -105,9 +104,7 @@ func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}
-	writeLog("----prepare base system config----", c.writer)
 	err := phase.Run(c.Kobe, c.writer)
-
 	return err
 }
 
@@ -168,11 +165,4 @@ func (ca *ClusterAdm) EnsureInitIngressController(c *Cluster) error {
 func (ca *ClusterAdm) EnsurePostInit(c *Cluster) error {
 	phase := initial.PostPhase{}
 	return phase.Run(c.Kobe, c.writer)
-}
-
-func writeLog(msg string, writer io.Writer) {
-	_, err := fmt.Fprintln(writer, msg)
-	if err != nil {
-		log.Error(err.Error())
-	}
 }

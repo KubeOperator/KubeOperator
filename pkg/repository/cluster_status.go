@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	uuid "github.com/satori/go.uuid"
@@ -39,12 +40,11 @@ func (c clusterStatusRepository) Get(id string) (model.ClusterStatus, error) {
 
 func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 	tx := db.DB.Begin()
-	if db.DB.NewRecord(status) {
-		if err := db.DB.Create(&status).Error; err != nil {
+	if tx.NewRecord(status) {
+		if err := tx.Create(&status).Error; err != nil {
 			return err
 		}
 	} else {
-		// 先记录原来的状态
 		var oldStatus model.ClusterStatus
 		db.DB.First(&oldStatus)
 		if status.Phase != oldStatus.Phase {
@@ -54,15 +54,10 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 			return err
 		}
 	}
-	// 先清空所有 condition
-	var oldConditions []model.ClusterStatusCondition
-	notFound := tx.Model(model.ClusterStatusCondition{}).Where(model.ClusterStatusCondition{ClusterStatusID: status.ID}).Find(&oldConditions).RecordNotFound()
-	if !notFound {
-		for _, c := range oldConditions {
-			tx.Delete(&c)
-		}
+	if err := tx.Delete(&model.ClusterStatusCondition{}, "cluster_status_id = ?", status.ID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("reset contidion err %s", err.Error())
 	}
-	// 保存最新的conditons
 	for i := range status.ClusterStatusConditions {
 		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
 		if tx.NewRecord(status.ClusterStatusConditions[i]) {

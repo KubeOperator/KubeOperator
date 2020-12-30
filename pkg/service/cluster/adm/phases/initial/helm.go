@@ -18,5 +18,5 @@ func (h HelmPhase) Name() string {
 }
 
 func (h HelmPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, initHelm, writer)
+	return phases.RunPlaybookAndGetResult(b, initHelm, "", writer)
 }
