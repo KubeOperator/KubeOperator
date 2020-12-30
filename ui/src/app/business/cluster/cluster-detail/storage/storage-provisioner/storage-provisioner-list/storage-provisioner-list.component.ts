@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {StorageProvisionerService} from '../storage-provisioner.service';
 import {Cluster} from '../../../../cluster';
 import {StorageProvisioner} from '../storage-provisioner';
+import {ClusterLoggerService} from "../../../../cluster-logger/cluster-logger.service";
 
 @Component({
     selector: 'app-storage-provisioner-list',
@@ -10,7 +11,7 @@ import {StorageProvisioner} from '../storage-provisioner';
 })
 export class StorageProvisionerListComponent implements OnInit {
 
-    constructor(private service: StorageProvisionerService) {
+    constructor(private service: StorageProvisionerService, private loggerService: ClusterLoggerService) {
     }
 
     loading = false;
@@ -40,5 +41,9 @@ export class StorageProvisionerListComponent implements OnInit {
 
     refresh() {
         this.list();
+    }
+
+    onShowLogger(item: StorageProvisioner) {
+        this.loggerService.openProvisionerLogger(this.currentCluster.name, item.id);
     }
 }

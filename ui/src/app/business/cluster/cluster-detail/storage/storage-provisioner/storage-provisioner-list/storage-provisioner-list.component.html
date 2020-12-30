@@ -18,7 +18,17 @@
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.type}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status}}</clr-dg-cell>
+        <clr-dg-cell>
+            <span *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
+                <a href="javascript:void(0)" (click)="onShowLogger(item)">{{item.status}}</a>
+            </span>
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
+                Loading...
+            </clr-spinner>
+            <span *ngIf="item.status === 'Running' || item.status === 'Failed'">
+                {{item.status}}
+            </span>
+        </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
