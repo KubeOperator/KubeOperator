@@ -122,7 +122,7 @@ func NewClusterAdm() *ClusterAdm {
 	}
 	ca.upgradeHandlers = []Handler{
 		ca.EnsureUpgradeTaskStart,
-		//ca.EnsureBackupETCD,
+		ca.EnsureBackupETCD,
 		ca.EnsureUpgradeRuntime,
 		ca.EnsureUpgradeETCD,
 		ca.EnsureUpgradeKubernetes,
