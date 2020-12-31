@@ -46,7 +46,7 @@ export abstract class BaseModelService<T extends BaseModel> {
         return this.http.delete<any>(itemUrl);
     }
 
-    batch(method: string, items: T[], projectName?: string): Observable<any> {
+    batch(method: string, items: T[]): Observable<any> {
         const url = this.urlHandler();
         const batchUrl = `${url}/batch/`;
         const b = new Batch<T>(method, items);

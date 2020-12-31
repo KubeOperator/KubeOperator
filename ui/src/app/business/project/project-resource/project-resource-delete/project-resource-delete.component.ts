@@ -56,7 +56,7 @@ export class ProjectResourceDeleteComponent extends BaseModelDirective<any> impl
             deleteItems.push(projectResource);
         }
 
-        this.projectResourceService.batch('delete', deleteItems, this.currentProject.name).subscribe(res => {
+        this.projectResourceService.batch('delete', deleteItems).subscribe(res => {
             this.onCancel();
             this.deleted.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);

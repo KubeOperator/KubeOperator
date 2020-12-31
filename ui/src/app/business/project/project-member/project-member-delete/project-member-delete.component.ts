@@ -52,7 +52,7 @@ export class ProjectMemberDeleteComponent extends BaseModelDirective<ProjectMemb
         if (this.batchItems.length < 1) {
             return;
         }
-        this.projectMemberService.batch('delete', this.batchItems, this.currentProject.name).subscribe(res => {
+        this.projectMemberService.batch('delete', this.batchItems).subscribe(res => {
             this.delete.emit();
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);

@@ -82,7 +82,7 @@ export class ProjectResourceCreateComponent extends BaseModelDirective<ProjectRe
             }
         }
         this.isSubmitGoing = true;
-        this.projectResourceService.batch('create', items, this.currentProject.name).subscribe(res => {
+        this.projectResourceService.batch('create', items).subscribe(res => {
             this.isSubmitGoing = false;
             this.onCancel();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
