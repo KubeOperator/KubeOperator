@@ -74,7 +74,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 		namespace = itemValue.(string)
 	}
 
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, namespace, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, namespace, namespace, false)
 	if err != nil {
 		return tool, err
 	}
@@ -125,7 +125,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, oldNamespace, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, oldNamespace, namespace, true)
 	if err != nil {
 		return tool, err
 	}

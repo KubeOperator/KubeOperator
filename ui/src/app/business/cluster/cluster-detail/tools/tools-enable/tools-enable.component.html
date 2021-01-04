@@ -138,6 +138,69 @@
                 </clr-select-container>
             </div>
 
+            <div *ngIf="item.name === 'grafana'">
+                <clr-select-container>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
+                    </select>
+                </clr-select-container>
+
+                <clr-input-container>
+                    <label>{{"APP_PASSWORD"|translate}}</label>
+                    <input style="display:none">
+                    <input clrInput type="password" [size]="32" name="password" id="password" [(ngModel)]="item.vars['adminPassword']"
+                           (blur)="handleValidation('password')"
+                           pattern="{{passwordPattern}}"
+                           required/>
+                    <clr-control-error *ngIf="!getValidationState('password')">
+                        {{'APP_PASSWORD_ERROR_MSG'|translate}}
+                    </clr-control-error>
+                    <clr-control-error *ngIf="!getValidationState('rePwdCheck')">
+                        {{'APP_PASSWORD_HELP_MSG'|translate}}
+                    </clr-control-error>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{"APP_CONFIRM_PASSWORD"|translate}}</label>
+                    <input style="display:none">
+                    <input  clrInput type="password" [size]="32" name="rePassword" [(ngModel)]="item.vars['adminPasswordRe']"
+                           (blur)="handleValidation('rePassword')"
+                           pattern="{{passwordPattern}}" required/>
+                    <clr-control-error *ngIf="!getValidationState('rePwdCheck')">
+                        {{'APP_PASSWORD_HELP_MSG'|translate}}
+                    </clr-control-error>
+                    <clr-control-error *ngIf="!getValidationState('rePassword')">
+                        {{'APP_PASSWORD_ERROR_MSG'|translate}}
+                    </clr-control-error>
+                </clr-input-container>
+
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv" [(ngModel)]="item.vars['persistence.enabled']"/>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+
+                <clr-select-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc" [(ngModel)]="item.vars['persistence.storageClassName']" required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-input-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input type="number" size="34" clrInput name="size" [(ngModel)]="item.vars['persistence.size']"/>
+                </clr-input-container>
+                <clr-select-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_NODE"|translate}}</label>
+                    <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                    <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
+                </clr-select-container>
+            </div>
+
             <div *ngIf="item.name === 'loki'">
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>

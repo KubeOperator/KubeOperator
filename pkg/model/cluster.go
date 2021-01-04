@@ -331,6 +331,16 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			Name:         "grafana",
+			Version:      "v7.3.3",
+			Describe:     "",
+			Status:       constant.ClusterWaiting,
+			Logo:         "grafana.png",
+			Frame:        true,
+			Url:          "/proxy/grafana/{cluster_name}/root",
+			Architecture: supportedArchitectureAll,
+		},
+		{
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "",
