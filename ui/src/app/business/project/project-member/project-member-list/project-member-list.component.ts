@@ -50,7 +50,7 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
     }
 
     pageBy() {
-        this.projectMemberService.page(this.page, this.size, this.currentProject.name).subscribe(res => {
+        this.projectMemberService.pageBy(this.page, this.size, this.currentProject.name).subscribe(res => {
             this.items = res.items;
             this.loading = false;
         });
@@ -68,7 +68,7 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
         if (this.batchItems.length < 1) {
             return;
         }
-        this.projectMemberService.batch('update', this.batchItems, this.currentProject.name).subscribe(res => {
+        this.projectMemberService.batch('update', this.batchItems).subscribe(res => {
             this.pageBy();
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {

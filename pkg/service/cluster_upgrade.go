@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -11,8 +14,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	"io"
-	"time"
 )
 
 type ClusterUpgradeService interface {
@@ -94,7 +95,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
-		log.Errorf("can not get current cluster status", err.Error())
+		log.Errorf("can not get current cluster status, error: %s", err.Error())
 	}
 	cluster.Status = status.ClusterStatus
 	ctx, cancel := context.WithCancel(context.Background())
