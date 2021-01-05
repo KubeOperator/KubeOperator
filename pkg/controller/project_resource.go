@@ -34,7 +34,7 @@ func NewProjectResourceController() *ProjectResourceController {
 func (p ProjectResourceController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.URLParam("project")
+	projectName := p.Ctx.Values().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -76,6 +76,6 @@ func (p ProjectResourceController) PostBatch() error {
 
 func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.URLParam("project")
+	projectName := p.Ctx.Values().GetString("project")
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }

@@ -33,7 +33,7 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Router /project/members/ [get]
 func (p ProjectMemberController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
-	projectName := p.Ctx.URLParam("project")
+	projectName := p.Ctx.Values().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -45,7 +45,7 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 }
 
 func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) {
-	projectName := p.Ctx.URLParam("project")
+	projectName := p.Ctx.Values().GetString("project")
 	return p.ProjectMemberService.Get(name, projectName)
 }
 

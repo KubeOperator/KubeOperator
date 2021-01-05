@@ -80,7 +80,7 @@ export class HostGrantComponent implements OnInit {
                 }
             }
             
-            this.projectResourceService.batch('create', items).subscribe(res => {
+            this.projectResourceService.batch('create', items, this.projects[this.projectIndex].name).subscribe(res => {
                 this.isSubmitGoing = false;
                 this.onCancel();
                 this.commonAlertService.showAlert(this.translateService.instant('APP_GRANT_SUCCESS'), AlertLevels.SUCCESS);

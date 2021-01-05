@@ -17,12 +17,16 @@ export class ProjectResourceService extends BaseModelService<ProjectResource> {
     }
 
     pageBy(page, size, projectName, resourceType): Observable<Page<ProjectResource>> {
-        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&resourceType=${resourceType}&project=${projectName}`;
-        return this.http.get<Page<ProjectResource>>(pageUrl);
+        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&resourceType=${resourceType}`;
+        return this.http.get<Page<ProjectResource>>(pageUrl, {
+            headers: {project: encodeURI(projectName)},
+        });
     }
 
     listResources(resourceType, projectName): Observable<any> {
-        const resourceUrl = `${this.baseUrl}/list/?resourceType=${resourceType}&project=${projectName}`;
-        return this.http.get<any>(resourceUrl);
+        const resourceUrl = `${this.baseUrl}/list/?resourceType=${resourceType}`;
+        return this.http.get<any>(resourceUrl, {
+            headers: {project: encodeURI(projectName)},
+        });
     }
 }
