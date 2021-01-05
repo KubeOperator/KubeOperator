@@ -37,21 +37,24 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
             this.pageBy();
+            const p = this.sessionService.getCacheProfile();
+            this.user = p.user;
+            if (!this.user.isAdmin) {
+                this.projectMemberService.getByUser(this.user.name, this.currentProject.name).subscribe(res => {
+                    this.currentMember = res;
+                }, err => {
+                    this.commonAlertService.showAlert(err.error.msg, AlertLevels.ERROR);
+                });
+            }
         });
-        const p = this.sessionService.getCacheProfile();
-        this.user = p.user;
-        if (!this.user.isAdmin) {
-            this.projectMemberService.getByUser(this.user.name, this.currentProject.name).subscribe(data => {
-                this.currentMember = data;
-            }, err => {
-                this.commonAlertService.showAlert(err.error.msg, AlertLevels.ERROR);
-            });
-        }
     }
 
     pageBy() {
+        this.loading = true;
         this.projectMemberService.page(this.page, this.size, this.currentProject.name).subscribe(res => {
             this.items = res.items;
+            this.loading = false;
+        }, error => {
             this.loading = false;
         });
     }
