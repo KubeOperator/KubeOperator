@@ -9,11 +9,13 @@ import (
 )
 
 const (
-	GrafanaImageName = "grafana/grafana"
-	GrafanaTagName   = "7.3.3"
+	GrafanaImageName    = "kubeoperator/grafana"
+	GrafanaTagAmd64Name = "7.3.3-amd64"
+	GrafanaTagArm64Name = "7.3.3-arm64"
 
-	initChownDataImageName = "busybox"
-	initChownDataTagName   = "1.31.1"
+	initChownDataImageName    = "kubeoperator/busybox"
+	initChownDataTagAmd64Name = "1.28-amd64"
+	initChownDataTagArm64Name = "1.28-arm64"
 )
 
 type Grafana struct {
@@ -28,10 +30,19 @@ func (c Grafana) setDefaultValue() {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, GrafanaImageName)
-	values["image.tag"] = GrafanaTagName
+
+	if c.Cluster.Spec.Architectures == "amd64" {
+		values["image.tag"] = GrafanaTagAmd64Name
+		values["initChownData.image.tag"] = initChownDataTagAmd64Name
+	} else {
+		values["image.tag"] = GrafanaTagArm64Name
+		values["initChownData.image.tag"] = initChownDataTagArm64Name
+	}
+
+	values["grafana\\.ini.server.root_url"] = "%(protocol)s://%(domain)s:%(http_port)s/proxy/grafana/" + c.Cluster.Name + "/"
+	values["grafana\\.ini.server.serve_from_sub_path"] = true
 	values["initChownData.enabled"] = true
 	values["initChownData.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, initChownDataImageName)
-	values["initChownData.image.tag"] = initChownDataTagName
 	values["datasources.'datasources\\.yaml'.apiVersion"] = 1
 
 	if len(c.prometheusNs) != 0 {
