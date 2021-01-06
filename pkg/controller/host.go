@@ -190,7 +190,7 @@ func (h HostController) GetTemplate() error {
 // @Tags hosts
 // @Summary Upload File for import
 // @Description Upload File for import hosts
-// @Accept  xlsx
+// @Accept  mpfd
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/upload/ [post]
