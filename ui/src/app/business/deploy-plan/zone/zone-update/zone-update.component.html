@@ -24,7 +24,7 @@
                     </clr-radio-container>
                     <clr-select-container>
                         <label>{{'APP_DATASTORE'|translate}}</label>
-                        <select [(ngModel)]="newDatastores" name="datastore" required multiple clrSelect>
+                        <select [(ngModel)]="newDatastores" name="datastore" multiple clrSelect>
                             <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                             <option *ngFor="let datastore of cloudDatastores"
                                     [value]="datastore.name">{{datastore.name}}</option>
