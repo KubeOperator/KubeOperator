@@ -217,7 +217,7 @@ export class ClusterCreateComponent implements OnInit {
     getHostName(hosts: any) {
         let hostName = '';
         for (const h of hosts) {
-            hostName = h['text'] + ',';
+            hostName = h['text'] + ',' + hostName;
         }
         return hostName;
     }
