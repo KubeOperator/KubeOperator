@@ -1,0 +1,31 @@
+INSERT INTO `ko_cluster_tool`(
+    `created_at`,
+    `updated_at`,
+    `id`,
+    `name`,
+    `cluster_id`,
+    `version`,
+    `describe`,
+    `status`,
+    `message`,
+    `logo`,
+    `vars`,
+    `frame`,
+    `url`,
+    `architecture`
+) SELECT date_add(now(), interval 8 HOUR) AS `created_at`,
+         date_add(now(), interval 8 HOUR) AS `updated_at`,
+         UUID() AS `id`,
+         'grafana' AS `name`,
+         c.id,
+         'v7.3.3' AS `version`,
+         '' AS `describe`,
+         'Waiting' AS `status`,
+         '' AS `message`,
+         'grafana.png' AS `logo`,
+         '' AS `vars`,
+         1 AS `frame`,
+         '/proxy/grafana/{cluster_name}/root' AS `url`,
+         'all' AS `architecture`
+         FROM `ko_cluster` c
+WHERE c.id NOT IN (SELECT t.cluster_id FROM ko_cluster_tool t WHERE t.name = 'grafana');

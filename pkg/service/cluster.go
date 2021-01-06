@@ -419,7 +419,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, writer); err != nil {
+	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, "", writer); err != nil {
 		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
 		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
 		return

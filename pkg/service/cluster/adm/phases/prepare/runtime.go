@@ -11,6 +11,7 @@ const (
 )
 
 type ContainerRuntimePhase struct {
+	Upgrade bool
 }
 
 func (s ContainerRuntimePhase) Name() string {
@@ -18,5 +19,10 @@ func (s ContainerRuntimePhase) Name() string {
 }
 
 func (s ContainerRuntimePhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, playbookNameContainerRuntime, writer)
+	var tag string
+	if s.Upgrade {
+		tag = "upgrade"
+	}
+
+	return phases.RunPlaybookAndGetResult(b, playbookNameContainerRuntime, tag, writer)
 }

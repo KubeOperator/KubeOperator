@@ -112,6 +112,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/credentials/{**}",
 			"/api/v1/credentials",
 			"/api/v1/message/setting/{**}",
+			"/api/v1/message/setting/{**}/{**}",
 		},
 		Method: []string{"POST", "PUT", "PATCH", "DELETE"},
 		Permission: &grbac.Permission{

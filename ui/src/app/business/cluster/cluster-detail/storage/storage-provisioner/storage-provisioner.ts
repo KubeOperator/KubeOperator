@@ -1,6 +1,7 @@
 import {BaseModel} from '../../../../../shared/class/BaseModel';
 
 export class StorageProvisioner extends BaseModel {
+    id: string;
     name: string;
     type: string;
     status: string;

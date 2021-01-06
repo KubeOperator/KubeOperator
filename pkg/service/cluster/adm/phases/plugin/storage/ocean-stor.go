@@ -52,5 +52,5 @@ func (o OceanStorPhase) Run(b kobe.Interface, writer io.Writer) error {
 	if o.OceanstorIsMultipath != "" {
 		b.SetVar("oceanstor_is_multipath", o.OceanstorIsMultipath)
 	}
-	return phases.RunPlaybookAndGetResult(b, oceanStor, writer)
+	return phases.RunPlaybookAndGetResult(b, oceanStor, "", writer)
 }

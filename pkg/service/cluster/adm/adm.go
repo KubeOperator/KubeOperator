@@ -2,6 +2,7 @@ package adm
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -97,7 +98,8 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 }
 
 type ClusterAdm struct {
-	createHandlers []Handler
+	createHandlers  []Handler
+	upgradeHandlers []Handler
 }
 
 func NewClusterAdm() *ClusterAdm {
@@ -118,11 +120,24 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitIngressController,
 		ca.EnsurePostInit,
 	}
+	ca.upgradeHandlers = []Handler{
+		ca.EnsureUpgradeTaskStart,
+		ca.EnsureBackupETCD,
+		ca.EnsureUpgradeRuntime,
+		ca.EnsureUpgradeETCD,
+		ca.EnsureUpgradeKubernetes,
+		ca.EnsureUpdateCertificates,
+	}
 	return ca
 }
 
 func (ca *ClusterAdm) OnInitialize(c Cluster) (Cluster, error) {
 	err := ca.Create(&c)
+	return c, err
+}
+
+func (ca *ClusterAdm) OnUpgrade(c Cluster) (Cluster, error) {
+	err := ca.Upgrade(&c)
 	return c, err
 }
 
@@ -152,4 +167,13 @@ func GetVarsBy(version string) (dto.ClusterManifest, error) {
 	}
 	clusterManifest.OtherVars = other
 	return clusterManifest, err
+}
+
+
+
+func writeLog(msg string, writer io.Writer) {
+	_, err := fmt.Fprintln(writer, msg)
+	if err != nil {
+		log.Error(err.Error())
+	}
 }

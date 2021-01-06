@@ -41,7 +41,15 @@ definitions:
         type: string
       createdAt:
         type: string
+      dirty:
+        type: boolean
       logId:
+        type: string
+      multiClusterRepositories:
+        items:
+          $ref: '#/definitions/model.MultiClusterRepository'
+        type: array
+      multiClusterRepository:
         type: string
       name:
         type: string
@@ -175,12 +183,12 @@ definitions:
         type: string
       runtimeType:
         type: string
+      supportGpu:
+        type: string
       version:
         type: string
       workerAmount:
         type: integer
-      supportGpu:
-        type: string
     required:
     - name
     - version
@@ -253,10 +261,14 @@ definitions:
         type: string
       credentialId:
         type: string
+      datastore:
+        type: string
       gpuInfo:
         type: string
       gpuNum:
         type: integer
+      hasGpu:
+        type: boolean
       ip:
         type: string
       memory:
@@ -299,6 +311,96 @@ definitions:
     - ip
     - name
     - port
+    type: object
+  dto.Ip:
+    properties:
+      address:
+        type: string
+      clusterId:
+        type: string
+      createdAt:
+        type: string
+      dns1:
+        type: string
+      dns2:
+        type: string
+      gateway:
+        type: string
+      id:
+        type: string
+      ipPool:
+        $ref: '#/definitions/model.IpPool'
+        type: object
+      ipPoolId:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.IpCreate:
+    properties:
+      dns1:
+        type: string
+      dns2:
+        type: string
+      gateway:
+        type: string
+      ipEnd:
+        type: string
+      ipPoolName:
+        type: string
+      ipStart:
+        type: string
+      subnet:
+        type: string
+    type: object
+  dto.IpPool:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      ipUsed:
+        type: integer
+      ips:
+        items:
+          $ref: '#/definitions/model.Ip'
+        type: array
+      name:
+        type: string
+      subnet:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.IpPoolCreate:
+    properties:
+      description:
+        type: string
+      dns1:
+        type: string
+      dns2:
+        type: string
+      gateway:
+        type: string
+      ipEnd:
+        type: string
+      ipStart:
+        type: string
+      name:
+        type: string
+      subnet:
+        type: string
+    type: object
+  dto.IpUpdate:
+    properties:
+      address:
+        type: string
+      operation:
+        type: string
     type: object
   dto.LoginCredential:
     properties:
@@ -547,11 +649,7 @@ definitions:
         type: boolean
       isAdmin:
         type: boolean
-      language:
-        type: string
       name:
-        type: string
-      password:
         type: string
     required:
     - email
@@ -585,6 +683,11 @@ definitions:
         type: string
       provider:
         type: string
+    required:
+    - cpu
+    - memory
+    - name
+    - provider
     type: object
   dto.VmConfigUpdate:
     properties:
@@ -596,9 +699,17 @@ definitions:
         type: string
       provider:
         type: string
+    required:
+    - cpu
+    - memory
+    - name
+    - provider
     type: object
   dto.Zone:
     properties:
+      _:
+        $ref: '#/definitions/model.IpPool'
+        type: object
       cloudVars:
         type: object
       createdAt:
@@ -606,6 +717,13 @@ definitions:
       credentialId:
         type: string
       id:
+        type: string
+      ipPool:
+        $ref: '#/definitions/dto.IpPool'
+        type: object
+      ipPoolId:
+        type: string
+      ipPoolName:
         type: string
       name:
         type: string
@@ -627,6 +745,8 @@ definitions:
       cloudVars:
         type: object
       credentialId:
+        type: string
+      ipPoolName:
         type: string
       name:
         type: string
@@ -718,6 +838,8 @@ definitions:
         type: string
       runtimeType:
         type: string
+      supportGpu:
+        type: string
       updatedAt:
         type: string
       upgradeVersion:
@@ -726,6 +848,81 @@ definitions:
         type: string
       workerAmount:
         type: integer
+    type: object
+  model.Ip:
+    properties:
+      address:
+        type: string
+      clusterId:
+        type: string
+      createdAt:
+        type: string
+      dns1:
+        type: string
+      dns2:
+        type: string
+      gateway:
+        type: string
+      id:
+        type: string
+      ipPoolId:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.IpPool:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      ips:
+        items:
+          $ref: '#/definitions/model.Ip'
+        type: array
+      name:
+        type: string
+      subnet:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.MultiClusterRepository:
+    properties:
+      branch:
+        type: string
+      createdAt:
+        type: string
+      gitTimeout:
+        type: integer
+      lastSyncHead:
+        type: string
+      lastSyncTime:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      syncEnable:
+        type: boolean
+      syncInterval:
+        type: integer
+      syncStatus:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
     type: object
   model.Volume:
     properties:
@@ -1081,6 +1278,18 @@ paths:
       summary: Import a cluster
       tags:
       - clusters
+  /clusters/node/{clusterName}:
+    get:
+      consumes:
+      - application/json
+      description: Get cluster nodes
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Get cluster nodes
+      tags:
+      - clusters
   /credentials/:
     get:
       consumes:
@@ -1189,6 +1398,168 @@ paths:
       summary: Show a host
       tags:
       - hosts
+  /hosts/template/:
+    get:
+      consumes:
+      - application/json
+      description: download template file for import hosts
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Download Host Template File
+      tags:
+      - hosts
+  /hosts/upload/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload File for import hosts
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Upload File for import
+      tags:
+      - hosts
+  /ippools/:
+    get:
+      consumes:
+      - application/json
+      description: Show hosts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all hosts
+      tags:
+      - ippools
+    post:
+      consumes:
+      - application/json
+      description: create a IpPool
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IpPoolCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.IpPool'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a IpPool
+      tags:
+      - ippools
+  /ippools/{name}:
+    get:
+      consumes:
+      - application/json
+      description: get a IpPool
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.IpPool'
+      security:
+      - ApiKeyAuth: []
+      summary: Get IpPool
+      tags:
+      - ippools
+  /ippools/{name}/ips:
+    patch:
+      consumes:
+      - application/json
+      description: Update a Ip
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IpUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Ip'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a Ip
+      tags:
+      - ips
+    post:
+      consumes:
+      - application/json
+      description: create a Ip
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IpCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Ip'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a Ip
+      tags:
+      - ips
+  /ippools/{name}/ips/:
+    get:
+      consumes:
+      - application/json
+      description: Show ips by ipPoolName
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show ips by ipPoolName
+      tags:
+      - ips
+  /logs/:
+    get:
+      consumes:
+      - application/json
+      description: Show system_logs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all system_logs
+      tags:
+      - system_logs
   /plans/:
     get:
       consumes:

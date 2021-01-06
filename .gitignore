@@ -8,3 +8,4 @@ resource/.DS_Store
 KubeOperator
 plugin/*.so
 dist/*
+.DS_Store

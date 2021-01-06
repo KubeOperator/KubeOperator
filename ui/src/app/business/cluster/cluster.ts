@@ -23,6 +23,7 @@ export class Spec {
 
 export class ClusterStatus {
     phase: string;
+    prePhase: string;
     message: string;
     conditions: Condition[] = [];
 }

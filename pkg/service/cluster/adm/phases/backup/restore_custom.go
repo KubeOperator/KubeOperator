@@ -22,5 +22,5 @@ func (restore RestoreClusterCustomPhase) Run(b kobe.Interface, writer io.Writer)
 	if restore.BackupFileName != "" {
 		b.SetVar("custom_etcd_snapshot", restore.BackupFileName)
 	}
-	return phases.RunPlaybookAndGetResult(b, restoreClusterCustom, writer)
+	return phases.RunPlaybookAndGetResult(b, restoreClusterCustom, "", writer)
 }

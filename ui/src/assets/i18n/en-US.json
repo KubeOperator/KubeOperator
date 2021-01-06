@@ -302,7 +302,10 @@
   "APP_TOOLS": "Tools",
   "APP_DATA": "Data",
   "APP_RETENTION": "Retention",
-  "APP_EFK_CREATE_REPLICAS": "Make sure that the number of copies is less than or equal to the number of nodes！",
+  "APP_EFK_CREATE_REPLICAS": "Make sure that the number of copies is less than or equal to the number of nodes!",
+  "APP_TIPS": "Prompt information",
+  "APP_EFK_LOKI_CONDITION": "Elasticsearch and Loki do not support enabling at the same time!",
+  "APP_GRAFANA_CONDITION": "Please enable Prometheus as the default data source first!",
   "APP_PREFIX": "Prefix",
   "APP_INDEX": "Index",
   "APP_REPLICAS": "Replicas",
@@ -605,7 +608,7 @@
   "IP_AVAILABLE": "Available",
   "IP_LOCK": "Lock",
   "IP_USED": "Using",
-  "IP_REACHABLE":"Reachable",
+  "IP_REACHABLE": "Reachable",
   "IP_PROMPT": "Occupied: Manually occupied; In use: There are machines using this IP in the host; Reachable: The host can be pinged;",
   "IP_SYNC": "Start syncing, please wait",
   "IP_STATUS": "IP usage",
@@ -614,5 +617,22 @@
   "APP_DATASTORE_TYPE_VALUE": "By remaining amount",
   "APP_DATASTIORE_USAGE_HELPER": "Prefer datastore with low usage rate",
   "APP_DATASTIORE_VALUE_HELPER": "Prefer datastore with more remaining volume",
-  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace："
+  "APP_DELETE_NS_ERR": "Delete failed, tool already exists in this namespace：",
+  "EnsureBackupETCD": "Backup Cluster",
+  "EnsureUpgradeRuntime": "Upgrade Runtime",
+  "EnsureUpgradeETCD": "Upgrade ETCD",
+  "EnsureUpgradeKubernetes": "Upgrade Kubernetes",
+  "EnsureUpdateCertificates": "Update Certificates",
+  "EnsureUpgradeTaskStart": "Scheduling Task",
+  "APP_CLUSTER_SETUP": "Cluster settings",
+  "APP_RUNTIME_SETUP": "Runtime settings",
+  "APP_CONTAINER_SETUP": "Container network settings",
+  "APP_COMPONENT_SETUP": "Component settings",
+  "APP_CONFIGUARTION_PREVIEW": "Configuration preview",
+  "APP_BASIC_CONFIGURATION": "Basic configuration"
+
+
+
+
+
 }

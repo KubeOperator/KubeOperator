@@ -18,5 +18,5 @@ func (WorkerPhase) Name() string {
 }
 
 func (s WorkerPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, initWorker, writer)
+	return phases.RunPlaybookAndGetResult(b, initWorker, "", writer)
 }

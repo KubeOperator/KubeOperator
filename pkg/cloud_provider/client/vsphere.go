@@ -122,16 +122,21 @@ func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
 	}
 
 	var vms []mo.VirtualMachine
-	err = w.Retrieve(context.TODO(), []string{"VirtualMachine"}, []string{"summary", "name"}, &vms)
+	err = w.Retrieve(context.TODO(), []string{"VirtualMachine"}, []string{"summary", "name", "storage"}, &vms)
 	if err != nil {
 		return result, err
 	}
 
 	for _, vm := range vms {
-		template := make(map[string]string)
+		template := make(map[string]interface{})
 		if vm.Summary.Config.Template {
 			template["imageName"] = vm.Summary.Config.Name
 			template["guestId"] = vm.Summary.Config.GuestId
+			var disks []int
+			for i := 0; i < int(vm.Summary.Config.NumVirtualDisks); i++ {
+				disks = append(disks, i)
+			}
+			template["imageDisks"] = disks
 			result = append(result, template)
 		}
 	}

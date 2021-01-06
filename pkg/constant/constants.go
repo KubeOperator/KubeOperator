@@ -20,6 +20,7 @@ const (
 	DefaultResourceName = "kubeoperator"
 	StatusPending       = "Pending"
 	StatusRunning       = "Running"
+	StatusUpgrading     = "Upgrading"
 	StatusSuccess       = "Success"
 	StatusFailed        = "Failed"
 	StatusLost          = "Lost"

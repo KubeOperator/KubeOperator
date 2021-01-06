@@ -18,5 +18,5 @@ func (restore RestoreClusterPhase) Name() string {
 }
 
 func (restore RestoreClusterPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, restoreCluster, writer)
+	return phases.RunPlaybookAndGetResult(b, restoreCluster, "", writer)
 }

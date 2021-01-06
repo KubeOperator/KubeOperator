@@ -7,6 +7,7 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
+import * as ipaddr from 'ipaddr.js';
 
 @Component({
     selector: 'app-ip-pool-create',
@@ -21,6 +22,7 @@ export class IpPoolCreateComponent extends BaseModelDirective<IpPool> implements
     item: IpPoolCreate = new IpPoolCreate();
     namePattern = NamePattern;
     isSubmitGoing = false;
+    networkValid = false;
 
     constructor(private ipPoolService: IpPoolService,
                 private modalAlertService: ModalAlertService,
@@ -34,6 +36,7 @@ export class IpPoolCreateComponent extends BaseModelDirective<IpPool> implements
 
     open() {
         this.opened = true;
+        this.networkValid = false;
         this.item = new IpPoolCreate();
     }
 
@@ -41,7 +44,64 @@ export class IpPoolCreateComponent extends BaseModelDirective<IpPool> implements
         this.opened = false;
     }
 
+
+    checkNetwork() {
+        const ipStart = this.item.ipStart;
+        const ipEnd = this.item.ipEnd;
+        if (!ipaddr.isValid(ipStart) || (!ipaddr.isValid(ipEnd))) {
+            this.networkValid = false;
+            this.modalAlertService.showAlert(this.translateService.instant('APP_IP_RANGE_INVALID'), AlertLevels.ERROR);
+            return;
+        }
+        const ipStartAddr = ipaddr.IPv4.parse(ipStart);
+        const ipEndAddr = ipaddr.IPv4.parse(ipEnd);
+        const start = ipStartAddr.toByteArray();
+        const end = ipEndAddr.toByteArray();
+        for (let i = 0; i < 4; i++) {
+            if (start[i] > end[i]) {
+                this.networkValid = false;
+                this.modalAlertService.showAlert(this.translateService.instant('APP_IP_RANGE_INVALID'), AlertLevels.ERROR);
+                return;
+            }
+            if (i === 3 && (end[i] - start[i]) < 1) {
+                this.networkValid = false;
+                this.modalAlertService.showAlert(this.translateService.instant('APP_IP_RANGE_INVALID'), AlertLevels.ERROR);
+                return;
+            }
+        }
+        const subnet = this.item.subnet.split('/', 2);
+        if (subnet.length !== 2) {
+            this.networkValid = false;
+            this.modalAlertService.showAlert(this.translateService.instant('APP_SUBNET_INVALID'), AlertLevels.ERROR);
+            return;
+        }
+        if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.subnet))) {
+            this.networkValid = false;
+            this.modalAlertService.showAlert(this.translateService.instant('APP_IP_RANGE_INVALID'), AlertLevels.ERROR);
+            return;
+        }
+        const gateway = this.item.gateway;
+        if (!ipaddr.isValid(gateway)) {
+            this.networkValid = false;
+            this.modalAlertService.showAlert(this.translateService.instant('APP_GATEWAY_INVALID'), AlertLevels.ERROR);
+            return;
+        }
+        const dns1 = this.item.dns1;
+        const dns2 = this.item.dns2;
+        if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
+            this.networkValid = false;
+            this.modalAlertService.showAlert(this.translateService.instant('APP_DNS_INVALID'), AlertLevels.ERROR);
+            return;
+        }
+        this.networkValid = true;
+    }
+
     onSubmit() {
+
+        this.checkNetwork();
+        if (this.networkValid === false) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.ipPoolService.create(this.item).subscribe(res => {
             this.isSubmitGoing = false;

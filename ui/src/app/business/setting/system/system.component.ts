@@ -48,6 +48,7 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
         this.createItem.vars = this.item.vars;
         this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            window.location.reload();
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

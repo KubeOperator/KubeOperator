@@ -113,10 +113,10 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 		role := getHostRole(host.Name)
 		no := 0
 		if role == constant.NodeRoleNameMaster {
-			masterNum += 1
+			masterNum++
 			no = masterNum
 		} else {
-			workerNum += 1
+			workerNum++
 			no = workerNum
 		}
 		node := model.ClusterNode{
@@ -185,6 +185,9 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = plan.Region.Provider
 		providerVars["datacenter"] = plan.Region.Datacenter
+		zoneVars := map[string]interface{}{}
+		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		providerVars["cluster"] = zoneVars["cluster"]
 		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)

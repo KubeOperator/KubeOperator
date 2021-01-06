@@ -18,5 +18,5 @@ func (backup BackupClusterPhase) Name() string {
 }
 
 func (backup BackupClusterPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, backupCluster, writer)
+	return phases.RunPlaybookAndGetResult(b, backupCluster, "", writer)
 }

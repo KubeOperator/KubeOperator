@@ -309,6 +309,9 @@
   "APP_DATA": "数据",
   "APP_RETENTION": "保留",
   "APP_EFK_CREATE_REPLICAS": "请确保副本数目小于等于节点数目！",
+  "APP_TIPS": "提示信息",
+  "APP_EFK_LOKI_CONDITION": "ElasticSearch 和 Loki 不支持同时启用！",
+  "APP_GRAFANA_CONDITION": "请先启用 prometheus 作为默认数据源！",
   "APP_PREFIX": "前缀",
   "APP_INDEX": "索引",
   "APP_REPLICAS": "副本",
@@ -609,7 +612,7 @@
   "IP_AVAILABLE": "可用",
   "IP_LOCK": "占用",
   "IP_USED": "使用中",
-  "IP_REACHABLE":"可达",
+  "IP_REACHABLE": "可达",
   "IP_PROMPT": "占用:被手动占用;使用中:主机中有使用此IP的机器;可达:IP可以被Ping通;",
   "IP_STATUS": "IP 使用情况",
   "IP_SYNC": "开始同步,请稍后",
@@ -618,6 +621,17 @@
   "APP_DATASTORE_TYPE_USAGE": "按使用率",
   "APP_DATASTORE_TYPE_VALUE": "按剩余量",
   "APP_DATASTIORE_USAGE_HELPER": "优先选择使用率低的 datastore",
-  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore"
-
+  "EnsureBackupETCD": "备份集群",
+  "EnsureUpgradeRuntime": "升级容器引擎",
+  "EnsureUpgradeETCD": "升级 ETCD",
+  "EnsureUpgradeKubernetes": "升级 Kubernetes",
+  "EnsureUpdateCertificates": "更新证书",
+  "EnsureUpgradeTaskStart": "调度任务",
+  "APP_DATASTIORE_VALUE_HELPER": "优先选择剩余量多的 datastore",
+  "APP_CLUSTER_SETUP": "集群设置",
+  "APP_RUNTIME_SETUP": "运行时设置",
+  "APP_CONTAINER_SETUP": "容器网络设置",
+  "APP_COMPONENT_SETUP": "组件设置",
+  "APP_CONFIGUARTION_PREVIEW": "配置预览",
+  "APP_BASIC_CONFIGURATION": "基本配置"
 }

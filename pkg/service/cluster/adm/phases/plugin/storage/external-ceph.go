@@ -22,5 +22,5 @@ func (n ExternalCephStoragePhase) Run(b kobe.Interface, writer io.Writer) error 
 	if n.ProvisionerName != "" {
 		b.SetVar("storage_rbd_provisioner_name", n.ProvisionerName)
 	}
-	return phases.RunPlaybookAndGetResult(b, externalCephStorage, writer)
+	return phases.RunPlaybookAndGetResult(b, externalCephStorage, "", writer)
 }

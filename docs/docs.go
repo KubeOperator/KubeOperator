@@ -507,6 +507,26 @@ var doc = `{
                 "summary": "Import a cluster"
             }
         },
+        "/clusters/node/{clusterName}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get cluster nodes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Get cluster nodes"
+            }
+        },
         "/clusters/{name}/": {
             "get": {
                 "security": [
@@ -683,6 +703,46 @@ var doc = `{
                 }
             }
         },
+        "/hosts/template/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "download template file for import hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Download Host Template File"
+            }
+        },
+        "/hosts/upload/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upload File for import hosts",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Upload File for import"
+            }
+        },
         "/hosts/{name}/": {
             "get": {
                 "security": [
@@ -727,6 +787,231 @@ var doc = `{
                     "hosts"
                 ],
                 "summary": "Delete a host"
+            }
+        },
+        "/ippools/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ippools"
+                ],
+                "summary": "Show all hosts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create a IpPool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ippools"
+                ],
+                "summary": "Create a IpPool",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpPoolCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpPool"
+                        }
+                    }
+                }
+            }
+        },
+        "/ippools/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get a IpPool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ippools"
+                ],
+                "summary": "Get IpPool",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpPool"
+                        }
+                    }
+                }
+            }
+        },
+        "/ippools/{name}/ips": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create a Ip",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Create a Ip",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Ip"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a Ip",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Update a Ip",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Ip"
+                        }
+                    }
+                }
+            }
+        },
+        "/ippools/{name}/ips/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show ips by ipPoolName",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Show ips by ipPoolName",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/logs/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show system_logs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system_logs"
+                ],
+                "summary": "Show all system_logs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
             }
         },
         "/plans/": {
@@ -1620,7 +1905,19 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "dirty": {
+                    "type": "boolean"
+                },
                 "logId": {
+                    "type": "string"
+                },
+                "multiClusterRepositories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.MultiClusterRepository"
+                    }
+                },
+                "multiClusterRepository": {
                     "type": "string"
                 },
                 "name": {
@@ -1825,14 +2122,14 @@ var doc = `{
                 "runtimeType": {
                     "type": "string"
                 },
+                "supportGpu": {
+                    "type": "string"
+                },
                 "version": {
                     "type": "string"
                 },
                 "workerAmount": {
                     "type": "integer"
-                },
-                "supportGpu": {
-                    "type": "string"
                 }
             }
         },
@@ -1937,11 +2234,17 @@ var doc = `{
                 "credentialId": {
                     "type": "string"
                 },
+                "datastore": {
+                    "type": "string"
+                },
                 "gpuInfo": {
                     "type": "string"
                 },
                 "gpuNum": {
                     "type": "integer"
+                },
+                "hasGpu": {
+                    "type": "boolean"
                 },
                 "ip": {
                     "type": "string"
@@ -2004,6 +2307,143 @@ var doc = `{
                 },
                 "port": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.Ip": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "clusterId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dns1": {
+                    "type": "string"
+                },
+                "dns2": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ipPool": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.IpPool"
+                },
+                "ipPoolId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.IpCreate": {
+            "type": "object",
+            "properties": {
+                "dns1": {
+                    "type": "string"
+                },
+                "dns2": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "ipEnd": {
+                    "type": "string"
+                },
+                "ipPoolName": {
+                    "type": "string"
+                },
+                "ipStart": {
+                    "type": "string"
+                },
+                "subnet": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.IpPool": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ipUsed": {
+                    "type": "integer"
+                },
+                "ips": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Ip"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subnet": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.IpPoolCreate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "dns1": {
+                    "type": "string"
+                },
+                "dns2": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "ipEnd": {
+                    "type": "string"
+                },
+                "ipStart": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subnet": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.IpUpdate": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
                 }
             }
         },
@@ -2382,13 +2822,7 @@ var doc = `{
                 "isAdmin": {
                     "type": "boolean"
                 },
-                "language": {
-                    "type": "string"
-                },
                 "name": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 }
             }
@@ -2421,6 +2855,12 @@ var doc = `{
         },
         "dto.VmConfigCreate": {
             "type": "object",
+            "required": [
+                "cpu",
+                "memory",
+                "name",
+                "provider"
+            ],
             "properties": {
                 "cpu": {
                     "type": "integer"
@@ -2438,6 +2878,12 @@ var doc = `{
         },
         "dto.VmConfigUpdate": {
             "type": "object",
+            "required": [
+                "cpu",
+                "memory",
+                "name",
+                "provider"
+            ],
             "properties": {
                 "cpu": {
                     "type": "integer"
@@ -2456,6 +2902,10 @@ var doc = `{
         "dto.Zone": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.IpPool"
+                },
                 "cloudVars": {
                     "type": "object"
                 },
@@ -2466,6 +2916,16 @@ var doc = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "ipPool": {
+                    "type": "object",
+                    "$ref": "#/definitions/dto.IpPool"
+                },
+                "ipPoolId": {
+                    "type": "string"
+                },
+                "ipPoolName": {
                     "type": "string"
                 },
                 "name": {
@@ -2504,6 +2964,9 @@ var doc = `{
                     "type": "object"
                 },
                 "credentialId": {
+                    "type": "string"
+                },
+                "ipPoolName": {
                     "type": "string"
                 },
                 "name": {
@@ -2635,6 +3098,9 @@ var doc = `{
                 "runtimeType": {
                     "type": "string"
                 },
+                "supportGpu": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 },
@@ -2646,6 +3112,120 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.Ip": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "clusterId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dns1": {
+                    "type": "string"
+                },
+                "dns2": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ipPoolId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.IpPool": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ips": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Ip"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subnet": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MultiClusterRepository": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "gitTimeout": {
+                    "type": "integer"
+                },
+                "lastSyncHead": {
+                    "type": "string"
+                },
+                "lastSyncTime": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "syncEnable": {
+                    "type": "boolean"
+                },
+                "syncInterval": {
+                    "type": "integer"
+                },
+                "syncStatus": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

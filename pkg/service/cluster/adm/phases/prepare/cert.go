@@ -18,5 +18,5 @@ func (c CertificatesPhase) Name() string {
 }
 
 func (c CertificatesPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, prepareCertificates, writer)
+	return phases.RunPlaybookAndGetResult(b, prepareCertificates, "", writer)
 }

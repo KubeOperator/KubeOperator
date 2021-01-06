@@ -1,17 +1,19 @@
 package service
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"io"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/upgrade"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	"io"
-	"time"
 )
 
 type ClusterUpgradeService interface {
@@ -32,89 +34,103 @@ type clusterUpgradeService struct {
 	messageService    MessageService
 }
 
-func (c clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
-	clusterDTO, err := c.clusterService.Get(upgrade.ClusterName)
+func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
+	cluster, err := c.clusterService.Get(upgrade.ClusterName)
 	if err != nil {
-		return err
+		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
 	}
-	cluster := clusterDTO.Cluster
-	err = c.prepareUpgrade(&cluster)
 	if err != nil {
-		return err
+		return fmt.Errorf("can not get cluster status %s error %s", upgrade.ClusterName, err.Error())
+	}
+
+	if !(cluster.Source == constant.ClusterSourceLocal) {
+		return errors.New("CLUSTER_IS_NOT_LOCAL")
+	}
+	if cluster.Status != constant.StatusRunning && cluster.Status != constant.StatusFailed {
+		return fmt.Errorf("cluster status error %s", cluster.Status)
+	}
+
+	tx := db.DB.Begin()
+	//从错误后继续
+	if cluster.Cluster.Status.Phase == constant.StatusFailed && cluster.Cluster.Status.PrePhase == constant.StatusUpgrading {
+		if err := tx.Model(model.ClusterStatusCondition{}).Where(model.ClusterStatusCondition{ClusterStatusID: cluster.StatusID, Status: constant.ConditionFalse}).Updates(map[string]interface{}{
+			"Status":  constant.ConditionUnknown,
+			"Message": "",
+		}).Error; err != nil {
+			return fmt.Errorf("reset status error %s", err.Error())
+		}
+	} else {
+		if err := tx.Delete(&model.ClusterStatusCondition{}, "cluster_status_id = ?", cluster.StatusID).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("reset contidion err %s", err.Error())
+		}
+	}
+	// 修改状态
+	cluster.Cluster.Status.PrePhase = cluster.Status
+	cluster.Cluster.Status.Phase = constant.StatusUpgrading
+	if err := tx.Save(&cluster.Cluster.Status).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("change status err %s", err.Error())
 	}
 	// 创建日志
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
-		return err
+		return fmt.Errorf("create log error %s", err.Error())
 	}
-	tx := db.DB.Begin()
-
 	cluster.LogId = logId
-	if err := tx.Save(&cluster).Error; err != nil {
+	if err := tx.Save(&cluster.Cluster).Error; err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("save cluster error %s", err.Error())
 	}
-	// 保存要升级的版本
-	clusterDTO.Spec.UpgradeVersion = upgrade.Version
-	if err := tx.Save(&clusterDTO.Spec).Error; err != nil {
+	cluster.Spec.UpgradeVersion = upgrade.Version
+	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
-	// 变更状态为升级状态
-	// 1. 清空原来的condition 2. 变更状态为更新状态
-	if len(cluster.Status.ClusterStatusConditions) > 0 && cluster.Status.ClusterStatusConditions[0].Name == "UpgradeCluster" {
-		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionUnknown
-	} else {
-		cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
-	}
-	cluster.Status.Phase = constant.ClusterUpgrading
-	if err = c.clusterStatusRepo.Save(&cluster.Status); err != nil {
-		tx.Rollback()
-		return err
-	}
+	go c.do(&cluster.Cluster, writer)
 	tx.Commit()
-	go c.do(&cluster, writer, upgrade.Version)
 	return nil
 }
 
-/*
-检查是否符合升级的条件
-*/
-func (c clusterUpgradeService) prepareUpgrade(cluster *model.Cluster) error {
-	if cluster.Source != constant.ClusterSourceLocal {
-		return errors.New("CLUSTER_IS_NOT_LOCAL")
+func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
+	status, err := c.clusterService.GetStatus(cluster.Name)
+	if err != nil {
+		log.Errorf("can not get current cluster status, error: %s", err.Error())
 	}
-	return nil
-}
-
-func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, version string) {
-
-
-	admCluster := adm.NewCluster(*cluster)
-	p := &upgrade.UpgradeClusterPhase{
-		Version: version,
-	}
-	condition := model.ClusterStatusCondition{
-		Name:          "UpgradeCluster",
-		Status:        constant.ConditionUnknown,
-		OrderNum:      0,
-		LastProbeTime: time.Now(),
-	}
-	cluster.Status.ClusterStatusConditions = append(cluster.Status.ClusterStatusConditions, condition)
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	if err := p.Run(admCluster.Kobe, writer); err != nil {
-		cluster.Status.Phase = constant.ClusterFailed
-		cluster.Status.Message = err.Error()
-		cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Status = constant.ConditionFalse
-		cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Message = err.Error()
+	cluster.Status = status.ClusterStatus
+	ctx, cancel := context.WithCancel(context.Background())
+	admCluster := adm.NewCluster(*cluster, writer)
+	statusChan := make(chan adm.Cluster)
+	go c.doUpgrade(ctx, *admCluster, statusChan)
+	for {
+		cluster := <-statusChan
+		// 保存进度
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
-		return
+		switch cluster.Status.Phase {
+		case constant.StatusRunning:
+			cluster.Spec.Version = cluster.Spec.UpgradeVersion
+			db.DB.Save(&cluster.Spec)
+			cancel()
+			return
+		case constant.StatusFailed:
+			cancel()
+			return
+		}
 	}
-	cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Status = constant.ConditionTrue
-	cluster.Status.Phase = constant.ClusterRunning
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	cluster.Spec.Version = version
-	db.DB.Save(&cluster.Spec)
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
+}
+func (c clusterUpgradeService) doUpgrade(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+	ad := adm.NewClusterAdm()
+	for {
+		resp, err := ad.OnUpgrade(cluster)
+		if err != nil {
+			cluster.Status.Message = err.Error()
+		}
+		cluster.Status = resp.Status
+		select {
+		case <-ctx.Done():
+			return
+		case statusChan <- cluster:
+		}
+		time.Sleep(5 * time.Second)
+	}
 }

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
@@ -59,7 +61,7 @@ func NewCluster(cluster model.Cluster, endpoints []kubernetesUtil.Host, secret m
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string) (Interface, error) {
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string, enable bool) (Interface, error) {
 	systemRepo := repository.NewSystemSettingRepository()
 	localIP, err := systemRepo.Get("ip")
 	if err != nil || localIP.Value == "" {
@@ -77,6 +79,17 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []
 		return NewEFK(c, localIP.Value, tool)
 	case "loki":
 		return NewLoki(c, localIP.Value, tool)
+	case "grafana":
+		if enable {
+			prometheusNs, err := getGrafanaSourceNs(cluster, "prometheus")
+			if err != nil {
+				return nil, err
+			}
+			lokiNs, _ := getGrafanaSourceNs(cluster, "loki")
+			return NewGrafana(c, localIP.Value, tool, prometheusNs, lokiNs)
+		} else {
+			return NewGrafana(c, localIP.Value, tool, "", "")
+		}
 	case "registry":
 		return NewRegistry(c, localIP.Value, tool)
 	case "dashboard":
@@ -243,4 +256,20 @@ func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h 
 	}
 	_ = kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
 	return nil
+}
+
+func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error) {
+	var sourceData model.ClusterTool
+	if err := db.DB.Model(model.ClusterTool{}).
+		Where("cluster_id = ? AND status = ? AND name = ?", cluster.ID, "Running", sourceFrom).
+		Find(&sourceData).Error; err != nil {
+		return "", err
+	}
+	sourceVars := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(sourceData.Vars), &sourceVars)
+	sp, ok := sourceVars["namespace"]
+	if !ok {
+		return "", fmt.Errorf("获取prometheus ns 失败")
+	}
+	return sp.(string), nil
 }

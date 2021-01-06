@@ -18,5 +18,5 @@ func (s KubernetesComponentPhase) Name() string {
 }
 
 func (s KubernetesComponentPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, prepareKubernetesComponents, writer)
+	return phases.RunPlaybookAndGetResult(b, prepareKubernetesComponents, "", writer)
 }

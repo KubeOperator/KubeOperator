@@ -98,7 +98,7 @@ func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, erro
 	if err != nil {
 		return result, err
 	}
-	addUsers := make([]string, len(users))
+	var addUsers []string
 	for _, user := range users {
 		addUsers = append(addUsers, user.Name)
 	}

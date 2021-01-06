@@ -284,6 +284,14 @@ func (c ClusterController) PostBatch() error {
 	return nil
 }
 
+// Get Cluster Nodes
+// @Tags clusters
+// @Summary Get cluster nodes
+// @Description Get cluster nodes
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /clusters/node/{clusterName} [get]
 func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) {
 	p, _ := c.Ctx.Values().GetBool("page")
 	if p {
@@ -398,6 +406,27 @@ func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
 		return nil, err
 	}
 	r, err := ansible.GetAnsibleLogReader(cluster.Name, cluster.LogId)
+	if err != nil {
+		return nil, err
+	}
+	var chunk []byte
+	for {
+
+		buffer := make([]byte, 1024)
+		n, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		chunk = append(chunk, buffer[:n]...)
+	}
+	return &Log{Msg: string(chunk)}, nil
+}
+
+func (c ClusterController) GetProvisionerLogBy(clusterName, logId string) (*Log, error) {
+	r, err := ansible.GetAnsibleLogReader(clusterName, logId)
 	if err != nil {
 		return nil, err
 	}

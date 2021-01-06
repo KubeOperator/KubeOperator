@@ -55,5 +55,5 @@ func (n VsphereStoragePhase) Run(b kobe.Interface,writer io.Writer) error {
 
 
 
-	return phases.RunPlaybookAndGetResult(b, vsphereStorage,writer)
+	return phases.RunPlaybookAndGetResult(b, vsphereStorage,"",writer)
 }

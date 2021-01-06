@@ -18,5 +18,5 @@ func (s BaseSystemConfigPhase) Name() string {
 }
 
 func (s BaseSystemConfigPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, prepareBase, writer)
+	return phases.RunPlaybookAndGetResult(b, prepareBase, "", writer)
 }
