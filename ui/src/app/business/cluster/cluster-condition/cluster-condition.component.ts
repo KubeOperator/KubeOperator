@@ -41,14 +41,10 @@ export class ClusterConditionComponent implements OnInit {
         this.service.status(this.cluster.name).subscribe(data => {
             for (const co of data.conditions) {
                 if (co.message.length !== 0) {
-                    let msgItem =co.message;
-                    msgItem = msgItem.replace(/\\n/gi,'\n');
-                    msgItem = msgItem.replace(/\\u/gi,'%u');
-                    msgItem = msgItem.replace(/\\/gi,'');
-                    msgItem = unescape(msgItem)
-                    co.message = (co.message === '"waiting process"') ? '' : msgItem;
+                    co.message = (co.message === '"waiting process"') ? '' : this.errFormat(co.message);
                 }
             }
+            data.message = (data.message === '') ? '' : this.errFormat(data.message);
             this.item = data;
             this.loading = false;
         });
@@ -101,14 +97,10 @@ export class ClusterConditionComponent implements OnInit {
             this.service.status(this.cluster.name).subscribe(data => {
                 for (const co of data.conditions) {
                     if (co.message.length !== 0) {
-                        let msgItem = co.message;
-                        msgItem = msgItem.replace(/\\n/gi,'\n');
-                        msgItem = msgItem.replace(/\\u/gi,'%u');
-                        msgItem = msgItem.replace(/\\/gi,'');
-                        msgItem = unescape(msgItem)
-                        co.message = (co.message === '"waiting process"') ? '' : co.message;
+                        co.message = (co.message === '"waiting process"') ? '' : this.errFormat(co.message);
                     }
                 }
+                data.message = (data.message === '') ? '' : this.errFormat(data.message);
                 if (this.item.phase !== 'Running') {
                     this.item.conditions = data.conditions;
                 } else {
@@ -125,5 +117,12 @@ export class ClusterConditionComponent implements OnInit {
             });
         }, 3000);
     }
-
+    errFormat (err: string) {
+        let errItem = err;
+        errItem = errItem.replace(/\\n/gi,'\n');
+        errItem = errItem.replace(/\\u/gi,'%u');
+        errItem = errItem.replace(/\\/gi,'');
+        errItem = unescape(errItem)
+        return errItem
+    }
 }

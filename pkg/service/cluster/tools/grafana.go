@@ -59,6 +59,16 @@ func (c Grafana) setDefaultValue() {
 		values["datasources.'datasources\\.yaml'.datasources[1].access"] = "proxy"
 	}
 
+	values["dashboardProviders.'dashboardproviders\\.yaml'.apiVersion"] = 1
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].name"] = "default"
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].orgId"] = 1
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].folder"] = ""
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].type"] = "file"
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].disableDeletion"] = false
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].editable"] = true
+	values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].options.path"] = "/var/lib/grafana/dashboards/default"
+	values["dashboards.default.custom-dashboard.file"] = "dashboards/custom-dashboard.json"
+
 	if _, ok := values["persistence.size"]; ok {
 		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 	}
