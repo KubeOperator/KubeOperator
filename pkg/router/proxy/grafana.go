@@ -34,9 +34,6 @@ func GrafanaProxy(ctx context.Context) {
 	}
 	req := ctx.Request()
 	req.Host = fmt.Sprintf(constant.DefaultGrafanaIngress)
-	if proxyPath == "root" {
-		proxyPath = "/"
-	}
 	req.URL.Path = proxyPath
 	proxy.ServeHTTP(ctx.ResponseWriter(), req)
 }
