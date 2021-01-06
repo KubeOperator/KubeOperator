@@ -135,6 +135,7 @@
   "APP_RESOURCE_POOL_HELPER": "选择用于运行虚拟机的资源池, Resources 为 cluster 下默认资源池",
   "APP_DATASTORE": "存储",
   "APP_DATASTORE_HELPER": "选择用于运行虚拟机的存储器,如要在k8s集群中使用vsan动态创建pv请选择支持vsan类型的存储器",
+  "APP_UPDATE_DATASTORE_HELPER": "存储只能新增",
   "APP_TEMPLATE": "模板",
   "APP_TEMPLATE_TYPE": "模板类型",
   "APP_DEFAULT": "默认",

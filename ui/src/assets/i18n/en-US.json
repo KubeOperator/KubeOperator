@@ -132,6 +132,7 @@
   "APP_RESOURCE_POOL_HELPER": "Select the resource pool used to run the virtual machine, Resources is the default resource pool under cluster",
   "APP_DATASTORE": "Datastore",
   "APP_DATASTORE_HELPER": "Select the storage used to run the virtual machine, if you want to use vsan to dynamically create a PV in the k8s cluster, please select the storage that supports the vsan type",
+  "APP_UPDATE_DATASTORE_HELPER": "Storage can only be added",
   "APP_TEMPLATE": "Template",
   "APP_TEMPLATE_TYPE": "Template Type",
   "APP_DEFAULT": "Defult",
