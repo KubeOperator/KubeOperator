@@ -86,7 +86,7 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)
 	}
-	return clusterManifests, err
+	return sortManifest(clusterManifests), err
 }
 
 func (c clusterManifestService) Update(update dto.ClusterManifestUpdate) (model.ClusterManifest, error) {

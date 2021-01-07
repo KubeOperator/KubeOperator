@@ -179,6 +179,7 @@ export class ClusterCreateComponent implements OnInit {
             for (const m of data) {
                 this.versions.push(m.version);
             }
+            this.item.version = data[0].version;
         });
     }
 
