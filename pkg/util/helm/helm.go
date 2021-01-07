@@ -147,7 +147,6 @@ func updateRepo() error {
 	r := repository.NewSystemSettingRepository()
 	s, err := r.Get("ip")
 	p, err := r.Get("REGISTRY_PROTOCOL")
-	fmt.Println("打印ip 协议", s.Value, p.Value)
 	if err != nil {
 		return errors.New("invalid local host ip")
 	}

@@ -146,6 +146,28 @@
                     <option value="Always">ipip</option>
                 </select>
             </clr-select-container>
+            <span *ngIf="item.networkType === 'flannel'">
+                <br>
+                flannel - vxlan<br>
+                基于隧道，在任何网络环境下都可以正常工作<br>
+                优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
+                劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
+                flannel - host-gw<br>
+                基于路由，不适用于公有云环境<br>
+                优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
+                劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>
+            </span>
+            <span *ngIf="item.networkType === 'calico'">
+                <br>
+                calico - ipip<br>
+                基于隧道，在任何网络环境下都可以正常工作<br>
+                优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
+                劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
+                calico - bgp<br>
+                基于路由，不适用于公有云环境<br>
+                优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
+                劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>
+            </span>
         </form>
     </clr-wizard-page>
 
@@ -223,122 +245,131 @@
         <form>
             <div>
                 <h4>{{'APP_BASIC_CONFIGURATION'|translate}}</h4>
-                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_NAME"|translate}}</td>
-                        <td class="left" width="50">{{item.name}}</td>
+                        <td class="left bold">{{"APP_NAME"|translate}}</td>
+                        <td class="left">{{item.name}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_PROVIDER"|translate}}</td>
-                        <td class="left" width="50">{{item.provider}}</td>
+                        <td class="left bold">{{"APP_PROVIDER"|translate}}</td>
+                        <td class="left">
+                            <span *ngIf="item.provider==='bareMetal'">{{"APP_BARE_METAL" | translate}}</span>
+                            <span *ngIf="item.provider==='plan'">{{"APP_PLAN"|translate}}</span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_VERSION"|translate}}</td>
-                        <td class="left" width="50">{{item.version}}</td>
+                        <td class="left bold">{{"APP_VERSION"|translate}}</td>
+                        <td class="left">{{item.version}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_ARCHITECTURE"|translate}}</td>
-                        <td class="left" width="50">{{item.architectures}}</td>
+                        <td class="left bold">{{"APP_ARCHITECTURE"|translate}}</td>
+                        <td class="left">{{item.architectures}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <hr>
                 <h4>{{'APP_CLUSTER_SETUP'|translate}}</h4>
-                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</td>
-                        <td class="left" width="50">{{item.kubeMaxPods}}</td>
+                        <td class="left bold">{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</td>
+                        <td class="left">{{item.kubeMaxPods}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">Pod {{"APP_SUBNET"|translate}}</td>
-                        <td class="left" width="50">{{item.kubePodSubnet}}</td>
+                        <td class="left bold">Pod {{"APP_SUBNET"|translate}}</td>
+                        <td class="left">{{item.kubePodSubnet}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">Service {{"APP_SUBNET"|translate}}</td>
-                        <td class="left" width="50">{{item.kubeServiceSubnet}}</td>
+                        <td class="left bold">Service {{"APP_SUBNET"|translate}}</td>
+                        <td class="left">{{item.kubeServiceSubnet}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">kube-proxy {{"APP_MODE"|translate}}</td>
-                        <td class="left" width="50">{{item.kubeProxyMode}}</td>
+                        <td class="left bold">kube-proxy {{"APP_MODE"|translate}}</td>
+                        <td class="left">{{item.kubeProxyMode}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <hr>
                 <h4>{{'APP_RUNTIME_SETUP'|translate}}</h4>
-                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</td>
-                        <td class="left" width="50">{{item.runtimeType}}</td>
+                        <td class="left bold">{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</td>
+                        <td class="left">{{item.runtimeType}}</td>
                     </tr>
                     <tr *ngIf="item.runtimeType == 'docker'">
-                        <td class="left bold" width="50">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
-                        <td class="left" width="50">{{item.dockerStorageDir}}</td>
+                        <td class="left bold">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
+                        <td class="left">{{item.dockerStorageDir}}</td>
                     </tr>
                     <tr *ngIf="item.runtimeType == 'containerd'">
-                        <td class="left bold" width="50">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
-                        <td class="left" width="50">{{item.containerdStorageDir}}</td>
+                        <td class="left bold">{{"APP_DOCKER_STORAGE_DIR"|translate}}</td>
+                        <td class="left">{{item.containerdStorageDir}}</td>
                     </tr>
                     <tr *ngIf="item.runtimeType == 'docker'">
-                        <td class="left bold" width="50">Container {{"APP_SUBNET"|translate}}</td>
-                        <td class="left" width="50">{{item.dockerSubnet}}</td>
+                        <td class="left bold">Container {{"APP_SUBNET"|translate}}</td>
+                        <td class="left">{{item.dockerSubnet}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <hr>
                 <h4>{{'APP_CONTAINER_SETUP'|translate}}</h4>
-                <table class="table table-noborder"  width="100%" style="table-layout:fixed">
+                <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold" width="50">{{"NETWORK_INTERFACE"|translate}}</td>
-                        <td class="left" width="50">{{item.networkInterface}}</td>
+                        <td class="left bold">{{"NETWORK_INTERFACE"|translate}}</td>
+                        <td class="left">{{item.networkInterface}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</td>
-                        <td class="left" width="50">{{item.networkType}}</td>
+                        <td class="left bold">{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</td>
+                        <td class="left">{{item.networkType}}</td>
                     </tr>
                     <tr *ngIf="item.networkType === 'flannel'">
-                        <td class="left bold" width="50">{{"APP_NETWORK_MODE"|translate}}</td>
-                        <td class="left" width="50">{{item.flannelBackend}}</td>
+                        <td class="left bold">{{"APP_NETWORK_MODE"|translate}}</td>
+                        <td class="left">{{item.flannelBackend}}</td>
                     </tr>
                     <tr *ngIf="item.networkType === 'calico'">
-                        <td class="left bold" width="50">Container {{"APP_NETWORK_MODE"|translate}}</td>
-                        <td class="left" width="50">{{item.calicoIpv4poolIpip}}</td>
+                        <td class="left bold">{{"APP_NETWORK_MODE"|translate}}</td>
+                        <td class="left">
+                            <span *ngIf="item.calicoIpv4poolIpip==='off'">bgp</span>
+                            <span *ngIf="item.calicoIpv4poolIpip==='Always'">ipip</span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
                 <hr>
                 <h4>{{'APP_COMPONENT_SETUP'|translate}}</h4>
-                <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold" width="50">helm</td>
-                        <td class="left" width="50">{{item.helmVersion}}</td>
+                        <td class="left bold">helm</td>
+                        <td class="left">{{item.helmVersion}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">ingress {{"APP_TYPE"|translate}}</td>
-                        <td class="left" width="50">{{item.ingressControllerType}}</td>
+                        <td class="left bold">ingress {{"APP_TYPE"|translate}}</td>
+                        <td class="left">{{item.ingressControllerType}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold" width="50">{{"APP_GPU_INSTALL"|translate}}</td>
-                        <td class="left" width="50">{{item.supportGpu}}</td>
+                        <td class="left bold">{{"APP_GPU_INSTALL"|translate}}</td>
+                        <td class="left">
+                            <span *ngIf="item.supportGpu==='enable'">{{"APP_ENABLE"|translate}}</span>
+                            <span *ngIf="item.supportGpu==='disable'">{{"APP_DISABLE"|translate}}</span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
                 <hr>
                 <div *ngIf="item.provider === 'bareMetal'">
                     <h4>{{'APP_NODE_INFO'|translate}}</h4>
-                    <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                    <table class="table table-noborder">
                         <tbody>
                         <tr>
-                            <td class="left bold" width="50">Masters</td>
-                            <td class="left" width="50">{{getHostName(masters)}}</td>
+                            <td class="left bold">Masters</td>
+                            <td class="left">{{getHostName(masters)}}</td>
                         </tr>
                         <tr>
-                            <td class="left bold" width="50">Workers</td>
-                            <td class="left" width="50">{{getHostName(workers)}}</td>
+                            <td class="left bold">Workers</td>
+                            <td class="left">{{getHostName(workers)}}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -346,15 +377,15 @@
                 </div>
                 <div *ngIf="item.provider === 'plan'">
                     <h4>{{'APP_NODE_INFO'|translate}}</h4>
-                    <table class="table table-noborder" width="100%" style="table-layout:fixed">
+                    <table class="table table-noborder">
                         <tbody>
                         <tr>
-                            <td class="left bold" width="50">{{"APP_DEPLOY_PLAN"|translate}}</td>
-                            <td class="left" width="50">{{item.plan}}</td>
+                            <td class="left bold">{{"APP_DEPLOY_PLAN"|translate}}</td>
+                            <td class="left">{{item.plan}}</td>
                         </tr>
                         <tr>
-                            <td class="left bold" width="50">{{"APP_WORKER_AMOUNT"|translate}}</td>
-                            <td class="left" width="50">{{item.workerAmount}}</td>
+                            <td class="left bold">{{"APP_WORKER_AMOUNT"|translate}}</td>
+                            <td class="left">{{item.workerAmount}}</td>
                         </tr>
                         </tbody>
                     </table>

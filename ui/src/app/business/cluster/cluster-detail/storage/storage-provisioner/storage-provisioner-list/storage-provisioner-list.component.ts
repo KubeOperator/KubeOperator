@@ -11,6 +11,7 @@ import {ClusterLoggerService} from "../../../../cluster-logger/cluster-logger.se
 })
 export class StorageProvisionerListComponent implements OnInit {
 
+    timer;
     constructor(private service: StorageProvisionerService, private loggerService: ClusterLoggerService) {
     }
 
@@ -23,6 +24,7 @@ export class StorageProvisionerListComponent implements OnInit {
 
     ngOnInit(): void {
         this.refresh();
+        this.polling();
     }
 
     list() {
@@ -45,5 +47,11 @@ export class StorageProvisionerListComponent implements OnInit {
 
     onShowLogger(item: StorageProvisioner) {
         this.loggerService.openProvisionerLogger(this.currentCluster.name, item.id);
+    }
+
+    polling() {
+        this.timer = setInterval(() => {
+            this.refresh()
+        }, 3000);
     }
 }

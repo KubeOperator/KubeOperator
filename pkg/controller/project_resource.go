@@ -62,9 +62,14 @@ func (p ProjectResourceController) PostBatch() error {
 
 	operator := p.Ctx.Values().GetString("operator")
 	delResources := ""
-	for _, item := range req.Items {
-		delResources += (item.ResourceType + "-" + item.ResourceName + ",")
+	if len(req.Items) <= 2 {
+		for _, item := range req.Items {
+			delResources += (item.ResourceType + "-" + item.ResourceName + ",")
+		}
+	} else {
+		delResources = (req.Items[0].ResourceType + "-" + req.Items[0].ResourceName + ",") + (req.Items[1].ResourceType + "-" + req.Items[1].ResourceName + "...")
 	}
+
 	if req.Operation == "create" {
 		go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE, delResources)
 	} else {

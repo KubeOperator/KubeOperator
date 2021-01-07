@@ -21,6 +21,7 @@ var (
 	UserIsNotActive   = errors.New("USER_IS_NOT_ACTIVE")
 	UserNameExist     = errors.New("NAME_EXISTS")
 	LdapDisable       = errors.New("LDAP_DISABLE")
+	EmailExist        = errors.New("EMAIL_EXIST")
 	NamePwdFailed     = errors.New("NAME_PASSWORD_SAME_FAILED")
 	EmailDisable      = errors.New("EMAIL_DISABLE")
 	EmailNotMatch     = errors.New("EMAIL_NOT_MATCH")
@@ -84,6 +85,12 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	old, _ := u.Get(creation.Name)
 	if old.ID != "" {
 		return nil, UserNameExist
+	}
+
+	var userEmail model.User
+	db.DB.Where(model.User{Email: creation.Email}).First(&userEmail)
+	if userEmail.ID != "" {
+		return nil, EmailExist
 	}
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {

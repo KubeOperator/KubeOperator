@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angula
 import {ClusterTool} from '../tools';
 import {ToolsService} from '../tools.service';
 import {Cluster} from '../../../cluster';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-tools-list',
@@ -10,7 +11,7 @@ import {Cluster} from '../../../cluster';
 })
 export class ToolsListComponent implements OnInit, OnDestroy {
 
-    constructor(private service: ToolsService) {
+    constructor(private service: ToolsService, private translateService: TranslateService) {
     }
 
 
@@ -31,41 +32,39 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     refresh() {
         this.service.list(this.currentCluster.name).subscribe(data => {
-            let logIndex = -1;
-            let lokiIndex = -1;
-            let prometheusIndex = -1;
-            let grafanaIndex = -1;
-            for (let i = 0; i < data.length; i++) {
-                data[i].isDisable = false;
-                switch (data[i].name) {
-                    case 'logging': 
-                        logIndex = i;
-                        break;
-                    case 'loki': 
-                        lokiIndex = i;
-                        break;
-                    case 'prometheus': 
-                        prometheusIndex = i;
-                        break;
-                    case 'grafana': 
-                        grafanaIndex = i;
-                        break;
-                }
-            }
-            if (logIndex !== -1 && lokiIndex !== -1) {
-                data[logIndex].isDisable = (data[lokiIndex].status !== 'Waiting');
-                data[lokiIndex].isDisable = (data[logIndex].status !== 'Waiting');
-            }
-            if (prometheusIndex !== -1 && grafanaIndex !== -1) {
-                data[grafanaIndex].isDisable = (data[prometheusIndex].status !== 'Running');
-            } else if (grafanaIndex !== -1) {
-                data[grafanaIndex].isDisable = true;
-            }
             this.items = data;
         });
     }
 
     onEnable(item: ClusterTool) {
+        switch (item.name) {
+            case 'logging': 
+                for (const tool of this.items) {
+                    if (tool.name === 'loki') {
+                        item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
+                        break;
+                    }
+                }
+                break;
+        case 'loki': 
+            for (const tool of this.items) {
+                if (tool.name === 'logging') {
+                    item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
+                    break;
+                }
+            }
+            break;
+        case 'grafana': 
+            for (const tool of this.items) {
+                if (tool.name === 'prometheus') {
+                    item.conditions = (tool.status === 'Running') ? '' : this.translateService.instant('APP_GRAFANA_CONDITION');
+                    break;
+                }
+            }
+            break;
+        default :
+            item.conditions = '';
+        }
         this.enableEvent.emit(item);
     }
 

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
-import {CloudDatastore, CloudZoneRequest, Zone, ZoneUpdateRequest} from '../zone';
+import {CloudDatastore, CloudTemplate, CloudZoneRequest, Zone, ZoneUpdateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -26,6 +26,7 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     cloudDatastores: CloudDatastore[] = [];
     cloudZoneRequest: CloudZoneRequest = new CloudZoneRequest();
     newDatastores: string[] = [];
+    cloudTemplates: CloudTemplate[] = [];
     @Output() updated = new EventEmitter();
     @ViewChild('editForm') editForm: NgForm;
 
@@ -49,10 +50,11 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
             this.item.cloudVars = JSON.parse(item.vars);
             this.changeIpPool(this.item.ipPoolName);
             this.opened = true;
-            if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute'){
+            if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute') {
                 this.cloudZoneRequest.regionName = item.regionName;
                 this.cloudZoneRequest.cloudVars = this.item.cloudVars;
                 this.listDatastores();
+                this.listTemplates();
             }
         }, error => {
         });
@@ -70,7 +72,7 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
         if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute') {
             if (this.item.cloudVars['datastore'] instanceof Array) {
                 this.item.cloudVars['datastore'] = this.item.cloudVars['datastore'].concat(this.newDatastores);
-            } else {
+            } else if (this.item.cloudVars['datastore'].length > 0) {
                 this.newDatastores.push(this.item.cloudVars['datastore']);
                 this.item.cloudVars['datastore'] = this.newDatastores;
             }
@@ -128,6 +130,18 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
                     }
                 }
             }
+        }, error => {
+        });
+    }
+
+    listTemplates() {
+        this.zoneService.listTemplates(this.cloudZoneRequest).subscribe(res => {
+            this.cloudTemplates = res.result;
+            this.cloudTemplates.forEach(template => {
+                if (template.imageName === this.cloudZoneRequest.cloudVars['imageName']) {
+                    this.cloudZoneRequest.cloudVars['imageDisks'] = template.imageDisks;
+                }
+            });
         }, error => {
         });
     }

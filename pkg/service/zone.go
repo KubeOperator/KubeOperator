@@ -271,8 +271,27 @@ func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{},
 }
 
 func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error) {
-	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
 	var result []interface{}
+	var clientVars map[string]interface{}
+	if creation.RegionName != "" {
+		region, err := z.regionRepo.Get(creation.RegionName)
+		if err != nil {
+			return result, err
+		}
+		creation.Datacenter = region.Datacenter
+		m := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(region.Vars), &m); err != nil {
+			return result, err
+		}
+		vars := creation.CloudVars.(map[string]interface{})
+		m["cluster"] = vars["cluster"].(string)
+		m["datacenter"] = region.Datacenter
+		clientVars = m
+	} else {
+		clientVars = creation.CloudVars.(map[string]interface{})
+	}
+	cloudClient := cloud_provider.NewCloudClient(clientVars)
+
 	if cloudClient != nil {
 		result, err := cloudClient.ListTemplates()
 		if err != nil {

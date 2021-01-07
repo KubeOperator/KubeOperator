@@ -415,6 +415,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
 	for i := range facts.DefaultFacts {
 		k.SetVar(i, facts.DefaultFacts[i])
 	}
+	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {
 		k.SetVar(key, value)

@@ -13,14 +13,14 @@ type VmConfigOp struct {
 
 type VmConfigCreate struct {
 	Name     string `json:"name" validate:"required"`
-	Provider string `json:"provider" validate:"required"`
+	Provider string `json:"provider"`
 	Cpu      int    `json:"cpu" validate:"required"`
 	Memory   int    `json:"memory" validate:"required"`
 }
 
 type VmConfigUpdate struct {
 	Name     string `json:"name" validate:"required"`
-	Provider string `json:"provider" validate:"required"`
+	Provider string `json:"provider"`
 	Cpu      int    `json:"cpu" validate:"required"`
 	Memory   int    `json:"memory" validate:"required"`
 }

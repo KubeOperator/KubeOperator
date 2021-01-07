@@ -284,6 +284,14 @@ func (c ClusterController) PostBatch() error {
 	return nil
 }
 
+// Get Cluster Nodes
+// @Tags clusters
+// @Summary Get cluster nodes
+// @Description Get cluster nodes
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /clusters/node/{clusterName} [get]
 func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) {
 	p, _ := c.Ctx.Values().GetBool("page")
 	if p {

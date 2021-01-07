@@ -179,6 +179,7 @@ export class ClusterCreateComponent implements OnInit {
             for (const m of data) {
                 this.versions.push(m.version);
             }
+            this.item.version = data[0].version;
         });
     }
 
@@ -217,7 +218,7 @@ export class ClusterCreateComponent implements OnInit {
     getHostName(hosts: any) {
         let hostName = '';
         for (const h of hosts) {
-            hostName = h['text'] + ',';
+            hostName = h['text'] + ',' + hostName;
         }
         return hostName;
     }
