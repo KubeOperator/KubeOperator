@@ -32,6 +32,8 @@ RUN make build_server_linux GOARCH=$GOARCH
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
 FROM ubuntu:18.04
+RUN apt-get update && apt-get install iputils-ping
+RUN setcap cap_net_raw=+ep /bin/ping
 
 ARG GOARCH
 
