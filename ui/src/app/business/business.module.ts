@@ -8,9 +8,9 @@ import {RouterModule} from '@angular/router';
 import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
 import {ProjectModule} from './project/project.module';
 import {MessageCenterModule} from './message-center/message-center.module';
-import {UserModule} from "./user/user.module";
-import {ManifestModule} from "./manifest/manifest.module";
-import {MultiClusterModule} from "./multi-cluster/multi-cluster.module";
+import {UserModule} from './user/user.module';
+import {ManifestModule} from './manifest/manifest.module';
+import {MultiClusterModule} from './multi-cluster/multi-cluster.module';
 import {SystemLogModule} from './system-log/system-log.module';
 
 @NgModule({
