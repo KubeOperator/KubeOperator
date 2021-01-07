@@ -630,10 +630,7 @@
   "APP_CONTAINER_SETUP": "Container network settings",
   "APP_COMPONENT_SETUP": "Component settings",
   "APP_CONFIGUARTION_PREVIEW": "Configuration preview",
-  "APP_BASIC_CONFIGURATION": "Basic configuration"
-
-
-
-
-
+  "APP_BASIC_CONFIGURATION": "Basic configuration",
+  "APP_CURRENT_VERSION": "Current Version",
+  "APP_UPGRADE_VERSION": "Upgrade Version"
 }
