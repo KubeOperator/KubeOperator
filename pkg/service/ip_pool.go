@@ -133,7 +133,7 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 	case constant.BatchOperationDelete:
 		for i := range opItems {
 			var ipPool model.IpPool
-			if err := tx.Where(model.IpPool{Name: opItems[i].Name}).First(&ipPool).Error; err != nil {
+			if err := tx.Where(model.IpPool{Name: opItems[i].Name}).Preload("Ips").First(&ipPool).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
@@ -141,9 +141,12 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 				tx.Rollback()
 				return err
 			}
-			if err := tx.Where(model.Ip{IpPoolID: ipPool.ID}).Delete(&model.Ip{}).Error; err != nil {
-				tx.Rollback()
-				return err
+
+			if len(ipPool.Ips) > 0 {
+				if err := tx.Delete(&ipPool.Ips).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
 			}
 		}
 	default:
