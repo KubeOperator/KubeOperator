@@ -634,5 +634,8 @@
   "APP_CONTAINER_SETUP": "容器网络设置",
   "APP_COMPONENT_SETUP": "组件设置",
   "APP_CONFIGUARTION_PREVIEW": "配置预览",
-  "APP_BASIC_CONFIGURATION": "基本配置"
+  "APP_BASIC_CONFIGURATION": "基本配置",
+  "APP_CLOSE": "关闭",
+  "APP_VERSION_ALERT": "离线包中 Kubernetes 默认只携带最新的两个版本。如果当前是离线环境，需要执行脚本生成旧版本Kubernetes离线包，并推送至nexus仓库。",
+  "APP_VERSION_DOC": "参阅文档"
 }

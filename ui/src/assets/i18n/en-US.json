@@ -630,10 +630,8 @@
   "APP_CONTAINER_SETUP": "Container network settings",
   "APP_COMPONENT_SETUP": "Component settings",
   "APP_CONFIGUARTION_PREVIEW": "Configuration preview",
-  "APP_BASIC_CONFIGURATION": "Basic configuration"
-
-
-
-
-
+  "APP_BASIC_CONFIGURATION": "Basic configuration",
+  "APP_CLOSE": "Close",
+  "APP_VERSION_ALERT": "Kubernetes in the offline package only carries the latest two versions by default. If the current environment is offline, you need to execute the script to generate the old version of Kubernetes offline package and push it to the nexus warehouse.",
+  "APP_VERSION_DOC": "Reference documents"
 }
