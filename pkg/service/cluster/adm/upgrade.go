@@ -1,12 +1,14 @@
 package adm
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/upgrade"
+	"github.com/KubeOperator/KubeOperator/pkg/util/version"
 	"reflect"
 	"runtime"
 	"strings"
@@ -102,7 +104,6 @@ func (ca *ClusterAdm) EnsureUpgradeTaskStart(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsureBackupETCD(c *Cluster) error {
 	time.Sleep(5 * time.Second)
-
 	phase := backup.BackupClusterPhase{}
 	return phase.Run(c.Kobe, c.writer)
 }
@@ -111,6 +112,26 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{
 		Upgrade: true,
 	}
+	oldManiFest, _ := GetManiFestBy(c.Spec.Version)
+	newManiFest, _ := GetManiFestBy(c.Spec.UpgradeVersion)
+	oldVars := oldManiFest.GetVars()
+	newVars := newManiFest.GetVars()
+	var runtimeVersionKey = "runtime_version"
+	switch c.Spec.RuntimeType {
+	case "docker":
+		runtimeVersionKey = strings.Replace(runtimeVersionKey, "runtime", "docker", -1)
+	case "containerd":
+		runtimeVersionKey = strings.Replace(runtimeVersionKey, "runtime", "containerd", -1)
+	}
+	oldVersion := oldVars[runtimeVersionKey]
+	newVersion := newVars[runtimeVersionKey]
+	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	newer := version.IsNewerThan(newVersion, oldVersion)
+	if !newer {
+		_, _ = fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade")
+		return nil
+	}
+
 	return phase.Run(c.Kobe, c.writer)
 
 }
@@ -118,6 +139,19 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 	time.Sleep(5 * time.Second)
 	phase := initial.EtcdPhase{
 		Upgrade: true,
+	}
+	oldManiFest, _ := GetManiFestBy(c.Spec.Version)
+	newManiFest, _ := GetManiFestBy(c.Spec.UpgradeVersion)
+	oldVars := oldManiFest.GetVars()
+	newVars := newManiFest.GetVars()
+	var etcdVersionKey = "etcd_version"
+	oldVersion := oldVars[etcdVersionKey]
+	newVersion := newVars[etcdVersionKey]
+	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	newer := version.IsNewerThan(newVersion, oldVersion)
+	if !newer {
+		_, _ = fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade")
+		return nil
 	}
 	return phase.Run(c.Kobe, c.writer)
 }
