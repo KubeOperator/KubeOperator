@@ -25,7 +25,7 @@ INSERT INTO `ko_cluster_tool`(
          'grafana.png' AS `logo`,
          '' AS `vars`,
          1 AS `frame`,
-         '/proxy/grafana/{cluster_name}/root' AS `url`,
+         '/proxy/grafana/{cluster_name}' AS `url`,
          'all' AS `architecture`
          FROM `ko_cluster` c
 WHERE c.id NOT IN (SELECT t.cluster_id FROM ko_cluster_tool t WHERE t.name = 'grafana');

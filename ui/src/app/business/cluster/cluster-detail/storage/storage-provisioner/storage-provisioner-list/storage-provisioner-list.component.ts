@@ -27,6 +27,10 @@ export class StorageProvisionerListComponent implements OnInit {
         this.polling();
     }
 
+    ngOnDestroy(): void {
+        clearInterval(this.timer);
+    }
+
     list() {
         this.service.list(this.currentCluster.name).subscribe(data => {
             this.items = data;
@@ -52,6 +56,6 @@ export class StorageProvisionerListComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             this.refresh()
-        }, 3000);
+        }, 5000);
     }
 }
