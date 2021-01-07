@@ -26,8 +26,6 @@ func (u systemLogRepository) Page(num, size int, queryOption, queryInfo string) 
 			err = db.DB.Model(model.SystemLog{}).Where("operation_unit LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
 		case "operation":
 			err = db.DB.Model(model.SystemLog{}).Where("operation LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
-		case "requestPath":
-			err = db.DB.Model(model.SystemLog{}).Where("request_path LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
 		}
 	} else {
 		err = db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error

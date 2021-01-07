@@ -1,16 +1,17 @@
 package adm
 
 import (
+	"reflect"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/upgrade"
-	"reflect"
-	"runtime"
-	"strings"
-	"time"
 )
 
 func (ca *ClusterAdm) Upgrade(c *Cluster) error {
@@ -44,7 +45,7 @@ func (ca *ClusterAdm) Upgrade(c *Cluster) error {
 				Name:          nextConditionType,
 				Status:        constant.ConditionUnknown,
 				LastProbeTime: time.Now(),
-				Message:       "waiting process",
+				Message:       "",
 			})
 		}
 	}
@@ -57,7 +58,7 @@ func (ca *ClusterAdm) getUpgradeCurrentCondition(c *Cluster) *model.ClusterStatu
 			Name:          ca.upgradeHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
 			LastProbeTime: time.Now(),
-			Message:       "waiting process",
+			Message:       "",
 		}
 	}
 	for _, condition := range c.Status.ClusterStatusConditions {

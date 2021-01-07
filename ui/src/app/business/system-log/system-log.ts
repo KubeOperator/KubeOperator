@@ -2,7 +2,8 @@ export class SystemLog {
     name: string;
     operationUnit: string;
     operation: string;
-    requestPath: string;
+    completeOperation: string;
+    isExceed: boolean;
 }
 
 export class Page<T> {
