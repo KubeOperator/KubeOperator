@@ -24,6 +24,7 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.refresh();
+        this.polling();
     }
 
     ngOnDestroy(): void {

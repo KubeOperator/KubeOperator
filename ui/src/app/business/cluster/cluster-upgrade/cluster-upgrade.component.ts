@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ClusterUpgradeRequest} from '../cluster';
 import {ManifestService} from '../../manifest/manifest.service';
-import {Manifest} from '../../manifest/manifest';
+import {Manifest, NameVersion} from '../../manifest/manifest';
 import {NgForm} from '@angular/forms';
 import {ClusterService} from '../cluster.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -23,6 +23,10 @@ export class ClusterUpgradeComponent implements OnInit {
     @ViewChild('clusterForm') clusterForm: NgForm;
     clusterUpgradeRequest: ClusterUpgradeRequest = new ClusterUpgradeRequest();
     chooseVersion: string;
+    oldManifest: Manifest;
+    newManifest: Manifest;
+    manifests: Manifest[] = [];
+
 
     constructor(private manifestService: ManifestService,
                 private clusterService: ClusterService,
@@ -42,6 +46,7 @@ export class ClusterUpgradeComponent implements OnInit {
         const version2 = currentVersions[1];
         const version3 = Number(currentVersions[2]);
         this.manifestService.list().subscribe(res => {
+            this.manifests = res;
             for (const manifest of res) {
                 const manifestKoVersions = manifest.name.split('-');
                 const manifestVersions = manifestKoVersions[0].split('.');
@@ -58,10 +63,23 @@ export class ClusterUpgradeComponent implements OnInit {
     onCancel() {
         this.opened = false;
         this.upgradeVersions = [];
-        this.currentCluster = new Cluster();
+        this.oldManifest = null;
+        this.newManifest = null;
         this.clusterUpgradeRequest = new ClusterUpgradeRequest();
         this.clusterForm.resetForm(this.upgradeVersions);
         this.clusterForm.resetForm(this.currentCluster);
+    }
+
+
+    onSelectChooseVersion() {
+        for (const m of this.manifests) {
+            if (m.name.indexOf(this.currentCluster.spec.version) !== -1) {
+                this.oldManifest = m;
+            }
+            if (m.name.indexOf(this.chooseVersion) !== -1) {
+                this.newManifest = m;
+            }
+        }
     }
 
     onSubmit() {
@@ -72,5 +90,13 @@ export class ClusterUpgradeComponent implements OnInit {
             this.onCancel();
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
+    }
+
+    getVersion(component: string, ns: NameVersion[]): string {
+        for (const n of ns) {
+            if (n.name === component) {
+                return n.version;
+            }
+        }
     }
 }

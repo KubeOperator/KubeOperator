@@ -54,6 +54,7 @@ export class IpDeleteComponent extends BaseModelDirective<Ip> implements OnInit 
             this.deleted.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
             this.opened = false;
         });

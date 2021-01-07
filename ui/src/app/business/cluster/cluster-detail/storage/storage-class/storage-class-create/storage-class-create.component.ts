@@ -1,14 +1,15 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {CreateStorageClassRequest} from '../../storage';
 import {NgForm} from '@angular/forms';
-import {V1PersistentVolume, V1StorageClass} from '@kubernetes/client-node';
+import {V1StorageClass} from '@kubernetes/client-node';
 import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
-import {V1NFSVolumeSource} from '@kubernetes/client-node/dist/gen/model/v1NFSVolumeSource';
-import {V1PersistentVolumeSpec} from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec';
 import {StorageProvisionerService} from '../../storage-provisioner/storage-provisioner.service';
 import {StorageProvisioner} from '../../storage-provisioner/storage-provisioner';
 import {Cluster} from '../../../../cluster';
 import {KubernetesService} from '../../../../kubernetes.service';
+import {ModalAlertService} from '../../../../../../shared/common-component/modal-alert/modal-alert.service';
+import {TranslateService} from '@ngx-translate/core';
+import {AlertLevels} from '../../../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-storage-class-create',
@@ -17,7 +18,10 @@ import {KubernetesService} from '../../../../kubernetes.service';
 })
 export class StorageClassCreateComponent implements OnInit {
 
-    constructor(private provisionerService: StorageProvisionerService, private kubernetesService: KubernetesService) {
+    constructor(private provisionerService: StorageProvisionerService,
+                private kubernetesService: KubernetesService,
+                private modalAlertService: ModalAlertService,
+                private translateService: TranslateService,) {
     }
 
     opened = false;
@@ -91,6 +95,9 @@ export class StorageClassCreateComponent implements OnInit {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;
+        }, error => {
+            this.isSubmitGoing = false;
+            this.modalAlertService.showAlert(error.message, AlertLevels.ERROR);
         });
     }
 

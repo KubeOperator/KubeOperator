@@ -30,6 +30,8 @@ export class IstioComponent implements OnInit {
     pilotCfg: IstioHelper = new IstioHelper;
     ingressCfg: IstioHelper = new IstioHelper;
     egressCfg: IstioHelper = new IstioHelper;
+    ingressAbleText: string;
+    egressAbleText: string;
 
     ngOnInit(): void {
         this.accordionLoading = true;
@@ -38,6 +40,12 @@ export class IstioComponent implements OnInit {
         });
         this.refresh();
         this.accordionLoading = false;
+    }
+    changeEgress () {
+        this.egressAbleText = this.egressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
+    }
+    changeIngress () {
+        this.ingressAbleText = this.ingressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
     }
     submit (operation: string) {
         this.btnStartDisable = true;
@@ -109,6 +117,8 @@ export class IstioComponent implements OnInit {
             }
         });
         this.setDefaultVars();
+        this.egressAbleText = this.egressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
+        this.ingressAbleText = this.ingressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
     }
     setDefaultVars() {
         this.baseCfg.vars = {
