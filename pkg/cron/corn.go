@@ -29,10 +29,10 @@ func (c *InitCronPhase) Init() error {
 		if err != nil {
 			return fmt.Errorf("can not add cluster event corn job: %s", err.Error())
 		}
-		//_, err = Cron.AddJob("@every 1m", job.NewClusterHealthCheck())
-		//if err != nil {
-		//	return fmt.Errorf("can not add cluster health check corn job: %s", err.Error())
-		//}
+		_, err = Cron.AddJob("@every 1m", job.NewClusterHealthCheck())
+		if err != nil {
+			return fmt.Errorf("can not add cluster health check corn job: %s", err.Error())
+		}
 		Cron.Start()
 	}
 	return nil
