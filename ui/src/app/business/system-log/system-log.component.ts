@@ -65,10 +65,16 @@ export class SystemLogComponent implements OnInit {
             this.items = data.items;
             if (this.items != null) {
                 for (const item of this.items) {
+                    item.isExceed = false;
                     if (currentLanguage == 'en-US') {
                         item.operation = item.operation.split('|')[1];
                     } else {
                         item.operation = item.operation.split('|')[0];
+                    }
+                    if (item.operation.length > 40) {
+                        item.isExceed = true;
+                        item.completeOperation = item.operation;
+                        item.operation = item.operation.substring(0,40);
                     }
                 }
             }
