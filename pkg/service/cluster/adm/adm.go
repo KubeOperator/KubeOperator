@@ -87,7 +87,7 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	registryProtocol, _ := repo.Get("REGISTRY_PROTOCOL")
 	c.Kobe.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
 	c.Kobe.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
-	maniFest, _ := GetVarsBy(cluster.Spec.Version)
+	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for k, v := range vars {
@@ -141,7 +141,7 @@ func (ca *ClusterAdm) OnUpgrade(c Cluster) (Cluster, error) {
 	return c, err
 }
 
-func GetVarsBy(version string) (dto.ClusterManifest, error) {
+func GetManiFestBy(version string) (dto.ClusterManifest, error) {
 	var clusterManifest dto.ClusterManifest
 	repo := repository.NewClusterManifestRepository()
 	mo, err := repo.Get(version)
