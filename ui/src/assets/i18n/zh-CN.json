@@ -636,5 +636,9 @@
   "APP_CONFIGUARTION_PREVIEW": "配置预览",
   "APP_BASIC_CONFIGURATION": "基本配置",
   "APP_CURRENT_VERSION": "当前版本",
-  "APP_UPGRADE_VERSION": "升级版本"
+  "APP_UPGRADE_VERSION": "升级版本",
+  "APP_OCEAN_STOR_AUTHCLIENT": "必选，支持输入客户端主机名称、客户 端IP地址、客户端IP地址段或使用“*” 表示全部客户端IP地址\n支持指定多个客户端，以\";\"分号分隔",
+  "APP_OCEAN_STOR_CLONEFROM": "可选，格式为 存储后端名.原卷名",
+  "APP_OCEAN_STOR_CLONSPEED": "可选，默认值3，支持1~4，4速度最快",
+  "APP_OCEAN_STOR_FSTYPE": "可选，支持ext2/ext3/ext4，默认为ext4"
 }

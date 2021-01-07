@@ -152,7 +152,7 @@
                     <th>volumeType</th>
                     <td>
                         <div class="clr-select-wrapper">
-                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_volume']"
+                            <select class="clr-select" [(ngModel)]="item.parameters['volumeType']"
                                     name="oceanstor_sc_volume" required>
                                 <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                                 <option value="lun">lun</option>
@@ -161,46 +161,65 @@
                         </div>
                     </td>
                 </tr>
-                <tr *ngIf="item.parameters['oceanstor_sc_volume']==='fs'">
+                <tr *ngIf="item.parameters['volumeType']==='fs'">
                     <th>authClient</th>
                     <td>
-                        <input [size]="34" class="clr-input" name="authClient" placeholder="demo1,demo2"
-                               [(ngModel)]="item.parameters['oceanstor_sc_client']" required>
+                        <div class="clr-control-container">
+                            <div class="clr-input-wrapper">
+                                <input [size]="34" class="clr-input" name="authClient" placeholder="demo1,demo2"
+                                       [(ngModel)]="item.parameters['authClient']" required>
+                            </div>
+                            <span class="clr-subtext">{{'APP_OCEAN_STOR_AUTHCLIENT'|translate}}</span>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <th>allocType</th>
                     <td>
-                        <div class="clr-select-wrapper">
-                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_alloc']"
-                                    name="oceanstor_sc_alloc"
-                                    required>
-                                <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                                <option value="thin">thin</option>
-                                <option value="thick">thick</option>
-                            </select>
+                        <div class="clr-control-container">
+                            <div class="clr-select-wrapper">
+                                <select class="clr-select" [(ngModel)]="item.parameters['allocType']"
+                                        name="oceanstor_sc_alloc"
+                                        required>
+                                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                                    <option value="thin">thin</option>
+                                    <option value="thick">thick</option>
+                                </select>
+                            </div>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <th>cloneFrom</th>
                     <td>
-                        <input [size]="34" class="clr-input" name="cloneFrom"
-                               [(ngModel)]="item.parameters['oceanstor_sc_clonefrom']">
+                        <div class="clr-control-container">
+                            <div class="clr-input-wrapper">
+                                <input [size]="34" class="clr-input" name="cloneFrom"
+                                       [(ngModel)]="item.parameters['cloneFrom']">
+                            </div>
+                            <span class="clr-subtext">{{'APP_OCEAN_STOR_CLONEFROM'|translate}}</span>
+                        </div>
+
                     </td>
                 </tr>
                 <tr>
                     <th>cloneSpeed</th>
                     <td>
-                        <input [size]="34" class="clr-input" type="number" name="cloneSpeed"
-                               [(ngModel)]="item.parameters['oceanstor_sc_clonespeed']" placeholder="1-4">
+                        <div class="clr-control-container">
+                            <div class="clr-input-wrapper">
+                                <input [size]="34" class="clr-input" name="cloneSpeed"
+                                       [(ngModel)]="item.parameters['cloneSpeed']" placeholder="1-4">
+                            </div>
+                            <span class="clr-subtext">{{'APP_OCEAN_STOR_CLONSPEED'|translate}}</span>
+                        </div>
+
                     </td>
                 </tr>
                 <tr *ngIf="item.parameters['oceanstor_sc_volume']==='lun'">
                     <th>fsType</th>
                     <td>
                         <div class="clr-select-wrapper">
-                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_fs']"
+                            <select class="clr-select" [(ngModel)]="item.parameters['fsType']"
                                     name="oceanstor_sc_alloc">
                                 <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                                 <option value="ext2">ext2</option>
@@ -208,15 +227,17 @@
                                 <option value="ext4">ext4</option>
                             </select>
                         </div>
+                        <span class="clr-subtext">{{'APP_OCEAN_STOR_FSTYPE'|translate}}</span>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </form>
+        <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="isSubmitGoing || itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>
