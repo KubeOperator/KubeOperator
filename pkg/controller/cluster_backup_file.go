@@ -107,7 +107,11 @@ func (b BackupFileController) PostBackup() error {
 	}
 
 	operator := b.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
+	if len(req.Name) != 0 {
+		go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
+	} else {
+		go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName)
+	}
 
 	return err
 }
