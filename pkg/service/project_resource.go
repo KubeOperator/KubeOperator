@@ -154,10 +154,12 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 					}
 				}
 			}
+		}
 
+		if op.Operation == constant.BatchOperationCreate {
 			if item.ResourceType == constant.ResourceHost {
 				var clusterResources []model.ProjectResource
-				err = db.DB.Where(model.ProjectResource{ResourceID: item.ResourceID, ResourceType: constant.ResourceHost}).Find(&clusterResources).Error
+				err := db.DB.Where(model.ProjectResource{ResourceID: resourceId, ResourceType: constant.ResourceHost}).Find(&clusterResources).Error
 				if err != nil && !gorm.IsRecordNotFoundError(err) {
 					return err
 				}
