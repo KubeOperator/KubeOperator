@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -11,4 +12,5 @@ func TestIsNewerThan(t *testing.T) {
 
 	r := IsNewerThan(v1, v2)
 	fmt.Println(r)
+	fmt.Println(os.Geteuid())
 }
