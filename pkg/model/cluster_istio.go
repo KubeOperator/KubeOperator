@@ -14,7 +14,7 @@ type ClusterIstio struct {
 	Describe  string `json:"describe"`
 	Status    string `json:"status"`
 	Message   string `json:"message" gorm:"type:text(65535)"`
-	Vars      string `json:"-" gorm:"type:text(65535)"`
+	Vars      string `json:"vars" gorm:"type:text(65535)"`
 }
 
 func (c *ClusterIstio) BeforeCreate() (err error) {
