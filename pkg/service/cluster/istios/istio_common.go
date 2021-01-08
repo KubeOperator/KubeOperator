@@ -1,7 +1,6 @@
 package istios
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -39,13 +38,11 @@ func preInstallChart(h helm.Interface, istio *model.ClusterIstio) error {
 	return nil
 }
 
-func installChart(h helm.Interface, istio *model.ClusterIstio, chartName string) error {
+func installChart(h helm.Interface, istio *model.ClusterIstio, valueMap map[string]interface{}, chartName string) error {
 	err := preInstallChart(h, istio)
 	if err != nil {
 		return err
 	}
-	valueMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(istio.Vars), &valueMap)
 	m, err := MergeValueMap(valueMap)
 	if err != nil {
 		return err

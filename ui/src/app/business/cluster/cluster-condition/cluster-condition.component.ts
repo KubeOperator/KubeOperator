@@ -41,10 +41,10 @@ export class ClusterConditionComponent implements OnInit {
         this.service.status(this.cluster.name).subscribe(data => {
             for (const co of data.conditions) {
                 if (co.message.length !== 0) {
-                    co.message = (co.message === '"waiting process"') ? '' : this.errFormat(co.message);
+                    co.message = this.errFormat(co.message);
                 }
             }
-            data.message = (data.message === '') ? '' : this.errFormat(data.message);
+            data.message = this.errFormat(data.message);
             this.item = data;
             this.loading = false;
         });
@@ -93,6 +93,13 @@ export class ClusterConditionComponent implements OnInit {
                     this.opened = false;
                 });
                 break;
+            case 'Waiting':
+                this.service.init(this.cluster.name).subscribe(data => {
+                    this.retry.emit();
+                    this.polling();
+                    this.opened = false;
+                });
+                break;
         }
     }
 
@@ -105,10 +112,10 @@ export class ClusterConditionComponent implements OnInit {
             this.service.status(this.cluster.name).subscribe(data => {
                 for (const co of data.conditions) {
                     if (co.message.length !== 0) {
-                        co.message = (co.message === '"waiting process"') ? '' : this.errFormat(co.message);
+                        co.message = this.errFormat(co.message);
                     }
                 }
-                data.message = (data.message === '') ? '' : this.errFormat(data.message);
+                data.message = this.errFormat(data.message);
                 if (this.item.phase !== 'Running') {
                     this.item.conditions = data.conditions;
                 } else {

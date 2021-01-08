@@ -72,17 +72,6 @@ export class IpCreateComponent extends BaseModelDirective<Ip> implements OnInit 
                 return;
             }
         }
-        const subnet = this.item.subnet.split('/', 2);
-        if (subnet.length !== 2) {
-            this.networkValid = false;
-            this.modalAlertService.showAlert(this.translateService.instant('APP_SUBNET_INVALID'), AlertLevels.ERROR);
-            return;
-        }
-        if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.subnet))) {
-            this.networkValid = false;
-            this.modalAlertService.showAlert(this.translateService.instant('APP_IP_RANGE_INVALID'), AlertLevels.ERROR);
-            return;
-        }
         const gateway = this.item.gateway;
         if (!ipaddr.isValid(gateway)) {
             this.networkValid = false;

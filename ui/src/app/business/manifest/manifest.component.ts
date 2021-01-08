@@ -1,7 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ManifestListComponent} from "./manifest-list/manifest-list.component";
-import {ManifestDetailComponent} from "./manifest-detail/manifest-detail.component";
-import {Manifest} from "./manifest";
+import {ManifestListComponent} from './manifest-list/manifest-list.component';
+import {ManifestDetailComponent} from './manifest-detail/manifest-detail.component';
+import {Manifest} from './manifest';
+import {ManifestAlertComponent} from './manifest-alert/manifest-alert.component';
 
 @Component({
     selector: 'app-manifest',
@@ -19,10 +20,17 @@ export class ManifestComponent implements OnInit {
     @ViewChild(ManifestDetailComponent)
     detail: ManifestDetailComponent;
 
+    @ViewChild(ManifestAlertComponent)
+    alert: ManifestAlertComponent;
+
     ngOnInit(): void {
     }
 
     openDetail(item: Manifest) {
         this.detail.open(item);
+    }
+
+    openAlert() {
+        this.alert.open();
     }
 }

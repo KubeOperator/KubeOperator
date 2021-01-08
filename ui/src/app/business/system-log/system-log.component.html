@@ -16,15 +16,24 @@
                 <span class="spinner spinner-inline" [hidden]="!inProgress"></span>
             </span>
         </div>
-        <clr-datagrid  (clrDgRefresh)="load($event)" [clrDgLoading]="loading">
+        <clr-datagrid style="word-break:break-all;overflow: hidden;" (clrDgRefresh)="load($event)" [clrDgLoading]="loading">
             <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION_INFO'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
-           
-            <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+        
+            <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
                 <clr-dg-cell>{{item.name}}</clr-dg-cell>
-                <clr-dg-cell>{{item.operation}}</clr-dg-cell>
+                <clr-dg-cell>
+                    {{item.operation}}
+                    <clr-signpost *ngIf="item.isExceed">
+                        <clr-icon shape="ellipsis-horizontal" style="color:black;" size="12" class="tooltip tooltip-xs" clrSignpostTrigger></clr-icon>
+                        <clr-signpost-content  style="max-width: 30rem;" *clrIfOpen>
+                            <h3 style="margin-top: 0">{{'APP_OPERATION'|translate}}</h3>
+                            <p>{{item.completeOperation}}</p>
+                        </clr-signpost-content>
+                    </clr-signpost>
+                </clr-dg-cell>
                 <clr-dg-cell>{{item.operationInfo}}</clr-dg-cell>
                 <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
             </clr-dg-row>

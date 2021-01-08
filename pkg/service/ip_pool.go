@@ -141,9 +141,14 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 				tx.Rollback()
 				return err
 			}
-			if err := tx.Where(model.Ip{IpPoolID: ipPool.ID}).Delete(&model.Ip{}).Error; err != nil {
-				tx.Rollback()
-				return err
+
+			var ips []model.Ip
+			tx.Where(model.Ip{IpPoolID: ipPool.ID}).Find(&ips)
+			if len(ips) > 0 {
+				if err := tx.Delete(&ips).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
 			}
 		}
 	default:

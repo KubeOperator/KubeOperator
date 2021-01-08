@@ -16,8 +16,9 @@
     <clr-dg-column>{{'APP_EVENT_TYPE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_EVENT_COMPONENT'|translate}}</clr-dg-column>
     <clr-dg-column>Namespace</clr-dg-column>
-    <clr-dg-column>{{'APP_EVENT_DATE'|translate}}</clr-dg-column>
-    <clr-dg-row *ngFor="let item of events" [clrDgItem]="item">
+    <clr-dg-column [clrDgField]="'firstTimestamp'"
+                   [(clrDgSortOrder)]="descSort">{{'APP_EVENT_DATE'|translate}}</clr-dg-column>
+    <clr-dg-row *clrDgItems="let item of events" [clrDgItem]="item">
         <clr-dg-cell>{{item.message}}</clr-dg-cell>
         <clr-dg-cell>{{item.type}}</clr-dg-cell>
         <clr-dg-cell>{{item.source.component}}</clr-dg-cell>

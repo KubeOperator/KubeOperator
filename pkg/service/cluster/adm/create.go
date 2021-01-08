@@ -1,16 +1,17 @@
 package adm
 
 import (
+	"reflect"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/ingress"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
-	"reflect"
-	"runtime"
-	"strings"
-	"time"
 )
 
 var log = logger.Default
@@ -46,7 +47,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 				Name:          nextConditionType,
 				Status:        constant.ConditionUnknown,
 				LastProbeTime: time.Now(),
-				Message:       "waiting process",
+				Message:       "",
 			})
 		}
 	}
@@ -59,7 +60,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) *model.ClusterStatus
 			Name:          ca.createHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
 			LastProbeTime: time.Now(),
-			Message:       "waiting process",
+			Message:       "",
 		}
 	}
 	for _, condition := range c.Status.ClusterStatusConditions {

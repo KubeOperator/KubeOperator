@@ -631,6 +631,13 @@
   "APP_COMPONENT_SETUP": "Component settings",
   "APP_CONFIGUARTION_PREVIEW": "Configuration preview",
   "APP_BASIC_CONFIGURATION": "Basic configuration",
+  "APP_CLOSE": "Close",
+  "APP_VERSION_ALERT": "Kubernetes in the offline package only carries the latest two versions by default. If the current environment is offline, you need to execute the script to generate the old version of Kubernetes offline package and push it to the nexus warehouse.",
+  "APP_VERSION_DOC": "Reference documents",
   "APP_CURRENT_VERSION": "Current Version",
-  "APP_UPGRADE_VERSION": "Upgrade Version"
+  "APP_UPGRADE_VERSION": "Upgrade Version",
+  "APP_OCEAN_STOR_AUTHCLIENT": "Mandatory, support to enter the client host name, client IP address, client IP address segment or use \"*\" to indicate all client IP addresses\nSupport to specify multiple clients, separated by \";\" semicolon",
+  "APP_OCEAN_STOR_CLONEFROM": "Optional, the format is storage backend name. original volume name",
+  "APP_OCEAN_STOR_CLONSPEED": "Optional, default value 3, support 1~4, 4 is the fastes",
+  "APP_OCEAN_STOR_FSTYPE": "Optional, support ext2/ext3/ext4, default is ext4"
 }

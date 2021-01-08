@@ -24,7 +24,7 @@ func NewPilotInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) *P
 	}
 }
 
-func (d *PilotInterface) setDefaultValue() {
+func (d *PilotInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(d.Component.Vars), &values)
 	values["pilot.image"] = fmt.Sprintf("%s:%d/%s", d.HelmInfo.LocalhostName, constant.LocalDockerRepositoryPort, PilotImageName)
@@ -34,13 +34,12 @@ func (d *PilotInterface) setDefaultValue() {
 	values["pilot.resources.limits.cpu"] = fmt.Sprintf("%vm", values["pilot.resources.limits.cpu"])
 	values["pilot.resources.limits.memory"] = fmt.Sprintf("%vMi", values["pilot.resources.limits.memory"])
 
-	str, _ := json.Marshal(&values)
-	d.Component.Vars = string(str)
+	return values
 }
 
 func (d *PilotInterface) Install() error {
-	d.setDefaultValue()
-	if err := installChart(d.HelmInfo.HelmClient, d.Component, constant.PilotChartName); err != nil {
+	valueMaps := d.setDefaultValue()
+	if err := installChart(d.HelmInfo.HelmClient, d.Component, valueMaps, constant.PilotChartName); err != nil {
 		return err
 	}
 	return nil

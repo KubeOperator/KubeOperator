@@ -7,6 +7,7 @@ import (
 	"github.com/c-robinson/iplib"
 	"github.com/go-ping/ping"
 	"net"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -66,7 +67,11 @@ func Ping(host string) error {
 	pinger.Count = -1
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 3
-	pinger.SetPrivileged(false)
+	if runtime.GOOS == "darwin" {
+		pinger.SetPrivileged(false)
+	} else {
+		pinger.SetPrivileged(true)
+	}
 
 	err = pinger.Run()
 	if err != nil {

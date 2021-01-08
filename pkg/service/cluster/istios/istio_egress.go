@@ -24,7 +24,7 @@ func NewEgressInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) *
 	}
 }
 
-func (e *EgressInterface) setDefaultValue() {
+func (e *EgressInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(e.Component.Vars), &values)
 	values["global.proxy.image"] = fmt.Sprintf("%s:%d/%s", e.HelmInfo.LocalhostName, constant.LocalDockerRepositoryPort, EgressImage)
@@ -34,13 +34,12 @@ func (e *EgressInterface) setDefaultValue() {
 	values["gateways.istio-egressgateway.resources.limits.cpu"] = fmt.Sprintf("%vm", values["gateways.istio-egressgateway.resources.limits.cpu"])
 	values["gateways.istio-egressgateway.resources.limits.memory"] = fmt.Sprintf("%vMi", values["gateways.istio-egressgateway.resources.limits.memory"])
 
-	str, _ := json.Marshal(&values)
-	e.Component.Vars = string(str)
+	return values
 }
 
 func (e *EgressInterface) Install() error {
-	e.setDefaultValue()
-	if err := installChart(e.HelmInfo.HelmClient, e.Component, constant.EgressChartName); err != nil {
+	valueMaps := e.setDefaultValue()
+	if err := installChart(e.HelmInfo.HelmClient, e.Component, valueMaps, constant.EgressChartName); err != nil {
 		return err
 	}
 	return nil

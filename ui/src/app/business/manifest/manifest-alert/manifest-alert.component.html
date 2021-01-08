@@ -1,0 +1,22 @@
+<div *ngIf="opened" class="modal static bump-down">
+    <div class="modal-dialog" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="alert alert-info" role="alert">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                        </div>
+                        <span class="alert-text">
+                            {{ 'APP_VERSION_ALERT'|translate }}<br><br>
+                            {{ 'APP_VERSION_DOC'|translate }}:<br> <a>https://kubeoperator.io/docs/user_manual/version/</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" (click)="close()">{{ 'APP_CLOSE'| translate}}</button>
+            </div>
+        </div>
+    </div>
+</div>

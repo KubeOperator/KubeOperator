@@ -9,6 +9,7 @@ export class Istio extends BaseModel {
     logo: string;
     url: string;
     frame: boolean;
+    vars: string;
 }
 
 export class IstioHelper {

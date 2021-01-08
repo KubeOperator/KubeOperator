@@ -24,7 +24,7 @@ func NewIngressInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) 
 	}
 }
 
-func (i *IngressInterface) setDefaultValue() {
+func (i *IngressInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(i.Component.Vars), &values)
 	values["global.proxy.image"] = fmt.Sprintf("%s:%d/%s", i.HelmInfo.LocalhostName, constant.LocalDockerRepositoryPort, IngressImage)
@@ -33,14 +33,12 @@ func (i *IngressInterface) setDefaultValue() {
 	values["gateways.istio-ingressgateway.resources.requests.memory"] = fmt.Sprintf("%vMi", values["gateways.istio-ingressgateway.resources.requests.memory"])
 	values["gateways.istio-ingressgateway.resources.limits.cpu"] = fmt.Sprintf("%vm", values["gateways.istio-ingressgateway.resources.limits.cpu"])
 	values["gateways.istio-ingressgateway.resources.limits.memory"] = fmt.Sprintf("%vMi", values["gateways.istio-ingressgateway.resources.limits.memory"])
-
-	str, _ := json.Marshal(&values)
-	i.Component.Vars = string(str)
+	return values
 }
 
 func (i *IngressInterface) Install() error {
-	i.setDefaultValue()
-	if err := installChart(i.HelmInfo.HelmClient, i.Component, constant.IngressChartName); err != nil {
+	valueMaps := i.setDefaultValue()
+	if err := installChart(i.HelmInfo.HelmClient, i.Component, valueMaps, constant.IngressChartName); err != nil {
 		return err
 	}
 	return nil

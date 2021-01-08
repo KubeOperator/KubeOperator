@@ -337,7 +337,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Status:       constant.ClusterWaiting,
 			Logo:         "grafana.png",
 			Frame:        true,
-			Url:          "/proxy/grafana/{cluster_name}/root",
+			Url:          "/proxy/grafana/{cluster_name}",
 			Architecture: supportedArchitectureAll,
 		},
 		{
