@@ -61,20 +61,7 @@ func (p ProjectResourceController) PostBatch() error {
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	delResources := ""
-	if len(req.Items) <= 2 {
-		for _, item := range req.Items {
-			delResources += (item.ResourceType + "-" + item.ResourceName + ",")
-		}
-	} else {
-		delResources = (req.Items[0].ResourceType + "-" + req.Items[0].ResourceName + ",") + (req.Items[1].ResourceType + "-" + req.Items[1].ResourceName + "...")
-	}
-
-	if req.Operation == "create" {
-		go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE, delResources)
-	} else {
-		go log_save.LogSave(operator, constant.UNBIND_PROJECT_RESOURCE, delResources)
-	}
+	go saveResourceBindLogs(operator, req)
 
 	return err
 }
@@ -83,4 +70,32 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
 	projectName := p.Ctx.Values().GetString("project")
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
+}
+
+func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
+	resources := ""
+	typeStr := ""
+	for _, item := range req.Items {
+		typeStr = item.ResourceType
+		resources += (item.ResourceName + ",")
+	}
+	if req.Operation == "create" {
+		switch typeStr {
+		case "PLAN":
+			go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
+		case "BACKUP_ACCOUNT":
+			go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
+		case "HOST":
+			go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE_HOST, resources)
+		}
+	} else {
+		switch typeStr {
+		case "PLAN":
+			go log_save.LogSave(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
+		case "BACKUP_ACCOUNT":
+			go log_save.LogSave(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
+		case "HOST":
+			go log_save.LogSave(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
+		}
+	}
 }
