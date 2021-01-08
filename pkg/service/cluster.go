@@ -382,7 +382,7 @@ func (c *clusterService) Delete(name string) error {
 		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
 			return err
 		}
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
 }
@@ -395,7 +395,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string)
 		cluster.Status.ClusterStatusConditions[0].Message = errStr
 	}
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, errStr), cluster.Name, constant.ClusterUpgrade)
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, errStr), cluster.Name, constant.ClusterUnInstall)
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
@@ -431,7 +431,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
 		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
 		return
 	}
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	return
 }
 
@@ -455,7 +455,7 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster) {
 		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
 		return
 	}
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	return
 }
 
