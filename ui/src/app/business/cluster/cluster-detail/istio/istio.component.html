@@ -70,15 +70,15 @@
                         <label>{{"APP_ISTIO_MEMERY_REQUEST"|translate}}</label>
                         <input clrInput name="ingress-requests-memory" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.resources.requests.memory']" required/>
                     </clr-input-container>
+                    <clr-select-container *ngIf="ingressCfg.enable" class="clr-col-6" style="float: left;margin-bottom: 10px;">
+                        <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
+                        <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.type']" required>
+                            <option>NodePort</option>
+                            <option>ClusterIP</option>
+                            <option>LoadBalancer</option>
+                        </select>
+                    </clr-select-container>
                 </clr-accordion-content>
-                <clr-select-container *ngIf="ingressCfg.enable" class="clr-col-6" style="float: left;margin-bottom: 10px;">
-                    <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
-                    <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.type']" required>
-                        <option>NodePort</option>
-                        <option>ClusterIP</option>
-                        <option>LoadBalancer</option>
-                    </select>
-                </clr-select-container>
             </clr-accordion-panel>
 
             <clr-accordion-panel clrAccordionPanelOpen=true>

@@ -74,6 +74,7 @@ export class IstioComponent implements OnInit {
         this.disAble(items, this.egressCfg);
         this.istioService.disable(this.currentCluster.name, items).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ISTIO_STOP_SUCCESS'), AlertLevels.SUCCESS);
+            this.refresh()
             this.btnStopDisable = false;
         }, error => {
             this.btnStopDisable = false;
@@ -98,32 +99,53 @@ export class IstioComponent implements OnInit {
             for (const item of data) {
                 switch (item.cluster_istio.name) {
                     case 'base':
-                        this.baseCfg.cluster_istio = item.cluster_istio;
                         this.baseCfg.enable = (item.cluster_istio.status === "Running");
+                        this.baseCfg.cluster_istio = item.cluster_istio;
+                        if (item.cluster_istio.status === "Running") {
+                            this.baseCfg.vars = JSON.parse(item.cluster_istio.vars);
+                        } else {
+                            this.setDefaultBaseCfg();
+                        };
                         break;
                     case 'pilot':
-                        this.pilotCfg.cluster_istio = item.cluster_istio;
                         this.pilotCfg.enable = (item.cluster_istio.status === "Running");
+                        this.pilotCfg.cluster_istio = item.cluster_istio;
+                        if (item.cluster_istio.status === "Running") {
+                            this.pilotCfg.vars = JSON.parse(item.cluster_istio.vars);
+                        } else {
+                            this.setDefaultPilotCfg();
+                        };
                         break;
                     case 'ingress':
-                        this.ingressCfg.cluster_istio = item.cluster_istio;
                         this.ingressCfg.enable = (item.cluster_istio.status === "Running");
+                        this.ingressCfg.cluster_istio = item.cluster_istio;
+                        if (item.cluster_istio.status === "Running") {
+                            this.ingressCfg.vars = JSON.parse(item.cluster_istio.vars);
+                        } else {
+                            this.setDefaultIngressCfg();
+                        };
                         break;
                     case 'egress':
-                        this.egressCfg.cluster_istio = item.cluster_istio;
                         this.egressCfg.enable = (item.cluster_istio.status === "Running");
+                        this.egressCfg.cluster_istio = item.cluster_istio;
+                        if (item.cluster_istio.status === "Running") {
+                            this.egressCfg.vars = JSON.parse(item.cluster_istio.vars);
+                        } else {
+                            this.setDefaultEgressCfg();
+                        };
                         break;
                 }
             }
+            this.egressAbleText = this.egressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
+            this.ingressAbleText = this.ingressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
         });
-        this.setDefaultVars();
-        this.egressAbleText = this.egressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
-        this.ingressAbleText = this.ingressCfg.enable ? this.translateService.instant("APP_DISABLE") : this.translateService.instant("APP_ENABLE");
     }
-    setDefaultVars() {
+    setDefaultBaseCfg() {
         this.baseCfg.vars = {
             'global.istiod.enableAnalysis': true,
         }
+    }
+    setDefaultPilotCfg () {
         this.pilotCfg.vars = {
             'pilot.resources.requests.cpu': 500,
             'pilot.resources.requests.memory': 2048, 
@@ -131,6 +153,8 @@ export class IstioComponent implements OnInit {
             'pilot.resources.limits.memory': 2048,
             'pilot.traceSampling': 1,
         };
+    }
+    setDefaultIngressCfg () {
         this.ingressCfg.vars = {
             'gateways.istio-ingressgateway.type': 'NodePort',
             'gateways.istio-ingressgateway.resources.requests.cpu': 100,
@@ -138,6 +162,8 @@ export class IstioComponent implements OnInit {
             'gateways.istio-ingressgateway.resources.limits.cpu': 2000,
             'gateways.istio-ingressgateway.resources.limits.memory': 1024,
         };
+    }
+    setDefaultEgressCfg () {
         this.egressCfg.vars = {
             'gateways.istio-egressgateway.type': 'NodePort',
             'gateways.istio-egressgateway.resources.requests.cpu': 100,
