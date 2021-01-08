@@ -154,6 +154,17 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 					}
 				}
 			}
+
+			if item.ResourceType == constant.ResourceHost {
+				var clusterResources []model.ProjectResource
+				err = db.DB.Where(model.ProjectResource{ResourceID: item.ResourceID, ResourceType: constant.ResourceHost}).Find(&clusterResources).Error
+				if err != nil && !gorm.IsRecordNotFoundError(err) {
+					return err
+				}
+				if len(clusterResources) > 0 {
+					continue
+				}
+			}
 		}
 
 		opItems = append(opItems, model.ProjectResource{

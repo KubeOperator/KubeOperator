@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Item, Manifest} from "../manifest";
+import {Item, Manifest} from '../manifest';
 
 @Component({
     selector: 'app-manifest-detail',

@@ -19,6 +19,9 @@ export class ManifestListComponent implements OnInit {
     items: Manifest[] = [];
     loading = false;
     @Output() detailEvent = new EventEmitter<Manifest>();
+    @Output() alertEvent = new EventEmitter();
+
+
 
     ngOnInit(): void {
         this.refresh();
@@ -34,10 +37,17 @@ export class ManifestListComponent implements OnInit {
         this.detailEvent.emit(item);
     }
 
+    onAlert() {
+        this.alertEvent.emit();
+    }
+
     update(item: Manifest) {
         const updateItem = new Manifest();
         Object.assign(updateItem, item);
         updateItem.isActive = !item.isActive;
+        if (updateItem.isActive){
+            this.onAlert();
+        }
         this.manifestService.update(updateItem).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {

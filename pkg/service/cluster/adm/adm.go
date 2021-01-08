@@ -169,8 +169,6 @@ func GetManiFestBy(version string) (dto.ClusterManifest, error) {
 	return clusterManifest, err
 }
 
-
-
 func writeLog(msg string, writer io.Writer) {
 	_, err := fmt.Fprintln(writer, msg)
 	if err != nil {
