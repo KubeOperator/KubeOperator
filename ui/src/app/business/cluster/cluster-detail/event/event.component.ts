@@ -6,6 +6,7 @@ import {EventService} from './event.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {ClrDatagridSortOrder} from '@clr/angular';
 
 @Component({
     selector: 'app-event',
@@ -24,6 +25,7 @@ export class EventComponent implements OnInit {
     previousToken = '';
     continueToken = '';
     showPage = true;
+    descSort = ClrDatagridSortOrder.ASC;
 
     constructor(private kubernetesService: KubernetesService,
                 private route: ActivatedRoute,
