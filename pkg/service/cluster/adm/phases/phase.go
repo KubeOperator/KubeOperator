@@ -13,7 +13,7 @@ import (
 
 const (
 	PhaseInterval             = 5 * time.Second
-	DefaultPhaseTimeoutMinute = 100
+	DefaultPhaseTimeoutMinute = 10
 )
 
 var log = logger.Default
