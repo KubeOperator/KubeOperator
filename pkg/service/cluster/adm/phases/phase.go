@@ -3,7 +3,6 @@ package phases
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/spf13/viper"
@@ -24,31 +23,13 @@ type Interface interface {
 	Run(p kobe.Interface, writer io.Writer) error
 }
 
-func RunPlaybookAndGetResult(b kobe.Interface, playbookName string, tag string, writer io.Writer) error {
+func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, writer io.Writer) error {
 	taskId, err := b.RunPlaybook(playbookName, tag)
 	var result kobe.Result
 	if err != nil {
 		return err
 	}
-	timeout := viper.GetInt("job.timeout")
-	if timeout < DefaultPhaseTimeoutMinute {
-		timeout = DefaultPhaseTimeoutMinute
-	}
-	// 获取到运行状态再运行
-	if err := wait.Poll(1*time.Second, time.Duration(timeout)*time.Minute, func() (done bool, err error) {
-		res, err := b.GetResult(taskId)
-		if err != nil {
-			return true, err
-		}
-		if res.Running {
-			return true, nil
-		}
-
-		return false, nil
-
-	}); err != nil {
-		return fmt.Errorf("task is not running %s", err.Error())
-	}
+	// 读取 ansible 执行日志
 	if writer != nil {
 		go func() {
 			err = b.Watch(writer, taskId)
@@ -57,7 +38,10 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName string, tag string, 
 			}
 		}()
 	}
-
+	timeout := viper.GetInt("job.timeout")
+	if timeout < DefaultPhaseTimeoutMinute {
+		timeout = DefaultPhaseTimeoutMinute
+	}
 	err = wait.Poll(PhaseInterval, time.Duration(timeout)*time.Minute, func() (done bool, err error) {
 		res, err := b.GetResult(taskId)
 		if err != nil {

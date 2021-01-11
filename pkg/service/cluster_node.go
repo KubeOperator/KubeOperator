@@ -652,8 +652,10 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 		k.SetVar(j, v)
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
-	val, _ := c.systemSettingRepo.Get("ip")
-	k.SetVar(facts.RegistryHostnameFactName, val.Value)
+	registryIp, _ := c.systemSettingRepo.Get("ip")
+	registryProtocol, _ := c.systemSettingRepo.Get("REGISTRY_PROTOCOL")
+	k.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
+	k.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
 	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, "", writer)
 	if err != nil {
 		return err

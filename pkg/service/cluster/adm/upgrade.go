@@ -132,7 +132,7 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 		_, _ = fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade")
 		return nil
 	}
-
+	c.Kobe.SetVar(runtimeVersionKey, newVersion)
 	return phase.Run(c.Kobe, c.writer)
 
 }
@@ -154,6 +154,7 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 		_, _ = fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade")
 		return nil
 	}
+	c.Kobe.SetVar(etcdVersionKey, newVersion)
 	return phase.Run(c.Kobe, c.writer)
 }
 func (ca *ClusterAdm) EnsureUpgradeKubernetes(c *Cluster) error {

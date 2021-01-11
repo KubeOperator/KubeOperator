@@ -46,7 +46,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		}
 	} else {
 		var oldStatus model.ClusterStatus
-		db.DB.First(&oldStatus)
+		db.DB.Where(model.ClusterStatus{ID: status.ID}).First(&oldStatus)
 		if status.Phase != oldStatus.Phase {
 			status.PrePhase = oldStatus.Phase
 		}
