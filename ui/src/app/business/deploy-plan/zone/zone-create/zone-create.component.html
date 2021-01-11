@@ -450,7 +450,7 @@
             <clr-wizard-button [type]="'cancel'">{{'APP_CANCEL'|translate}}</clr-wizard-button>
             <clr-wizard-button [type]="'previous'">{{'APP_BACK'|translate}}</clr-wizard-button>
             <clr-wizard-button [type]="'custom-finish'"
-                               [clrWizardButtonDisabled]="!networkValid || isSubmitGoing">{{'APP_FINISH'|translate}}</clr-wizard-button>
+                               [clrWizardButtonDisabled]="paramsForm.invalid && isSubmitGoing">{{'APP_FINISH'|translate}}</clr-wizard-button>
         </ng-template>
         <br>
         <app-modal-alert></app-modal-alert>

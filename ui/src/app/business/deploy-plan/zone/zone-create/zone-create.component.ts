@@ -9,7 +9,6 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
-import * as ipaddr from 'ipaddr.js';
 import {CredentialService} from '../../../setting/credential/credential.service';
 import {Credential} from '../../../setting/credential/credential';
 import {NgForm} from '@angular/forms';
@@ -35,8 +34,6 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     region: Region = new Region();
     cloudZone: CloudZone;
     templateLoading = false;
-    networkError = [];
-    networkValid = true;
     subnetList: Subnet[] = [];
     credentials: Credential[] = [];
     portgroups: string[] = [];
@@ -78,11 +75,8 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     resetWizard(): void {
         this.wizard.reset();
         this.item = new ZoneCreateRequest();
-        this.networkValid = false;
         this.basicForm.resetForm(this.item);
-        this.basicForm.resetForm(this.networkValid);
         this.paramsForm.resetForm(this.item);
-        this.paramsForm.resetForm(this.networkValid);
     }
 
     doFinish(): void {
@@ -197,61 +191,6 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
-
-    checkNetwork() {
-        this.networkError = [];
-        const ipStart = this.item.cloudVars['ipStart'];
-        const ipEnd = this.item.cloudVars['ipEnd'];
-        if (!ipaddr.isValid(ipStart) || (!ipaddr.isValid(ipEnd))) {
-            this.networkValid = false;
-            this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
-            return;
-        }
-        const ipStartAddr = ipaddr.IPv4.parse(ipStart);
-        const ipEndAddr = ipaddr.IPv4.parse(ipEnd);
-        const start = ipStartAddr.toByteArray();
-        const end = ipEndAddr.toByteArray();
-        for (let i = 0; i < 4; i++) {
-            if (start[i] > end[i]) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
-                return;
-            }
-            if (i === 3 && (end[i] - start[i]) < 1) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
-                return;
-            }
-        }
-        if (this.region.regionVars['provider'] === 'vSphere') {
-            const subnet = this.item.cloudVars['subnet'].split('/', 2);
-            if (subnet.length !== 2) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_SUBNET_INVALID'));
-                return;
-            }
-            if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.cloudVars['subnet']))) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
-                return;
-            }
-            const gateway = this.item.cloudVars['gateway'];
-            if (!ipaddr.isValid(gateway)) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
-                return;
-            }
-            const dns1 = this.item.cloudVars['dns1'];
-            const dns2 = this.item.cloudVars['dns2'];
-            if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_DNS_INVALID'));
-                return;
-            }
-        }
-        this.networkValid = true;
-    }
-
 
     listIpPool() {
         this.ipPoolService.list().subscribe(res => {
