@@ -20,6 +20,7 @@ type ClusterController struct {
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
+	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
@@ -32,6 +33,7 @@ func NewClusterController() *ClusterController {
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
+		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
@@ -354,6 +356,15 @@ func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, 
 		return nil, err
 	}
 	return &sec, nil
+}
+
+func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
+	ls, err := c.ClusterLogService.List(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	return ls, nil
+
 }
 
 func (c ClusterController) GetCisBy(clusterName string) (*page.Page, error) {
