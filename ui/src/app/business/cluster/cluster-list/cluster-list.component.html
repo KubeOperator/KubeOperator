@@ -5,7 +5,8 @@
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="isDeleteButtonDisable || (selected.length < 1)">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
+                    [disabled]="isDeleteButtonDisable || (selected.length < 1)">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
@@ -18,6 +19,11 @@
                 [disabled]="selected.length!==1">
             <clr-icon shape="circle-arrow"></clr-icon>
             {{"APP_CLUSTER_UPGRADE"|translate}}
+        </button>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="onHealthCheck(selected[0])"
+                [disabled]="selected.length!==1">
+            <clr-icon shape="circle-arrow"></clr-icon>
+            {{"APP_CLUSTER_HEALTH_CHECK"|translate}}
         </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{"APP_NAME"|translate}}</clr-dg-column>
