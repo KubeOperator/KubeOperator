@@ -22,7 +22,7 @@ export class EmailComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.systemService.singleGet().subscribe(res => {
+        this.systemService.getByTab('EMAIL').subscribe(res => {
             this.item = res;
         });
     }

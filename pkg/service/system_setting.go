@@ -87,6 +87,9 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 			}
 		} else if systemSetting.ID != "" {
 			systemSetting.Value = v
+			if systemSetting.Tab == "" {
+				systemSetting.Tab = creation.Tab
+			}
 			err := s.systemSettingRepo.Save(&systemSetting)
 			if err != nil {
 				return result, err
