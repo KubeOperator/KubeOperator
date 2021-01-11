@@ -84,6 +84,10 @@ type WebkubectlToken struct {
 	Token string `json:"token"`
 }
 
+type ClusterLog struct {
+	model.ClusterLog
+}
+
 type ClusterUpgrade struct {
 	ClusterName string `json:"clusterName"`
 	Version     string `json:"version"`

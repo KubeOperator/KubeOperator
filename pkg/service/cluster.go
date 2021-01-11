@@ -52,6 +52,7 @@ func NewClusterService() ClusterService {
 		planRepo:                   repository.NewPlanRepository(),
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
+		clusterLogService:          NewClusterLogService(),
 		messageService:             NewMessageService(),
 	}
 }
@@ -68,6 +69,7 @@ type clusterService struct {
 	clusterInitService         ClusterInitService
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
+	clusterLogService          ClusterLogService
 	messageService             MessageService
 }
 
