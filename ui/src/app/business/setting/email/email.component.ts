@@ -29,6 +29,7 @@ export class EmailComponent implements OnInit {
 
 
     checkValid(type) {
+        this.item.tab = 'EMAIL';
         this.systemService.checkBy(type, this.item).subscribe(res => {
             this.valid = true;
             this.commonAlertService.showAlert(this.translateService.instant('APP_CHECK_SUCCESS'), AlertLevels.SUCCESS);

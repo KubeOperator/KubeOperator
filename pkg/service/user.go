@@ -262,7 +262,7 @@ func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
 	if err != nil {
 		return err
 	}
-	if systemSetting.Vars == nil && systemSetting.Vars["EMAIL_STATUS"] != "ENABLE" {
+	if systemSetting.Vars == nil || systemSetting.Vars["EMAIL_STATUS"] != "ENABLE" {
 		return EmailDisable
 	}
 	vars := make(map[string]interface{})
