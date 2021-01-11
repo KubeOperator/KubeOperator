@@ -87,4 +87,8 @@ const (
 	DefaultLokiStateSetsfulName      = "loki"
 	DefaultGrafanaDeploymentName     = "grafana"
 	DefaultPrometheusDeploymentName  = "prometheus-server"
+
+	ClusterHealthLevelError   = "error"
+	ClusterHealthLevelWarning = "warning"
+	ClusterHealthLevelSuccess = "success"
 )

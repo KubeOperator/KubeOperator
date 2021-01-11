@@ -28,10 +28,11 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     @Output() statusDetailEvent = new EventEmitter<Cluster>();
     @Output() importEvent = new EventEmitter();
     @Output() upgradeEvent = new EventEmitter();
+    @Output() healthCheckEvent = new EventEmitter();
     timer;
     currentProject: Project;
     loading = false;
-    isDeleteButtonDisable: boolean = true;
+    isDeleteButtonDisable = true;
 
 
     ngOnInit(): void {
@@ -110,12 +111,16 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
         this.upgradeEvent.emit(item);
     }
 
+    onHealthCheck(item: Cluster) {
+        this.healthCheckEvent.emit(item);
+    }
+
     selectionChanged() {
         if (this.selected.length === 0) {
             this.isDeleteButtonDisable = true;
             return;
         }
-        let isOk: boolean = true;
+        let isOk = true;
         for (const item of this.selected) {
             if (item.status !== 'Running' && item.status !== 'Failed') {
                 isOk = false;

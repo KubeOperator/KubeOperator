@@ -639,5 +639,9 @@
   "APP_OCEAN_STOR_AUTHCLIENT": "Mandatory, support to enter the client host name, client IP address, client IP address segment or use \"*\" to indicate all client IP addresses\nSupport to specify multiple clients, separated by \";\" semicolon",
   "APP_OCEAN_STOR_CLONEFROM": "Optional, the format is storage backend name. original volume name",
   "APP_OCEAN_STOR_CLONSPEED": "Optional, default value 3, support 1~4, 4 is the fastes",
-  "APP_OCEAN_STOR_FSTYPE": "Optional, support ext2/ext3/ext4, default is ext4"
+  "APP_OCEAN_STOR_FSTYPE": "Optional, support ext2/ext3/ext4, default is ext4",
+  "APP_CLUSTER_HEALTH_CHECK": "Check",
+  "APP_LEVEL": "Level",
+  "APP_RECOVER": "Recover",
+  "APP_METHOD": "Method"
 }

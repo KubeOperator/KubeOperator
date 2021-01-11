@@ -73,6 +73,7 @@ import { NamespaceDeleteComponent } from './cluster-detail/namespace/namespace-d
 import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-create/namespace-create.component';
 import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
 import { F5Component } from './cluster-detail/f5/f5.component';
+import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-health-check.component';
 
 
 @NgModule({
@@ -123,7 +124,8 @@ import { F5Component } from './cluster-detail/f5/f5.component';
         NamespaceDeleteComponent,
         NamespaceCreateComponent,
         StorageProvisionerCreateOceanStorComponent,
-        F5Component],
+        F5Component,
+        ClusterHealthCheckComponent],
     imports: [
         CoreModule,
         RouterModule,

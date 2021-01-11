@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
 import {
-    Cluster,
-    CLusterImportRequest,
+    Cluster, ClusterHealthCheck,
+    CLusterImportRequest, ClusterRecoverItem,
     ClusterSecret,
     ClusterStatus,
     ClusterUpgradeRequest,
@@ -38,6 +38,7 @@ export class ClusterService extends BaseModelService<Cluster> {
     secret(clusterName: string): Observable<ClusterSecret> {
         return this.http.get<ClusterSecret>(`${this.baseUrl}/secret/${clusterName}`);
     }
+
     pageBy(page, size, projectName): Observable<Page<Cluster>> {
         const pageUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}&projectName=${projectName}`;
         return this.http.get<Page<Cluster>>(pageUrl);
@@ -49,4 +50,15 @@ export class ClusterService extends BaseModelService<Cluster> {
         req.version = version;
         return this.http.post<any>(`${this.baseUrl}/upgrade/`, req);
     }
+
+    healthCheck(clusterName: string): Observable<ClusterHealthCheck> {
+        return this.http.get<ClusterHealthCheck>(`${this.baseUrl}/health/${clusterName}`);
+    }
+
+    recover(clusterName: string): Observable<ClusterRecoverItem[]> {
+        return this.http.post<ClusterRecoverItem[]>(`${this.baseUrl}/recover/${clusterName}`, {});
+    }
 }
+
+
+

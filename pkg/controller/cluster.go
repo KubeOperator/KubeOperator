@@ -23,6 +23,7 @@ type ClusterController struct {
 	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
+	ClusterHealthService             service.ClusterHealthService
 }
 
 func NewClusterController() *ClusterController {
@@ -35,6 +36,7 @@ func NewClusterController() *ClusterController {
 		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
+		ClusterHealthService:             service.NewClusterHealthService(),
 	}
 }
 
@@ -444,4 +446,12 @@ func (c ClusterController) GetProvisionerLogBy(clusterName, logId string) (*Log,
 		chunk = append(chunk, buffer[:n]...)
 	}
 	return &Log{Msg: string(chunk)}, nil
+}
+
+func (c *ClusterController) GetHealthBy(clusterName string) (*dto.ClusterHealth, error) {
+	return c.ClusterHealthService.HealthCheck(clusterName)
+}
+
+func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterRecoverItem, error) {
+	return c.ClusterHealthService.Recover(clusterName)
 }
