@@ -66,7 +66,8 @@ import {SystemLogComponent} from './business/system-log/system-log.component';
 import {IpPoolComponent} from './business/deploy-plan/ip-pool/ip-pool.component';
 import {IpComponent} from './business/deploy-plan/ip-pool/ip/ip.component';
 import {IpPoolRoutingResolverService} from './business/deploy-plan/ip-pool/ip-pool-routing-resolver.service';
-import {IpListComponent} from './business/deploy-plan/ip-pool/ip/ip-list/ip-list.component';
+import {BackupStrategyComponent} from './business/cluster/cluster-detail/backup/backup-strategy/backup-strategy.component';
+import {BackupLogComponent} from './business/cluster/cluster-detail/backup/backup-log/backup-log.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -129,7 +130,15 @@ const routes: Routes = [
                     },
                     {path: 'tool', component: ToolsComponent},
                     {path: 'istio', component: IstioComponent},
-                    {path: 'backup', component: BackupComponent},
+                    {
+                        path: 'backup',
+                        component: BackupComponent,
+                        children: [
+                            {path: '', redirectTo: 'strategy', pathMatch: 'full'},
+                            {path: 'strategy', component: BackupStrategyComponent},
+                            {path: 'log', component: BackupLogComponent},
+                        ]
+                    },
                     {path: 'logs', component: LogComponent},
                     {path: 'grade', component: ClusterGradeComponent},
                     {path: 'f5', component: F5Component}

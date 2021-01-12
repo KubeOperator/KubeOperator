@@ -648,5 +648,6 @@
   "APP_CLUSTER_HEALTH_CHECK": "诊断",
   "APP_LEVEL": "等级",
   "APP_RECOVER": "修复",
-  "APP_METHOD": "方法"
+  "APP_METHOD": "方法",
+  "APP_BACKUP_RESTORE_TAB": "备份/恢复"
 }
