@@ -52,6 +52,7 @@ func NewClusterService() ClusterService {
 		planRepo:                   repository.NewPlanRepository(),
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
+		clusterLogService:          NewClusterLogService(),
 		messageService:             NewMessageService(),
 	}
 }
@@ -68,6 +69,7 @@ type clusterService struct {
 	clusterInitService         ClusterInitService
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
+	clusterLogService          ClusterLogService
 	messageService             MessageService
 }
 
@@ -276,14 +278,17 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
 				workerNo++
 			}
+			if err := tx.Model(model.Host{}).Where(model.Host{Name: nc.HostName}).Updates(map[string]interface{}{
+				"ClusterID": cluster.ID,
+			}).Error; err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
+			}
+			log.Infof("update host ClusterId %s %s", nc.HostName, cluster.ID)
 			var host model.Host
 			if err := tx.Where(model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
 				tx.Rollback()
 				return nil, fmt.Errorf("can not query host %s reason %s", nc.HostName, err.Error())
-			}
-			host.ClusterID = cluster.ID
-			if err := tx.Save(&host).Error; err != nil {
-				return nil, fmt.Errorf("can not save  host %s reason %s", nc.HostName, err.Error())
 			}
 			n.HostID = host.ID
 			if err := tx.Create(&n).Error; err != nil {

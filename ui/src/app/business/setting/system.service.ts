@@ -29,4 +29,9 @@ export class SystemService extends BaseModelService<System> {
         const itemUrl = `${this.baseUrl}/check/` + type;
         return this.http.post<System>(itemUrl, item);
     }
+
+    getByTab(tab): Observable<System> {
+        const itemUrl = `${this.baseUrl}`;
+        return this.http.get<System>(itemUrl + '/' + tab);
+    }
 }

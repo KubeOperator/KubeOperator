@@ -35,6 +35,7 @@ export class LdapComponent extends BaseModelDirective<System> implements OnInit 
 
     onSubmit() {
         this.createItem.vars = this.item.vars;
+        this.createItem.tab = 'LDAP';
         this.ldapService.ldapCreate(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
@@ -44,6 +45,7 @@ export class LdapComponent extends BaseModelDirective<System> implements OnInit 
 
     onSync() {
         this.createItem.vars = this.item.vars;
+        this.createItem.tab = 'LDAP';
         this.ldapService.ldapSync(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_SYNC_NOTE'), AlertLevels.SUCCESS);
         }, error => {

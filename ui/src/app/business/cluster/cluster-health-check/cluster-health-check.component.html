@@ -1,0 +1,45 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="lg">
+    <h3 class="modal-title">{{"APP_CLUSTER_HEALTH_CHECK"| translate}}</h3>
+    <div class="modal-body" style="text-align: center">
+        <clr-spinner *ngIf="loading"></clr-spinner>
+
+        <table class="table" *ngIf="!loading&&!isRecover">
+            <thead>
+            <tr>
+                <th>{{'APP_NAME'|translate}}</th>
+                <th>{{'APP_LEVEL'|translate}}</th>
+                <th>{{'APP_MESSAGE'|translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let hook of item.hooks">
+                <td>{{hook.name}}</td>
+                <td>{{hook.level}}</td>
+                <td class="left">{{hook.msg}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="table" *ngIf="!loading&&isRecover">
+            <thead>
+            <tr>
+                <th>{{'APP_NAME'|translate}}</th>
+                <th>{{'APP_METHOD'|translate}}</th>
+                <th>{{'APP_RESULT'|translate}}</th>
+                <th>{{'APP_MESSAGE'|translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let r of recoverItems">
+                <td>{{r.hookName}}</td>
+                <td>{{r.name}}</td>
+                <td>{{r.result}}</td>
+                <td class="left">{{r.msg}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" (click)="onRecover()"
+                *ngIf="item.level=='error'">{{"APP_RECOVER"|translate}}</button>
+    </div>
+</clr-modal>

@@ -84,7 +84,29 @@ type WebkubectlToken struct {
 	Token string `json:"token"`
 }
 
+type ClusterLog struct {
+	model.ClusterLog
+}
+
 type ClusterUpgrade struct {
 	ClusterName string `json:"clusterName"`
 	Version     string `json:"version"`
+}
+
+type ClusterHealth struct {
+	Level string              `json:"level"`
+	Hooks []ClusterHealthHook `json:"hooks"`
+}
+
+type ClusterHealthHook struct {
+	Name  string `json:"name"`
+	Level string `json:"level"`
+	Msg   string `json:"msg"`
+}
+
+type ClusterRecoverItem struct {
+	Name     string `json:"name"`
+	HookName string `json:"hookName"`
+	Result   string `json:"result"`
+	Msg      string `json:"msg"`
 }

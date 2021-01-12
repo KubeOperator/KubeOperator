@@ -8,15 +8,15 @@ type SystemSetting struct {
 
 type SystemSettingCreate struct {
 	Vars map[string]string `json:"vars" validate:"required"`
-	Tab  string            `json:"tab"`
+	Tab  string            `json:"tab" validate:"required"`
 }
 
 type SystemSettingUpdate struct {
 	Vars map[string]string `json:"vars" validate:"required"`
-	Tab  string            `json:"tab"`
+	Tab  string            `json:"tab" validate:"required"`
 }
 
 type SystemSettingResult struct {
 	Vars map[string]string `json:"vars" validate:"required"`
-	Tab  string            `json:"tab"`
+	Tab  string            `json:"tab" validate:"required"`
 }

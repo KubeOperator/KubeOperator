@@ -53,7 +53,7 @@ export class ProjectUpdateComponent extends BaseModelDirective<Project> implemen
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

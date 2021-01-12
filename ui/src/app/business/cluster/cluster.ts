@@ -89,3 +89,21 @@ export class ClusterUpgradeRequest {
     clusterName: string;
     version: string;
 }
+
+export class ClusterHealthCheck {
+    hooks: ClusterHealthCheckHook[] = [];
+    level: string;
+}
+
+export class ClusterHealthCheckHook {
+    name: string;
+    level: string;
+    msg: string;
+}
+
+export class ClusterRecoverItem {
+    name: string;
+    hookName: string;
+    result: string;
+    msg: string;
+}

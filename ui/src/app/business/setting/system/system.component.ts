@@ -30,9 +30,9 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
     listSystemSettings() {
         this.systemService.singleGet().subscribe(res => {
             this.item = res;
-            if ( this.item.vars['REGISTRY_PROTOCOL'] === undefined || this.item.vars['REGISTRY_PROTOCOL'] === '' ) {
-                    this.item.vars['REGISTRY_PROTOCOL'] = 'http';
-                }
+            if (this.item.vars['REGISTRY_PROTOCOL'] === undefined || this.item.vars['REGISTRY_PROTOCOL'] === '') {
+                this.item.vars['REGISTRY_PROTOCOL'] = 'http';
+            }
         });
     }
 
@@ -46,6 +46,7 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
         }
 
         this.createItem.vars = this.item.vars;
+        this.createItem.tab = 'SYSTEM';
         this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
             window.location.reload();

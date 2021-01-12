@@ -22,13 +22,14 @@ export class EmailComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.systemService.singleGet().subscribe(res => {
+        this.systemService.getByTab('EMAIL').subscribe(res => {
             this.item = res;
         });
     }
 
 
     checkValid(type) {
+        this.item.tab = 'EMAIL';
         this.systemService.checkBy(type, this.item).subscribe(res => {
             this.valid = true;
             this.commonAlertService.showAlert(this.translateService.instant('APP_CHECK_SUCCESS'), AlertLevels.SUCCESS);

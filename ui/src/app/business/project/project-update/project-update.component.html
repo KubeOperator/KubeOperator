@@ -13,6 +13,7 @@
                        name="description" required>
             </clr-input-container>
         </form>
+        <app-modal-alert></app-modal-alert>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
             <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="projectForm.invalid">{{'APP_COMMIT'|translate}}

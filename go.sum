@@ -106,12 +106,10 @@ github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4K
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/KubeOperator/FusionComputeGolangSDK v0.0.4 h1:IvGPzD4eeZad6cEWXExm3/CfoxuFMf6Qid7/9rNXozM=
 github.com/KubeOperator/FusionComputeGolangSDK v0.0.4/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
-github.com/KubeOperator/kobe v0.1.0 h1:UVf3k83UU976RqV1QID7ea/t+OPAsCkt+kI/FhgGb+4=
-github.com/KubeOperator/kobe v0.1.0/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kobe v0.1.2 h1:Ha1u6ulc1ZTtP5KYBDZsS7CjyMnSlE+hlyipup11W9k=
 github.com/KubeOperator/kobe v0.1.2/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
-github.com/KubeOperator/kotf v0.0.10 h1:zQw0WrNsaMA5CakY6eq7rGQ7QYzFyUyEWntD0DmvJ2k=
-github.com/KubeOperator/kotf v0.0.10/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
+github.com/KubeOperator/kotf v0.1.0 h1:7UWbbQIgRGFvnf2dZZQA8IquHKGy0UBipicuTBRK3oo=
+github.com/KubeOperator/kotf v0.1.0/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd h1:sjQovDkwrZp8u+gxLtPgKGjk5hCxuy2hrRejBTA9xFU=

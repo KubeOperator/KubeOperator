@@ -29,6 +29,14 @@ func (s SystemSettingController) Get() (interface{}, error) {
 	return item, nil
 }
 
+func (s SystemSettingController) GetBy(name string) (interface{}, error) {
+	item, err := s.SystemSettingService.ListByTab(name)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
 func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	var req dto.SystemSettingCreate
 	err := s.Ctx.ReadJSON(&req)
