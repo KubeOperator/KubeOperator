@@ -35,6 +35,7 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.refresh();
+        this.polling();
     }
 
     ngOnDestroy(): void {
@@ -162,8 +163,9 @@ export class NodeListComponent implements OnInit, OnDestroy {
         this.timer = setInterval(() => {
             this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(data => {
                 this.items = data.items;
+                this.total = data.total;
             });
-        }, 1000);
+        }, 5000);
     }
 
 }

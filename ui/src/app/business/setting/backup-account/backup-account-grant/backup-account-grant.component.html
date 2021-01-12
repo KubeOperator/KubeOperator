@@ -5,7 +5,7 @@
         <form clrForm #hostForm='ngForm'>
 
             <clr-checkbox-container>
-                <label>{{'APP_HOST'|translate}}</label>
+                <label>{{'APP_PROJECT'|translate}}</label>
                 <clr-checkbox-wrapper *ngFor="let item of projects">
                     <input type="checkbox" clrCheckbox name="proname" [(ngModel)]="item.checked"/>
                     <label>{{item.name}}</label>
