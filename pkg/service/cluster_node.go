@@ -314,16 +314,18 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 	return nil
 }
 
-func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, nodes []model.ClusterNode) error {
+func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, deleteNodes []model.ClusterNode) error {
 	var aliveHosts []*model.Host
-exit:
 	for i := range currentNodes {
-		for k := range nodes {
-			if cluster.Nodes[i].Name == nodes[k].Name {
-				continue exit
+		alive := true
+		for k := range deleteNodes {
+			if currentNodes[i].Name == deleteNodes[k].Name {
+				alive = false
 			}
 		}
-		aliveHosts = append(aliveHosts, &currentNodes[i].Host)
+		if alive {
+			aliveHosts = append(aliveHosts, &currentNodes[i].Host)
+		}
 	}
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
 	return doInit(k, cluster.Plan, aliveHosts)
