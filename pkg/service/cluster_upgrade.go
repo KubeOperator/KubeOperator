@@ -25,7 +25,6 @@ func NewClusterUpgradeService() ClusterUpgradeService {
 		clusterService:    NewClusterService(),
 		clusterStatusRepo: repository.NewClusterStatusRepository(),
 		messageService:    NewMessageService(),
-		clusterLogService: NewClusterLogService(),
 	}
 }
 
@@ -33,7 +32,6 @@ type clusterUpgradeService struct {
 	clusterService    ClusterService
 	clusterStatusRepo repository.ClusterStatusRepository
 	messageService    MessageService
-	clusterLogService ClusterLogService
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
@@ -92,13 +90,6 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 
-	var clog model.ClusterLog
-	clog.Type = constant.ClusterLogTypeUpgrade
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	_ = c.clusterLogService.Save(cluster.Name, &clog)
-	_ = c.clusterLogService.Start(&clog)
-
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
 		log.Errorf("can not get current cluster status, error: %s", err.Error())
@@ -117,11 +108,9 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.Spec.Version = cluster.Spec.UpgradeVersion
 			db.DB.Save(&cluster.Spec)
 			cancel()
-			_ = c.clusterLogService.End(&clog, true, "")
 			return
 		case constant.StatusFailed:
 			cancel()
-			_ = c.clusterLogService.End(&clog, false, err.Error())
 			return
 		}
 	}

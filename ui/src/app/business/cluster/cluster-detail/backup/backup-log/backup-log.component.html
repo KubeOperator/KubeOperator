@@ -26,3 +26,11 @@
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
 </clr-datagrid>
+
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" clrModalClosable="true">
+    <h3 class="modal-title">{{"APP_NODE_DETAIL"|translate}}</h3>
+    <div class="modal-body">
+        <p>{{detailItem.message}}</p>
+    </div>
+</clr-modal>
+
