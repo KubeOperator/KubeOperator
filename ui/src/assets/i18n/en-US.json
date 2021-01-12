@@ -601,6 +601,7 @@
   "APP_ISTIO_GATEWAY_TYPE": "Gatewat type",
   "APP_ISTIO_RESAVE": "Restore",
   "APP_ISTIO_START_SUCCESS": "Enable cluster istio success",
+  "APP_ISTIO_RESAVE_SUCCESS": "Resave succeeded",
   "APP_ISTIO_STOP_SUCCESS": "Disable cluster istio success",
   "APP_SYSTEM_LOG": "System Log",
   "APP_MASTER_HELPER": "The number of master nodes must be 1 or 3",

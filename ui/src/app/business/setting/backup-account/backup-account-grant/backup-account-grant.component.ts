@@ -18,7 +18,6 @@ export class BackupAccountGrantComponent implements OnInit {
 
     opened = false;
     projects: Project[] = [];
-    projectIndex: number;
     backupAccounts: BackupAccount[] = [];
     isSubmitGoing = false;
     resourceType: string = 'BACKUP_ACCOUNT';
@@ -41,6 +40,7 @@ export class BackupAccountGrantComponent implements OnInit {
                 this.projects.push({
                     id: pro.id, 
                     name: pro.name,
+                    checked: false,
                 })
             }
         })
@@ -58,37 +58,29 @@ export class BackupAccountGrantComponent implements OnInit {
 
     onSubmit() {
         this.isSubmitGoing = true;
-        this.projectResourceService.listResources(this.resourceType, this.projects[this.projectIndex].name).subscribe(res => {
-            const items = [];
-            for (const ho of this.backupAccounts) {
-                let isExit = false;
-                for (const re of res) {
-                    if (ho.name === re.name) {
-                        isExit = true;
-                        break;
-                    }
-                }
-                if (!isExit) {
-                    this.isSubmitGoing = false;
-                    this.modalAlertService.showAlert(this.translateService.instant('APP_BACKUP_ACCOUNT_BOUND'), AlertLevels.ERROR);
-                    return;
-                } else {
+        if (this.projects.length === 0) {
+            return;
+        }
+        const items = [];
+        for (const pro of this.projects) {
+            if (pro.checked) {
+                for (const backup of this.backupAccounts) {
                     const item = new ProjectResourceCreateRequest();
-                    item.projectId = this.projects[this.projectIndex].id;
+                    item.projectId = pro.id;
                     item.resourceType = this.resourceType;
-                    item.resourceName = ho.name;
+                    item.resourceName = backup.name;
                     items.push(item);
                 }
             }
-            
-            this.projectResourceService.batch('create', items, this.projects[this.projectIndex].name).subscribe(res => {
-                this.isSubmitGoing = false;
-                this.onCancel();
-                this.commonAlertService.showAlert(this.translateService.instant('APP_GRANT_SUCCESS'), AlertLevels.SUCCESS);
-            }, error => {
-                this.isSubmitGoing = false;
-                this.modalAlertService.showAlert(error, AlertLevels.ERROR);
-            });
+        }
+
+        this.projectResourceService.batch('create', items).subscribe(res => {
+            this.isSubmitGoing = false;
+            this.onCancel();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_GRANT_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.isSubmitGoing = false;
+            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
         });
     }
 }

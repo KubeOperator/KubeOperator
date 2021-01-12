@@ -604,6 +604,7 @@
   "APP_ISTIO_GATEWAY_TYPE": "网关服务类型",
   "APP_ISTIO_RESAVE": "重新保存",
   "APP_ISTIO_START_SUCCESS": "启用集群istio成功",
+  "APP_ISTIO_RESAVE_SUCCESS": "重新保存成功",
   "APP_ISTIO_STOP_SUCCESS": "禁用集群istio成功",
   "APP_HOST_IMPORT_FILE_ERROR": "不支持的文件格式",
   "APP_SYSTEM_LOG": "系统日志",
