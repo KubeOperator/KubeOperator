@@ -28,7 +28,7 @@ export class LdapComponent extends BaseModelDirective<System> implements OnInit 
 
 
     listSystemSettings() {
-        this.systemService.singleGet().subscribe(res => {
+        this.systemService.getByTab('LDAP').subscribe(res => {
             this.item = res;
         });
     }
@@ -37,7 +37,11 @@ export class LdapComponent extends BaseModelDirective<System> implements OnInit 
         this.createItem.vars = this.item.vars;
         this.createItem.tab = 'LDAP';
         this.ldapService.ldapCreate(this.createItem).subscribe(res => {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            let key = 'APP_ADD_SUCCESS';
+            if (this.item !== undefined) {
+                key = 'APP_UPDATE_SUCCESS';
+            }
+            this.commonAlertService.showAlert(this.translateService.instant(key), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
