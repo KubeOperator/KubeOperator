@@ -142,7 +142,7 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 				return err
 			}
 
-			if err := tx.Where(model.Ip{IpPoolID: opItems[i].ID}).Error; err != nil {
+			if err := tx.Where("ip_pool_id = ?", ipPool.ID).Delete(&model.Ip{}).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
