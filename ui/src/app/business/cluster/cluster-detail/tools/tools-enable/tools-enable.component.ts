@@ -140,7 +140,7 @@ export class ToolsEnableComponent implements OnInit {
             this.validationStateMap['password'] = true;
         }
 
-        if (this.itemForm.form.get('rePassword').value !== null && this.itemForm.form.get('password').value !== this.itemForm.form.get('rePassword').value) {
+        if (this.itemForm.form.get('rePassword').value.length !== 0 && this.itemForm.form.get('password').value !== this.itemForm.form.get('rePassword').value) {
             this.itemForm.controls[key].setErrors({rePwdError: false});
             this.validationStateMap['rePwdCheck'] = false;
         } else {

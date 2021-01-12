@@ -25,4 +25,5 @@ export class BackupAccountUpdateRequest extends BaseRequest {
 export class Project {
     id: string;
     name: string;
+    checked: boolean;
 }

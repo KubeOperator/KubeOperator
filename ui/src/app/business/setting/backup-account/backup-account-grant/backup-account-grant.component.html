@@ -3,12 +3,15 @@
     <div class="modal-body modal-height">
         <app-modal-alert></app-modal-alert>
         <form clrForm #hostForm='ngForm'>
-            <clr-radio-container clrInline clrInline *ngFor="let item of projects; let i = index" >
-                <clr-radio-wrapper>
-                    <input type="radio" clrRadio name="proname" required value="{{i}}" [(ngModel)]="projectIndex"/>
+
+            <clr-checkbox-container>
+                <label>{{'APP_HOST'|translate}}</label>
+                <clr-checkbox-wrapper *ngFor="let item of projects">
+                    <input type="checkbox" clrCheckbox name="proname" [(ngModel)]="item.checked"/>
                     <label>{{item.name}}</label>
-                </clr-radio-wrapper>
-            </clr-radio-container>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+
         </form>
     </div>
     <div class="modal-footer">
