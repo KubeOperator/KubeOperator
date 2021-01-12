@@ -5,6 +5,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/util/validator_error"
+	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -52,13 +54,17 @@ func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrat
 	if err != nil {
 		return nil, err
 	}
+	validate := validator.New()
+	validator_error.RegisterTagNameFunc(c.Ctx, validate)
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, validator_error.Tr(c.Ctx, validate, err)
+	}
 	cb, err := c.CLusterBackupStrategyService.Save(req)
 	if err != nil {
 		return nil, err
 	}
-
 	operator := c.Ctx.Values().GetString("operator")
 	go log_save.LogSave(operator, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
-
 	return cb, nil
 }
