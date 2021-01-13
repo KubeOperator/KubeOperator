@@ -42,7 +42,7 @@ export class MessageComponent implements OnInit {
     }
 
     checkValid(tab) {
-        // this.valid = true;
+        this.item.tab = tab;
         this.messageService.postCheckByTab(tab, this.item).subscribe(res => {
             this.valid = true;
             this.commonAlertService.showAlert(this.translateService.instant('APP_CHECK_SUCCESS'), AlertLevels.SUCCESS);
@@ -53,6 +53,7 @@ export class MessageComponent implements OnInit {
     }
 
     onSubmit(item, tab) {
+        this.item.tab = tab;
         this.messageService.postByTab(tab, item).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
