@@ -38,7 +38,6 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
-            this.polling();
             this.pageBy();
         });
     }
@@ -57,6 +56,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
 
     onImport() {
         this.importEvent.emit();
+        this.polling();
     }
 
     onNodeDetail(item: Cluster) {
@@ -80,11 +80,31 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
             }
             super.onCreate();
         });
+        this.polling();
+    }
+
+    onDelete() {
+        this.deleteEvent.emit(this.selected);
+        this.polling();
     }
 
     polling() {
         this.timer = setInterval(() => {
+            let keepPoll = false;
             this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
+                if (data.items !== null) {
+                    for (const item of data.items) {
+                        if (item.status === 'Running' || item.status === 'Failed') {
+                            continue;
+                        } else {
+                            keepPoll = true;
+                            break;
+                        }
+                    }
+                }
+                if (!keepPoll) {
+                    clearInterval(this.timer);
+                }
                 this.items = data.items;
             });
         }, 10000);
@@ -93,6 +113,14 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     pageBy() {
         this.loading = true;
         this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
+            if (data.items !== null) {
+                for (const item of data.items) {
+                    if (item.status !== 'Running' && item.status !== 'Failed') {
+                        this.polling();
+                        break;
+                    }
+                }
+            }
             this.items = data.items;
             this.total = data.total;
             this.loading = false;
@@ -109,6 +137,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
             return;
         }
         this.upgradeEvent.emit(item);
+        this.polling();
     }
 
     onHealthCheck(item: Cluster) {
