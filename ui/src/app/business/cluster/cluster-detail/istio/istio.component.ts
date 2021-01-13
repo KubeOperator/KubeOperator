@@ -85,9 +85,11 @@ export class IstioComponent implements OnInit {
         });
     }
     disAble(items: IstioHelper[], istio: IstioHelper) {
-        istio.operation = 'disable';
-        istio.enable = false;
-        items.push(istio);
+        if (istio.cluster_istio.status !== 'Waiting') {
+            istio.operation = 'disable';
+            istio.enable = false;
+            items.push(istio);
+        }
     }
     getOperation(items: IstioHelper[], istio: IstioHelper) {
         if (istio.enable) {
