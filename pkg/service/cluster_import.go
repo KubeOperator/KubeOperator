@@ -3,6 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -12,9 +16,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"strconv"
-	"strings"
-	"sync"
 )
 
 type ClusterImportService interface {
@@ -114,6 +115,14 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		if err := tx.Create(&tool).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("can not save tool %s", err.Error())
+		}
+	}
+	istios := cluster.PrepareIstios()
+	for _, istio := range istios {
+		istio.ClusterID = cluster.ID
+		if err := tx.Create(&istio).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not save istio %s", err.Error())
 		}
 	}
 	tx.Commit()
