@@ -81,9 +81,8 @@
                         </clr-input-container>
                         <clr-select-container class="clr-col-6" style="float: left;margin-bottom: 10px;">
                             <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
-                            <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.type']" required>
+                            <select clrSelect  class="clr-select" name="ingress-type" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.type']" required>
                                 <option>NodePort</option>
-                                <option>ClusterIP</option>
                                 <option>LoadBalancer</option>
                             </select>
                         </clr-select-container>
@@ -133,15 +132,6 @@
                             <label>{{"APP_ISTIO_MEMERY_REQUEST"|translate}}</label>
                             <input clrInput name="egress-requests-memory" oninput="if(value<0)value=128" type="number" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.resources.requests.memory']" required/>
                         </clr-input-container>
-
-                        <clr-select-container class="clr-col-6" style="float: left;margin-bottom: 10px;">
-                            <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
-                            <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.type']" required>
-                                <option>NodePort</option>
-                                <option>ClusterIP</option>
-                                <option>LoadBalancer</option>
-                            </select>
-                        </clr-select-container>
                     </div>
                 </clr-accordion-content>
             </clr-accordion-panel>
