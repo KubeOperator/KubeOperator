@@ -21,7 +21,7 @@
             {{"APP_CLUSTER_UPGRADE"|translate}}
         </button>
         <button type="button" class="btn btn-sm btn-secondary" (click)="onHealthCheck(selected[0])"
-                [disabled]="selected.length!==1">
+                [disabled]="selected.length!==1||selected[0].source!=='local'">
             <clr-icon shape="circle-arrow"></clr-icon>
             {{"APP_CLUSTER_HEALTH_CHECK"|translate}}
         </button>
