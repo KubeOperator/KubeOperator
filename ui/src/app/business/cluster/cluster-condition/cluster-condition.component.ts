@@ -39,12 +39,6 @@ export class ClusterConditionComponent implements OnInit {
     getStatus() {
         this.opened = true;
         this.service.status(this.cluster.name).subscribe(data => {
-            for (const co of data.conditions) {
-                if (co.message.length !== 0) {
-                    co.message = this.errFormat(co.message);
-                }
-            }
-            data.message = this.errFormat(data.message);
             this.item = data;
             this.loading = false;
         });
@@ -110,12 +104,6 @@ export class ClusterConditionComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             this.service.status(this.cluster.name).subscribe(data => {
-                for (const co of data.conditions) {
-                    if (co.message.length !== 0) {
-                        co.message = this.errFormat(co.message);
-                    }
-                }
-                data.message = this.errFormat(data.message);
                 if (this.item.phase !== 'Running') {
                     this.item.conditions = data.conditions;
                 } else {
@@ -131,13 +119,5 @@ export class ClusterConditionComponent implements OnInit {
                 this.opened = false;
             });
         }, 3000);
-    }
-    errFormat (err: string) {
-        let errItem = err;
-        errItem = errItem.replace(/\\n/gi,'\n');
-        errItem = errItem.replace(/\\u/gi,'%u');
-        errItem = errItem.replace(/\\/gi,'');
-        errItem = unescape(errItem)
-        return errItem
     }
 }

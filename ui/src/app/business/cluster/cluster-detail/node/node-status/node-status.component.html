@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" clrModalClosable="true">
     <h3 class="modal-title">{{"APP_NODE_DETAIL"|translate}}</h3>
     <div class="modal-body">
-        <p>{{item.message}}</p>
+        <p>{{item.message | errFormat}}</p>
     </div>
     <div class="modal-footer">
 

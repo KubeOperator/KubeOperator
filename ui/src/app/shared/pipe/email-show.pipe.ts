@@ -1,15 +1,9 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
 
 @Pipe({
     name: 'emailShow'
 })
 export class EmailShowPipe implements PipeTransform {
-
-    constructor(private translateService: TranslateService) {
-
-    }
-
     transform(value: string, ...args: unknown[]): unknown {
         let result = '';
         if (value.indexOf('@') === -1 || value.indexOf('.') === -1) {
