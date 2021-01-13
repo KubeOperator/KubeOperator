@@ -45,7 +45,7 @@ export class ClusterUpgradeComponent implements OnInit {
         const version1 = currentVersions[0];
         const version2 = currentVersions[1];
         const version3 = Number(currentVersions[2]);
-        this.manifestService.list().subscribe(res => {
+        this.manifestService.listActive().subscribe(res => {
             this.manifests = res;
             for (const manifest of res) {
                 const manifestKoVersions = manifest.name.split('-');
