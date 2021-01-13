@@ -103,36 +103,36 @@ export class IstioComponent implements OnInit {
             for (const item of data) {
                 switch (item.cluster_istio.name) {
                     case 'base':
-                        this.baseCfg.enable = (item.cluster_istio.status !== "Waiting");
+                        this.baseCfg.enable = (item.cluster_istio.status !== 'Waiting');
                         this.baseCfg.cluster_istio = item.cluster_istio;
-                        if (item.cluster_istio.status !== "Waiting") {
+                        if (item.cluster_istio.status !== 'Waiting') {
                             this.baseCfg.vars = JSON.parse(item.cluster_istio.vars);
                         } else {
                             this.setDefaultBaseCfg();
                         };
                         break;
                     case 'pilot':
-                        this.pilotCfg.enable = (item.cluster_istio.status !== "Waiting");
+                        this.pilotCfg.enable = (item.cluster_istio.status !== 'Waiting');
                         this.pilotCfg.cluster_istio = item.cluster_istio;
-                        if (item.cluster_istio.status !== "Waiting") {
+                        if (item.cluster_istio.status !== 'Waiting') {
                             this.pilotCfg.vars = JSON.parse(item.cluster_istio.vars);
                         } else {
                             this.setDefaultPilotCfg();
                         };
                         break;
                     case 'ingress':
-                        this.ingressCfg.enable = (item.cluster_istio.status !== "Waiting");
+                        this.ingressCfg.enable = (item.cluster_istio.status !== 'Waiting' && item.cluster_istio.status !== 'Terminated');
                         this.ingressCfg.cluster_istio = item.cluster_istio;
-                        if (item.cluster_istio.status !== "Waiting") {
+                        if (item.cluster_istio.status !== 'Waiting') {
                             this.ingressCfg.vars = JSON.parse(item.cluster_istio.vars);
                         } else {
                             this.setDefaultIngressCfg();
                         };
                         break;
                     case 'egress':
-                        this.egressCfg.enable = (item.cluster_istio.status !== "Waiting");
+                        this.egressCfg.enable = (item.cluster_istio.status !== 'Waiting' && item.cluster_istio.status !== 'Terminated');
                         this.egressCfg.cluster_istio = item.cluster_istio;
-                        if (item.cluster_istio.status !== "Waiting") {
+                        if (item.cluster_istio.status !== 'Waiting') {
                             this.egressCfg.vars = JSON.parse(item.cluster_istio.vars);
                         } else {
                             this.setDefaultEgressCfg();
@@ -169,7 +169,6 @@ export class IstioComponent implements OnInit {
     }
     setDefaultEgressCfg () {
         this.egressCfg.vars = {
-            'gateways.istio-egressgateway.type': 'NodePort',
             'gateways.istio-egressgateway.resources.requests.cpu': 100,
             'gateways.istio-egressgateway.resources.requests.memory': 128,
             'gateways.istio-egressgateway.resources.limits.cpu': 2000,
