@@ -13,7 +13,6 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
 export class MessageComponent implements OnInit {
 
     item: System = new System();
-    currentTab = 'EMAIL';
     loading = false;
     valid = false;
 
@@ -23,7 +22,7 @@ export class MessageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.listByTab('EMAIL');
+        this.listByTab('WORK_WEIXIN');
     }
 
     changeTab(tabName) {
