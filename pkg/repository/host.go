@@ -104,7 +104,9 @@ func (h hostRepository) Save(host *model.Host) error {
 		}
 	} else {
 		// lock
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").First(&host).Error; err != nil {
+		var lock model.Host
+		lock.ID = host.ID
+		if err := tx.Set("gorm:query_option", "FOR UPDATE").First(&lock).Error; err != nil {
 			return err
 		}
 		if len(host.Volumes) > 0 {
