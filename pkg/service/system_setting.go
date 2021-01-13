@@ -63,6 +63,9 @@ func (s systemSettingService) ListByTab(tabName string) (dto.SystemSettingResult
 	for _, mo := range mos {
 		vars[mo.Key] = mo.Value
 	}
+	if len(mos) > 0 {
+		systemSettingResult.Tab = tabName
+	}
 	systemSettingResult.Vars = vars
 	return systemSettingResult, err
 }
