@@ -259,6 +259,22 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 
 func (c cLusterBackupFileService) Restore(restore dto.ClusterBackupFileRestore) error {
 
+	backupLog, err := c.clusterLogService.GetRunningLogWithClusterNameAndType(restore.ClusterName, constant.ClusterLogTypeBackup)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return err
+	}
+	if backupLog.ID != "" {
+		return errors.New("CLUSTER_IS_BACKUP")
+	}
+
+	restoreLog, err := c.clusterLogService.GetRunningLogWithClusterNameAndType(restore.ClusterName, constant.ClusterLogTypeRestore)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return err
+	}
+	if restoreLog.ID != "" {
+		return errors.New("CLUSTER_IS_RESTORE")
+	}
+
 	file, err := c.clusterBackupFileRepo.Get(restore.Name)
 	if err != nil {
 		return err
