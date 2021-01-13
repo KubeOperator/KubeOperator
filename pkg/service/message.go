@@ -271,7 +271,7 @@ func (m messageService) GetUserMessages(message model.Message) ([]model.UserMess
 		}
 		for _, sendType := range sendTypes {
 			receiver, _ := m.GetUserReceiver(userId)
-			if receiver.ID == "" || receiver.Vars[sendType] == "" {
+			if receiver == nil || receiver.ID == "" || receiver.Vars[sendType] == "" {
 				continue
 			}
 			if msgReceivers[sendType] != nil {
