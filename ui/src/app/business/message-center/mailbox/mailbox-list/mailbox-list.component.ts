@@ -57,6 +57,7 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
     markAsRead() {
         this.service.batch('update', this.selected).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
+            this.selected = [];
             this.listByUsername();
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
