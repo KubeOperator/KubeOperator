@@ -83,8 +83,8 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		tx.Rollback()
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
-	go c.do(&cluster.Cluster, writer)
 	tx.Commit()
+	go c.do(&cluster.Cluster, writer)
 	return nil
 }
 
