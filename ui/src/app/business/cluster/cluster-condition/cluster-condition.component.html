@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{"APP_STATUS_DETAIL"| translate}}</h3>
     <div class="modal-body">
         <span *ngIf="item.conditions&&item.conditions.length === 0">
-           {{item.message}}
+           {{item.message | errFormat}}
         </span>
         <ul class="clr-timeline clr-timeline-vertical" *ngIf="item.conditions.length>0">
             <li class="clr-timeline-step" *ngFor="let condition of item.conditions" [ngSwitch]="condition.status">
@@ -17,7 +17,7 @@
                 </span>
                 <div class="clr-timeline-step-body">
                     <span class="clr-timeline-step-title">{{condition.name |translate}}</span>
-                    <span style="display:block;word-wrap:break-word;overflow:hidden;">{{condition.message}} </span>
+                    <span style="display:block;word-wrap:break-word;overflow:hidden;">{{condition.message | errFormat}} </span>
                 </div>
             </li>
         </ul>
