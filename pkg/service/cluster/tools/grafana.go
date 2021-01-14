@@ -16,6 +16,9 @@ const (
 	initChownDataImageName    = "kubeoperator/busybox"
 	initChownDataTagAmd64Name = "1.28-amd64"
 	initChownDataTagArm64Name = "1.28-arm64"
+
+	curlImageName    = "curlimages/curl"
+	curlImageTagName = "7.73.0"
 )
 
 type Grafana struct {
@@ -44,6 +47,8 @@ func (c Grafana) setDefaultValue() {
 	values["initChownData.enabled"] = true
 	values["initChownData.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, initChownDataImageName)
 	values["datasources.'datasources\\.yaml'.apiVersion"] = 1
+	values["downloadDashboardsImage.repository"] = curlImageName
+	values["downloadDashboardsImage.tag"] = curlImageTagName
 
 	if len(c.prometheusNs) != 0 {
 		values["datasources.'datasources\\.yaml'.datasources[0].name"] = "MYDS_Prometheus"
