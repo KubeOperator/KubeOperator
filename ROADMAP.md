@@ -144,10 +144,10 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  
  Release Note: https://blog.fit2cloud.com/?p=1669
 
- ## v3.5 (开发中)
+ ## v3.5 (已发布)
  
- - [ ] 集群异常状态诊断及修复；
- - [ ] 支持 Istio；
- - [ ] 自动模式创建主机支持 IP 池；
- - [ ] 支持自定义 Ansible、Terraform 并发参数；
- - [ ] 版本管理支持上传 K8s 离线包；
+ - [x] 集群异常状态诊断及修复；
+ - [x] 支持 Istio；
+ - [x] 自动模式创建主机支持 IP 池；
+ - [x] 支持自定义 Ansible、Terraform 并发参数；
+ - [x] 版本管理支持上传 K8s 离线包；
