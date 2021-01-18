@@ -229,7 +229,6 @@ func (h hostService) GetHostMem(host *model.Host) error {
 		return err
 	}
 	host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
-	_ = h.hostRepo.Save(host)
 	return err
 }
 
@@ -361,11 +360,8 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		host.GpuNum = 0
 		host.GpuInfo = ""
 		host.HasGpu = false
-		_ = h.hostRepo.Save(host)
 		return nil
 	}
-	host.Status = constant.ClusterRunning
-	_ = h.hostRepo.Save(host)
 	return nil
 }
 
