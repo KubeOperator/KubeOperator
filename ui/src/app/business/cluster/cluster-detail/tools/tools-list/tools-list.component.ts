@@ -48,11 +48,15 @@ export class ToolsListComponent implements OnInit, OnDestroy {
                 }
                 break;
         case 'loki': 
-            for (const tool of this.items) {
-                if (tool.name === 'logging') {
-                    item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
-                    break;
+            if (this.currentCluster.spec.architectures === 'amd64') {
+                for (const tool of this.items) {
+                    if (tool.name === 'logging') {
+                        item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
+                        break;
+                    }
                 }
+            } else {
+                item.conditions = '';
             }
             break;
         case 'grafana': 
