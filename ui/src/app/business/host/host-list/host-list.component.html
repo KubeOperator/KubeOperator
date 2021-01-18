@@ -50,10 +50,10 @@
             <span *ngIf="item.status === 'Failed'">
                 <clr-icon style="color: red" shape="times"></clr-icon>
                 <a href="javascript:void(0)" (click)="onStatusDetail(item)">
-                    <span [outerHTML]="item.status | commonStatus"></span>
+                    <span [innerHTML]="item.status | commonStatus"></span>
                 </a>
             </span>
-            <span *ngIf="item.status !== 'Failed'" [outerHTML]="item.status | commonStatus">
+            <span *ngIf="item.status !== 'Failed'" [innerHTML]="item.status | commonStatus">
             </span>
         </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>

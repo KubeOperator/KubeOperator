@@ -35,6 +35,7 @@ export class HostImportComponent implements OnInit {
     onCancel() {
         this.opened = false;
         this.errMsg = '';
+        this.import.emit();
     }
 
     onSubmit() {
