@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -76,7 +76,7 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.CREATE_CREDENTIALS, req.Name)
+	go log.Save(operator, constant.CREATE_CREDENTIALS, req.Name)
 
 	return c.CredentialService.Create(req)
 }
@@ -91,7 +91,7 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 // @Router /backupAccounts/{name}/ [delete]
 func (c CredentialController) Delete(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.DELETE_CREDENTIALS, name)
+	go log.Save(operator, constant.DELETE_CREDENTIALS, name)
 
 	return c.CredentialService.Delete(name)
 }
@@ -119,7 +119,7 @@ func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.UPDATE_CREDENTIALS, name)
+	go log.Save(operator, constant.UPDATE_CREDENTIALS, name)
 
 	return c.CredentialService.Update(req)
 }
@@ -145,7 +145,7 @@ func (c CredentialController) PostBatch() error {
 	for _, item := range req.Items {
 		delCres += (item.Name + ",")
 	}
-	go log_save.LogSave(operator, constant.DELETE_CREDENTIALS, delCres)
+	go log.Save(operator, constant.DELETE_CREDENTIALS, delCres)
 
 	return err
 }
