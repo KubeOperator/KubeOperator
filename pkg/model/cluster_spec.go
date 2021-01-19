@@ -32,6 +32,7 @@ type ClusterSpec struct {
 	HelmVersion           string `json:"helmVersion"`
 	NetworkInterface      string `json:"networkInterface"`
 	SupportGpu            string `json:"supportGpu"`
+	YumOperate            string `json:"yumOperate"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {

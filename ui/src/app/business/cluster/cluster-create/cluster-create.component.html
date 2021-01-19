@@ -50,6 +50,24 @@
                     <option value="amd64">AMD64</option>
                 </select>
             </clr-select-container>
+            <clr-select-container>
+                <label>{{"APP_YUM_REPO"|translate}}</label>
+                <select clrSelect name="arch" [(ngModel)]="item.yumOperate" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="replace">{{"APP_YUM_REPLACE"|translate}}</option>
+                    <option value="coexist">{{"APP_YUM_COEXIST"|translate}}</option>
+                    <option value="no">{{"APP_YUM_NO"|translate}}</option>
+                </select>
+                <clr-control-helper *ngIf="item.yumOperate === 'replace'">
+                    {{"APP_YUM_REPLACE_MSG"|translate}}
+                </clr-control-helper>
+                <clr-control-helper *ngIf="item.yumOperate === 'coexist'">
+                    {{"APP_YUM_COEXIST_MSG"|translate}}
+                </clr-control-helper>
+                <clr-control-helper *ngIf="item.yumOperate === 'no'">
+                    {{"APP_YUM_NO_MSG"|translate}}
+                </clr-control-helper>
+            </clr-select-container>
         </form>
     </clr-wizard-page>
 
@@ -145,6 +163,7 @@
                     <option value="off">bgp</option>
                     <option value="Always">ipip</option>
                 </select>
+                <clr-control-helper></clr-control-helper>
             </clr-select-container>
             <div *ngIf="item.networkType === 'flannel'">
                 <br>
@@ -269,6 +288,10 @@
                     <tr>
                         <td class="left bold">{{"APP_ARCHITECTURE"|translate}}</td>
                         <td class="left">{{item.architectures}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left bold">{{"APP_YUM_REPO"|translate }}</td>
+                        <td class="left">{{item.yumOperate}}</td>
                     </tr>
                     </tbody>
                 </table>

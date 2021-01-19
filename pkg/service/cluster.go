@@ -220,6 +220,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		HelmVersion:           creation.HelmVersion,
 		NetworkInterface:      creation.NetworkInterface,
 		SupportGpu:            creation.SupportGpu,
+		YumOperate:            creation.YumOperate,
 	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}

@@ -66,6 +66,7 @@ export class ClusterCreateRequest extends BaseModel {
     helmVersion: string;
     networkInterface: string;
     supportGpu: string;
+    yumOperate: string;
 }
 
 export class CLusterImportRequest {

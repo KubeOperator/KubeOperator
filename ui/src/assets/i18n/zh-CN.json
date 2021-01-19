@@ -649,5 +649,12 @@
   "APP_LEVEL": "等级",
   "APP_RECOVER": "修复",
   "APP_METHOD": "方法",
-  "APP_BACKUP_RESTORE_TAB": "备份/恢复"
+  "APP_BACKUP_RESTORE_TAB": "备份/恢复",
+  "APP_YUM_REPO": "Yum 仓库",
+  "APP_YUM_REPLACE": "替换",
+  "APP_YUM_COEXIST": "共存",
+  "APP_YUM_NO": "不操作",
+  "APP_YUM_REPLACE_MSG": "此操作将会对 K8S 节点服务器原始 yum repo 文件进行备份，之后生成并仅使用 KubeOperator 的 yum repo",
+  "APP_YUM_COEXIST_MSG": "此操作将保持K8S节点服务器原始 yum repo 文件不变，同时生成并使用 kubeoperator 的 yum repo",
+  "APP_YUM_NO_MSG": "此操作将保持使用 K8S 节点服务器原始 yum repo 文件，不对K8S节点服务器的 yum repo 做任何操作"
 }
