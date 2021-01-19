@@ -10,7 +10,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -79,11 +79,11 @@ func saveSystemLogs(ctx context.Context) {
 	case "apis/storage.k8s.io/v1/storageclasses":
 		metadata, _ := valueMap["metadata"].(map[string]interface{})
 		logStr = valueMap["provisioner"].(string) + "-" + metadata["name"].(string)
-		go log_save.LogSave(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
+		go log.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
 	case "api/v1/namespaces":
 		metadata, _ := valueMap["metadata"].(map[string]interface{})
 		logStr = metadata["name"].(string)
-		go log_save.LogSave(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+		go log.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
 	}
 }
 

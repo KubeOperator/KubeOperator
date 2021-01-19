@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -49,7 +49,7 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Router /cluster/backup/files/{name}/ [delete]
 func (b BackupFileController) DeleteBy(name string) error {
 	operator := b.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.DELETE_RECOVERY_LIST, name)
+	go log.Save(operator, constant.DELETE_RECOVERY_LIST, name)
 
 	return b.ClusterBackupFileService.Delete(name)
 }
@@ -75,7 +75,7 @@ func (b BackupFileController) PostBatch() error {
 	for _, item := range req.Items {
 		delBackup += (item.Name + ",")
 	}
-	go log_save.LogSave(operator, constant.DELETE_RECOVERY_LIST, delBackup)
+	go log.Save(operator, constant.DELETE_RECOVERY_LIST, delBackup)
 
 	return err
 }
@@ -108,9 +108,9 @@ func (b BackupFileController) PostBackup() error {
 
 	operator := b.Ctx.Values().GetString("operator")
 	if len(req.Name) != 0 {
-		go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
+		go log.Save(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
 	} else {
-		go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName)
+		go log.Save(operator, constant.START_CLUSTER_BACKUP, req.ClusterName)
 	}
 
 	return err
@@ -143,7 +143,7 @@ func (b BackupFileController) PostRestore() error {
 	}
 
 	operator := b.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.RECOVER_FROM_RECOVERY, req.ClusterName+"-"+req.Name)
+	go log.Save(operator, constant.RECOVER_FROM_RECOVERY, req.ClusterName+"-"+req.Name)
 
 	return err
 }
@@ -162,7 +162,7 @@ func (b BackupFileController) PostRestoreLocal() error {
 	clusterName := b.Ctx.FormValue("clusterName")
 
 	operator := b.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.UPLOAD_LOCAL_RECOVERY_FILE, clusterName)
+	go log.Save(operator, constant.UPLOAD_LOCAL_RECOVERY_FILE, clusterName)
 
 	return b.ClusterBackupFileService.LocalRestore(clusterName, bs)
 }
