@@ -155,6 +155,8 @@
                     <option value="host-gw">host-gw</option>
                     <option value="vxlan">vxlan</option>
                 </select>
+                <clr-control-helper *ngIf="item.flannelBackend === 'vxlan' ">{{"APP_NETWORK_VXLAN_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper *ngIf="item.flannelBackend === 'host-gw' ">{{"APP_NETWORK_HOSTGW_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
             <clr-select-container *ngIf="item.networkType === 'calico'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
@@ -163,34 +165,9 @@
                     <option value="off">bgp</option>
                     <option value="Always">ipip</option>
                 </select>
-                <clr-control-helper></clr-control-helper>
+                <clr-control-helper *ngIf="item.calicoIpv4poolIpip == 'off'">{{"APP_NETWORK_BGP_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper *ngIf="item.calicoIpv4poolIpip == 'Always'">{{"APP_NETWORK_IPIP_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
-            <div *ngIf="item.networkType === 'flannel'">
-                <br>
-                <span *ngIf="item.flannelBackend === 'vxlan' ">
-                vxlan: 基于隧道，在任何网络环境下都可以正常工作<br>
-                优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
-                劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
-                </span>
-                <span *ngIf="item.flannelBackend === 'host-gw' ">
-                host-gw: 基于路由，不适用于公有云环境<br>
-                优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
-                劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>
-                </span>
-            </div>
-            <div *ngIf="item.networkType === 'calico'">
-                <br>
-                <span *ngIf="item.calicoIpv4poolIpip == 'off'">
-                bgp: 基于路由，不适用于公有云环境<br>
-                优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
-                劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>
-                </span>
-                <span *ngIf="item.calicoIpv4poolIpip == 'Always'">
-                ipip: 基于隧道，在任何网络环境下都可以正常工作<br>
-                优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
-                劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
-                </span>
-            </div>
         </form>
     </clr-wizard-page>
 
