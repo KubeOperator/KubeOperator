@@ -1,0 +1,1 @@
+ALTER TABLE ko_cluster_spec ADD yum_operate VARCHAR(255) NULL;
