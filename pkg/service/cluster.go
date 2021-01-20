@@ -32,11 +32,11 @@ type ClusterService interface {
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
-	Delete(name string) error
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
-	Batch(batch dto.ClusterBatch) error
+	Delete(name string, force bool) error
+	Batch(batch dto.ClusterBatch, force bool) error
 }
 
 func NewClusterService() ClusterService {
@@ -341,17 +341,12 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	return &dto.Cluster{Cluster: cluster}, nil
 }
 
-func (c *clusterService) Delete(name string) error {
+func (c *clusterService) Delete(name string, force bool) error {
 	cluster, err := c.Get(name)
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
 	}
-	if cluster.Dirty {
-		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
-			return fmt.Errorf("can not delete cluster %s reason %s", name, err)
-		}
-		return nil
-	}
+
 	switch cluster.Source {
 	case constant.ClusterSourceLocal:
 		switch cluster.Status {
@@ -368,14 +363,13 @@ func (c *clusterService) Delete(name string) error {
 			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
-
 			switch cluster.Spec.Provider {
 			case constant.ClusterProviderBareMetal:
 				log.Infof("start uninstall cluster %s", cluster.Name)
-				go c.uninstallCluster(&cluster.Cluster)
+				go c.uninstallCluster(&cluster.Cluster, force)
 			case constant.ClusterProviderPlan:
 				log.Infof("start destroy cluster %s", cluster.Name)
-				go c.destroyCluster(&cluster.Cluster)
+				go c.destroyCluster(&cluster.Cluster, force)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -404,7 +398,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string)
 
 const terminalPlaybookName = "99-reset-cluster.yml"
 
-func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
+func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
@@ -424,22 +418,25 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster) {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	if err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, "", writer); err != nil {
+	err = phases.RunPlaybookAndGetResult(k, terminalPlaybookName, "", writer)
+	if err != nil {
 		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
-		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		if force {
+			if err := db.DB.Delete(&cluster).Error; err != nil {
+				log.Errorf("delete luster error %s", err.Error())
+			}
+			return
+		}
 		return
 	}
-
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		log.Errorf("delete luster error %s", err.Error())
-		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-	return
 }
 
-func (c *clusterService) destroyCluster(cluster *model.Cluster) {
+func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
@@ -448,12 +445,17 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster) {
 	_ = db.DB.Save(cluster)
 
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	if _, err := k.Destroy(); err != nil {
+	_, err = k.Destroy()
+	if err != nil {
 		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
-		c.errClusterDelete(cluster, "destroy cluster err: "+err.Error())
+		if force {
+			if err := db.DB.Delete(&cluster).Error; err != nil {
+				log.Errorf("delete luster error %s", err.Error())
+			}
+			return
+		}
 		return
 	}
-
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		log.Errorf("delete luster error %s", err.Error())
 		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
@@ -537,11 +539,11 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	return token, nil
 }
 
-func (c clusterService) Batch(batch dto.ClusterBatch) error {
+func (c clusterService) Batch(batch dto.ClusterBatch, force bool) error {
 	switch batch.Operation {
 	case constant.BatchOperationDelete:
 		for _, item := range batch.Items {
-			err := c.Delete(item.Name)
+			err := c.Delete(item.Name, force)
 			if err != nil {
 				return err
 			}

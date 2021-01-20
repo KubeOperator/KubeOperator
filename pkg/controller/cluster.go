@@ -2,8 +2,6 @@ package controller
 
 import (
 	"errors"
-	"io"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -11,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/kataras/iris/v12/context"
+	"io"
 )
 
 type ClusterController struct {
@@ -241,9 +240,10 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 // @Router /clusters/{name}/ [delete]
 func (c ClusterController) Delete(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.DELETE_CLUSTER, name)
+	force, _ := c.Ctx.Values().GetBool("force")
 
-	return c.ClusterService.Delete(name)
+	go log.Save(operator, constant.DELETE_CLUSTER, name)
+	return c.ClusterService.Delete(name, force)
 }
 
 // Import Cluster
@@ -272,14 +272,14 @@ func (c ClusterController) PostBatch() error {
 	if err := c.Ctx.ReadJSON(&batch); err != nil {
 		return err
 	}
-	if err := c.ClusterService.Batch(batch); err != nil {
+	force, _ := c.Ctx.Values().GetBool("force")
+	if err := c.ClusterService.Batch(batch, force); err != nil {
 		return err
 	}
-
 	operator := c.Ctx.Values().GetString("operator")
 	clusters := ""
 	for _, item := range batch.Items {
-		clusters += (item.Name + ",")
+		clusters += item.Name + ","
 	}
 	go log.Save(operator, constant.DELETE_CLUSTER, clusters)
 
