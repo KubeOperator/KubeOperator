@@ -15,6 +15,7 @@ export class ClusterDeleteComponent implements OnInit {
     opened = false;
     isSubmitGoing = false;
     items: Cluster[] = [];
+    force = false;
     @Output() deleted = new EventEmitter();
 
     constructor(private service: ClusterService, private translateService: TranslateService, private commonAlert: CommonAlertService) {
@@ -27,6 +28,7 @@ export class ClusterDeleteComponent implements OnInit {
     open(items: Cluster[]) {
         this.items = items;
         this.opened = true;
+        this.force = false;
     }
 
     onCancel() {
@@ -38,7 +40,7 @@ export class ClusterDeleteComponent implements OnInit {
             return;
         }
         this.isSubmitGoing = true;
-        this.service.batch('delete', this.items).subscribe(data => {
+        this.service.batchDelete('delete', this.items, this.force).subscribe(data => {
             this.deleted.emit();
             this.isSubmitGoing = false;
             this.opened = false;

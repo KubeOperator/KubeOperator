@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -67,7 +67,7 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 		session.Set(constant.SessionUserKey, profile)
 	}
 
-	go log_save.LogSave(aul.Username, constant.LOGIN, "-")
+	go log.Save(aul.Username, constant.LOGIN, "-")
 
 	return profile, nil
 }
@@ -91,7 +91,7 @@ func (s *SessionController) Delete() error {
 	}
 	session.Delete(constant.SessionUserKey)
 
-	go log_save.LogSave(operator, constant.LOGOUT, "-")
+	go log.Save(operator, constant.LOGOUT, "-")
 	return nil
 }
 

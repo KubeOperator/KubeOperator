@@ -1,4 +1,4 @@
-package log_save
+package log
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 )
 
-func LogSave(name, operation, operationInfo string) {
+func Save(name, operation, operationInfo string) {
 	lS := service.NewSystemLogService()
 	logInfo := dto.SystemLogCreate{
 		Name:          name,

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -80,7 +80,7 @@ func (u UserController) Post() (*dto.User, error) {
 	}
 
 	operator := u.Ctx.Values().GetString("operator")
-	log_save.LogSave(operator, constant.CREATE_USER, req.Name)
+	log.Save(operator, constant.CREATE_USER, req.Name)
 
 	return u.UserService.Create(req)
 }
@@ -95,7 +95,7 @@ func (u UserController) Post() (*dto.User, error) {
 // @Router /users/{name}/ [delete]
 func (u UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
-	log_save.LogSave(operator, constant.DELETE_USER, name)
+	log.Save(operator, constant.DELETE_USER, name)
 
 	return u.UserService.Delete(name)
 }
@@ -127,7 +127,7 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	}
 
 	operator := u.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.UPDATE_USER, name)
+	go log.Save(operator, constant.UPDATE_USER, name)
 
 	return user, err
 }
@@ -153,7 +153,7 @@ func (u UserController) PostBatch() error {
 	for _, userItem := range req.Items {
 		delUser += (userItem.Name + ",")
 	}
-	go log_save.LogSave(operator, constant.DELETE_USER, delUser)
+	go log.Save(operator, constant.DELETE_USER, delUser)
 
 	return err
 }
@@ -175,7 +175,7 @@ func (u UserController) PostChangePassword() error {
 	}
 
 	operator := u.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.UPDATE_USER_PASSWORD, req.Name)
+	go log.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
 
 	return err
 }

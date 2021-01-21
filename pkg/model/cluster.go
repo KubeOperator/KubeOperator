@@ -422,6 +422,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.SupportGpu != "" {
 		result[facts.SupportGpuName] = c.Spec.SupportGpu
 	}
+	if c.Spec.YumOperate != "" {
+		result[facts.YumRepoFactName] = c.Spec.YumOperate
+	}
 	return result
 }
 

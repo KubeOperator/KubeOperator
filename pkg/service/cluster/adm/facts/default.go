@@ -57,6 +57,7 @@ const (
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
 	SupportGpuName                       = "support_gpu"
+	YumRepoFactName                      = "yum_operate"
 )
 
 var DefaultFacts = map[string]string{
@@ -113,4 +114,5 @@ var DefaultFacts = map[string]string{
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
 	SupportGpuName:                       "disable",
+	YumRepoFactName:                      "replace",
 }

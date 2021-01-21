@@ -38,6 +38,8 @@ const (
 	ENABLE_CLUSTER_ISTIO  = "启用/修改集群 Istio|Enable/Update cluster Istio"
 	DISABLE_CLUSTER_ISTIO = "禁用集群Istio|Disable cluster Istio"
 
+	CREATE_CLUSTER_STORAGE_CLASS   = "添加存储类|Create storage class"
+	CREATE_CLUSTER_NAMESPACE       = "添加命名空间|Create cluster namespace"
 	CREATE_CLUSTER_BACKUP_STRATEGY = "添加集群备份策略|Create cluster backup strategy"
 	START_CLUSTER_BACKUP           = "开始备份|Start cluster backup"
 	UPLOAD_LOCAL_RECOVERY_FILE     = "上传本地恢复文件|Upload local recovery file"

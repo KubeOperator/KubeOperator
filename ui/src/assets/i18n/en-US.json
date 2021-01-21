@@ -83,6 +83,10 @@
   "APP_CAPACITY_INFORMATION": "Capacity information",
   "APP_STATISTICS": "Statistics",
   "APP_NETWORK_TYPE": "Network Type",
+  "APP_NETWORK_VXLAN_MSG": "基于隧道，在任何网络环境下都可以正常工作,优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可.劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费.",
+  "APP_NETWORK_HostGW_MSG": "基于路由，不适用于公有云环境,优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低",
+  "APP_NETWORK_BGP_MSG": "基于路由，不适用于公有云环境优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低",
+  "APP_NETWORK_IPIP_MSG": "基于隧道，在任何网络环境下都可以正常工作\n优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可\n劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费",
   "APP_DEPLOY_PLAN": "Deploy Plan",
   "APP_REGION": "Region",
   "APP_REGION_PROMPT": "Region: Similar to the concept of a region in a public cloud, such as Alibaba Cloud North China1. For vSphere, the region corresponds to Datacenter.",
@@ -645,5 +649,13 @@
   "APP_LEVEL": "Level",
   "APP_RECOVER": "Recover",
   "APP_METHOD": "Method",
-  "APP_BACKUP_RESTORE_TAB": "Backup/Restore"
+  "APP_BACKUP_RESTORE_TAB": "Backup/Restore",
+  "APP_YUM_REPO": "Yum Repo",
+  "APP_YUM_REPLACE": "replace",
+  "APP_YUM_COEXIST": "coexist",
+  "APP_YUM_NO": "no",
+  "APP_YUM_REPLACE_MSG": "This operation will back up the original yum repo file of the K8S node server, and then generate and use only the yum repo of KubeOperator",
+  "APP_YUM_COEXIST_MSG": "This operation will keep the original yum repo file of the K8S node server unchanged, and at the same time generate and use the yum repo of kubeoperator",
+  "APP_YUM_NO_MSG": "This operation will keep the original yum repo file of the K8S node server, and will not do any operation on the yum repo of the K8S node server",
+  "APP_FORCE": "Force"
 }
