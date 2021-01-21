@@ -18,6 +18,8 @@ export class StorageProvisionerListComponent implements OnInit {
     loading = false;
     items: StorageProvisioner[] = [];
     selected: StorageProvisioner[] = [];
+    opened = false;
+    detailItem: StorageProvisioner = new StorageProvisioner();
     @Output() createEvent = new EventEmitter();
     @Output() deleteEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
@@ -55,7 +57,12 @@ export class StorageProvisionerListComponent implements OnInit {
 
     polling() {
         this.timer = setInterval(() => {
-            this.refresh()
+            this.refresh();
         }, 5000);
+    }
+
+    openMessage(item) {
+        this.opened = true;
+        this.detailItem = item;
     }
 }

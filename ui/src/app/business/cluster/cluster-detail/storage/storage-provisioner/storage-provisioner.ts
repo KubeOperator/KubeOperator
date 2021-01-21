@@ -6,6 +6,7 @@ export class StorageProvisioner extends BaseModel {
     type: string;
     status: string;
     vars: string;
+    message: string;
 }
 
 export class CreateStorageProvisionerRequest {
