@@ -8,7 +8,7 @@ import {PlanService} from '../../deploy-plan/plan/plan.service';
 import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
-import {ManifestService} from "../../manifest/manifest.service";
+import {ManifestService} from '../../manifest/manifest.service';
 
 
 @Component({
@@ -86,6 +86,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.architectures = 'amd64';
         this.item.helmVersion = 'v3';
         this.item.supportGpu = 'disable';
+        this.item.yumOperate = 'replace';
     }
 
     onNameCheck() {

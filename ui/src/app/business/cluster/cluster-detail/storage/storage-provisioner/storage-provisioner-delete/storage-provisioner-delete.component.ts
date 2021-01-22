@@ -22,6 +22,7 @@ export class StorageProvisionerDeleteComponent implements OnInit {
 
     opened = false;
     items: StorageProvisioner[] = [];
+    submitGoing = false;
     @Output() deleted = new EventEmitter();
     @Input() currentCluster: Cluster;
 
@@ -34,7 +35,9 @@ export class StorageProvisionerDeleteComponent implements OnInit {
     }
 
     onSubmit() {
+        this.submitGoing = true;
         this.kubernetesService.listStorageClass(this.currentCluster.name).subscribe(data => {
+            this.submitGoing = false;
             const scs = data.items;
             let result = true;
             for (const sc of scs) {

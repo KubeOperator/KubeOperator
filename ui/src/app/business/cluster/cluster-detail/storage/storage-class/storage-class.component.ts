@@ -3,6 +3,7 @@ import {StorageClassCreateComponent} from './storage-class-create/storage-class-
 import {StorageClassListComponent} from './storage-class-list/storage-class-list.component';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
+import {StorageClassDeleteComponent} from './storage-class-delete/storage-class-delete.component';
 
 @Component({
     selector: 'app-storage-class',
@@ -22,6 +23,9 @@ export class StorageClassComponent implements OnInit {
     @ViewChild(StorageClassListComponent, {static: true})
     list: StorageClassListComponent;
 
+    @ViewChild(StorageClassDeleteComponent, {static: true})
+    delete: StorageClassDeleteComponent;
+
     ngOnInit(): void {
         this.route.parent.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
@@ -34,5 +38,9 @@ export class StorageClassComponent implements OnInit {
 
     refresh() {
         this.list.refresh();
+    }
+
+    openDelete(name) {
+        this.delete.open(name);
     }
 }

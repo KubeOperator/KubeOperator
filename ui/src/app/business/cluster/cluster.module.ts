@@ -76,6 +76,8 @@ import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-c
 import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
 import { F5Component } from './cluster-detail/f5/f5.component';
 import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-health-check.component';
+import { StorageClassDeleteComponent } from './cluster-detail/storage/storage-class/storage-class-delete/storage-class-delete.component';
+import { PersistentVolumeDeleteComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-delete/persistent-volume-delete.component';
 
 
 @NgModule({
@@ -128,7 +130,9 @@ import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-heal
         NamespaceCreateComponent,
         StorageProvisionerCreateOceanStorComponent,
         F5Component,
-        ClusterHealthCheckComponent],
+        ClusterHealthCheckComponent,
+        StorageClassDeleteComponent,
+        PersistentVolumeDeleteComponent],
     imports: [
         CoreModule,
         RouterModule,

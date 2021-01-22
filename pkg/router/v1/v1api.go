@@ -27,6 +27,7 @@ func V1(parent iris.Party) {
 	AuthScope.Use(middleware.UserMiddleware)
 	AuthScope.Use(middleware.RBACMiddleware())
 	AuthScope.Use(middleware.PagerMiddleware)
+	AuthScope.Use(middleware.ForceMiddleware)
 	mvc.New(AuthScope.Party("/clusters")).HandleError(ErrorHandler).Handle(controller.NewClusterController())
 	mvc.New(AuthScope.Party("/credentials")).HandleError(ErrorHandler).Handle(controller.NewCredentialController())
 	mvc.New(AuthScope.Party("/hosts")).HandleError(ErrorHandler).Handle(controller.NewHostController())

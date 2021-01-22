@@ -5,7 +5,7 @@
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button class="btn" (click)="onCancel()" [disabled]="submitGoing">{{"APP_CANCEL"|translate}}</button>
-        <button class="btn btn-primary" (click)="onSubmit()" [clrLoading]="submitGoing">{{"APP_COMMIT"|translate}}</button>
+        <button class="btn" (click)="onCancel()" [disabled]="isSubmitGoing">{{"APP_CANCEL"|translate}}</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing">{{"APP_COMMIT"|translate}}</button>
     </div>
 </clr-modal>

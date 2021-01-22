@@ -1,7 +1,6 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
     <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
     <div class="modal-body modal-height">
-        <app-modal-alert></app-modal-alert>
         <form clrForm #pvForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
@@ -46,13 +45,13 @@
                     <input clrInput size="20" name="value" [(ngModel)]="selectorValue" placeholder="node1,node2">
                 </div>
             </div>
-
-
+            <app-modal-alert></app-modal-alert>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="isSubmitGoing||pvForm.invalid">{{'APP_COMMIT'|translate}}</button>
+                [disabled]="pvForm.invalid" [clrLoading]="isSubmitGoing">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

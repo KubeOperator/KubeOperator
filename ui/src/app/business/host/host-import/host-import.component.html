@@ -1,4 +1,4 @@
-<clr-modal [(clrModalOpen)]="opened">
+<clr-modal [(clrModalOpen)]="opened"  [clrModalClosable]="false">
     <h3 class="modal-title">{{'APP_IMPORT_HOST'|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #itemForm="ngForm" enctype="multipart/form-data">

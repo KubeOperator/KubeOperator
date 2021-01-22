@@ -277,30 +277,41 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ## 支持组件
 
 - 核心
-  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.8
-  - [etcd](https://github.com/coreos/etcd) v3.4.9
+  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.14
+  - [etcd](https://github.com/coreos/etcd) v3.4.14
   - [docker](https://www.docker.com/) v19.03.9
-  - [containerd](https://containerd.io/) v1.3.6
+  - [containerd](https://containerd.io/) v1.4.3
 - 网络
-  - [calico](https://github.com/projectcalico/calico) v3.14.1
-  - [flanneld](https://github.com/coreos/flannel) v0.12.0
+  - [calico](https://github.com/projectcalico/calico) v3.16.5
+  - [flanneld](https://github.com/coreos/flannel) v0.13.0
 - 应用
-  - [coredns](https://github.com/coredns/coredns) v1.6.7
-  - [helm](https://github.com/helm/helm) v3.2.4
+  - [coredns](https://github.com/coredns/coredns) v1.8.0
+  - [helm-v2](https://github.com/helm/helm) v2.17.0
+  - [helm-v3](https://github.com/helm/helm) v3.4.1
   - [traefik](https://github.com/containous/traefik) v2.2.1
-  - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.32.0
-  - [node-problem-detector](https://github.com/kubernetes/node-problem-detector) v0.8.1
+  - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.33.0
   - [metrics-server](https://github.com/kubernetes-sigs/metrics-server) v0.3.6
-  - [nfs-provisioner](https://github.com/kubernetes-incubator/external-storage) v3.1.0-k8s1.11
-  - [rook-ceph](https://github.com/rook/rook) v1.3.6
-  - [rbd-provisioner](https://github.com/kubernetes-incubator/external-storage) v2.1.1-k8s1.11
-- [应用商店 Kubeapps](https://github.com/KubeOperator/charts/tree/master/kubeapps)
-  - Harbor v1.10.2
-  - Jenkins v2.222.1
-  - GitLab v9.4.1
-  - Argo CD v1.6.1
-  - Sonarqube v7.9.2
-  - Weave Scope v1.12.0
+- 工具
+  - [istio](https://github.com/istio/istio) 1.8.0
+  - [dashboard](https://github.com/kubernetes/dashboard) v2.0.3
+  - [kubeapps](https://github.com/kubeapps/kubeapps) v1.10.2
+  - [prometheus](https://github.com/prometheus/prometheus) v2.18.1
+  - [grafana](https://github.com/grafana/grafana) v7.3.3
+  - [loki](https://github.com/grafana/loki) v2.0.0
+  - [logging](https://github.com/elastic/elasticsearch) v7.6.2
+  - [chartmuseum](https://github.com/helm/chartmuseum) v0.12.0
+  - [docker-registry](https://github.com/docker/distribution) v2.7.1
+- 应用商店
+  - [argo-cd](https://github.com/argoproj/argo-cd) v1.7.4
+  - [gitlab-ce](https://about.gitlab.com) v9.4.1
+  - [harbor](https://github.com/goharbor/harbor) v1.10.2
+  - [jenkins](https://github.com/jenkinsci/jenkins) v2.222.1
+  - [kuboard](https://github.com/eip-work/kuboard-press) v2.0.5.1
+  - [redmine](https://github.com/redmine/redmine) v4.1.1
+  - [sonarqube](https://github.com/SonarSource/sonarqube) v7.9.2
+  - [tensorflow-serving](https://github.com/tensorflow/serving) v1.14.0
+  - [tensorflow-notebook](https://github.com/tensorflow/tensorflow) v1.6.0
+  - [weave-scope](https://github.com/weaveworks/scope) v1.12.0
 
 ## 微信群
 

@@ -63,6 +63,7 @@ type ClusterCreate struct {
 	HelmVersion           string       `json:"helmVersion"`
 	NetworkInterface      string       `json:"networkInterface"`
 	SupportGpu            string       `json:"supportGpu"`
+	YumOperate            string       `json:"yumOperate"`
 }
 
 type ClusterBatch struct {

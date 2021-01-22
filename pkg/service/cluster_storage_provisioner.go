@@ -1,9 +1,13 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -36,11 +40,40 @@ func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 
 func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error) {
 	clusterStorageProvisionerDTOS := []dto.ClusterStorageProvisioner{}
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return clusterStorageProvisionerDTOS, err
+	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
+		Token: secret.KubernetesToken,
+		Hosts: endpoints,
+	})
+	if err != nil {
+		return clusterStorageProvisionerDTOS, err
+	}
+	deploymentsList, err := client.AppsV1().Deployments("kube-system").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return clusterStorageProvisionerDTOS, err
+	}
 	ps, err := c.provisionerRepo.List(clusterName)
 	if err != nil {
 		return clusterStorageProvisionerDTOS, err
 	}
 	for _, p := range ps {
+		for _, item := range deploymentsList.Items {
+			if p.Name == item.Name {
+				if item.Status.ReadyReplicas < item.Status.Replicas {
+					p.Status = "NotReady"
+					var message string
+					for _, condition := range item.Status.Conditions {
+						message = condition.Message + message
+					}
+					p.Message = message
+					db.DB.Model(model.ClusterStorageProvisioner{}).Save(&p)
+				}
+			}
+		}
 		var vars map[string]interface{}
 		_ = json.Unmarshal([]byte(p.Vars), &vars)
 		clusterStorageProvisionerDTOS = append(clusterStorageProvisionerDTOS, dto.ClusterStorageProvisioner{

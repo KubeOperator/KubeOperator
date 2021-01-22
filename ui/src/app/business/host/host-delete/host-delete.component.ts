@@ -17,6 +17,7 @@ export class HostDeleteComponent extends BaseModelDirective<Host> implements OnI
     opened = false;
     items: Host[] = [];
     @Output() deleted = new EventEmitter();
+    submitGoing = false;
 
     constructor(private hostService: HostService, private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService, private translateService: TranslateService) {
@@ -29,18 +30,23 @@ export class HostDeleteComponent extends BaseModelDirective<Host> implements OnI
     open(items) {
         this.opened = true;
         this.items = items;
+        this.submitGoing = false;
     }
 
     onCancel() {
         this.opened = false;
+        this.submitGoing = false;
     }
 
     onSubmit() {
+        this.submitGoing = true;
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
+            this.submitGoing = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.submitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
