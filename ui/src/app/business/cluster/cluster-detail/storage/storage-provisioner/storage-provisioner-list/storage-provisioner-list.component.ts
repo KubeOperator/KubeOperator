@@ -60,7 +60,7 @@ export class StorageProvisionerListComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             this.refresh();
-        }, 5000);
+        }, 20000);
     }
 
     openMessage(item) {
