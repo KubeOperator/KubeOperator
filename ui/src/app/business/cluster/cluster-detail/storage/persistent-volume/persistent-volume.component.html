@@ -1,7 +1,10 @@
-<app-persistent-volume-list [currentCluster]="currentCluster" (createEvent)="openCreate()"></app-persistent-volume-list>
+<app-persistent-volume-list [currentCluster]="currentCluster" (createEvent)="openCreate()"
+                            (deleteEvent)="openDelete($event)"></app-persistent-volume-list>
 <app-persistent-volume-create (selected)="openSelected($event)"></app-persistent-volume-create>
 <app-persistent-volume-create-host-path [currentCluster]="currentCluster"
                                         (created)="refresh()"></app-persistent-volume-create-host-path>
 
 <app-persistent-volume-create-local-storage [currentCluster]="currentCluster"
-                                        (created)="refresh()"></app-persistent-volume-create-local-storage>
+                                            (created)="refresh()"></app-persistent-volume-create-local-storage>
+
+<app-persistent-volume-delete [currentCluster]="currentCluster" (deleted)="refresh()"></app-persistent-volume-delete>

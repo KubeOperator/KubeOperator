@@ -41,6 +41,7 @@ export class KubernetesService {
     serviceUrl = 'api/v1/services';
     namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
     persistentVolumesUrl = 'api/v1/persistentvolumes';
+    persistentVolumesOpUrl = 'api/v1/persistentvolumes/{name}';
     storageClassUrl = 'apis/storage.k8s.io/v1/storageclasses';
     storageClassOpUrl = 'apis/storage.k8s.io/v1/storageclasses/{name}';
     persistentVolumeClaimsUrl = 'api/v1/persistentvolumeclaims';
@@ -306,5 +307,10 @@ export class KubernetesService {
     deleteStorageClass(clusterName: string, name: string): Observable<V1StorageClass> {
         const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.storageClassOpUrl).replace('{name}', name);
         return this.client.delete<V1StorageClass>(url);
+    }
+
+    deletePersistentVolume(clusterName: string, name: string): Observable<V1PersistentVolume> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.persistentVolumesOpUrl).replace('{name}', name);
+        return this.client.delete<V1PersistentVolume>(url);
     }
 }

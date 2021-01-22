@@ -1,9 +1,16 @@
-<clr-datagrid [clrDgLoading]="loading">
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
-            <clr-icon shape="plus" size="16"></clr-icon>
-            {{"APP_ADD"|translate}}
-        </button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+                <clr-icon shape="plus" size="16"></clr-icon>
+                {{"APP_ADD"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete(selected[0].metadata.name)"
+                    [disabled]="selected.length!==1">
+                <clr-icon shape="close" size="16"></clr-icon>
+                {{"APP_DELETE"|translate}}
+            </button>
+        </div>
     </clr-dg-action-bar>
     <clr-dg-column>{{"APP_NAME"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_CAPACITY"|translate}}</clr-dg-column>

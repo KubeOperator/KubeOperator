@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Cluster} from '../../../../cluster';
-import {V1Namespace, V1PersistentVolume} from '@kubernetes/client-node';
+import {V1PersistentVolume} from '@kubernetes/client-node';
 import {KubernetesService} from '../../../../kubernetes.service';
 
 @Component({
@@ -18,6 +18,7 @@ export class PersistentVolumeListComponent implements OnInit {
     continueToken = '';
     @Output() createEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
+    @Output() deleteEvent = new EventEmitter<string>();
 
     constructor(private service: KubernetesService) {
     }
@@ -48,4 +49,7 @@ export class PersistentVolumeListComponent implements OnInit {
         this.createEvent.emit();
     }
 
+    onDelete(name) {
+        this.deleteEvent.emit(name);
+    }
 }

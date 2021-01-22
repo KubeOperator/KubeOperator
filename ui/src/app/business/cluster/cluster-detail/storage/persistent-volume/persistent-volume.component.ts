@@ -5,6 +5,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
 import {PersistentVolumeCreateHostPathComponent} from './persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
 import {PersistentVolumeCreateLocalStorageComponent} from "./persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component";
+import {PersistentVolumeDeleteComponent} from './persistent-volume-delete/persistent-volume-delete.component';
 
 @Component({
     selector: 'app-persistent-volume',
@@ -24,6 +25,8 @@ export class PersistentVolumeComponent implements OnInit {
     @ViewChild(PersistentVolumeCreateComponent, {static: true})
     create: PersistentVolumeCreateComponent;
 
+    @ViewChild(PersistentVolumeDeleteComponent, {static: true})
+    delete: PersistentVolumeDeleteComponent;
 
     @ViewChild(PersistentVolumeCreateHostPathComponent, {static: true})
     hostPath: PersistentVolumeCreateHostPathComponent;
@@ -56,4 +59,8 @@ export class PersistentVolumeComponent implements OnInit {
         this.list.refresh();
     }
 
+
+    openDelete(name) {
+        this.delete.open(name);
+    }
 }
