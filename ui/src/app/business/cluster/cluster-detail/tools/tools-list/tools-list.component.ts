@@ -40,7 +40,7 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     onEnable(item: ClusterTool) {
         switch (item.name) {
-            case 'logging': 
+            case 'logging':
                 for (const tool of this.items) {
                     if (tool.name === 'loki') {
                         item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
@@ -48,33 +48,33 @@ export class ToolsListComponent implements OnInit, OnDestroy {
                     }
                 }
                 break;
-        case 'loki': 
-            if (this.currentCluster.spec.architectures === 'amd64') {
+            case 'loki':
+                if (this.currentCluster.spec.architectures === 'amd64') {
+                    for (const tool of this.items) {
+                        if (tool.name === 'logging') {
+                            item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
+                            break;
+                        }
+                    }
+                } else {
+                    item.conditions = '';
+                }
+                break;
+            case 'grafana':
                 for (const tool of this.items) {
-                    if (tool.name === 'logging') {
-                        item.conditions = (tool.status === 'Waiting') ? '' : this.translateService.instant('APP_EFK_LOKI_CONDITION');
+                    if (tool.name === 'prometheus') {
+                        item.conditions = (tool.status === 'Running') ? '' : this.translateService.instant('APP_GRAFANA_CONDITION');
                         break;
                     }
                 }
-            } else {
+                break;
+            default :
                 item.conditions = '';
-            }
-            break;
-        case 'grafana': 
-            for (const tool of this.items) {
-                if (tool.name === 'prometheus') {
-                    item.conditions = (tool.status === 'Running') ? '' : this.translateService.instant('APP_GRAFANA_CONDITION');
-                    break;
-                }
-            }
-            break;
-        default :
-            item.conditions = '';
         }
         this.enableEvent.emit(item);
     }
 
-    onUpgrade (item: ClusterTool) {
+    onUpgrade(item: ClusterTool) {
         this.upgradeEvent.emit(item);
     }
 
