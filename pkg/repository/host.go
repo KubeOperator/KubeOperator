@@ -49,7 +49,7 @@ func (h hostRepository) Get(name string) (model.Host, error) {
 func (h hostRepository) List(projectName string) ([]model.Host, error) {
 	var hosts []model.Host
 	if projectName == "" {
-		err := db.DB.Model(model.Host{}).
+		err := db.DB.Model(&model.Host{}).
 			Preload("Volumes").
 			Preload("Cluster").
 			Preload("Zone").
@@ -58,12 +58,12 @@ func (h hostRepository) List(projectName string) ([]model.Host, error) {
 		return hosts, err
 	} else {
 		var project model.Project
-		err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+		err := db.DB.Model(&model.Project{}).Where(&model.Project{Name: projectName}).First(&project).Error
 		if err != nil {
 			return nil, err
 		}
 		var projectResources []model.ProjectResource
-		err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error
+		err = db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +71,7 @@ func (h hostRepository) List(projectName string) ([]model.Host, error) {
 		for _, pr := range projectResources {
 			resourceIds = append(resourceIds, pr.ResourceID)
 		}
-		err = db.DB.Model(model.Host{}).Where("id in (?)", resourceIds).Find(&hosts).Error
+		err = db.DB.Model(&model.Host{}).Where("id in (?)", resourceIds).Find(&hosts).Error
 		return hosts, err
 	}
 }
@@ -79,7 +79,7 @@ func (h hostRepository) List(projectName string) ([]model.Host, error) {
 func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 	var total int
 	var hosts []model.Host
-	err := db.DB.Model(model.Host{}).
+	err := db.DB.Model(&model.Host{}).
 		Order("name asc").
 		Count(&total).
 		Preload("Volumes").
@@ -112,7 +112,7 @@ func (h hostRepository) Save(host *model.Host) error {
 		if len(host.Volumes) > 0 {
 			for i := range host.Volumes {
 				var volume model.Volume
-				if notFound := tx.Where(model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
+				if notFound := tx.Where(&model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
 					First(&volume).RecordNotFound(); notFound {
 					if err := tx.Create(&host.Volumes[i]).Error; err != nil {
 						tx.Rollback()
@@ -134,7 +134,7 @@ func (h hostRepository) Save(host *model.Host) error {
 		}
 	}
 	var ip model.Ip
-	tx.Where(model.Ip{Address: host.Ip}).First(&ip)
+	tx.Where(&model.Ip{Address: host.Ip}).First(&ip)
 	if ip.ID != "" && ip.Status != constant.IpUsed {
 		ip.Status = constant.IpUsed
 		if err := tx.Save(&ip).Error; err != nil {
@@ -154,7 +154,7 @@ func (h hostRepository) ListByClusterId(clusterId string) ([]model.Host, error) 
 	if err := db.DB.First(&cluster).Error; err != nil {
 		return nil, err
 	}
-	if err := db.DB.Where(model.Host{ClusterID: clusterId}).Find(&hosts).Error; err != nil {
+	if err := db.DB.Where(&model.Host{ClusterID: clusterId}).Find(&hosts).Error; err != nil {
 		return nil, err
 	}
 	return hosts, nil
@@ -176,7 +176,7 @@ func (h hostRepository) BatchSave(hosts []*model.Host) error {
 			}
 		}
 		var ip model.Ip
-		tx.Where(model.Ip{Address: hosts[i].Ip}).First(&ip)
+		tx.Where(&model.Ip{Address: hosts[i].Ip}).First(&ip)
 		if ip.ID != "" && ip.Status != constant.IpUsed {
 			ip.Status = constant.IpUsed
 			if err := tx.Save(&ip).Error; err != nil {
@@ -202,7 +202,7 @@ func (h hostRepository) Delete(name string) error {
 
 func (h hostRepository) ListByCredentialID(credentialID string) ([]model.Host, error) {
 	var host []model.Host
-	err := db.DB.Model(model.Host{
+	err := db.DB.Model(&model.Host{
 		CredentialID: credentialID,
 	}).Find(&host).Error
 	return host, err
@@ -216,7 +216,7 @@ func (h hostRepository) Batch(operation string, items []model.Host) error {
 		for i := range items {
 
 			var host model.Host
-			if err := db.DB.Where(model.Host{Name: items[i].Name}).First(&host).Error; err != nil {
+			if err := db.DB.Where(&model.Host{Name: items[i].Name}).First(&host).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

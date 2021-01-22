@@ -32,7 +32,7 @@ func NewIpService() IpService {
 func (i ipService) Get(ip string) (dto.Ip, error) {
 	var ipDTO dto.Ip
 	var ipM model.Ip
-	err := db.DB.Where(model.Ip{Address: ip}).First(&ipM).Error
+	err := db.DB.Where(&model.Ip{Address: ip}).First(&ipM).Error
 	if err != nil {
 		return ipDTO, err
 	}
@@ -47,7 +47,7 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 		tx = db.DB.Begin()
 	}
 	var ipPool model.IpPool
-	err := tx.Where(model.IpPool{Name: create.IpPoolName}).First(&ipPool).Error
+	err := tx.Where(&model.IpPool{Name: create.IpPoolName}).First(&ipPool).Error
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	for _, ip := range ips {
 		var old model.Ip
-		tx.Where(model.Ip{Address: ip}).First(&old)
+		tx.Where(&model.Ip{Address: ip}).First(&old)
 		if old.ID != "" {
 			tx.Rollback()
 			return errors.New("IP_EXISTS")
@@ -94,11 +94,11 @@ func (i ipService) Page(num, size int, ipPoolName string) (page.Page, error) {
 	var total int
 	var ips []model.Ip
 	var ipPool model.IpPool
-	err := db.DB.Where(model.IpPool{Name: ipPoolName}).First(&ipPool).Error
+	err := db.DB.Where(&model.IpPool{Name: ipPoolName}).First(&ipPool).Error
 	if err != nil {
 		return page, err
 	}
-	err = db.DB.Model(model.Ip{}).Where(model.Ip{IpPoolID: ipPool.ID}).Order("inet_aton(address)").Count(&total).Offset((num - 1) * size).Limit(size).Find(&ips).Error
+	err = db.DB.Model(&model.Ip{}).Where(&model.Ip{IpPoolID: ipPool.ID}).Order("inet_aton(address)").Count(&total).Offset((num - 1) * size).Limit(size).Find(&ips).Error
 	if err != nil {
 		return page, err
 	}
@@ -118,7 +118,7 @@ func (i ipService) Batch(op dto.IpOp) error {
 	case constant.BatchOperationDelete:
 		for i := range op.Items {
 			var ip model.Ip
-			if err := tx.Where(model.Ip{Address: op.Items[i].Address}).First(&ip).Error; err != nil {
+			if err := tx.Where(&model.Ip{Address: op.Items[i].Address}).First(&ip).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
@@ -137,7 +137,7 @@ func (i ipService) Batch(op dto.IpOp) error {
 func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 	tx := db.DB.Begin()
 	var ip model.Ip
-	err := tx.Where(model.Ip{Address: update.Address}).First(&ip).Error
+	err := tx.Where(&model.Ip{Address: update.Address}).First(&ip).Error
 	if err != nil {
 		return nil, err
 	}
@@ -161,12 +161,12 @@ func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 
 func (i ipService) Sync(ipPoolName string) error {
 	var ipPool model.IpPool
-	err := db.DB.Where(model.IpPool{Name: ipPoolName}).First(&ipPool).Error
+	err := db.DB.Where(&model.IpPool{Name: ipPoolName}).First(&ipPool).Error
 	if err != nil {
 		return err
 	}
 	var ips []model.Ip
-	err = db.DB.Where(model.Ip{IpPoolID: ipPool.ID}).Find(&ips).Error
+	err = db.DB.Where(&model.Ip{IpPoolID: ipPool.ID}).Find(&ips).Error
 	if err != nil {
 		return err
 	}

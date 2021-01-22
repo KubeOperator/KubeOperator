@@ -28,7 +28,7 @@ func (d *demoRepository) List() ([]model.Demo, error) {
 
 func (d *demoRepository) Get(name string) (model.Demo, error) {
 	var demo model.Demo
-	if err := db.DB.Where(model.Demo{Name: name}).First(&demo).Error; err != nil {
+	if err := db.DB.Where(&model.Demo{Name: name}).First(&demo).Error; err != nil {
 		return demo, err
 	}
 	return demo, nil

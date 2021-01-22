@@ -24,8 +24,8 @@ func (u userMessageRepository) Page(num int, size int, userId string) (int, []mo
 	var total int
 	var userMessages []model.UserMessage
 	if err := db.DB.
-		Model(model.UserMessage{}).
-		Where(model.UserMessage{UserID: userId}).
+		Model(&model.UserMessage{}).
+		Where(&model.UserMessage{UserID: userId}).
 		Count(&total).
 		Order("created_at desc").
 		Preload("Message").
@@ -42,8 +42,8 @@ func (u userMessageRepository) Page(num int, size int, userId string) (int, []mo
 func (u userMessageRepository) ListUnreadMsg(userId string) ([]model.UserMessage, error) {
 	var userMessages []model.UserMessage
 	if err := db.DB.
-		Model(model.UserMessage{}).
-		Where(model.UserMessage{UserID: userId, ReadStatus: constant.UnRead}).
+		Model(&model.UserMessage{}).
+		Where(&model.UserMessage{UserID: userId, ReadStatus: constant.UnRead}).
 		Preload("Message").
 		Find(&userMessages).
 		Error; err != nil {
@@ -67,7 +67,7 @@ func (u userMessageRepository) Batch(operation string, items []model.UserMessage
 	case constant.BatchOperationDelete:
 		for i := range items {
 			var userMessage model.UserMessage
-			if err := tx.Where(model.UserMessage{ID: items[i].ID}).First(&userMessage).Error; err != nil {
+			if err := tx.Where(&model.UserMessage{ID: items[i].ID}).First(&userMessage).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

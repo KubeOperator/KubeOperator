@@ -52,7 +52,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	tx := db.DB.Begin()
 	//从错误后继续
 	if cluster.Cluster.Status.Phase == constant.StatusFailed && cluster.Cluster.Status.PrePhase == constant.StatusUpgrading {
-		if err := tx.Model(model.ClusterStatusCondition{}).Where(model.ClusterStatusCondition{ClusterStatusID: cluster.StatusID, Status: constant.ConditionFalse}).Updates(map[string]interface{}{
+		if err := tx.Model(&model.ClusterStatusCondition{}).Where(&model.ClusterStatusCondition{ClusterStatusID: cluster.StatusID, Status: constant.ConditionFalse}).Updates(map[string]interface{}{
 			"Status":  constant.ConditionUnknown,
 			"Message": "",
 		}).Error; err != nil {

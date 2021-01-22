@@ -43,14 +43,14 @@ func (z zoneRepository) ListByRegionId(id string) ([]model.Zone, error) {
 
 func (z zoneRepository) List() ([]model.Zone, error) {
 	var zones []model.Zone
-	err := db.DB.Model(model.Zone{}).Preload("IpPool").Find(&zones).Error
+	err := db.DB.Model(&model.Zone{}).Preload("IpPool").Find(&zones).Error
 	return zones, err
 }
 
 func (z zoneRepository) Page(num, size int) (int, []model.Zone, error) {
 	var total int
 	var zones []model.Zone
-	err := db.DB.Model(model.Zone{}).
+	err := db.DB.Model(&model.Zone{}).
 		Count(&total).
 		Preload("Region").
 		Preload("IpPool").

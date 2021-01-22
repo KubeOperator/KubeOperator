@@ -21,13 +21,13 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 	var cluster model.Cluster
 	var tools []model.ClusterTool
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		Preload("Spec").
 		First(&cluster).Error; err != nil {
 		return tools, err
 	}
 	if err := db.DB.
-		Where(model.ClusterTool{ClusterID: cluster.ID}).
+		Where(&model.ClusterTool{ClusterID: cluster.ID}).
 		Where("architecture in (?)", []string{cluster.Spec.Architectures, "all"}).
 		Find(&tools).Error; err != nil {
 		return tools, err
@@ -37,7 +37,7 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 
 func (c clusterToolRepository) Save(tool *model.ClusterTool) error {
 	var item model.ClusterTool
-	notFound := db.DB.Where(model.ClusterTool{ClusterID: tool.ClusterID, Name: tool.Name}).First(&item).RecordNotFound()
+	notFound := db.DB.Where(&model.ClusterTool{ClusterID: tool.ClusterID, Name: tool.Name}).First(&item).RecordNotFound()
 	if notFound {
 		if err := db.DB.Create(tool).Error; err != nil {
 			return err
@@ -55,11 +55,11 @@ func (c clusterToolRepository) Get(clusterName string, name string) (model.Clust
 	var tool model.ClusterTool
 	var cluster model.Cluster
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		First(&cluster).Error; err != nil {
 		return tool, err
 	}
-	if err := db.DB.Where(model.ClusterTool{ClusterID: tool.ClusterID, Name: name}).First(&tool).Error; err != nil {
+	if err := db.DB.Where(&model.ClusterTool{ClusterID: tool.ClusterID, Name: name}).First(&tool).Error; err != nil {
 		return tool, err
 	}
 	return tool, nil

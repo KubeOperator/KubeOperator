@@ -88,7 +88,7 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	}
 
 	var userEmail model.User
-	db.DB.Where(model.User{Email: creation.Email}).First(&userEmail)
+	db.DB.Where(&model.User{Email: creation.Email}).First(&userEmail)
 	if userEmail.ID != "" {
 		return nil, EmailExist
 	}

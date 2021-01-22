@@ -46,7 +46,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		}
 	} else {
 		var oldStatus model.ClusterStatus
-		db.DB.Where(model.ClusterStatus{ID: status.ID}).First(&oldStatus)
+		db.DB.Where(&model.ClusterStatus{ID: status.ID}).First(&oldStatus)
 		if status.Phase != oldStatus.Phase {
 			status.PrePhase = oldStatus.Phase
 		}
@@ -62,7 +62,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
 		if tx.NewRecord(status.ClusterStatusConditions[i]) {
 			var temp model.ClusterStatusCondition
-			if tx.Where(model.ClusterStatusCondition{ClusterStatusID: status.ClusterStatusConditions[i].ClusterStatusID, Name: status.ClusterStatusConditions[i].Name}).
+			if tx.Where(&model.ClusterStatusCondition{ClusterStatusID: status.ClusterStatusConditions[i].ClusterStatusID, Name: status.ClusterStatusConditions[i].Name}).
 				First(&temp).
 				RecordNotFound() {
 				status.ClusterStatusConditions[i].CreatedAt = time.Now()
@@ -94,7 +94,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 func (c clusterStatusRepository) Delete(id string) error {
 	if err := db.DB.
 		First(&model.Cluster{ID: id}).
-		Delete(model.Cluster{}).Error; err != nil {
+		Delete(&model.Cluster{}).Error; err != nil {
 		return err
 	}
 	return nil

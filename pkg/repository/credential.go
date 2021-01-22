@@ -40,14 +40,14 @@ func (c credentialRepository) Get(name string) (model.Credential, error) {
 
 func (c credentialRepository) List() ([]model.Credential, error) {
 	var credentials []model.Credential
-	err := db.DB.Model(model.Credential{}).Find(&credentials).Error
+	err := db.DB.Model(&model.Credential{}).Find(&credentials).Error
 	return credentials, err
 }
 
 func (c credentialRepository) Page(num, size int) (int, []model.Credential, error) {
 	var total int
 	var credentials []model.Credential
-	err := db.DB.Model(model.Credential{}).
+	err := db.DB.Model(&model.Credential{}).
 		Count(&total).
 		Find(&credentials).
 		Offset((num - 1) * size).

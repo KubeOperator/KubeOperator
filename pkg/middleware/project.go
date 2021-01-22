@@ -46,7 +46,7 @@ func queryProjectRoles(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("decode error: %s", projectName)
 	}
 	var project model.Project
-	notFound := db.DB.Where(model.Project{Name: projectName}).First(&project).RecordNotFound()
+	notFound := db.DB.Where(&model.Project{Name: projectName}).First(&project).RecordNotFound()
 	if notFound {
 		return nil, fmt.Errorf("project: %s not found", projectName)
 	}
@@ -56,7 +56,7 @@ func queryProjectRoles(ctx context.Context) ([]string, error) {
 		return []string{constant.SystemRoleAdmin}, nil
 	}
 	var member model.ProjectMember
-	db.DB.Where(model.ProjectMember{
+	db.DB.Where(&model.ProjectMember{
 		ProjectID: project.ID,
 		UserID:    u.UserId,
 	}).First(&member)

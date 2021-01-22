@@ -24,7 +24,7 @@ type vmConfigRepository struct {
 func (v vmConfigRepository) Page(num, size int) (int, []model.VmConfig, error) {
 	var total int
 	var configs []model.VmConfig
-	err := db.DB.Model(model.VmConfig{}).
+	err := db.DB.Model(&model.VmConfig{}).
 		Order("cpu").
 		Count(&total).Find(&configs).
 		Offset((num - 1) * size).
@@ -35,7 +35,7 @@ func (v vmConfigRepository) Page(num, size int) (int, []model.VmConfig, error) {
 
 func (v vmConfigRepository) List() ([]model.VmConfig, error) {
 	var configs []model.VmConfig
-	err := db.DB.Model(model.VmConfig{}).Find(&configs).Error
+	err := db.DB.Model(&model.VmConfig{}).Find(&configs).Error
 	return configs, err
 }
 
@@ -62,7 +62,7 @@ func (v vmConfigRepository) Batch(operation string, items []model.VmConfig) erro
 		tx := db.DB.Begin()
 		for _, item := range items {
 			var config model.VmConfig
-			err := db.DB.Where(model.VmConfig{Name: item.Name}).First(&config).Error
+			err := db.DB.Where(&model.VmConfig{Name: item.Name}).First(&config).Error
 			if err != nil {
 				tx.Rollback()
 				return err

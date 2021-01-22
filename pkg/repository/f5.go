@@ -28,7 +28,7 @@ func (f f5Repository) Save(f5 *model.F5Setting) error {
 func (f f5Repository) Get(clusterID string) (*model.F5Setting, error) {
 	var f5 model.F5Setting
 	if err := db.DB.
-		Where(model.F5Setting{ClusterID: clusterID}).
+		Where(&model.F5Setting{ClusterID: clusterID}).
 		First(&f5).Error; err != nil {
 		return nil, err
 	}
