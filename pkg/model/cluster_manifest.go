@@ -13,7 +13,6 @@ type ClusterManifest struct {
 	CoreVars    string `json:"coreVars"`
 	NetworkVars string `json:"networkVars"`
 	ToolVars    string `json:"toolVars"`
-	IstioVars   string `json:"istioVars"`
 	OtherVars   string `json:"otherVars"`
 	IsActive    bool   `json:"isActive"`
 }
