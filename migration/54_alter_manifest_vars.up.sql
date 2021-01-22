@@ -1,5 +1,4 @@
 ALTER TABLE ko_cluster_tool ADD COLUMN `higher_version` VARCHAR(255) NULL;
-ALTER TABLE ko_cluster_tool ADD COLUMN `chart_version` VARCHAR(255) NULL;
 
 ALTER TABLE ko_cluster_manifest ADD COLUMN `tool_vars` mediumtext;
 
