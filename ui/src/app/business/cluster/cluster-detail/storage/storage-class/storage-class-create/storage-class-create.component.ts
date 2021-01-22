@@ -20,8 +20,7 @@ export class StorageClassCreateComponent implements OnInit {
 
     constructor(private provisionerService: StorageProvisionerService,
                 private kubernetesService: KubernetesService,
-                private modalAlertService: ModalAlertService,
-                private translateService: TranslateService,) {
+                private modalAlertService: ModalAlertService) {
     }
 
     opened = false;

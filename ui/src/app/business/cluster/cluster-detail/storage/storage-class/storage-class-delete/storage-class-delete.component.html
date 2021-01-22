@@ -1,0 +1,11 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_DELETE"|translate}}</h3>
+    <div class="modal-body">
+        <p>{{"APP_DEFAULT_DELETE_WARNING"|translate}}</p>
+        <app-modal-alert></app-modal-alert>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" (click)="onCancel()" [disabled]="submitGoing">{{"APP_CANCEL"|translate}}</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [clrLoading]="submitGoing">{{"APP_COMMIT"|translate}}</button>
+    </div>
+</clr-modal>

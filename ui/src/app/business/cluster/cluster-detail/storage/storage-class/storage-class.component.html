@@ -1,2 +1,3 @@
-<app-storage-class-list (createEvent)="openCreate()"></app-storage-class-list>
+<app-storage-class-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"></app-storage-class-list>
 <app-storage-class-create [currentCluster]="currentCluster" (created)="refresh()"></app-storage-class-create>
+<app-storage-class-delete [currentCluster]="currentCluster" (deleted)="refresh()"></app-storage-class-delete>
