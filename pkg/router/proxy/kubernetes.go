@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 
@@ -54,16 +55,19 @@ func KubernetesClientProxy(ctx context.Context) {
 		return nil
 	}
 	if ctx.Method() != "GET" {
-		saveSystemLogs(ctx)
+		saveSystemLogs(ctx, clusterName)
 	}
 
 	proxy.ServeHTTP(ctx.ResponseWriter(), ctx.Request())
 }
 
-func saveSystemLogs(ctx context.Context) {
+func saveSystemLogs(ctx context.Context, clusterName string) {
 	var (
 		logStr     string
 		bodyStruct interface{}
+		tmpPath    string
+		askModule  string
+		askParam   string
 	)
 
 	operator := getOperator(ctx)
@@ -75,15 +79,41 @@ func saveSystemLogs(ctx context.Context) {
 	ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 	valueMap, _ := bodyStruct.(map[string]interface{})
 
-	switch ctx.Params().Get("p") {
-	case "apis/storage.k8s.io/v1/storageclasses":
+	proxyPath := ctx.Params().Get("p")
+	tmpPath = proxyPath[(strings.Index(proxyPath, "/v1/") + 4):len(proxyPath)]
+	if strings.Index(tmpPath, "/") != -1 {
+		itemvalue := strings.Split(tmpPath, "/")
+		askModule = itemvalue[0]
+		if len(itemvalue) == 2 {
+			askParam = itemvalue[1]
+		}
+	} else {
+		askModule = tmpPath
+	}
+
+	switch askModule {
+	case "storageclasses":
 		metadata, _ := valueMap["metadata"].(map[string]interface{})
-		logStr = valueMap["provisioner"].(string) + "-" + metadata["name"].(string)
+		logStr = clusterName + "-" + metadata["name"].(string)
 		go log.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
-	case "api/v1/namespaces":
-		metadata, _ := valueMap["metadata"].(map[string]interface{})
-		logStr = metadata["name"].(string)
-		go log.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+	case "namespaces":
+		if len(askParam) != 0 {
+			logStr = clusterName + "-" + askParam
+			go log.Save(operator, constant.DELETE_CLUSTER_NAMESPACE, logStr)
+		} else {
+			metadata, _ := valueMap["metadata"].(map[string]interface{})
+			logStr = clusterName + "-" + metadata["name"].(string)
+			go log.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+		}
+	case "persistentvolumes":
+		if len(askParam) != 0 {
+			logStr = clusterName + "-" + askParam
+			go log.Save(operator, constant.DELETE_CLUSTER_PVC, logStr)
+		} else {
+			metadata, _ := valueMap["metadata"].(map[string]interface{})
+			logStr = clusterName + "-" + metadata["name"].(string)
+			go log.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
+		}
 	}
 }
 

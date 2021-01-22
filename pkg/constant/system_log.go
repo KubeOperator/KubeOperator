@@ -29,6 +29,8 @@ const (
 
 	CREATE_CLUSTER_STORAGE_SUPPLIER = "添加集群存储供应商|Create cluster storage vendor"
 	DELETE_CLUSTER_STORAGE_SUPPLIER = "删除集群存储供应商|Delete cluster storage vendor"
+	CREATE_CLUSTER_PVC              = "添加集群持久卷|Create cluster pvc"
+	DELETE_CLUSTER_PVC              = "删除集群持久卷|Delete cluster pvc"
 
 	ENABLE_CLUSTER_NPD  = "启用NPD|Enable cluster NPD"
 	DISABLE_CLUSTER_NPD = "关闭NPD|Disable cluster NPD"
@@ -41,6 +43,7 @@ const (
 
 	CREATE_CLUSTER_STORAGE_CLASS   = "添加存储类|Create storage class"
 	CREATE_CLUSTER_NAMESPACE       = "添加命名空间|Create cluster namespace"
+	DELETE_CLUSTER_NAMESPACE       = "删除命名空间|Delete cluster namespace"
 	CREATE_CLUSTER_BACKUP_STRATEGY = "添加集群备份策略|Create cluster backup strategy"
 	START_CLUSTER_BACKUP           = "开始备份|Start cluster backup"
 	UPLOAD_LOCAL_RECOVERY_FILE     = "上传本地恢复文件|Upload local recovery file"
