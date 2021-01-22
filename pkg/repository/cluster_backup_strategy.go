@@ -49,7 +49,7 @@ func (c clusterBackupStrategyRepository) Save(clusterBackupStrategy *model.Clust
 
 func (c clusterBackupStrategyRepository) List() ([]model.ClusterBackupStrategy, error) {
 	var clusterBackupStrategies []model.ClusterBackupStrategy
-	err := db.DB.Model(model.ClusterBackupStrategy{}).Order("created_at desc").Find(&clusterBackupStrategies).Error
+	err := db.DB.Model(&model.ClusterBackupStrategy{}).Order("created_at desc").Find(&clusterBackupStrategies).Error
 	if err != nil {
 		return nil, err
 	}

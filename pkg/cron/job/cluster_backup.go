@@ -1,14 +1,15 @@
 package job
 
 import (
+	"math"
+	"sync"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	"math"
-	"sync"
-	"time"
 )
 
 type ClusterBackup struct {
@@ -30,7 +31,7 @@ func (c *ClusterBackup) Run() {
 	for _, clusterBackupStrategy := range clusterBackupStrategies {
 		if clusterBackupStrategy.Status == "ENABLE" {
 			var backupFiles []model.ClusterBackupFile
-			db.DB.Model(model.ClusterBackupFile{}).Find(&backupFiles)
+			db.DB.Model(&model.ClusterBackupFile{}).Find(&backupFiles)
 			if len(backupFiles) < clusterBackupStrategy.SaveNum {
 				if len(backupFiles) > 0 {
 					lastBackupFile := backupFiles[0]
@@ -48,7 +49,7 @@ func (c *ClusterBackup) Run() {
 					sem <- struct{}{}
 					defer func() { <-sem }()
 					var cluster model.Cluster
-					db.DB.Model(model.Cluster{}).Where(model.Cluster{ID: clusterBackupStrategy.ClusterID}).Find(&cluster)
+					db.DB.Model(&model.Cluster{}).Where(&model.Cluster{ID: clusterBackupStrategy.ClusterID}).Find(&cluster)
 					log.Infof("start backup cluster [%s]", cluster.Name)
 					if cluster.ID != "" {
 						err := c.cLusterBackupFileService.Backup(dto.ClusterBackupFileCreate{ClusterName: cluster.Name})

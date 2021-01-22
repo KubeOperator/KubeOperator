@@ -84,7 +84,7 @@ func (v vmConfigService) Create(creation dto.VmConfigCreate) (*dto.VmConfig, err
 		return nil, errors.New(ConfigNameExist)
 	}
 	var config model.VmConfig
-	db.DB.Where(model.VmConfig{Cpu: creation.Cpu, Memory: creation.Memory}).Find(&config)
+	db.DB.Where(&model.VmConfig{Cpu: creation.Cpu, Memory: creation.Memory}).Find(&config)
 	if config.ID != "" {
 		return nil, errors.New(ConfigExist)
 	}

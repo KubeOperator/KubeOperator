@@ -449,7 +449,7 @@ func (h hostService) ImportHosts(file []byte) error {
 		}
 		go h.RunGetHostConfig(&host)
 		var ip model.Ip
-		db.DB.Where(model.Ip{Address: host.Ip}).First(&ip)
+		db.DB.Where(&model.Ip{Address: host.Ip}).First(&ip)
 		if ip.ID != "" {
 			ip.Status = constant.IpUsed
 			db.DB.Save(&ip)

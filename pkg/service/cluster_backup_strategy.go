@@ -66,7 +66,7 @@ func (c cLusterBackupStrategyService) Save(creation dto.ClusterBackupStrategyReq
 		id = old.ID
 		if old.BackupAccountID != backupAccount.ID {
 			var backupFiles []model.ClusterBackupFile
-			err := db.DB.Where(model.ClusterBackupFile{ClusterBackupStrategyID: id, ClusterID: cluster.ID}).Find(&backupFiles).Error
+			err := db.DB.Where(&model.ClusterBackupFile{ClusterBackupStrategyID: id, ClusterID: cluster.ID}).Find(&backupFiles).Error
 			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}

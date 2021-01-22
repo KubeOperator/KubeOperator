@@ -252,7 +252,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	case constant.ClusterProviderPlan:
 		spec.WorkerAmount = creation.WorkerAmount
 		var plan model.Plan
-		if err := tx.Where(model.Plan{Name: creation.Plan}).First(&plan).Error; err != nil {
+		if err := tx.Where(&model.Plan{Name: creation.Plan}).First(&plan).Error; err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
 		}
@@ -277,7 +277,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
 				workerNo++
 			}
-			if err := tx.Model(model.Host{}).Where(model.Host{Name: nc.HostName}).Updates(map[string]interface{}{
+			if err := tx.Model(&model.Host{}).Where(&model.Host{Name: nc.HostName}).Updates(map[string]interface{}{
 				"ClusterID": cluster.ID,
 			}).Error; err != nil {
 				tx.Rollback()
@@ -285,7 +285,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			}
 			log.Infof("update host ClusterId %s %s", nc.HostName, cluster.ID)
 			var host model.Host
-			if err := tx.Where(model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
+			if err := tx.Where(&model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
 				tx.Rollback()
 				return nil, fmt.Errorf("can not query host %s reason %s", nc.HostName, err.Error())
 			}
@@ -305,7 +305,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		return nil, err
 	}
 	var project model.Project
-	if err := tx.Where(model.Project{Name: creation.ProjectName}).First(&project).Error; err != nil {
+	if err := tx.Where(&model.Project{Name: creation.ProjectName}).First(&project).Error; err != nil {
 		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
 	}
 	projectResource := model.ProjectResource{

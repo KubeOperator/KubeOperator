@@ -28,7 +28,7 @@ type clusterRepository struct {
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
 	var cluster model.Cluster
 	if err := db.DB.
-		Where(model.Cluster{Name: name}).
+		Where(&model.Cluster{Name: name}).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
@@ -44,8 +44,8 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
-	db.DB.Model(model.Cluster{})
-	if err := db.DB.Model(model.Cluster{}).
+	db.DB.Model(&model.Cluster{})
+	if err := db.DB.Model(&model.Cluster{}).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
@@ -63,12 +63,12 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 	var total int
 	var clusters []model.Cluster
 	var project model.Project
-	err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+	err := db.DB.Model(&model.Project{}).Where(&model.Project{Name: projectName}).First(&project).Error
 	if err != nil {
 		return 0, nil, err
 	}
 	var projectResources []model.ProjectResource
-	err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error
+	err = db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error
 	if err != nil {
 		return 0, nil, err
 	}
@@ -77,7 +77,7 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 		resourceIds = append(resourceIds, pr.ResourceID)
 	}
 
-	if err := db.DB.Model(model.Cluster{}).
+	if err := db.DB.Model(&model.Cluster{}).
 		Offset((num-1)*size).
 		Limit(size).
 		Where("id in (?)", resourceIds).
@@ -107,11 +107,11 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 
 func (c clusterRepository) Delete(name string) error {
 	var cluster model.Cluster
-	if err := db.DB.Where(model.Cluster{Name: name}).First(&cluster).Error; err != nil {
+	if err := db.DB.Where(&model.Cluster{Name: name}).First(&cluster).Error; err != nil {
 		return err
 	}
 	var prometheus model.ClusterTool
-	err := db.DB.Where(model.ClusterTool{Name: "prometheus", ClusterID: cluster.ID}).First(&prometheus).Error
+	err := db.DB.Where(&model.ClusterTool{Name: "prometheus", ClusterID: cluster.ID}).First(&prometheus).Error
 	if err != nil {
 		log.Error(err)
 	}

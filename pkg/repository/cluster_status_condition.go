@@ -19,7 +19,7 @@ type clusterStatusConditionRepository struct{}
 
 func (c clusterStatusConditionRepository) List(clusterStatusId string) ([]model.ClusterStatusCondition, error) {
 	var clusterStatusConditions []model.ClusterStatusCondition
-	if err := db.DB.Where(model.ClusterStatusCondition{ClusterStatusID: clusterStatusId}).
+	if err := db.DB.Where(&model.ClusterStatusCondition{ClusterStatusID: clusterStatusId}).
 		Find(&clusterStatusConditions).Error; err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c clusterStatusConditionRepository) Delete(id string) error {
 func (c clusterStatusConditionRepository) Save(condition *model.ClusterStatusCondition) error {
 	if db.DB.NewRecord(condition) {
 		var temp model.ClusterStatusCondition
-		if db.DB.Where(model.ClusterStatusCondition{ClusterStatusID: condition.ClusterStatusID, Name: condition.Name}).
+		if db.DB.Where(&model.ClusterStatusCondition{ClusterStatusID: condition.ClusterStatusID, Name: condition.Name}).
 			First(&temp).
 			RecordNotFound() {
 			if err := db.DB.Create(condition).Error; err != nil {

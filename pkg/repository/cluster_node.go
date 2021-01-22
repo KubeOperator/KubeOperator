@@ -28,12 +28,12 @@ func (c clusterNodeRepository) Get(clusterName string, name string) (model.Clust
 	var cluster model.Cluster
 	var node model.ClusterNode
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		First(&cluster).Error; err != nil {
 		return node, err
 	}
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: cluster.ID, Name: name}).
+		Where(&model.ClusterNode{ClusterID: cluster.ID, Name: name}).
 		First(&node).Error; err != nil {
 		return node, err
 	}
@@ -45,13 +45,13 @@ func (c clusterNodeRepository) Page(num, size int, clusterName string) (int, []m
 	var nodes []model.ClusterNode
 	var cluster model.Cluster
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		First(&cluster).Error; err != nil {
 		return 0, nil, err
 	}
 	if err := db.DB.
-		Model(model.ClusterNode{}).
-		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Model(&model.ClusterNode{}).
+		Where(&model.ClusterNode{ClusterID: cluster.ID}).
 		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -69,12 +69,12 @@ func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, er
 	var cluster model.Cluster
 	var nodes []model.ClusterNode
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		First(&cluster).Error; err != nil {
 		return nodes, err
 	}
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Where(&model.ClusterNode{ClusterID: cluster.ID}).
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
@@ -89,12 +89,12 @@ func (c clusterNodeRepository) ListByRole(clusterName string, role string) ([]mo
 	var cluster model.Cluster
 	var nodes []model.ClusterNode
 	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
+		Where(&model.Cluster{Name: clusterName}).
 		First(&cluster).Error; err != nil {
 		return nodes, err
 	}
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: cluster.ID, Role: role}).
+		Where(&model.ClusterNode{ClusterID: cluster.ID, Role: role}).
 		Find(&nodes).Error; err != nil {
 		return nodes, err
 	}
@@ -105,7 +105,7 @@ func (c clusterNodeRepository) ListByRole(clusterName string, role string) ([]mo
 func (c clusterNodeRepository) FirstMaster(clusterId string) (model.ClusterNode, error) {
 	var master model.ClusterNode
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
+		Where(&model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
 		Preload("Host").
 		Preload("Host.Credential").
 		First(&master).
@@ -118,7 +118,7 @@ func (c clusterNodeRepository) FirstMaster(clusterId string) (model.ClusterNode,
 func (c clusterNodeRepository) AllMaster(clusterId string) ([]model.ClusterNode, error) {
 	var masters []model.ClusterNode
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
+		Where(&model.ClusterNode{ClusterID: clusterId, Role: constant.NodeRoleNameMaster}).
 		Preload("Host").
 		Preload("Host.Credential").
 		Find(&masters).

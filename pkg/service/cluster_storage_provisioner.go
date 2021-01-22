@@ -70,7 +70,7 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 						message = condition.Message + message
 					}
 					p.Message = message
-					db.DB.Model(model.ClusterStorageProvisioner{}).Save(&p)
+					db.DB.Model(&model.ClusterStorageProvisioner{}).Save(&p)
 				}
 			}
 		}

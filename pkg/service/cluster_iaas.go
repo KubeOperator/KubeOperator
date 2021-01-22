@@ -328,12 +328,12 @@ func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*mode
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, _ := p.GetIpInUsed(zoneVars["network"])
 	var hs []model.Host
-	db.DB.Model(model.Host{}).Find(&hs)
+	db.DB.Model(&model.Host{}).Find(&hs)
 	for i := range hs {
 		pool = append(pool, hs[i].Ip)
 	}
 	var ips []model.Ip
-	db.DB.Where(model.Ip{IpPoolID: zone.IpPoolID, Status: constant.IpAvailable}).Order("inet_aton(address)").Find(&ips)
+	db.DB.Where(&model.Ip{IpPoolID: zone.IpPoolID, Status: constant.IpAvailable}).Order("inet_aton(address)").Find(&ips)
 	var wg sync.WaitGroup
 	for i := range ips {
 		wg.Add(1)

@@ -75,7 +75,7 @@ func (i *InitMigrateDBPhase) Init() error {
 		return fmt.Errorf("can not init default user")
 	}
 	if !(v > 0) {
-		if err := db.DB.Model(model.User{}).Where(model.User{Name: "admin"}).Updates(map[string]interface{}{"Password": dp}).Error; err != nil {
+		if err := db.DB.Model(&model.User{}).Where(&model.User{Name: "admin"}).Updates(map[string]interface{}{"Password": dp}).Error; err != nil {
 			return fmt.Errorf("can not update default user")
 		}
 	}

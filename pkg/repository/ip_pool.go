@@ -40,7 +40,7 @@ func (i ipPoolRepository) Save(ipPool *model.IpPool) error {
 func (i ipPoolRepository) Page(num, size int) (int, []model.IpPool, error) {
 	var total int
 	var ipPools []model.IpPool
-	err := db.DB.Model(model.IpPool{}).Count(&total).Find(&ipPools).Offset((num - 1) * size).Limit(size).Error
+	err := db.DB.Model(&model.IpPool{}).Count(&total).Find(&ipPools).Offset((num - 1) * size).Limit(size).Error
 	if err != nil {
 		return 0, nil, err
 	}
@@ -54,7 +54,7 @@ func (i ipPoolRepository) Batch(operation string, items []model.IpPool) error {
 	case constant.BatchOperationDelete:
 		for i := range items {
 			var ipPool model.IpPool
-			if err := db.DB.Where(model.IpPool{Name: items[i].Name}).First(&ipPool).Error; err != nil {
+			if err := db.DB.Where(&model.IpPool{Name: items[i].Name}).First(&ipPool).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
