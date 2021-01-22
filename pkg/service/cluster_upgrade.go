@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -83,9 +86,20 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		tx.Rollback()
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
+	// 更新工具版本状态
+	if err := c.updateToolVersion(tx, upgrade.Version, cluster.ID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	tx.Commit()
 	go c.do(&cluster.Cluster, writer)
 	return nil
+}
+
+type versionHelp struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
@@ -130,4 +144,41 @@ func (c clusterUpgradeService) doUpgrade(ctx context.Context, cluster adm.Cluste
 		}
 		time.Sleep(5 * time.Second)
 	}
+}
+
+func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID string) error {
+	var (
+		tools    []model.ClusterTool
+		manifest model.ClusterManifest
+		toolVars []versionHelp
+	)
+	if err := tx.Where("version = ?", version).First(&manifest).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("get manifest error %s", err.Error())
+	}
+	if err := tx.Where("cluster_id = ?", clusterID).Find(&tools).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("get tools error %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+	}
+	for _, tool := range tools {
+		for _, item := range toolVars {
+			if tool.Name == item.Name {
+				if tool.Version != item.Version {
+					if tool.Status == constant.ClusterWaiting {
+						tool.Version = item.Version
+					} else {
+						tool.HigherVersion = item.Version
+					}
+					if err := tx.Model(&model.ClusterTool{}).Updates(&tool).Error; err != nil {
+						return fmt.Errorf("update tool version error %s", err.Error())
+					}
+				}
+				break
+			}
+		}
+	}
+	return nil
 }

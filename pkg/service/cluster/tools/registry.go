@@ -8,12 +8,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
-const (
-	RegistryImageName    = "kubeoperator/registry"
-	RegistryTagAmd64Name = "2.7.1-amd64"
-	RegistryTagArm64Name = "2.7.1-arm64"
-)
-
 type Registry struct {
 	Cluster       *Cluster
 	Tool          *model.ClusterTool
@@ -29,43 +23,48 @@ func NewRegistry(cluster *Cluster, localhostName string, tool *model.ClusterTool
 	return p, nil
 }
 
-func (c Registry) setDefaultValue() {
+func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, RegistryImageName)
+	_ = json.Unmarshal([]byte(r.Tool.Vars), &values)
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["registry_image_name"])
+	values["image.tag"] = imageMap["registry_image_tag"]
 
-	if c.Cluster.Spec.Architectures == "amd64" {
-		values["image.tag"] = RegistryTagAmd64Name
-	} else {
-		values["image.tag"] = RegistryTagArm64Name
-	}
-
-	if _, ok := values["persistence.size"]; ok {
-		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
-	}
-	if va, ok := values["persistence.enabled"]; ok {
-		if hasPers, _ := va.(bool); !hasPers {
-			delete(values, "nodeSelector.kubernetes\\.io/hostname")
+	if isInstall {
+		if _, ok := values["persistence.size"]; ok {
+			values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
+		}
+		if va, ok := values["persistence.enabled"]; ok {
+			if hasPers, _ := va.(bool); !hasPers {
+				delete(values, "nodeSelector.kubernetes\\.io/hostname")
+			}
 		}
 	}
 	str, _ := json.Marshal(&values)
-	c.Tool.Vars = string(str)
+	r.Tool.Vars = string(str)
 }
 
-func (c Registry) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.DockerRegistryChartName); err != nil {
+func (r Registry) Install(toolDetail model.ClusterToolDetail) error {
+	r.setDefaultValue(toolDetail, true)
+	if err := installChart(r.Cluster.HelmClient, r.Tool, constant.DockerRegistryChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultRegistryIngressName, constant.DefaultRegistryIngress, constant.DefaultRegistryServiceName, 5000, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(r.Cluster.Namespace, constant.DefaultRegistryIngressName, constant.DefaultRegistryIngress, constant.DefaultRegistryServiceName, 5000, r.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultRegistryDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(r.Cluster.Namespace, constant.DefaultRegistryDeploymentName, 1, r.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c Registry) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultRegistryIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+func (r Registry) Upgrade(toolDetail model.ClusterToolDetail) error {
+	r.setDefaultValue(toolDetail, false)
+	return upgradeChart(r.Cluster.HelmClient, r.Tool, constant.DockerRegistryChartName, toolDetail.ChartVersion)
+}
+
+func (r Registry) Uninstall() error {
+	return uninstall(r.Cluster.Namespace, r.Tool, constant.DefaultRegistryIngressName, r.Cluster.HelmClient, r.Cluster.KubeClient)
 }

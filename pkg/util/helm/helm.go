@@ -3,13 +3,14 @@ package helm
 import (
 	"context"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -37,7 +38,8 @@ var log = logger.Default
 func nolog(format string, v ...interface{}) {}
 
 type Interface interface {
-	Install(name string, chartName string, values map[string]interface{}) (*release.Release, error)
+	Install(name string, chartName string, chartVersion string, values map[string]interface{}) (*release.Release, error)
+	Upgrade(name string, chartName string, chartVersion string, values map[string]interface{}) (*release.Release, error)
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
 	List() ([]*release.Release, error)
 }
@@ -96,7 +98,7 @@ func LoadCharts(path string) (*chart.Chart, error) {
 	return loader.Load(path)
 }
 
-func (c Client) Install(name string, chartName string, values map[string]interface{}) (*release.Release, error) {
+func (c Client) Install(name, chartName, chartVersion string, values map[string]interface{}) (*release.Release, error) {
 	if err := updateRepo(); err != nil {
 		return nil, err
 	}
@@ -104,6 +106,9 @@ func (c Client) Install(name string, chartName string, values map[string]interfa
 	client.ReleaseName = name
 	client.Namespace = c.Namespace
 	client.ChartPathOptions.InsecureSkipTLSverify = true
+	if len(chartVersion) != 0 {
+		client.ChartPathOptions.Version = chartVersion
+	}
 	p, err := client.ChartPathOptions.LocateChart(chartName, c.settings)
 	if err != nil {
 		return nil, err
@@ -115,6 +120,28 @@ func (c Client) Install(name string, chartName string, values map[string]interfa
 
 	return client.Run(ct, values)
 }
+
+func (c Client) Upgrade(name, chartName, chartVersion string, values map[string]interface{}) (*release.Release, error) {
+	if err := updateRepo(); err != nil {
+		return nil, err
+	}
+	client := action.NewUpgrade(c.installActionConfig)
+	client.Namespace = c.Namespace
+	client.DryRun = false
+	client.ChartPathOptions.InsecureSkipTLSverify = true
+	client.ChartPathOptions.Version = chartVersion
+	p, err := client.ChartPathOptions.LocateChart(chartName, c.settings)
+	if err != nil {
+		return nil, err
+	}
+	ct, err := loader.Load(p)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.Run(name, ct, values)
+}
+
 func (c Client) Uninstall(name string) (*release.UninstallReleaseResponse, error) {
 	client := action.NewUninstall(c.unInstallActionConfig)
 	return client.Run(name)

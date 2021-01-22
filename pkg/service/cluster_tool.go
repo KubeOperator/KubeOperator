@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/tools"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,6 +19,7 @@ import (
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
+	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 }
 
@@ -48,23 +51,16 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 }
 
 func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
-	cluster, err := c.clusterService.Get(clusterName)
+	cluster, hosts, secret, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return tool, err
 	}
+
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return tool, err
-	}
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return tool, err
-	}
 
 	itemValue, ok := tool.Vars["namespace"]
 	namespace := ""
@@ -74,7 +70,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 		namespace = itemValue.(string)
 	}
 
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, namespace, namespace, false)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, false)
 	if err != nil {
 		return tool, err
 	}
@@ -85,8 +81,13 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 }
 
 func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
-	cluster, err := c.clusterService.Get(clusterName)
+	cluster, hosts, secret, err := c.getBaseParams(clusterName)
 	if err != nil {
+		return tool, err
+	}
+
+	var toolDetail model.ClusterToolDetail
+	if err := db.DB.Where("name = ? AND version = ? AND architecture = ?", tool.Name, tool.Version, cluster.Spec.Architectures).Find(&toolDetail).Error; err != nil {
 		return tool, err
 	}
 
@@ -96,17 +97,8 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
 
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return tool, err
-	}
-
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return tool, err
-	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
+		Hosts: hosts,
 		Token: secret.KubernetesToken,
 	})
 	if err != nil {
@@ -125,18 +117,66 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, oldNamespace, namespace, true)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, oldNamespace, namespace, true)
 	if err != nil {
 		return tool, err
 	}
 	mo.Status = constant.ClusterInitializing
 	_ = c.toolRepo.Save(&mo)
-	go c.doInstall(ct, &tool.ClusterTool)
+	go c.doInstall(ct, &tool.ClusterTool, toolDetail)
 	return tool, nil
 }
 
-func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool) {
-	err := p.Install()
+func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
+	cluster, hosts, secret, err := c.getBaseParams(clusterName)
+	if err != nil {
+		return tool, err
+	}
+
+	var toolDetail model.ClusterToolDetail
+	if err := db.DB.Where("name = ? AND version = ? AND architecture = ?", tool.Name, tool.HigherVersion, cluster.Spec.Architectures).Find(&toolDetail).Error; err != nil {
+		return tool, err
+	}
+
+	tool.ClusterID = cluster.ID
+	mo := tool.ClusterTool
+	buf, _ := json.Marshal(&tool.Vars)
+	mo.Vars = string(buf)
+	mo.Status = constant.ClusterUpgrading
+	mo.Version = mo.HigherVersion
+	mo.HigherVersion = ""
+	tool.ClusterTool = mo
+
+	itemValue, ok := tool.Vars["namespace"]
+	namespace := ""
+	if !ok {
+		namespace = constant.DefaultNamespace
+	} else {
+		namespace = itemValue.(string)
+	}
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, true)
+	if err != nil {
+		return tool, err
+	}
+
+	_ = c.toolRepo.Save(&mo)
+	go c.doUpgrade(ct, &tool.ClusterTool, toolDetail)
+	return tool, nil
+}
+
+func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool, toolDetail model.ClusterToolDetail) {
+	err := p.Install(toolDetail)
+	if err != nil {
+		tool.Status = constant.ClusterFailed
+		tool.Message = err.Error()
+	} else {
+		tool.Status = constant.ClusterRunning
+	}
+	_ = c.toolRepo.Save(tool)
+}
+
+func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool, toolDetail model.ClusterToolDetail) {
+	err := p.Upgrade(toolDetail)
 	if err != nil {
 		tool.Status = constant.ClusterFailed
 		tool.Message = err.Error()
@@ -172,4 +212,27 @@ func (c clusterToolService) getNamespace(clusterName string, tool dto.ClusterToo
 	} else {
 		return oldSp.(string), namespace
 	}
+}
+
+func (c clusterToolService) getBaseParams(clusterName string) (dto.Cluster, []kubernetes.Host, dto.ClusterSecret, error) {
+	var (
+		cluster dto.Cluster
+		host    []kubernetes.Host
+		secret  dto.ClusterSecret
+		err     error
+	)
+	if err := db.DB.Where(model.Cluster{Name: clusterName}).Preload("Spec").Find(&cluster).Error; err != nil {
+		return cluster, host, secret, err
+	}
+
+	host, err = c.clusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return cluster, host, secret, err
+	}
+	secret, err = c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return cluster, host, secret, err
+	}
+
+	return cluster, host, secret, nil
 }

@@ -21,6 +21,10 @@ export class ToolsService {
         return this.http.post<ClusterTool>(this.baseUrl.replace('{operation}', 'enable').replace('{cluster_name}', clusterName), item);
     }
 
+    upgrade(clusterName: string, item: ClusterTool): Observable<ClusterTool> {
+        return this.http.post<ClusterTool>(this.baseUrl.replace('{operation}', 'upgrade').replace('{cluster_name}', clusterName), item);
+    }
+
     disable(clusterName: string, item: ClusterTool): Observable<any> {
         return this.http.post<any>(this.baseUrl.replace('{operation}', 'disable').replace('{cluster_name}', clusterName), item);
     }

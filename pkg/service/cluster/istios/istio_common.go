@@ -47,7 +47,7 @@ func installChart(h helm.Interface, istio *model.ClusterIstio, valueMap map[stri
 	if err != nil {
 		return err
 	}
-	_, err = h.Install(istio.Name, chartName, m)
+	_, err = h.Install(istio.Name, chartName, "", m)
 	if err != nil {
 		return err
 	}

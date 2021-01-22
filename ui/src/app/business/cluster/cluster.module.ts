@@ -25,6 +25,8 @@ import {LoggingComponent} from './cluster-detail/logging/logging.component';
 import {EfComponent} from './cluster-detail/logging/ef/ef.component';
 import {LokiComponent} from './cluster-detail/logging/loki/loki.component';
 import {IstioComponent} from './cluster-detail/istio/istio.component';
+import {IstioListComponent} from './cluster-detail/istio/istio-list/istio-list.component';
+import {IstioDisableComponent} from './cluster-detail/istio/istio-disable/istio-disable.component';
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
 import {MonitorDashboardComponent} from './cluster-detail/monitor/monitor-dashboard/monitor-dashboard.component';
@@ -45,6 +47,7 @@ import {ChartmuseumComponent} from './cluster-detail/repository/chartmuseum/char
 import {ChartListComponent} from './cluster-detail/repository/chartmuseum/chart-list/chart-list.component';
 import {RegistryListComponent} from './cluster-detail/repository/registry/registry-list/registry-list.component';
 import {ToolsEnableComponent} from './cluster-detail/tools/tools-enable/tools-enable.component';
+import {ToolsUpgradeComponent} from './cluster-detail/tools/tools-upgrade/tools-upgrade.component';
 import {NotReadyComponent} from './cluster-detail/not-ready/not-ready.component';
 import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-failed.component';
 import { NodeCreateComponent } from './cluster-detail/node/node-create/node-create.component';
@@ -80,7 +83,7 @@ import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-heal
         OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent,
         StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent,
         NodeListComponent, NodeDetailComponent, PersistentVolumeClaimListComponent,
-        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent,
+        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent,IstioListComponent,IstioDisableComponent,
         MonitorComponent, MonitorDashboardComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,
@@ -99,6 +102,7 @@ import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-heal
         ChartListComponent,
         RegistryListComponent,
         ToolsEnableComponent,
+        ToolsUpgradeComponent,
         NotReadyComponent,
         ToolsFailedComponent,
         NodeCreateComponent,

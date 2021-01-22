@@ -8,47 +8,36 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
-const (
-	LokiImageName    = "grafana/loki"
-	LokiTagAmd64Name = "2.0.0-amd64"
-	LokiTagArm64Name = "2.0.0-arm64"
-
-	PromtailImageName    = "grafana/promtail"
-	PromtailTagAmd64Name = "2.0.0-amd64"
-	PromtailTagArm64Name = "2.0.0-arm64"
-)
-
 type Loki struct {
 	Cluster       *Cluster
 	Tool          *model.ClusterTool
 	LocalHostName string
 }
 
-func (c Loki) setDefaultValue() {
+func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
-	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, LokiImageName)
-	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, PromtailImageName)
+	_ = json.Unmarshal([]byte(l.Tool.Vars), &values)
+	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["loki_image_name"])
+	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["promtail_image_name"])
+	values["loki.image.tag"] = imageMap["loki_image_tag"]
+	values["promtail.image.tag"] = imageMap["promtail_image_tag"]
 
-	if c.Cluster.Spec.Architectures == "amd64" {
-		values["loki.image.tag"] = LokiTagAmd64Name
-		values["promtail.image.tag"] = PromtailTagAmd64Name
-	} else {
-		values["loki.image.tag"] = LokiTagArm64Name
-		values["promtail.image.tag"] = PromtailTagArm64Name
-	}
-
-	if _, ok := values["loki.persistence.size"]; ok {
-		values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])
-	}
-	if va, ok := values["loki.persistence.enabled"]; ok {
-		if hasPers, _ := va.(bool); !hasPers {
-			delete(values, "loki.nodeSelector.kubernetes\\.io/hostname")
+	if isInstall {
+		if _, ok := values["loki.persistence.size"]; ok {
+			values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])
+		}
+		if va, ok := values["loki.persistence.enabled"]; ok {
+			if hasPers, _ := va.(bool); !hasPers {
+				delete(values, "loki.nodeSelector.kubernetes\\.io/hostname")
+			}
 		}
 	}
 
 	str, _ := json.Marshal(&values)
-	c.Tool.Vars = string(str)
+	l.Tool.Vars = string(str)
 }
 
 func NewLoki(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Loki, error) {
@@ -60,20 +49,25 @@ func NewLoki(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*
 	return p, nil
 }
 
-func (c Loki) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.LokiChartName); err != nil {
+func (l Loki) Install(toolDetail model.ClusterToolDetail) error {
+	l.setDefaultValue(toolDetail, true)
+	if err := installChart(l.Cluster.HelmClient, l.Tool, constant.LokiChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(l.Cluster.Namespace, constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, l.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForStatefulSetsRunning(c.Cluster.Namespace, constant.DefaultLokiStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForStatefulSetsRunning(l.Cluster.Namespace, constant.DefaultLokiStateSetsfulName, 1, l.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c Loki) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultLokiIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+func (l Loki) Upgrade(toolDetail model.ClusterToolDetail) error {
+	l.setDefaultValue(toolDetail, false)
+	return upgradeChart(l.Cluster.HelmClient, l.Tool, constant.LokiChartName, toolDetail.ChartVersion)
+}
+
+func (l Loki) Uninstall() error {
+	return uninstall(l.Cluster.Namespace, l.Tool, constant.DefaultLokiIngressName, l.Cluster.HelmClient, l.Cluster.KubeClient)
 }

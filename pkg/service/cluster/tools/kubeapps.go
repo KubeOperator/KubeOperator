@@ -23,47 +23,98 @@ func NewKubeapps(cluster *Cluster, localhostName string, tool *model.ClusterTool
 	return p, nil
 }
 
-func (k Kubeapps) setDefaultValue() {
+func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
-	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
-	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
-	values["useHelm3"] = true
-	values["postgresql.enabled"] = true
-	values["postgresql.image.repository"] = "postgres"
-	values["postgresql.image.tag"] = "11-alpine"
-	if _, ok := values["postgresql.persistence.size"]; ok {
-		values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
+	switch toolDetail.ChartVersion {
+	case "3.7.2":
+		values = k.valuseV372Binding(imageMap, isInstall)
+	case "5.0.1":
+		values = k.valuseV501Binding(imageMap, isInstall)
 	}
-	if va, ok := values["postgresql.persistence.enabled"]; ok {
-		if hasPers, _ := va.(bool); hasPers {
-			if va, ok := values["nodeSelector"]; ok {
-				values["postgresql.master.nodeSelector.kubernetes\\.io/hostname"] = va
-				values["postgresql.slave.nodeSelector.kubernetes\\.io/hostname"] = va
-			}
-		}
-	}
-	delete(values, "nodeSelector")
 
 	str, _ := json.Marshal(&values)
 	k.Tool.Vars = string(str)
+}
+
+func (k Kubeapps) Install(toolDetail model.ClusterToolDetail) error {
+	k.setDefaultValue(toolDetail, true)
+	if err := installChart(k.Cluster.HelmClient, k.Tool, constant.KubeappsChartName, toolDetail.ChartVersion); err != nil {
+		return err
+	}
+	if err := createRoute(k.Cluster.Namespace, constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, k.Cluster.KubeClient); err != nil {
+		return err
+	}
+	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultKubeappsDeploymentName, 1, k.Cluster.KubeClient); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (k Kubeapps) Upgrade(toolDetail model.ClusterToolDetail) error {
+	k.setDefaultValue(toolDetail, false)
+	return upgradeChart(k.Cluster.HelmClient, k.Tool, constant.KubeappsChartName, toolDetail.ChartVersion)
 }
 
 func (k Kubeapps) Uninstall() error {
 	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngress, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }
 
-func (c Kubeapps) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.KubeappsChartName); err != nil {
-		return err
+// v3.7.2
+func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}, isInstall bool) map[string]interface{} {
+	values := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+
+	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
+	values["apprepository.initialRepos[0].name"] = "kubeoperator"
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
+	values["useHelm3"] = true
+	values["postgresql.enabled"] = true
+	values["postgresql.image.repository"] = imageMap["postgresql_image_name"]
+	values["postgresql.image.tag"] = imageMap["postgresql_image_tag"]
+
+	if isInstall {
+		if va, ok := values["postgresql.persistence.enabled"]; ok {
+			if hasPers, _ := va.(bool); hasPers {
+				if va, ok := values["nodeSelector"]; ok {
+					values["postgresql.master.nodeSelector.kubernetes\\.io/hostname"] = va
+				}
+			}
+		}
+		if _, ok := values["postgresql.persistence.size"]; ok {
+			values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
+		}
+		delete(values, "nodeSelector")
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, c.Cluster.KubeClient); err != nil {
-		return err
+	return values
+}
+
+// v5.0.1
+func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}, isInstall bool) map[string]interface{} {
+	values := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+	delete(values, "useHelm3")
+	delete(values, "postgresql.enabled")
+	delete(values, "postgresql.image.repository")
+	delete(values, "postgresql.image.tag")
+	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
+	values["apprepository.initialRepos[0].name"] = "kubeoperator"
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
+
+	if isInstall {
+		if va, ok := values["postgresql.persistence.enabled"]; ok {
+			if hasPers, _ := va.(bool); hasPers {
+				if va, ok := values["nodeSelector"]; ok {
+					values["postgresql.primary.nodeSelector.kubernetes\\.io/hostname"] = va
+				}
+			}
+		}
+		if _, ok := values["postgresql.persistence.size"]; ok {
+			values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
+		}
+		delete(values, "nodeSelector")
 	}
-	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultKubeappsDeploymentName, 1, c.Cluster.KubeClient); err != nil {
-		return err
-	}
-	return nil
+	return values
 }

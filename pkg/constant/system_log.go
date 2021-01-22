@@ -34,9 +34,10 @@ const (
 	DISABLE_CLUSTER_NPD = "关闭NPD|Disable cluster NPD"
 
 	ENABLE_CLUSTER_TOOL   = "启用集群工具|Enable cluster tools"
+	UPGRADE_CLUSTER_TOOL  = "升级集群工具|Upgrade cluster tools"
 	DISABLE_CLUSTER_TOOL  = "禁用集群工具|Disable cluster tools"
 	ENABLE_CLUSTER_ISTIO  = "启用/修改集群 Istio|Enable/Update cluster Istio"
-	DISABLE_CLUSTER_ISTIO = "禁用集群Istio|Disable cluster Istio"
+	DISABLE_CLUSTER_ISTIO = "禁用集群 Istio|Disable cluster Istio"
 
 	CREATE_CLUSTER_STORAGE_CLASS   = "添加存储类|Create storage class"
 	CREATE_CLUSTER_NAMESPACE       = "添加命名空间|Create cluster namespace"

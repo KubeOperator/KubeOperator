@@ -20,7 +20,7 @@ export class IstioService {
     enable(clusterName: string, items: IstioHelper[]): Observable<IstioHelper[]> {
         return this.http.post<IstioHelper[]>(this.baseUrl.replace('{operation}', 'enable').replace('{cluster_name}', clusterName), items);
     }
-
+    
     disable(clusterName: string, items: IstioHelper[]): Observable<IstioHelper[]> {
         return this.http.post<IstioHelper[]>(this.baseUrl.replace('{operation}', 'disable').replace('{cluster_name}', clusterName), items);
     }

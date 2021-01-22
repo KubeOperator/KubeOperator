@@ -217,6 +217,22 @@ func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterToo
 	return &cts, nil
 }
 
+func (c ClusterController) PostToolUpgradeBy(clusterName string) (*dto.ClusterTool, error) {
+	var req dto.ClusterTool
+	if err := c.Ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+	cts, err := c.ClusterToolService.Upgrade(clusterName, req)
+	if err != nil {
+		return nil, err
+	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPGRADE_CLUSTER_TOOL, clusterName+"-"+req.Name)
+
+	return &cts, nil
+}
+
 func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {

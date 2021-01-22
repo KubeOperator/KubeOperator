@@ -5,6 +5,7 @@ import {ClusterTool} from "./tools";
 import {Cluster} from "../../cluster";
 import {ToolsListComponent} from "./tools-list/tools-list.component";
 import {ToolsEnableComponent} from "./tools-enable/tools-enable.component";
+import {ToolsUpgradeComponent} from "./tools-upgrade/tools-upgrade.component";
 import {ToolsFailedComponent} from "./tools-failed/tools-failed.component";
 import {ToolsDisableComponent} from "./tools-disable/tools-disable.component";
 
@@ -21,6 +22,9 @@ export class ToolsComponent implements OnInit {
 
     @ViewChild(ToolsEnableComponent, {static: true})
     enable: ToolsEnableComponent;
+
+    @ViewChild(ToolsUpgradeComponent, {static: true})
+    upgrade: ToolsUpgradeComponent;
 
     @ViewChild(ToolsDisableComponent, {static: true})
     disable: ToolsDisableComponent;
@@ -41,6 +45,10 @@ export class ToolsComponent implements OnInit {
 
     openEnable(item: ClusterTool) {
         this.enable.open(item);
+    }
+
+    openUpGrade(item: ClusterTool) {
+        this.upgrade.open(item);
     }
 
     openDisable(item: ClusterTool) {

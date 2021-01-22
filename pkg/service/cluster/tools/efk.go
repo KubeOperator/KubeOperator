@@ -8,38 +8,36 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
-const (
-	FluentedElasticsearchImageName = "fluentd_elasticsearch/fluentd"
-	FluentedElasticsearchTag       = "v2.8.0"
-	ElasticSearchImageName         = "elasticsearch/elasticsearch"
-	ElasticSearchTag               = "7.6.2"
-)
-
 type EFK struct {
 	Cluster       *Cluster
 	Tool          *model.ClusterTool
 	LocalHostName string
 }
 
-func (c EFK) setDefaultValue() {
+func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
-	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, FluentedElasticsearchImageName)
-	values["fluentd-elasticsearch.imageTag"] = FluentedElasticsearchTag
-	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
-	values["elasticsearch.imageTag"] = ElasticSearchTag
+	_ = json.Unmarshal([]byte(e.Tool.Vars), &values)
+	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["fluentd_image_name"])
+	values["fluentd-elasticsearch.imageTag"] = imageMap["fluentd_image_tag"]
+	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["elasticsearch_image_name"])
+	values["elasticsearch.imageTag"] = imageMap["elasticsearch_image_tag"]
 
-	if _, ok := values["elasticsearch.esJavaOpts.item"]; !ok {
-		values["elasticsearch.esJavaOpts.item"] = 1
-	}
-	values["elasticsearch.esJavaOpts"] = fmt.Sprintf("-Xmx%vg -Xms%vg", values["elasticsearch.esJavaOpts.item"], values["elasticsearch.esJavaOpts.item"])
-	delete(values, "elasticsearch.esJavaOpts.item")
+	if isInstall {
+		if _, ok := values["elasticsearch.esJavaOpts.item"]; !ok {
+			values["elasticsearch.esJavaOpts.item"] = 1
+		}
+		values["elasticsearch.esJavaOpts"] = fmt.Sprintf("-Xmx%vg -Xms%vg", values["elasticsearch.esJavaOpts.item"], values["elasticsearch.esJavaOpts.item"])
+		delete(values, "elasticsearch.esJavaOpts.item")
 
-	if _, ok := values["elasticsearch.volumeClaimTemplate.resources.requests.storage"]; ok {
-		values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
+		if _, ok := values["elasticsearch.volumeClaimTemplate.resources.requests.storage"]; ok {
+			values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
+		}
 	}
 	str, _ := json.Marshal(&values)
-	c.Tool.Vars = string(str)
+	e.Tool.Vars = string(str)
 }
 
 func NewEFK(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*EFK, error) {
@@ -51,20 +49,25 @@ func NewEFK(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*E
 	return p, nil
 }
 
-func (c EFK) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.LoggingChartName); err != nil {
+func (e EFK) Install(toolDetail model.ClusterToolDetail) error {
+	e.setDefaultValue(toolDetail, true)
+	if err := installChart(e.Cluster.HelmClient, e.Tool, constant.LoggingChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultLoggingIngressName, constant.DefaultLoggingIngress, constant.DefaultLoggingServiceName, 9200, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(e.Cluster.Namespace, constant.DefaultLoggingIngressName, constant.DefaultLoggingIngress, constant.DefaultLoggingServiceName, 9200, e.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForStatefulSetsRunning(c.Cluster.Namespace, constant.DefaultLoggingStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForStatefulSetsRunning(e.Cluster.Namespace, constant.DefaultLoggingStateSetsfulName, 1, e.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c EFK) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultLoggingIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+func (e EFK) Upgrade(toolDetail model.ClusterToolDetail) error {
+	e.setDefaultValue(toolDetail, false)
+	return upgradeChart(e.Cluster.HelmClient, e.Tool, constant.LoggingChartName, toolDetail.ChartVersion)
+}
+
+func (e EFK) Uninstall() error {
+	return uninstall(e.Cluster.Namespace, e.Tool, constant.DefaultLoggingIngressName, e.Cluster.HelmClient, e.Cluster.KubeClient)
 }

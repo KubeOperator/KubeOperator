@@ -18,6 +18,11 @@
             </div>
             <div class="card-footer">
                 <div style="text-align: right">
+                    <button *ngIf="item.higher_version !== '' && item.status === 'Running'" class="btn btn-sm btn-primary"
+                        (click)="onUpgrade(item)">
+                        {{'APP_STATUS_UPGRADE'|translate}}
+                    </button>
+
                     <button *ngIf="item.status === 'Waiting' || item.status === 'Failed'" class="btn btn-sm btn-primary"
                         (click)="onEnable(item)">
                         {{'APP_ENABLE'|translate}}
@@ -29,6 +34,10 @@
                     <span *ngIf="item.status === 'Initializing'">
                             <clr-spinner clrAssertive clrInline></clr-spinner>
                         {{"APP_INITIALIZING" | translate}}
+                    </span>
+                    <span *ngIf="item.status === 'Upgrading'">
+                            <clr-spinner clrAssertive clrInline></clr-spinner>
+                        {{"APP_CLUSTER_UPGRADING" | translate}}
                     </span>
                     <span *ngIf="item.status === 'Terminating'">
                             <clr-spinner clrAssertive clrInline></clr-spinner>

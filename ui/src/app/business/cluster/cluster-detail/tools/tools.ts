@@ -10,5 +10,6 @@ export class ClusterTool extends BaseModel {
     url: string;
     frame: boolean;
     vars: {} = {};
+    higher_version: string;
     conditions: string;
 }

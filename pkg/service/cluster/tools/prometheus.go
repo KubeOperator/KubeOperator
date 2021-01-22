@@ -9,18 +9,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 )
 
-const (
-	PrometheusConfigMapReloadImageName = "jimmidyson/configmap-reload"
-	PrometheusConfigMapReloadTag       = "v0.3.0"
-	KubeStateMetricsImageArm64Name     = "carlosedp/kube-state-metrics"
-	KubeStateMetricsImageAmd64Name     = "coreos/kube-state-metrics"
-	KubeStateMetricsTag                = "v1.9.5"
-	NodeExporterImageName              = "prom/node-exporter"
-	NodeExporterTag                    = "v0.18.1"
-	ServerImageName                    = "prom/prometheus"
-	ServerTag                          = "v2.18.1"
-)
-
 type Prometheus struct {
 	Tool          *model.ClusterTool
 	Cluster       *Cluster
@@ -36,70 +24,76 @@ func NewPrometheus(cluster *Cluster, localhostName string, tool *model.ClusterTo
 	return p, nil
 }
 
-func (p Prometheus) setDefaultValue() {
+func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(p.Tool.Vars), &values)
 	values["alertmanager.enabled"] = false
 	values["pushgateway.enabled"] = false
-	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, PrometheusConfigMapReloadImageName)
-	values["configmapReload.prometheus.image.tag"] = PrometheusConfigMapReloadTag
-	values["kube-state-metrics.image.tag"] = KubeStateMetricsTag
-	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, NodeExporterImageName)
-	values["nodeExporter.image.tag"] = NodeExporterTag
-	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, ServerImageName)
-	values["server.image.tag"] = ServerTag
-	switch p.Cluster.Spec.Architectures {
-	case "amd64":
-		values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageAmd64Name)
-	case "arm64":
-		values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageArm64Name)
-	}
-	if _, ok := values["server.retention"]; ok {
-		values["server.retention"] = fmt.Sprintf("%vd", values["server.retention"])
-	}
-	if _, ok := values["server.persistentVolume.size"]; ok {
-		values["server.persistentVolume.size"] = fmt.Sprintf("%vGi", values["server.persistentVolume.size"])
-	}
-	if va, ok := values["server.persistentVolume.enabled"]; ok {
-		if hasPers, _ := va.(bool); !hasPers {
-			delete(values, "server.nodeSelector.kubernetes\\.io/hostname")
+	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["configmap_image_name"])
+	values["configmapReload.prometheus.image.tag"] = imageMap["configmap_image_tag"]
+	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["metrics_image_name"])
+	values["kube-state-metrics.image.tag"] = imageMap["metrics_image_tag"]
+	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["exporter_image_name"])
+	values["nodeExporter.image.tag"] = imageMap["exporter_image_tag"]
+	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["prometheus_image_name"])
+	values["server.image.tag"] = imageMap["prometheus_image_tag"]
+
+	if isInstall {
+		if _, ok := values["server.retention"]; ok {
+			values["server.retention"] = fmt.Sprintf("%vd", values["server.retention"])
+		}
+		if _, ok := values["server.persistentVolume.size"]; ok {
+			values["server.persistentVolume.size"] = fmt.Sprintf("%vGi", values["server.persistentVolume.size"])
+		}
+		if va, ok := values["server.persistentVolume.enabled"]; ok {
+			if hasPers, _ := va.(bool); !hasPers {
+				delete(values, "server.nodeSelector.kubernetes\\.io/hostname")
+			}
 		}
 	}
 	str, _ := json.Marshal(&values)
 	p.Tool.Vars = string(str)
 }
 
-func (c Prometheus) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.PrometheusChartName); err != nil {
+func (p Prometheus) Install(toolDetail model.ClusterToolDetail) error {
+	p.setDefaultValue(toolDetail, true)
+	if err := installChart(p.Cluster.HelmClient, p.Tool, constant.PrometheusChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultPrometheusIngressName, constant.DefaultPrometheusIngress, constant.DefaultPrometheusServiceName, 80, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(p.Cluster.Namespace, constant.DefaultPrometheusIngressName, constant.DefaultPrometheusIngress, constant.DefaultPrometheusServiceName, 80, p.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultPrometheusDeploymentName, 1, c.Cluster.KubeClient); err != nil {
-		return err
-	}
-
-	if err := c.createGrafanaDataSource(); err != nil {
+	if err := waitForRunning(p.Cluster.Namespace, constant.DefaultPrometheusDeploymentName, 1, p.Cluster.KubeClient); err != nil {
 		return err
 	}
 
-	if err := c.createGrafanaDashboard(); err != nil {
+	if err := p.createGrafanaDataSource(); err != nil {
+		return err
+	}
+
+	if err := p.createGrafanaDashboard(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c Prometheus) Uninstall() error {
+func (p Prometheus) Upgrade(toolDetail model.ClusterToolDetail) error {
+	p.setDefaultValue(toolDetail, false)
+	return upgradeChart(p.Cluster.HelmClient, p.Tool, constant.PrometheusChartName, toolDetail.ChartVersion)
+}
+
+func (p Prometheus) Uninstall() error {
 	gClient := grafana.NewClient()
-	if err := gClient.DeleteDashboard(c.Cluster.Name); err != nil {
+	if err := gClient.DeleteDashboard(p.Cluster.Name); err != nil {
 		return err
 	}
-	if err := gClient.DeleteDataSource(c.Cluster.Name); err != nil {
+	if err := gClient.DeleteDataSource(p.Cluster.Name); err != nil {
 		return err
 	}
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultPrometheusIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.HelmClient, p.Cluster.KubeClient)
 }
 
 func (p Prometheus) createGrafanaDataSource() error {

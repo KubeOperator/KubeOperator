@@ -8,13 +8,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
-const (
-	MetricsScraperImageName = "kubernetesui/metrics-scraper"
-	MetricsScraperImageTag  = "v1.0.4"
-	DashboardImageName      = "kubernetesui/dashboard"
-	DashboardImageTag       = "v2.0.3"
-)
-
 type Dashboard struct {
 	Cluster       *Cluster
 	Tool          *model.ClusterTool
@@ -30,36 +23,44 @@ func NewDashboard(cluster *Cluster, localhostName string, tool *model.ClusterToo
 	return p, nil
 }
 
-func (c Dashboard) setDefaultValue() {
+func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
+	imageMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
+	_ = json.Unmarshal([]byte(d.Tool.Vars), &values)
 	values["extraArgs[0]"] = "--enable-skip-login"
 	values["extraArgs[1]"] = "--enable-insecure-login"
 	values["protocolHttp"] = "true"
 	values["service.externalPort"] = 9090
 	values["metricsScraper.enabled"] = true
-	values["metricsScraper.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, MetricsScraperImageName)
-	values["metricsScraper.image.tag"] = MetricsScraperImageTag
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, DashboardImageName)
-	values["image.tag"] = DashboardImageTag
+	values["metricsScraper.image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["metrics_image_name"])
+	values["metricsScraper.image.tag"] = imageMap["metrics_image_tag"]
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["dashboard_image_name"])
+	values["image.tag"] = imageMap["dashboard_image_tag"]
 	str, _ := json.Marshal(&values)
-	c.Tool.Vars = string(str)
+	d.Tool.Vars = string(str)
 }
 
-func (c Dashboard) Install() error {
-	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.DashboardChartName); err != nil {
+func (d Dashboard) Install(toolDetail model.ClusterToolDetail) error {
+	d.setDefaultValue(toolDetail)
+	if err := installChart(d.Cluster.HelmClient, d.Tool, constant.DashboardChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(d.Cluster.Namespace, constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, d.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultDashboardDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(d.Cluster.Namespace, constant.DefaultDashboardDeploymentName, 1, d.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c Dashboard) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultDashboardIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+func (d Dashboard) Upgrade(toolDetail model.ClusterToolDetail) error {
+	d.setDefaultValue(toolDetail)
+	return upgradeChart(d.Cluster.HelmClient, d.Tool, constant.DashboardChartName, toolDetail.ChartVersion)
+}
+
+func (d Dashboard) Uninstall() error {
+	return uninstall(d.Cluster.Namespace, d.Tool, constant.DefaultDashboardIngressName, d.Cluster.HelmClient, d.Cluster.KubeClient)
 }

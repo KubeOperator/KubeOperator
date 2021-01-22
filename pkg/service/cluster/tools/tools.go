@@ -22,7 +22,8 @@ import (
 )
 
 type Interface interface {
-	Install() error
+	Install(toolDetail model.ClusterToolDetail) error
+	Upgrade(toolDetail model.ClusterToolDetail) error
 	Uninstall() error
 }
 
@@ -135,7 +136,7 @@ func preInstallChart(h helm.Interface, tool *model.ClusterTool) error {
 	return nil
 }
 
-func installChart(h helm.Interface, tool *model.ClusterTool, chartName string) error {
+func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVersion string) error {
 	err := preInstallChart(h, tool)
 	if err != nil {
 		return err
@@ -146,7 +147,23 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName string) e
 	if err != nil {
 		return err
 	}
-	_, err = h.Install(tool.Name, chartName, m)
+	_, err = h.Install(tool.Name, chartName, chartVersion, m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVersion string) error {
+	valueMap := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+		return err
+	}
+	m, err := MergeValueMap(valueMap)
+	if err != nil {
+		return err
+	}
+	_, err = h.Upgrade(tool.Name, chartName, chartVersion, m)
 	if err != nil {
 		return err
 	}
