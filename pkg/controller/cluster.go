@@ -2,6 +2,8 @@ package controller
 
 import (
 	"errors"
+	"io"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -9,7 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/kataras/iris/v12/context"
-	"io"
 )
 
 type ClusterController struct {
@@ -225,7 +226,7 @@ func (c ClusterController) PostToolUpgradeBy(clusterName string) (*dto.ClusterTo
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.UPGRADE_CLUSTER_TOOL, clusterName+"-"+req.Name)
+	go log.Save(operator, constant.UPGRADE_CLUSTER_TOOL, clusterName+"-"+req.Name)
 
 	return &cts, nil
 }
