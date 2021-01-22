@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `ko_cluster_tool_detail` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `id` varchar(255) NOT NULL,
+  `id` varchar(64) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `version` varchar(255) DEFAULT NULL,
   `chart_version` varchar(255) DEFAULT NULL,
