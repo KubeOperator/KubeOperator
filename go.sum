@@ -110,6 +110,7 @@ github.com/KubeOperator/kobe v0.1.2 h1:Ha1u6ulc1ZTtP5KYBDZsS7CjyMnSlE+hlyipup11W
 github.com/KubeOperator/kobe v0.1.2/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kotf v0.1.0 h1:7UWbbQIgRGFvnf2dZZQA8IquHKGy0UBipicuTBRK3oo=
 github.com/KubeOperator/kotf v0.1.0/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
+github.com/KubeOperator/kotf v0.1.2 h1:iTBY2kR247kcdDeG8JQAa1kzLRv+N3vq+PidgD/fBE4=
 github.com/KubeOperator/kotf v0.1.2/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=

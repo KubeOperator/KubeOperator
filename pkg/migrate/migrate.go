@@ -40,9 +40,13 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
+	p, err := encrypt.StringDecrypt(i.Password)
+	if err != nil {
+		return err
+	}
 	url := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai",
 		i.User,
-		i.Password,
+		p,
 		i.Host,
 		i.Port,
 		i.Name)

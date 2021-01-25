@@ -3,7 +3,6 @@ package db
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
