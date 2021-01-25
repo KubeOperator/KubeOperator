@@ -1,6 +1,6 @@
 #common
 NAME_EXISTS: "Name already exists"
-IP_NOT_EXISTS: "Please fill in the local IP on the system setting page"
+IP_NOT_EXISTS: "Please fill in the registry IP on the system setting page"
 
 #cluster
 CLUSTER_DELETE_FAILED: "can not delete cluster in current state"

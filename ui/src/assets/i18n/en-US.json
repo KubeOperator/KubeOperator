@@ -485,7 +485,7 @@
   "UNREAD": "Unread",
   "READ": "Read",
   "APP_MSG_DETAIL": "Notice Information",
-  "APP_HEADER_MSG": "Please fill in the local IP on the system setting page",
+  "APP_HEADER_MSG": "Please fill in the registry IP on the system setting page",
   "APP_DELETE_US": "Can't delete yourself",
   "APP_CHECK_SUCCESS": "Successful inspection",
   "CLUSTER_ADD_WORKER": "Cluster expansion",
