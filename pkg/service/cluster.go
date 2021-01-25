@@ -277,17 +277,16 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
 				workerNo++
 			}
-			if err := tx.Model(&model.Host{}).Where(&model.Host{Name: nc.HostName}).Updates(map[string]interface{}{
-				"ClusterID": cluster.ID,
-			}).Error; err != nil {
+
+			var host model.Host
+			if err := tx.Set("gorm:query_option", "FOR UPDATE").Model(&model.Host{}).Where(&model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
 				tx.Rollback()
 				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
 			}
-			log.Infof("update host ClusterId %s %s", nc.HostName, cluster.ID)
-			var host model.Host
-			if err := tx.Where(&model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
+			host.ClusterID = cluster.ID
+			if err:=tx.Save(&host);err!=nil{
 				tx.Rollback()
-				return nil, fmt.Errorf("can not query host %s reason %s", nc.HostName, err.Error())
+				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
 			}
 			n.HostID = host.ID
 			if err := tx.Create(&n).Error; err != nil {
