@@ -1,6 +1,6 @@
 #common
 NAME_EXISTS: "名称已存在"
-IP_NOT_EXISTS: "请在系统设置页面填写系统IP"
+IP_NOT_EXISTS: "请在系统设置页面填写仓库IP"
 
 #cluster
 CLUSTER_DELETE_FAILED: "无法删除当前状态的集群"
