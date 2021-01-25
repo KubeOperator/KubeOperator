@@ -103,12 +103,6 @@ func (h hostRepository) Save(host *model.Host) error {
 			return err
 		}
 	} else {
-		// lock
-		var lock model.Host
-		lock.ID = host.ID
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").First(&lock).Error; err != nil {
-			return err
-		}
 		if len(host.Volumes) > 0 {
 			for i := range host.Volumes {
 				var volume model.Volume
