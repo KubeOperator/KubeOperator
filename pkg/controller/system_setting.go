@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -54,7 +54,7 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	}
 
 	operator := s.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.CREATE_EMAIL, "-")
+	go kolog.Save(operator, constant.CREATE_EMAIL, "-")
 
 	return result, nil
 }

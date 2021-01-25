@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -32,7 +32,7 @@ func (u ForgotPasswordController) PostForgotPassword() error {
 		return err
 	}
 
-	go log.Save("N/A", constant.FORGOT_USER_PASSWORD, req.Username)
+	go kolog.Save("N/A", constant.FORGOT_USER_PASSWORD, req.Username)
 
 	return u.UserService.ResetPassword(req)
 }

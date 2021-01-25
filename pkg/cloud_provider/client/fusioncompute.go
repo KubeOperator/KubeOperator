@@ -3,6 +3,8 @@ package client
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/client"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/cluster"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/network"
@@ -11,7 +13,6 @@ import (
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/task"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/vm"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"time"
 )
 
 func NewFusionComputeClient(vars map[string]interface{}) *fusionComputeClient {
@@ -31,7 +32,7 @@ func (f *fusionComputeClient) ListDatacenter() ([]string, error) {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)
@@ -54,7 +55,7 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)
@@ -145,7 +146,7 @@ func (f *fusionComputeClient) GetIpInUsed(network string) ([]string, error) {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)
@@ -182,7 +183,7 @@ func (f *fusionComputeClient) UploadImage() error {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)
@@ -298,7 +299,7 @@ func (f *fusionComputeClient) DefaultImageExist() (bool, error) {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)
@@ -350,7 +351,7 @@ func (f *fusionComputeClient) ListDatastores() ([]DatastoreResult, error) {
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
-			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+			log.Errorf("fusionComputeClient DisConnect failed, error: %s", err.Error())
 		}
 	}()
 	sm := site.NewManager(c)

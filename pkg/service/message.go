@@ -2,7 +2,8 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -11,7 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message/client"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type MessageService interface {
@@ -363,7 +363,7 @@ func (m messageService) GetUserNotificationConfig(userId string, mType string) (
 	}
 	v := make(map[string]string)
 	if err := json.Unmarshal([]byte(config.Vars), &v); err != nil {
-		fmt.Printf("func (m messageService) GetUserNotificationConfig() json.Unmarshal err: %v\n", err)
+		log.Errorf("messageService GetUserNotificationConfig json.Unmarshal failed, error: %s", err.Error())
 	}
 	result = dto.UserNotificationConfigDTO{
 		ID:     config.ID,
@@ -388,7 +388,7 @@ func (m messageService) GetUserReceiver(userId string) (*dto.UserReceiverDTO, er
 	result.UserID = userId
 	v := make(map[string]string)
 	if err := json.Unmarshal([]byte(userReceiver.Vars), &v); err != nil {
-		fmt.Printf("func (m messageService) GetUserReceiver() json.Unmarshal err: %v\n", err)
+		log.Errorf("messageService GetUserReceiver json.Unmarshal failed, error: %s", err.Error())
 	}
 	result.Vars = v
 	return &result, err

@@ -2,10 +2,10 @@ package client
 
 import (
 	"errors"
-	"fmt"
-	"gopkg.in/gomail.v2"
 	"strconv"
 	"strings"
+
+	"gopkg.in/gomail.v2"
 )
 
 var (
@@ -77,7 +77,6 @@ func (e email) SendMessage(vars map[string]interface{}) error {
 	for _, tmp := range strings.Split(toUsers, ",") {
 		toers = append(toers, strings.TrimSpace(tmp))
 	}
-	fmt.Println(toers)
 	m.SetHeader("To", toers...)
 	m.SetHeader("From", e.Vars["SMTP_USERNAME"].(string))
 	m.SetHeader("Subject", subject)

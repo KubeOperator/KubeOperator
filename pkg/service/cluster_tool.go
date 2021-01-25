@@ -187,7 +187,9 @@ func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool
 }
 
 func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTool) {
-	_ = p.Uninstall()
+	if err := p.Uninstall(); err != nil {
+		log.Errorf("do uninstall tool-%s failed, error: %s", tool.Name, err.Error())
+	}
 	tool.Status = constant.ClusterWaiting
 	_ = c.toolRepo.Save(tool)
 }

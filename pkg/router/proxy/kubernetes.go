@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -95,24 +95,24 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 	case "storageclasses":
 		metadata, _ := valueMap["metadata"].(map[string]interface{})
 		logStr = clusterName + "-" + metadata["name"].(string)
-		go log.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
+		go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
 	case "namespaces":
 		if len(askParam) != 0 {
 			logStr = clusterName + "-" + askParam
-			go log.Save(operator, constant.DELETE_CLUSTER_NAMESPACE, logStr)
+			go kolog.Save(operator, constant.DELETE_CLUSTER_NAMESPACE, logStr)
 		} else {
 			metadata, _ := valueMap["metadata"].(map[string]interface{})
 			logStr = clusterName + "-" + metadata["name"].(string)
-			go log.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+			go kolog.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
 		}
 	case "persistentvolumes":
 		if len(askParam) != 0 {
 			logStr = clusterName + "-" + askParam
-			go log.Save(operator, constant.DELETE_CLUSTER_PVC, logStr)
+			go kolog.Save(operator, constant.DELETE_CLUSTER_PVC, logStr)
 		} else {
 			metadata, _ := valueMap["metadata"].(map[string]interface{})
 			logStr = clusterName + "-" + metadata["name"].(string)
-			go log.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
+			go kolog.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
 		}
 	}
 }
