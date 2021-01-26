@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/validator_error"
@@ -65,6 +65,6 @@ func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrat
 		return nil, err
 	}
 	operator := c.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
+	go kolog.Save(operator, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
 	return cb, nil
 }

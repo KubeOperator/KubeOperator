@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -85,7 +85,7 @@ func (r RegionController) Post() (*dto.Region, error) {
 	}
 
 	operator := r.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.CREATE_REGION, req.Name)
+	go kolog.Save(operator, constant.CREATE_REGION, req.Name)
 
 	return r.RegionService.Create(req)
 }
@@ -100,7 +100,7 @@ func (r RegionController) Post() (*dto.Region, error) {
 // @Router /regions/{name}/ [delete]
 func (r RegionController) Delete(name string) error {
 	operator := r.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.DELETE_REGION, name)
+	go kolog.Save(operator, constant.DELETE_REGION, name)
 
 	return r.RegionService.Delete(name)
 }
@@ -126,7 +126,7 @@ func (r RegionController) PostBatch() error {
 	for _, item := range req.Items {
 		delRegions += (item.Name + ",")
 	}
-	go log.Save(operator, constant.DELETE_REGION, delRegions)
+	go kolog.Save(operator, constant.DELETE_REGION, delRegions)
 
 	return err
 }

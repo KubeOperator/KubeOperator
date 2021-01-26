@@ -3,7 +3,10 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"io/ioutil"
+	"os"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -14,9 +17,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
 	"github.com/jinzhu/gorm"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 type CLusterBackupFileService interface {
@@ -184,74 +184,66 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	clog.EndTime = time.Now()
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-		log.Error(sErr)
+		log.Errorf("save cluster log failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-		log.Error(sErr)
+		log.Errorf("start cluster log failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	}
 	admCluster := adm.NewCluster(cluster)
 	p := &backup.BackupClusterPhase{}
 	err = p.Run(admCluster.Kobe, nil)
 	if err != nil {
+		log.Errorf("run cluster log failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-		log.Error(sErr)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	} else {
 		clusterBackupStrategy, err := c.clusterBackupStrategyRepository.Get(cluster.Name)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			log.Errorf("get backup strategy failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		}
 		backupAccount, err := c.backupAccountRepository.Get(clusterBackupStrategy.BackupAccount.Name)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			log.Errorf("get backup account failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		}
 		vars := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(backupAccount.Credential), &vars); err != nil {
-			fmt.Printf("func (c cLusterBackupFileService) doBackup json.Unmarshal err: %v\n", err)
+			log.Errorf("backup account credential json.Unmarshal failed, error: %s", err.Error())
 		}
 		vars["type"] = backupAccount.Type
 		vars["bucket"] = backupAccount.Bucket
 		client, err := cloud_storage.NewCloudStorageClient(vars)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			log.Errorf("cloud storage new client failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		}
 		srcFilePath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
 		_, err = client.Upload(srcFilePath, creation.Folder)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			log.Errorf("backup file upload failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		}
 		_ = c.clusterLogService.End(&clog, true, "")
 		_, err = c.Create(creation)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			log.Errorf("backup file create failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		} else {
-			sErr := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterBackup, true, ""), cluster.Name, constant.ClusterBackup)
-			log.Error(sErr)
+			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterBackup, true, ""), cluster.Name, constant.ClusterBackup)
 		}
 	}
 
@@ -306,29 +298,26 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	clog.EndTime = time.Now()
 	err = c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		log.Errorf("save cluster log failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		log.Errorf("start cluster log failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 	}
 
 	vars := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(restore.BackupAccount.Credential), &vars); err != nil {
-		fmt.Printf("func (c cLusterBackupFileService) doRestore json.Unmarshal err: %v\n", err)
+		log.Errorf("doRestore json.Unmarshal failed,  error: %s", err.Error())
 	}
 	vars["type"] = restore.BackupAccount.Type
 	vars["bucket"] = restore.BackupAccount.Bucket
 	client, err := cloud_storage.NewCloudStorageClient(vars)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		log.Errorf("cloud storage new client failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		return
 	}
 
@@ -336,9 +325,8 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
-		log.Error(err)
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		log.Errorf("cloud storage download failed, error: %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		return
 	}
 
@@ -346,13 +334,12 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	p := &backup.RestoreClusterPhase{}
 	err = p.Run(admCluster.Kobe, nil)
 	if err != nil {
+		log.Errorf("restore cluster phase run failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
-		sErr := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
-		log.Error(sErr)
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
 	}
 }
 
@@ -389,29 +376,25 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		clog.EndTime = time.Now()
 		err = c.clusterLogService.Save(cluster.Name, &clog)
 		if err != nil {
-			log.Error(err)
-
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-			log.Error(sErr)
+			log.Errorf("save cluster log failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		}
 		err = c.clusterLogService.Start(&clog)
 		if err != nil {
-			log.Error(err)
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-			log.Error(sErr)
+			log.Errorf("start cluster log failed, error: %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		}
 
 		admCluster := adm.NewCluster(cluster.Cluster)
 		p := &backup.RestoreClusterPhase{}
 		err = p.Run(admCluster.Kobe, nil)
 		if err != nil {
+			log.Errorf("run cluster log failed, error: %s", err.Error())
 			_ = c.clusterLogService.End(&clog, false, err.Error())
-			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
-			log.Error(sErr)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		} else {
 			_ = c.clusterLogService.End(&clog, true, "")
-			sErr := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
-			log.Error(sErr)
+			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
 		}
 	}()
 	return nil

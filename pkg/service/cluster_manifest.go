@@ -2,12 +2,12 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"strconv"
-	"strings"
 )
 
 type ClusterManifestService interface {
@@ -71,17 +71,17 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 		clusterManifest.IsActive = mo.IsActive
 		var core []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.CoreVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.CoreVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.CoreVars = core
 		var network []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.NetworkVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.NetworkVars = network
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.OtherVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)
@@ -122,6 +122,7 @@ func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {
 	var result []dto.ClusterManifest
 	for _, v := range version1s {
 		quickSortVersion(v, 0, len(v)-1)
+		sortKoVersion(v)
 		result = append(result, v...)
 	}
 	return result
@@ -168,5 +169,24 @@ func getVersion(manifest dto.ClusterManifest) float64 {
 	version1Index := strings.Index(versionStr, ".")
 	version2 := strings.Replace(versionStr[version1Index+1:], ".", "", -1)
 	version, _ := strconv.ParseFloat(version2, 64)
+	return version
+}
+
+func sortKoVersion(arr []dto.ClusterManifest) {
+	var value dto.ClusterManifest
+	for index, _ := range arr {
+		if arr[index].Version == value.Version {
+			if getKoVersion(value) < getKoVersion(arr[index]) {
+				arr[index-1] = arr[index]
+				arr[index] = value
+			}
+		}
+	}
+}
+
+func getKoVersion(manifest dto.ClusterManifest) float64 {
+	koIndex := strings.Index(manifest.Name, "ko")
+	koVersionString := manifest.Name[koIndex+2:]
+	version, _ := strconv.ParseFloat(koVersionString, 64)
 	return version
 }

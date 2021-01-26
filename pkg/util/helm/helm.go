@@ -180,7 +180,7 @@ func updateRepo() error {
 	if !flag {
 		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, s.Value), "admin", "admin123")
 		if err != nil {
-			fmt.Println("添加 helm repo 错误:", err)
+			log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
 		}
 	}
@@ -241,7 +241,7 @@ func addRepo(name string, url string, username string, password string) error {
 	if err == nil && locked {
 		defer func() {
 			if err := fileLock.Unlock(); err != nil {
-				fmt.Printf("fileLock.Unlock()出现错误： %v\n", err.Error())
+				log.Errorf("addRepo fileLock.Unlock failed, error: %s", err.Error())
 			}
 		}()
 	}

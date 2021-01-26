@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -82,20 +82,20 @@ func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
 	if req.Operation == "create" {
 		switch typeStr {
 		case "PLAN":
-			go log.Save(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
+			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
 		case "BACKUP_ACCOUNT":
-			go log.Save(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
+			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
 		case "HOST":
-			go log.Save(operator, constant.BIND_PROJECT_RESOURCE_HOST, resources)
+			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_HOST, resources)
 		}
 	} else {
 		switch typeStr {
 		case "PLAN":
-			go log.Save(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
+			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
 		case "BACKUP_ACCOUNT":
-			go log.Save(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
+			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
 		case "HOST":
-			go log.Save(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
+			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
 		}
 	}
 }

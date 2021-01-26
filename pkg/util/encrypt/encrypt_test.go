@@ -8,7 +8,7 @@ import (
 
 func TestStringEncrypt(t *testing.T) {
 	config.Init()
-	p, err := StringEncrypt("kubeoperator@admin123")
+	p, err := StringEncrypt("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -16,7 +16,7 @@ func TestStringEncrypt(t *testing.T) {
 }
 
 func TestStringDecrypt(t *testing.T) {
-	p, err := StringDecrypt("47zHCOqO84rdzGgxw5XPfgDEapoOMXbgJnryG32xp6Y=")
+	p, err := StringDecrypt("")
 	if err != nil {
 		t.Fatal(err)
 	}

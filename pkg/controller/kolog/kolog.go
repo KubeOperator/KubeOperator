@@ -1,11 +1,12 @@
-package log
+package kolog
 
 import (
-	"fmt"
-
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 )
+
+var log = logger.Default
 
 func Save(name, operation, operationInfo string) {
 	lS := service.NewSystemLogService()
@@ -14,8 +15,7 @@ func Save(name, operation, operationInfo string) {
 		Operation:     operation,
 		OperationInfo: operationInfo,
 	}
-	err := lS.Create(logInfo)
-	if err != nil {
-		fmt.Printf("save system logs err, err: %v\n", err)
+	if err := lS.Create(logInfo); err != nil {
+		log.Errorf("save system logs failed, error: %s", err.Error())
 	}
 }
