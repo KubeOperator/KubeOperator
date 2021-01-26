@@ -44,17 +44,25 @@ export class ClusterUpgradeComponent implements OnInit {
         const currentVersions = currentVersion.split('.');
         const version1 = currentVersions[0];
         const version2 = currentVersions[1];
-        const version3 = Number(currentVersions[2]);
+        const versions = currentVersions[2].split('-ko');
+        const version3 = Number(versions[0]);
+        const koVersion = Number(versions[1]);
         this.manifestService.listActive().subscribe(res => {
             this.manifests = res;
             for (const manifest of res) {
-                const manifestKoVersions = manifest.name.split('-');
+                const manifestKoVersions = manifest.name.split('-ko');
                 const manifestVersions = manifestKoVersions[0].split('.');
+                const manifestKoVersion = Number(manifestKoVersions[1]);
                 const manifestVersion1 = manifestVersions[0];
                 const manifestVersion2 = manifestVersions[1];
                 const manifestVersion3 = Number(manifestVersions[2]);
-                if (version1 === manifestVersion1 && version2 === manifestVersion2 && manifestVersion3 > version3) {
-                    this.upgradeVersions.push(manifestKoVersions[0]);
+                if (version1 === manifestVersion1 && version2 === manifestVersion2) {
+                    if (manifestVersion3 > version3) {
+                        this.upgradeVersions.push(manifest.name);
+                    }
+                    if (manifestVersion3 === version3 && koVersion < manifestKoVersion) {
+                        this.upgradeVersions.push(manifest.name);
+                    }
                 }
             }
         });
@@ -76,7 +84,7 @@ export class ClusterUpgradeComponent implements OnInit {
             if (m.name.indexOf(this.currentCluster.spec.version) !== -1) {
                 this.oldManifest = m;
             }
-            if (m.name.indexOf(this.chooseVersion) !== -1) {
+            if (m.name === this.chooseVersion) {
                 this.newManifest = m;
             }
         }
