@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -48,7 +49,7 @@ func (r regionService) Get(name string) (dto.Region, error) {
 	m := make(map[string]interface{})
 	regionDTO.Region = mo
 	if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
-		fmt.Printf("func (r regionService) Get(name string) json.Unmarshal err: %v\n", err)
+		log.Errorf("regionService Get json.Unmarshal failed, error: %s", err.Error())
 	}
 	regionDTO.RegionVars = m
 
@@ -78,7 +79,7 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 		m := make(map[string]interface{})
 		regionDTO.Region = mo
 		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
-			fmt.Printf("func (r regionService) Page(num, size int) json.Unmarshal err: %v\n", err)
+			log.Errorf("regionService Page json.Unmarshal failed, error: %s", err.Error())
 		}
 		regionDTO.RegionVars = m
 		regionDTOs = append(regionDTOs, *regionDTO)

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -86,7 +86,7 @@ func (p PlanController) Post() (*dto.Plan, error) {
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.CREATE_PLAN, req.Name)
+	go kolog.Save(operator, constant.CREATE_PLAN, req.Name)
 
 	return p.PlanService.Create(req)
 }
@@ -101,7 +101,7 @@ func (p PlanController) Post() (*dto.Plan, error) {
 // @Router /plans/{name}/ [delete]
 func (p PlanController) Delete(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.DELETE_PLAN, name)
+	go kolog.Save(operator, constant.DELETE_PLAN, name)
 
 	return p.PlanService.Delete(name)
 }
@@ -127,7 +127,7 @@ func (p PlanController) PostBatch() error {
 	for _, item := range req.Items {
 		delPlans += (item.Name + ",")
 	}
-	go log.Save(operator, constant.DELETE_PLAN, delPlans)
+	go kolog.Save(operator, constant.DELETE_PLAN, delPlans)
 
 	return err
 }

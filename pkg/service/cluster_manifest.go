@@ -2,12 +2,12 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"strconv"
-	"strings"
 )
 
 type ClusterManifestService interface {
@@ -71,17 +71,17 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 		clusterManifest.IsActive = mo.IsActive
 		var core []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.CoreVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.CoreVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.CoreVars = core
 		var network []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.NetworkVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.NetworkVars = network
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
-			fmt.Printf("func (c clusterManifestService) ListActive(mo.OtherVars) json.Unmarshal err: %v\n", err)
+			log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)

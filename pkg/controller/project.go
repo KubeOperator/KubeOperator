@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -96,7 +96,7 @@ func (p ProjectController) Post() (*dto.Project, error) {
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.CREATE_PROJECT, req.Name)
+	go kolog.Save(operator, constant.CREATE_PROJECT, req.Name)
 
 	return nil, err
 }
@@ -128,7 +128,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.UPDATE_PROJECT_INFO, name)
+	go kolog.Save(operator, constant.UPDATE_PROJECT_INFO, name)
 
 	return &result, nil
 }
@@ -143,7 +143,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 // @Router /projects/{name}/ [delete]
 func (p ProjectController) Delete(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.DELETE_PROJECT, name)
+	go kolog.Save(operator, constant.DELETE_PROJECT, name)
 
 	return p.ProjectService.Delete(name)
 }
@@ -169,7 +169,7 @@ func (p ProjectController) PostBatch() error {
 	for _, item := range req.Items {
 		delProjects += (item.Name + ",")
 	}
-	go log.Save(operator, constant.DELETE_PROJECT, delProjects)
+	go kolog.Save(operator, constant.DELETE_PROJECT, delProjects)
 
 	return err
 }

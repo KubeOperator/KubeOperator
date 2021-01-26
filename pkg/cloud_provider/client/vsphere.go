@@ -3,7 +3,12 @@ package client
 import (
 	"context"
 	"errors"
-	"fmt"
+	"io"
+	"io/ioutil"
+	"net/url"
+	"strconv"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
@@ -14,11 +19,6 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
-	"io"
-	"io/ioutil"
-	"net/url"
-	"strconv"
-	"strings"
 )
 
 type vSphereClient struct {
@@ -211,7 +211,7 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 	}
 	defer func() {
 		if err := vi.Destroy(ctx); err != nil {
-			fmt.Printf("func (v *vSphereClient) GetIpInUsed vi.Destroy(ctx) err: %v\n", err)
+			log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
 		}
 	}()
 	var networks []mo.Network
@@ -459,7 +459,7 @@ func (v *vSphereClient) ListDatastores() ([]DatastoreResult, error) {
 	}
 	defer func() {
 		if err := vi.Destroy(ctx); err != nil {
-			fmt.Printf("func (v *vSphereClient) GetIpInUsed vi.Destroy(ctx) err: %v\n", err)
+			log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
 		}
 	}()
 	var clusters []mo.ClusterComputeResource

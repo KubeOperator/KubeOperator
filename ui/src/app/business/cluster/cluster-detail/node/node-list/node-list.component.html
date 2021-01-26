@@ -25,9 +25,10 @@
         <clr-dg-cell>{{getVersion(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getNodeRoles(item)}}</clr-dg-cell>
         <clr-dg-cell *ngIf="getStatus(item) !== 'Failed'">
-                    <span *ngIf="item.status === 'Initializing'"> <a href="javascript:void(0)"
-                                                                     (click)="onShowLogger(item)"> {{getStatus(item) | translate}}</a></span>
-            <span *ngIf="item.status !== 'Initializing'"> {{getStatus(item) | translate}}</span>
+                    <span *ngIf="item.status === 'Initializing' || (item.status === 'Terminating' && currentCluster.provider === 'bareMetal')">
+                        <a href="javascript:void(0)" (click)="onShowLogger(item)"> {{getStatus(item) | translate}}</a>
+                    </span>
+            <span *ngIf="item.status !== 'Initializing' && item.status !== 'Terminating'"> {{getStatus(item) | translate}}</span>
             <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
                 Loading...
             </clr-spinner>

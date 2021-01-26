@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/log"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
@@ -38,7 +38,7 @@ func (c ClusterIstioController) PostEnableBy(clusterName string) (*[]dto.Cluster
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.ENABLE_CLUSTER_ISTIO, clusterName)
+	go kolog.Save(operator, constant.ENABLE_CLUSTER_ISTIO, clusterName)
 
 	return &cts, nil
 }
@@ -54,7 +54,7 @@ func (c ClusterIstioController) PostDisableBy(clusterName string) (*[]dto.Cluste
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go log.Save(operator, constant.DISABLE_CLUSTER_ISTIO, clusterName)
+	go kolog.Save(operator, constant.DISABLE_CLUSTER_ISTIO, clusterName)
 
 	return &cts, nil
 }
