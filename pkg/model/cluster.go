@@ -52,160 +52,113 @@ func (c Cluster) BeforeDelete() error {
 		return err
 	}
 	if cluster.SpecID != "" {
-		if err := tx.Delete(ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
+		if err := tx.Delete(&ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	if cluster.StatusID != "" {
-		if err := tx.Delete(ClusterStatus{ID: cluster.StatusID}).Error; err != nil {
+		if err := tx.Delete(&ClusterStatus{ID: cluster.StatusID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	if cluster.SecretID != "" {
-		if err := tx.Delete(ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
+		if err := tx.Delete(&ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
-	if len(cluster.Nodes) > 0 {
-		if err := tx.Model(Host{}).Where(Host{ClusterID: c.ID}).Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
 
-		for _, node := range cluster.Nodes {
-			if err := tx.Where(ClusterNode{ID: node.ID}).
-				Delete(ClusterNode{}).Error; err != nil {
-				tx.Rollback()
+	var hostIDList []string
+	for _, node := range cluster.Nodes {
+		hostIDList = append(hostIDList, node.HostID)
+	}
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		if len(hostIDList) > 0 {
+			if err := tx.Model(&ProjectResource{}).
+				Where("resource_id in (?) AND resource_type = ?", hostIDList, constant.ResourceHost).
+				Delete(&ProjectResource{}).Error; err != nil {
 				return err
 			}
-			if node.HostID != "" {
-				host := Host{ID: node.HostID}
-				if err := tx.First(&host).Error; err != nil {
-					tx.Rollback()
-					return err
-				}
-				if cluster.Spec.Provider == constant.ClusterProviderPlan {
-					var projectResources []ProjectResource
-					if err := tx.Where(ProjectResource{ResourceID: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
-						return err
-					}
-					if len(projectResources) > 0 {
-						for _, p := range projectResources {
-							tx.Delete(&p)
-						}
-					}
-					if err := tx.Delete(&host).Error; err != nil {
-						tx.Rollback()
-						return err
-					}
-
-				}
-			}
+		}
+		if err := tx.Where(&Host{ClusterID: c.ID}).Delete(&Host{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		if err := tx.Model(&Host{}).Where(&Host{ClusterID: c.ID}).Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
+			return err
 		}
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
-		var hosts []Host
-		tx.Where(Host{ClusterID: c.ID}).Find(&hosts)
-		if len(hosts) > 0 {
-			for i := range hosts {
-				hosts[i].ClusterID = ""
-				tx.Save(&hosts[i])
-			}
+	if len(hostIDList) > 0 {
+		if err := tx.Where(&ClusterNode{ClusterID: c.ID}).Delete(&ClusterNode{}).Error; err != nil {
+			tx.Rollback()
+			return err
 		}
-
 	}
+
 	if len(cluster.Tools) > 0 {
-		for _, tool := range cluster.Tools {
-			if tool.ID != "" {
-				if err := tx.Delete(&tool).Error; err != nil {
-					tx.Rollback()
-					return err
-				}
-			}
+		if err := tx.Where(&ClusterTool{ClusterID: c.ID}).Delete(&ClusterTool{}).Error; err != nil {
+			tx.Rollback()
+			return err
 		}
 	}
 	if len(cluster.Istios) > 0 {
-		for _, istio := range cluster.Istios {
-			if istio.ID != "" {
-				if err := tx.Delete(&istio).Error; err != nil {
-					tx.Rollback()
-					return err
-				}
-			}
-		}
-	}
-	var cisTasks []CisTask
-	db.DB.Where(CisTask{ClusterID: c.ID}).Find(&cisTasks)
-	if len(cisTasks) > 0 {
-		for _, task := range cisTasks {
-			if err := tx.Delete(&task).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
-	var storageProvisioners []ClusterStorageProvisioner
-	db.DB.Where(ClusterStorageProvisioner{ClusterID: c.ID}).Find(&storageProvisioners)
-	if len(storageProvisioners) > 0 {
-		for _, p := range storageProvisioners {
-			if err := tx.Delete(&p).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
-
-	var projectResource ProjectResource
-	tx.Where(ProjectResource{ResourceID: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
-	if projectResource.ID != "" {
-		if err := tx.Delete(&projectResource).Error; err != nil {
+		if err := tx.Where(&ClusterIstio{ClusterID: c.ID}).Delete(&ClusterIstio{}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 
-	var clusterBackupStrategy ClusterBackupStrategy
-	tx.Where(ClusterBackupStrategy{ClusterID: c.ID}).First(&clusterBackupStrategy)
-	if clusterBackupStrategy.ID != "" {
-		if err := tx.Delete(&clusterBackupStrategy).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
+	if err := tx.Where(&CisTask{ClusterID: c.ID}).Delete(&CisTask{}).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	var clusterBackupFiles []ClusterBackupFile
-	tx.Where(ClusterBackupFile{ClusterID: c.ID}).Find(&clusterBackupFiles)
-	if len(clusterBackupFiles) > 0 {
-		for _, c := range clusterBackupFiles {
-			if err := tx.Delete(&c).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
+	if err := tx.Where(&ClusterStorageProvisioner{ClusterID: c.ID}).Delete(&ClusterStorageProvisioner{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where(&ProjectResource{ResourceID: c.ID}).Delete(&ProjectResource{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where(&ClusterBackupStrategy{ClusterID: c.ID}).Delete(&ClusterBackupStrategy{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where(&ClusterBackupFile{ClusterID: c.ID}).Delete(&ClusterBackupFile{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where(&ClusterBackupFile{ClusterID: c.ID}).Delete(&ClusterBackupFile{}).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
 	var messages []Message
-	var messageIds []string
-	tx.Where(Message{ClusterID: c.ID}).Find(&messages)
-	if len(messages) > 0 {
-		for _, m := range messages {
-			messageIds = append(messageIds, m.ID)
-			if err := tx.Delete(&m).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
+	var messageIDs []string
+	if err := tx.Where(Message{ClusterID: c.ID}).Find(&messages).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
-
-	if len(messageIds) > 0 {
-		var userMessages []UserMessage
-		if err := tx.Where("message_id in (?)", messageIds).Delete(&userMessages).Error; err != nil {
+	for _, m := range messages {
+		messageIDs = append(messageIDs, m.ID)
+	}
+	if len(messageIDs) > 0 {
+		if err := tx.Model(&UserMessage{}).Where("message_id in (?)", messageIDs).Delete(&UserMessage{}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
+	}
+	if err := tx.Where(Message{ClusterID: c.ID}).Delete(&Message{}).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
 	if len(cluster.MultiClusterRepositories) > 0 {
