@@ -122,6 +122,7 @@ func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {
 	var result []dto.ClusterManifest
 	for _, v := range version1s {
 		quickSortVersion(v, 0, len(v)-1)
+		sortKoVersion(v)
 		result = append(result, v...)
 	}
 	return result
@@ -168,5 +169,24 @@ func getVersion(manifest dto.ClusterManifest) float64 {
 	version1Index := strings.Index(versionStr, ".")
 	version2 := strings.Replace(versionStr[version1Index+1:], ".", "", -1)
 	version, _ := strconv.ParseFloat(version2, 64)
+	return version
+}
+
+func sortKoVersion(arr []dto.ClusterManifest) {
+	var value dto.ClusterManifest
+	for index, _ := range arr {
+		if arr[index].Version == value.Version {
+			if getKoVersion(value) < getKoVersion(arr[index]) {
+				arr[index-1] = arr[index]
+				arr[index] = value
+			}
+		}
+	}
+}
+
+func getKoVersion(manifest dto.ClusterManifest) float64 {
+	koIndex := strings.Index(manifest.Name, "ko")
+	koVersionString := manifest.Name[koIndex+2:]
+	version, _ := strconv.ParseFloat(koVersionString, 64)
 	return version
 }

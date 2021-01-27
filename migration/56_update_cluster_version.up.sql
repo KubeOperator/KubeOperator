@@ -1,0 +1,1 @@
+update ko_cluster_spec SET version = CONCAT(version,'-ko1')
