@@ -284,7 +284,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
 			}
 			host.ClusterID = cluster.ID
-			if err:=tx.Save(&host);err!=nil{
+			if err := tx.Save(&host).Error; err != nil {
 				tx.Rollback()
 				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
 			}

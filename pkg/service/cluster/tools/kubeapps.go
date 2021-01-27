@@ -30,9 +30,22 @@ func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 	values := map[string]interface{}{}
 	switch toolDetail.ChartVersion {
 	case "3.7.2":
-		values = k.valuseV372Binding(imageMap, isInstall)
+		values = k.valuseV372Binding(imageMap)
 	case "5.0.1":
-		values = k.valuseV501Binding(imageMap, isInstall)
+		values = k.valuseV501Binding(imageMap)
+	}
+	if isInstall {
+		if va, ok := values["postgresql.persistence.enabled"]; ok {
+			if hasPers, _ := va.(bool); hasPers {
+				if va, ok := values["nodeSelector"]; ok {
+					values["postgresql.primary.nodeSelector.kubernetes\\.io/hostname"] = va
+				}
+			}
+		}
+		if _, ok := values["postgresql.persistence.size"]; ok {
+			values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
+		}
+		delete(values, "nodeSelector")
 	}
 
 	str, _ := json.Marshal(&values)
@@ -63,7 +76,7 @@ func (k Kubeapps) Uninstall() error {
 }
 
 // v3.7.2
-func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}, isInstall bool) map[string]interface{} {
+func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
 
@@ -75,26 +88,15 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}, isInstall b
 	values["postgresql.image.repository"] = imageMap["postgresql_image_name"]
 	values["postgresql.image.tag"] = imageMap["postgresql_image_tag"]
 
-	if isInstall {
-		if va, ok := values["postgresql.persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); hasPers {
-				if va, ok := values["nodeSelector"]; ok {
-					values["postgresql.master.nodeSelector.kubernetes\\.io/hostname"] = va
-				}
-			}
-		}
-		if _, ok := values["postgresql.persistence.size"]; ok {
-			values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
-		}
-		delete(values, "nodeSelector")
-	}
 	return values
 }
 
 // v5.0.1
-func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}, isInstall bool) map[string]interface{} {
+func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+	if len(k.Tool.Vars) != 0 {
+		_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+	}
 	delete(values, "useHelm3")
 	delete(values, "postgresql.enabled")
 	delete(values, "postgresql.image.repository")
@@ -103,18 +105,5 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}, isInstall b
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
 	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
 
-	if isInstall {
-		if va, ok := values["postgresql.persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); hasPers {
-				if va, ok := values["nodeSelector"]; ok {
-					values["postgresql.primary.nodeSelector.kubernetes\\.io/hostname"] = va
-				}
-			}
-		}
-		if _, ok := values["postgresql.persistence.size"]; ok {
-			values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
-		}
-		delete(values, "nodeSelector")
-	}
 	return values
 }
