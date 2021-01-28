@@ -428,6 +428,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
+	log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		log.Errorf("delete luster error %s", err.Error())
 		return
@@ -455,8 +456,9 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
+	log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
-		log.Errorf("delete luster error %s", err.Error())
+		log.Errorf("delete cluster error %s", err.Error())
 		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
 		return
 	}

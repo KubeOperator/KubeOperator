@@ -227,91 +227,104 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 	return nil
 }
 
+// 脏节点只删除数据库数据，正常节点集群中删除节点然后删数据库
 func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
-	var nodesForDelete []model.ClusterNode
-	if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).Preload("Host").Preload("Host.Credential").Preload("Host.Zone").Find(&nodesForDelete).Error; err != nil {
+	var (
+		nodesForDelete []model.ClusterNode
+		notDirtyNodes  []model.ClusterNode
+		nodeIDs        []string
+		hostIDs        []string
+	)
+	if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).
+		Preload("Host").
+		Preload("Host.Credential").
+		Preload("Host.Zone").
+		Find(&nodesForDelete).Error; err != nil {
 		return fmt.Errorf("can not find nodes reason %s", err.Error())
 	}
-	var notDirtyNodes []model.ClusterNode
-	tx := db.DB.Begin()
-	for i := range nodesForDelete {
-		if nodesForDelete[i].Dirty {
-			if err := tx.Model(&model.Host{}).Where(&model.Host{ID: nodesForDelete[i].HostID}).Updates(map[string]interface{}{
-				"ClusterID": "",
-			}).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-			if err := tx.Delete(&nodesForDelete[i]).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
 
-		} else {
-			notDirtyNodes = append(notDirtyNodes, nodesForDelete[i])
+	log.Infof("start delete nodes")
+	for _, node := range nodesForDelete {
+		hostIDs = append(hostIDs, node.Host.ID)
+		nodeIDs = append(nodeIDs, node.ID)
+		if !node.Dirty {
+			notDirtyNodes = append(notDirtyNodes, node)
 		}
 	}
-	tx.Commit()
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
+		Updates(map[string]interface{}{"Status": constant.StatusTerminating}).Error; err != nil {
+		log.Errorf("can not update node status %s", err.Error())
+		return err
+	}
 
-	needDeleteNodeIds := func() []string {
-		var names []string
-		for i := range notDirtyNodes {
-			names = append(names, notDirtyNodes[i].ID)
-		}
-		return names
-	}()
+	go c.removeNodes(cluster, currentNodes, notDirtyNodes, hostIDs, nodeIDs)
+	return nil
+}
 
+func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, notDirtyNodes []model.ClusterNode, hostIDs, nodeIDs []string) {
+	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
-		if err := db.DB.Where(&model.Plan{ID: cluster.PlanID}).First(&p).Error; err != nil {
-			return fmt.Errorf("can not load plan err %s", err.Error())
+		if err := tx.Where(&model.Plan{ID: cluster.PlanID}).First(&p).Error; err != nil {
+			c.updateNodeStatus(nodeIDs, err.Error(), false)
+			log.Errorf("can not load plan err %s", err.Error())
 		}
 		planDTO, err := c.planService.Get(p.Name)
 		if err != nil {
-			return fmt.Errorf("can not load plan err %s", err.Error())
+			c.updateNodeStatus(nodeIDs, err.Error(), false)
+			log.Errorf("can not load plan err %s", err.Error())
 		}
 		cluster.Plan = planDTO.Plan
-	}
-	go func() {
-		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", needDeleteNodeIds).Updates(map[string]interface{}{
-			"Status": constant.StatusTerminating,
-		}).Error; err != nil {
-			log.Errorf("can not update node status %s", err.Error())
-		}
+
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
+			c.updateNodeStatus(nodeIDs, err.Error(), false)
 			log.Errorf("delete node failed error %s", err.Error())
 		}
-		if cluster.Spec.Provider == constant.ClusterProviderPlan {
-			if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
-				log.Error(err)
-			}
+		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
+			log.Error(err)
 		}
-		for i := range notDirtyNodes {
-			if err := db.DB.Model(&model.Host{}).Where(&model.Host{ID: notDirtyNodes[i].HostID}).Updates(map[string]interface{}{
-				"ClusterID": "",
-			}).Error; err != nil {
-				log.Errorf("can not update host clusterID %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
-			}
-			if err := db.DB.Delete(&notDirtyNodes[i]).Error; err != nil {
-				log.Errorf("can not delete node %s reason %s", notDirtyNodes[i].Name, err.Error())
-			}
+		log.Info("delete all nodes successful! now start updata cluster datas")
 
-			if cluster.Spec.Provider == constant.ClusterProviderPlan {
-				var projectResource model.ProjectResource
-				if err := db.DB.Where(&model.ProjectResource{ResourceType: constant.ResourceHost, ResourceID: notDirtyNodes[i].HostID}).First(&projectResource).Error; err != nil {
-					log.Errorf("can not find project resource reason %s", err.Error())
-				}
-				if err := db.DB.Delete(&projectResource).Error; err != nil {
-					log.Errorf("can not delete project resource reason %s", err.Error())
-				}
-				notDirtyNodes[i].Host.ClusterID = ""
-				if err := db.DB.Delete(&notDirtyNodes[i].Host).Error; err != nil {
-					log.Errorf("can not delete host %s reason %s", notDirtyNodes[i].Host.Name, err.Error())
-				}
-			}
+		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
+			Delete(&model.Host{}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(nodeIDs, err.Error(), true)
+			log.Errorf("can not update hosts clusterID reason %s", err.Error())
 		}
-	}()
-	return nil
+		if err := tx.Model(&model.ProjectResource{}).Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
+			Delete(&model.ProjectResource{}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(nodeIDs, err.Error(), true)
+			log.Errorf("can not delete project resource reason %s", err.Error())
+		}
+	} else {
+		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
+			c.updateNodeStatus(nodeIDs, err.Error(), false)
+			log.Errorf("delete node failed error %s", err.Error())
+		}
+		log.Info("delete all nodes successful! now start updata cluster datas")
+
+		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
+			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(nodeIDs, err.Error(), true)
+			log.Errorf("can not update hosts clusterID reason %s", err.Error())
+		}
+	}
+	if err := tx.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+		tx.Rollback()
+		log.Errorf("can not delete nodes reason %s", err.Error())
+	}
+	tx.Commit()
+	log.Info("delete node successful!")
+}
+
+func (c *clusterNodeService) updateNodeStatus(notDirtyNodeIDs []string, errMsg string, isDirty bool) {
+	log.Errorf("delete node failed，cluster data has been rollback")
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", notDirtyNodeIDs).
+		Updates(map[string]interface{}{"Status": constant.ClusterFailed, "Message": errMsg, "Dirty": isDirty}).Error; err != nil {
+		log.Errorf("can not update node status %s", err.Error())
+	}
 }
 
 func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, deleteNodes []model.ClusterNode) error {
