@@ -36,8 +36,8 @@ func NewClient() *Client {
 	return &Client{
 		Host:     viper.GetString("grafana.host"),
 		Port:     viper.GetInt("grafana.port"),
-		Username: viper.GetString("grafana.username"),
-		Password: viper.GetString("grafana.password"),
+		Username: "admin",
+		Password: "admin",
 	}
 }
 
