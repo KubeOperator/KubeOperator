@@ -1,10 +1,12 @@
 package encrypt
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -17,7 +19,7 @@ type InitEncryptPhase struct {
 func (c *InitEncryptPhase) Init() error {
 	enable := c.Multilevel["enable"]
 	if enable != nil && enable.(bool) {
-		p, err := exec.LookPath("ko-encrypt")
+		p, err := exec.LookPath(fmt.Sprintf("encrypt_%s_%s", runtime.GOOS, runtime.GOARCH))
 		if err != nil {
 			return err
 		}
