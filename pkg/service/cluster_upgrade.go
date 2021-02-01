@@ -152,7 +152,7 @@ func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID
 		manifest model.ClusterManifest
 		toolVars []versionHelp
 	)
-	if err := tx.Where("version = ?", version).First(&manifest).Error; err != nil {
+	if err := tx.Where("name = ?", version).First(&manifest).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("get manifest error %s", err.Error())
 	}
