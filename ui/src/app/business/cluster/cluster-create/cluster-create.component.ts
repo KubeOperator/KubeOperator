@@ -178,9 +178,9 @@ export class ClusterCreateComponent implements OnInit {
     loadVersion() {
         this.manifestService.listActive().subscribe(data => {
             for (const m of data) {
-                this.versions.push(m.version);
+                this.versions.push(m.name);
             }
-            this.item.version = data[0].version;
+            this.item.version = data[0].name;
         });
     }
 
