@@ -2,6 +2,7 @@ package model
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -319,7 +320,8 @@ func (c Cluster) PrepareTools() []ClusterTool {
 func (c Cluster) GetKobeVars() map[string]string {
 	result := map[string]string{}
 	if c.Spec.Version != "" {
-		result[facts.KubeVersionFactName] = c.Spec.Version
+		index := strings.Index(c.Spec.Version, "-")
+		result[facts.KubeVersionFactName] = c.Spec.Version[:index]
 	}
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
