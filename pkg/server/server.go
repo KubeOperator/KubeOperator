@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/data"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/plugin"
@@ -23,6 +24,9 @@ type Phase interface {
 
 func Phases() []Phase {
 	return []Phase{
+		&encrypt.InitEncryptPhase{
+			Multilevel: viper.GetStringMap("encrypt.multilevel"),
+		},
 		&db.InitDBPhase{
 			Host:     viper.GetString("db.host"),
 			Port:     viper.GetInt("db.port"),
