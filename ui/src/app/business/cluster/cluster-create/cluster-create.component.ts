@@ -82,7 +82,6 @@ export class ClusterCreateComponent implements OnInit {
         this.item.ingressControllerType = 'nginx';
         this.item.projectName = this.currentProject.name;
         this.item.workerAmount = 1;
-        this.item.version = 'v1.18.12';
         this.item.architectures = 'amd64';
         this.item.helmVersion = 'v3';
         this.item.supportGpu = 'disable';
@@ -178,9 +177,9 @@ export class ClusterCreateComponent implements OnInit {
     loadVersion() {
         this.manifestService.listActive().subscribe(data => {
             for (const m of data) {
-                this.versions.push(m.version);
+                this.versions.push(m.name);
             }
-            this.item.version = data[0].version;
+            this.item.version = data[0].name;
         });
     }
 

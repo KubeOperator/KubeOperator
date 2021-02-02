@@ -159,8 +159,9 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 }
 func (ca *ClusterAdm) EnsureUpgradeKubernetes(c *Cluster) error {
 	time.Sleep(5 * time.Second)
+	index := strings.Index(c.Spec.UpgradeVersion, "-")
 	phase := upgrade.UpgradeClusterPhase{
-		Version: c.Spec.UpgradeVersion,
+		Version: c.Spec.UpgradeVersion[:index],
 	}
 	return phase.Run(c.Kobe, c.writer)
 
