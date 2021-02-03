@@ -321,9 +321,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		manifest model.ClusterManifest
 		toolVars []versionHelp
 	)
-	if err := tx.Where("version = ?", spec.Version).First(&manifest).Error; err != nil {
+	if err := tx.Where("name = ?", spec.Version).First(&manifest).Error; err != nil {
 		tx.Rollback()
-		return nil, fmt.Errorf("can find spec version: %s", err.Error())
+		return nil, fmt.Errorf("can find manifest version: %s", err.Error())
 	}
 	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
 		tx.Rollback()
