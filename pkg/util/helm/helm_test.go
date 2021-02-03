@@ -2,12 +2,12 @@ package helm
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/spf13/viper"
-	"helm.sh/helm/v3/pkg/strvals"
-	"testing"
 )
 
 func GetClient() (*Client, error) {
@@ -56,29 +56,29 @@ func TestClient_Uninstall(t *testing.T) {
 	fmt.Println(r.Info)
 }
 
-func TestClient_Install(t *testing.T) {
-	DbInit()
-	h, err := GetClient()
-	if err != nil {
-		t.Error(err)
-	}
+// func TestClient_Install(t *testing.T) {
+// 	DbInit()
+// 	h, err := GetClient()
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
 
-	valueMap := map[string]interface{}{}
-	var valueStrings []string
-	for k, v := range valueMap {
-		str := fmt.Sprintf("%s=%v", k, v)
-		valueStrings = append(valueStrings, str)
-	}
-	valueMap = map[string]interface{}{}
-	for _, str := range valueStrings {
-		_ = strvals.ParseInto(str, valueMap)
-	}
-	r, err := h.Install("dashboard", "nexus/kubernetes-dashboard", valueMap)
-	if err != nil {
-		t.Error(err)
-	}
-	fmt.Println(r.Name)
-}
+// 	valueMap := map[string]interface{}{}
+// 	var valueStrings []string
+// 	for k, v := range valueMap {
+// 		str := fmt.Sprintf("%s=%v", k, v)
+// 		valueStrings = append(valueStrings, str)
+// 	}
+// 	valueMap = map[string]interface{}{}
+// 	for _, str := range valueStrings {
+// 		_ = strvals.ParseInto(str, valueMap)
+// 	}
+// 	r, err := h.Install("dashboard", "nexus/kubernetes-dashboard", valueMap)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// 	fmt.Println(r.Name)
+// }
 
 func TestClient_AddRepo(t *testing.T) {
 	DbInit()

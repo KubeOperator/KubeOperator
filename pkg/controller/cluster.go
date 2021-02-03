@@ -139,7 +139,7 @@ func (c ClusterController) PostUpgrade() error {
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPGRADE_CLUSTER, req.ClusterName+"-"+req.ClusterName)
+	go kolog.Save(operator, constant.UPGRADE_CLUSTER, req.ClusterName+"("+req.Version+")")
 
 	return c.ClusterUpgradeService.Upgrade(req)
 }
