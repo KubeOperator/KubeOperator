@@ -34,13 +34,17 @@
                 </select>
             </clr-select-container>
         </form>
-        <div class="modal-footer clr-row clr-col-4">
-            <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
-                {{'APP_BACKUP_NOW'|translate}}
-            </button>
-            <button class="btn btn-info-outline clr-col-4" [disabled]="backupStrategyForm.invalid"
-                    (click)="onSubmit()">{{'APP_COMMIT'|translate}}
-            </button>
+        <div class="modal-footer clr-row">
+            <div class="btn-group btn-primary">
+                <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
+                    {{'APP_BACKUP_NOW'|translate}}
+                </button>
+            </div>
+            <div class="btn-group btn-primary">
+                <button class="btn btn-info-outline" [disabled]="backupStrategyForm.invalid"
+                        (click)="onSubmit()">{{'APP_COMMIT'|translate}}
+                </button>
+            </div>
         </div>
     </div>
     <div class="clr-col-lg-6">
