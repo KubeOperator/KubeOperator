@@ -441,7 +441,7 @@ func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, n
 	}
 
 	var allHosts []*model.Host
-	for i, _ := range allNodes {
+	for i := range allNodes {
 		allHosts = append(allHosts, &allNodes[i].Host)
 	}
 

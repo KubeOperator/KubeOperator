@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -315,7 +316,26 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	if err := tx.Create(&projectResource).Error; err != nil {
 		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
 	}
+
+	var (
+		manifest model.ClusterManifest
+		toolVars []versionHelp
+	)
+	if err := tx.Where("name = ?", spec.Version).First(&manifest).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("can find manifest version: %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+	}
 	for _, tool := range cluster.PrepareTools() {
+		for _, item := range toolVars {
+			if tool.Name == item.Name {
+				tool.Version = item.Version
+				break
+			}
+		}
 		tool.ClusterID = cluster.ID
 		err := tx.Create(&tool).Error
 		if err != nil {
@@ -323,6 +343,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			return nil, fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
 		}
 	}
+
 	if spec.Architectures == "amd64" {
 		for _, istio := range cluster.PrepareIstios() {
 			istio.ClusterID = cluster.ID

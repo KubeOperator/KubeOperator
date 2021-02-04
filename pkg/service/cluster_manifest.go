@@ -129,7 +129,7 @@ func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {
 }
 
 func isExist(version string, versions map[string][]dto.ClusterManifest) bool {
-	for k, _ := range versions {
+	for k := range versions {
 		if k == version {
 			return true
 		}
@@ -174,7 +174,10 @@ func getVersion(manifest dto.ClusterManifest) float64 {
 
 func sortKoVersion(arr []dto.ClusterManifest) {
 	var value dto.ClusterManifest
-	for index, _ := range arr {
+	for index := range arr {
+		if index > 0 {
+			value = arr[index-1]
+		}
 		if arr[index].Version == value.Version {
 			if getKoVersion(value) < getKoVersion(arr[index]) {
 				arr[index-1] = arr[index]

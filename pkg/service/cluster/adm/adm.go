@@ -3,6 +3,7 @@ package adm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -141,10 +142,10 @@ func (ca *ClusterAdm) OnUpgrade(c Cluster) (Cluster, error) {
 	return c, err
 }
 
-func GetManiFestBy(version string) (dto.ClusterManifest, error) {
+func GetManiFestBy(name string) (dto.ClusterManifest, error) {
 	var clusterManifest dto.ClusterManifest
-	repo := repository.NewClusterManifestRepository()
-	mo, err := repo.Get(version)
+	var mo model.ClusterManifest
+	err := db.DB.Where(model.ClusterManifest{Name: name}).First(&mo).Error
 	if err != nil {
 		return clusterManifest, err
 	}

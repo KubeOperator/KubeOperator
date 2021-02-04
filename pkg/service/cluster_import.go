@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -109,8 +110,26 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save node %s", err.Error())
 		}
 	}
-	tools := cluster.PrepareTools()
-	for _, tool := range tools {
+
+	var (
+		manifest model.ClusterManifest
+		toolVars []versionHelp
+	)
+	if err := tx.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can find manifest version: %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+	}
+	for _, tool := range cluster.PrepareTools() {
+		for _, item := range toolVars {
+			if tool.Name == item.Name {
+				tool.Version = item.Version
+				break
+			}
+		}
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
 			tx.Rollback()
