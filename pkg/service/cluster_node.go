@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
@@ -690,6 +691,14 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 	registryProtocol, _ := c.systemSettingRepo.Get("REGISTRY_PROTOCOL")
 	k.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
 	k.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
+
+	maniFest, _ := adm.GetManiFestBy(cluster.Spec.Version)
+	if maniFest.Name != "" {
+		vars := maniFest.GetVars()
+		for j, v := range vars {
+			k.SetVar(j, v)
+		}
+	}
 	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, "", writer)
 	if err != nil {
 		return err
