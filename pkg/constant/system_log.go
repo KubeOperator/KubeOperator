@@ -42,6 +42,7 @@ const (
 	DISABLE_CLUSTER_ISTIO = "禁用集群 Istio|Disable cluster Istio"
 
 	CREATE_CLUSTER_STORAGE_CLASS   = "添加存储类|Create storage class"
+	DELETE_CLUSTER_STORAGE_CLASS   = "删除存储类|Delete storage class"
 	CREATE_CLUSTER_NAMESPACE       = "添加命名空间|Create cluster namespace"
 	DELETE_CLUSTER_NAMESPACE       = "删除命名空间|Delete cluster namespace"
 	CREATE_CLUSTER_BACKUP_STRATEGY = "添加集群备份策略|Create cluster backup strategy"

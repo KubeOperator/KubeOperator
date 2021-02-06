@@ -80,7 +80,7 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 	valueMap, _ := bodyStruct.(map[string]interface{})
 
 	proxyPath := ctx.Params().Get("p")
-	tmpPath = proxyPath[(strings.Index(proxyPath, "/v1/") + 4):len(proxyPath)]
+	tmpPath = proxyPath[(strings.Index(proxyPath, "/v1/") + 4):]
 	if strings.Index(tmpPath, "/") != -1 {
 		itemvalue := strings.Split(tmpPath, "/")
 		askModule = itemvalue[0]
@@ -93,26 +93,55 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 
 	switch askModule {
 	case "storageclasses":
-		metadata, _ := valueMap["metadata"].(map[string]interface{})
-		logStr = clusterName + "-" + metadata["name"].(string)
-		go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
+		if len(askParam) != 0 {
+			logStr = clusterName + "-" + askParam
+			go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_CLASS, logStr)
+		} else {
+			metadata, isMap := valueMap["metadata"].(map[string]interface{})
+			if isMap {
+				_, hasValue := metadata["name"]
+				if hasValue {
+					_, isString := metadata["name"].(string)
+					if isString {
+						logStr = clusterName + "-" + metadata["name"].(string)
+						go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
+					}
+				}
+			}
+		}
 	case "namespaces":
 		if len(askParam) != 0 {
 			logStr = clusterName + "-" + askParam
 			go kolog.Save(operator, constant.DELETE_CLUSTER_NAMESPACE, logStr)
 		} else {
-			metadata, _ := valueMap["metadata"].(map[string]interface{})
-			logStr = clusterName + "-" + metadata["name"].(string)
-			go kolog.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+			metadata, isMap := valueMap["metadata"].(map[string]interface{})
+			if isMap {
+				_, hasValue := metadata["name"]
+				if hasValue {
+					_, isString := metadata["name"].(string)
+					if isString {
+						logStr = clusterName + "-" + metadata["name"].(string)
+						go kolog.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
+					}
+				}
+			}
 		}
 	case "persistentvolumes":
 		if len(askParam) != 0 {
 			logStr = clusterName + "-" + askParam
 			go kolog.Save(operator, constant.DELETE_CLUSTER_PVC, logStr)
 		} else {
-			metadata, _ := valueMap["metadata"].(map[string]interface{})
-			logStr = clusterName + "-" + metadata["name"].(string)
-			go kolog.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
+			metadata, isMap := valueMap["metadata"].(map[string]interface{})
+			if isMap {
+				_, hasValue := metadata["name"]
+				if hasValue {
+					_, isString := metadata["name"].(string)
+					if isString {
+						logStr = clusterName + "-" + metadata["name"].(string)
+						go kolog.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
+					}
+				}
+			}
 		}
 	}
 }
