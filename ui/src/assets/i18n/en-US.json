@@ -65,7 +65,7 @@
   "APP_EMAIL": "Email",
   "APP_ENABLE": "Enable",
   "APP_CONFIRM_PASSWORD": "Confirm Password",
-  "APP_PASSWORD_ERROR_MSG": "Valid password: 6-30 digits, English letters + numbers + special characters (optional)",
+  "APP_PASSWORD_ERROR_MSG": "Valid password: 8-30 digits, English letters + numbers + special characters (optional)",
   "APP_EMAIL_ERROR_MSG": "Invalid Email Address",
   "APP_PASSWORD_HELP_MSG": "Passwords are inconsistent",
   "APP_DEFAULT_DELETE_WARNING": "The delete operation cannot be rolled back. Do you want to continue?",
