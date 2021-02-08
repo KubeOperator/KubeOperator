@@ -309,6 +309,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 							for _, res := range test.Results {
 								results = append(results, model.CisTaskResult{
 									ID:          uuid.NewV4().String(),
+									ClusterID:   cluster.ID,
 									CisTaskId:   task.ID,
 									Number:      res.TestNumber,
 									Desc:        res.TestDesc,
