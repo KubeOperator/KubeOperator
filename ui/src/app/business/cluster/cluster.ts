@@ -16,7 +16,9 @@ export class Spec {
     dockerStorageDir: string;
     version: string;
     upgradeVersion: string;
+    kubeProxyMode: string;
     networkType: string;
+    flannelBackend: string;
     architectures: string;
     runtimeType: string;
 }

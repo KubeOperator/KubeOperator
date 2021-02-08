@@ -87,7 +87,7 @@
                 <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
             </clr-input-container>
             <clr-select-container>
-                <label>kube-proxy {{"APP_MODE"|translate}}</label>
+                <label>proxy {{"APP_MODE"|translate}}</label>
                 <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="iptables">Iptables</option>
@@ -289,7 +289,7 @@
                         <td class="left">{{item.kubeServiceSubnet}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold">kube-proxy {{"APP_MODE"|translate}}</td>
+                        <td class="left bold">proxy {{"APP_MODE"|translate}}</td>
                         <td class="left">{{item.kubeProxyMode}}</td>
                     </tr>
                     </tbody>
