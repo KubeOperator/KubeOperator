@@ -11,17 +11,21 @@
                             <div class="clr-col-lg-6  clr-col-12 count">
                                 <span><b>{{'APP_NAME'|translate}}</b></span> <br>
                                 <span><b>{{'APP_VERSION'|translate}}</b></span> <br>
-                                <span><b>{{'APP_NETWORK_TYPE'|translate}}</b></span> <br>
-                                <span><b>{{'APP_CONTAINER_RUNTIME_TYPE'|translate}}</b></span> <br>
                                 <span><b>{{'APP_ARCHITECTURE'|translate}}</b></span> <br>
+                                <span><b>{{'APP_NETWORK_TYPE'|translate}}</b></span> <br>
+                                <span><b>{{'APP_NETWORK_MODE'|translate}}</b></span> <br>
+                                <span><b>proxy {{"APP_MODE"|translate}}</b></span> <br>
+                                <span><b>{{'APP_CONTAINER_RUNTIME_TYPE'|translate}}</b></span> <br>
                                 <span><b>{{'APP_SOURCE'|translate}}</b></span> <br>
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 type-face">
                                 <span>{{currentCluster.name}}</span> <br>
                                 <span>{{currentCluster.spec.version}}</span> <br>
-                                <span>{{currentCluster.spec.networkType}}</span> <br>
-                                <span>{{currentCluster.spec.runtimeType}}</span> <br>
                                 <span>{{currentCluster.spec.architectures}}</span> <br>
+                                <span>{{currentCluster.spec.networkType}}</span> <br>
+                                <span>{{currentCluster.spec.flannelBackend}}</span> <br>
+                                <span>{{currentCluster.spec.kubeProxyMode}}</span> <br>
+                                <span>{{currentCluster.spec.runtimeType}}</span> <br>
                                 <span>{{currentCluster.source | translate}}</span> <br>
                             </div>
                         </div>

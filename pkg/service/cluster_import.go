@@ -115,7 +115,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		manifest model.ClusterManifest
 		toolVars []versionHelp
 	)
-	if err := tx.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
+	if err := tx.Where("version = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("can find manifest version: %s", err.Error())
 	}

@@ -63,21 +63,20 @@ func KubernetesClientProxy(ctx context.Context) {
 
 func saveSystemLogs(ctx context.Context, clusterName string) {
 	var (
-		logStr     string
 		bodyStruct interface{}
 		tmpPath    string
 		askModule  string
 		askParam   string
+		valueMap   map[string]interface{}
 	)
 
 	operator := getOperator(ctx)
-	if err := ctx.ReadJSON(&bodyStruct); err != nil {
-		fmt.Println(err)
+	_ = ctx.ReadJSON(&bodyStruct)
+	if bodyStruct != nil {
+		buf, _ := json.Marshal(bodyStruct)
+		ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+		valueMap, _ = bodyStruct.(map[string]interface{})
 	}
-
-	buf, _ := json.Marshal(bodyStruct)
-	ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(buf))
-	valueMap, _ := bodyStruct.(map[string]interface{})
 
 	proxyPath := ctx.Params().Get("p")
 	tmpPath = proxyPath[(strings.Index(proxyPath, "/v1/") + 4):]
@@ -93,63 +92,32 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 
 	switch askModule {
 	case "storageclasses":
-		if len(askParam) != 0 {
-			logStr = clusterName + "-" + askParam
-			go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_CLASS, logStr)
-		} else {
-			if _, ok := valueMap["metadata"]; ok {
-				metadata, isMap := valueMap["metadata"].(map[string]interface{})
-				if isMap {
-					_, hasValue := metadata["name"]
-					if hasValue {
-						_, isString := metadata["name"].(string)
-						if isString {
-							logStr = clusterName + "-" + metadata["name"].(string)
-							go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_CLASS, logStr)
-						}
-					}
-				}
-			}
-		}
+		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_STORAGE_CLASS, constant.CREATE_CLUSTER_STORAGE_CLASS, valueMap)
 	case "namespaces":
-		if len(askParam) != 0 {
-			logStr = clusterName + "-" + askParam
-			go kolog.Save(operator, constant.DELETE_CLUSTER_NAMESPACE, logStr)
-		} else {
-			if _, ok := valueMap["metadata"]; ok {
-				metadata, isMap := valueMap["metadata"].(map[string]interface{})
-				if isMap {
-					_, hasValue := metadata["name"]
-					if hasValue {
-						_, isString := metadata["name"].(string)
-						if isString {
-							logStr = clusterName + "-" + metadata["name"].(string)
-							go kolog.Save(operator, constant.CREATE_CLUSTER_NAMESPACE, logStr)
-						}
-					}
-				}
-			}
-		}
+		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_NAMESPACE, constant.CREATE_CLUSTER_NAMESPACE, valueMap)
 	case "persistentvolumes":
-		if len(askParam) != 0 {
-			logStr = clusterName + "-" + askParam
-			go kolog.Save(operator, constant.DELETE_CLUSTER_PVC, logStr)
-		} else {
-			if _, ok := valueMap["metadata"]; ok {
-				metadata, isMap := valueMap["metadata"].(map[string]interface{})
-				if isMap {
-					_, hasValue := metadata["name"]
-					if hasValue {
-						_, isString := metadata["name"].(string)
-						if isString {
-							logStr = clusterName + "-" + metadata["name"].(string)
-							go kolog.Save(operator, constant.CREATE_CLUSTER_PVC, logStr)
-						}
+		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_PVC, constant.CREATE_CLUSTER_PVC, valueMap)
+	}
+}
+
+func goSaveLogs(askParam, clusterName, operator, deleteConstant, createConstant string, valueMap map[string]interface{}) {
+	if len(askParam) != 0 {
+		logStr := clusterName + "-" + askParam
+		go kolog.Save(operator, deleteConstant, logStr)
+	} else {
+		if _, ok := valueMap["metadata"]; ok {
+			metadata, isMap := valueMap["metadata"].(map[string]interface{})
+			if isMap {
+				if _, hasValue := metadata["name"]; hasValue {
+					if _, isString := metadata["name"].(string); isString {
+						logStr := clusterName + "-" + metadata["name"].(string)
+						go kolog.Save(operator, createConstant, logStr)
 					}
 				}
 			}
 		}
 	}
+	return
 }
 
 func getOperator(ctx context.Context) string {
