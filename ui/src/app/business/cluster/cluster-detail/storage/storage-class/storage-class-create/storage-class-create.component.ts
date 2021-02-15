@@ -50,6 +50,7 @@ export class StorageClassCreateComponent implements OnInit {
                 name: 'kubernetes.io/no-provisioner',
                 type: 'local-storage',
                 vars: {},
+                status: 'Running'
             } as StorageProvisioner);
         });
     }
