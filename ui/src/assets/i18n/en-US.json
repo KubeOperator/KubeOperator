@@ -359,6 +359,7 @@
   "APP_BACKUP_NOW": "Backup Now",
   "APP_RESTORE": "Restore",
   "MONITOR": "Monitor",
+  "APP_MONITOR_NODE": "Monitor node",
   "APP_REPOSITORY": "Repository",
   "APP_CHART_REPOSITORY": "Chart repository",
   "APP_IMAGE_REPOSITORY": "Image repository",

@@ -46,6 +46,7 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Preload("Nodes.Host").
 		Preload("Tools").
 		Preload("Istios").
 		Preload("MultiClusterRepositories").
@@ -63,6 +64,10 @@ func (c Cluster) BeforeDelete() error {
 			tx.Rollback()
 			return err
 		}
+		if err := tx.Delete(&ClusterStatusCondition{ClusterStatusID: cluster.StatusID}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 	if cluster.SecretID != "" {
 		if err := tx.Delete(&ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
@@ -71,9 +76,13 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
-	var hostIDList []string
+	var (
+		hostIDList []string
+		hostIPList []string
+	)
 	for _, node := range cluster.Nodes {
 		hostIDList = append(hostIDList, node.HostID)
+		hostIPList = append(hostIPList, node.Host.Ip)
 	}
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		if len(hostIDList) > 0 {
@@ -86,6 +95,12 @@ func (c Cluster) BeforeDelete() error {
 		if err := tx.Where(&Host{ClusterID: c.ID}).Delete(&Host{}).Error; err != nil {
 			tx.Rollback()
 			return err
+		}
+		if len(hostIPList) > 0 {
+			if err := tx.Model(&Ip{}).Where("address in (?)", hostIPList).Update("status", constant.IpAvailable).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	} else {
 		if err := tx.Model(&Host{}).Where(&Host{ClusterID: c.ID}).Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
@@ -116,6 +131,10 @@ func (c Cluster) BeforeDelete() error {
 		tx.Rollback()
 		return err
 	}
+	if err := tx.Where(&CisTaskResult{ClusterID: c.ID}).Delete(&CisTaskResult{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	if err := tx.Where(&ClusterStorageProvisioner{ClusterID: c.ID}).Delete(&ClusterStorageProvisioner{}).Error; err != nil {
 		tx.Rollback()
@@ -137,13 +156,10 @@ func (c Cluster) BeforeDelete() error {
 		return err
 	}
 
-	if err := tx.Where(&ClusterBackupFile{ClusterID: c.ID}).Delete(&ClusterBackupFile{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	var messages []Message
-	var messageIDs []string
+	var (
+		messages   []Message
+		messageIDs []string
+	)
 	if err := tx.Where(Message{ClusterID: c.ID}).Find(&messages).Error; err != nil {
 		tx.Rollback()
 		return err

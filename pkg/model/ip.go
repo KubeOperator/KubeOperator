@@ -21,7 +21,3 @@ func (i *Ip) BeforeCreate() (err error) {
 	i.ID = uuid.NewV4().String()
 	return err
 }
-
-func (i *Ip) BeforeDelete() (err error) {
-	return nil
-}

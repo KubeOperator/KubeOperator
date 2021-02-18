@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -12,11 +13,13 @@ var DB *gorm.DB
 const phaseName = "db"
 
 type InitDBPhase struct {
-	Host     string
-	Port     int
-	Name     string
-	User     string
-	Password string
+	Host         string
+	Port         int
+	Name         string
+	User         string
+	Password     string
+	MaxOpenConns int
+	MaxIdleConns int
 }
 
 func (i *InitDBPhase) Init() error {
@@ -39,6 +42,8 @@ func (i *InitDBPhase) Init() error {
 		return "ko_" + defaultTableName
 	}
 	db.SingularTable(true)
+	db.DB().SetMaxOpenConns(i.MaxOpenConns)
+	db.DB().SetMaxIdleConns(i.MaxIdleConns)
 	DB = db
 	DB.LogMode(false)
 	return nil

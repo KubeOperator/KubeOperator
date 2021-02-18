@@ -19,6 +19,10 @@ export class NodeService {
         return this.http.get<Page<Node>>(this.baseUrl.replace('{clusterName}', clusterName) + `?pageNum=${page}&pageSize=${size}`);
     }
 
+    listWithoutPage(clusterName: string): Observable<Page<Node>> {
+        return this.http.get<Page<Node>>(this.baseUrl.replace('{clusterName}', clusterName));
+    }
+
     batch(clusterName: string, item: NodeBatch): Observable<Node[]> {
         return this.http.post<Node[]>(this.batchUrl.replace('{clusterName}', clusterName), item);
     }

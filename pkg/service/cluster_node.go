@@ -235,6 +235,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 		notDirtyNodes  []model.ClusterNode
 		nodeIDs        []string
 		hostIDs        []string
+		hostIPs        []string
 	)
 	if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).
 		Preload("Host").
@@ -247,6 +248,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 	log.Infof("start delete nodes")
 	for _, node := range nodesForDelete {
 		hostIDs = append(hostIDs, node.Host.ID)
+		hostIPs = append(hostIPs, node.Host.Ip)
 		nodeIDs = append(nodeIDs, node.ID)
 		if !node.Dirty {
 			notDirtyNodes = append(notDirtyNodes, node)
@@ -258,11 +260,11 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 		return err
 	}
 
-	go c.removeNodes(cluster, currentNodes, notDirtyNodes, hostIDs, nodeIDs)
+	go c.removeNodes(cluster, currentNodes, notDirtyNodes, hostIDs, hostIPs, nodeIDs)
 	return nil
 }
 
-func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, notDirtyNodes []model.ClusterNode, hostIDs, nodeIDs []string) {
+func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, notDirtyNodes []model.ClusterNode, hostIDs, hostIPs, nodeIDs []string) {
 	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
@@ -297,6 +299,12 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 			tx.Rollback()
 			c.updateNodeStatus(nodeIDs, err.Error(), true)
 			log.Errorf("can not delete project resource reason %s", err.Error())
+		}
+		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
+			Update("status", constant.IpAvailable).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(nodeIDs, err.Error(), true)
+			log.Errorf("can not update ip pool reason %s", err.Error())
 		}
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
