@@ -37,21 +37,31 @@ func (c clusterManifestService) List() ([]dto.ClusterManifest, error) {
 		clusterManifest.Name = mo.Name
 		clusterManifest.Version = mo.Version
 		clusterManifest.IsActive = mo.IsActive
+
 		var core []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.CoreVars = core
+
 		var network []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.NetworkVars = network
+
+		var tool []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.ToolVars), &tool); err != nil {
+			return clusterManifests, err
+		}
+		clusterManifest.ToolVars = tool
+
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.OtherVars = other
+
 		clusterManifests = append(clusterManifests, clusterManifest)
 	}
 

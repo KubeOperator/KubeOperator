@@ -26,6 +26,18 @@
             </table>
         </div>
         <div>
+            <h5>tool</h5>
+            <hr>
+            <table class="table table-vertical">
+                <tbody>
+                <tr *ngFor="let nameVersion of item.toolVars">
+                    <th style="width: 50%;">{{nameVersion.name}}</th>
+                    <td>{{nameVersion.version}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
             <h5>other</h5>
             <hr>
             <table class="table table-vertical">
