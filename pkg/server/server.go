@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/data"
@@ -28,11 +29,13 @@ func Phases() []Phase {
 			Multilevel: viper.GetStringMap("encrypt.multilevel"),
 		},
 		&db.InitDBPhase{
-			Host:     viper.GetString("db.host"),
-			Port:     viper.GetInt("db.port"),
-			Name:     viper.GetString("db.name"),
-			User:     viper.GetString("db.user"),
-			Password: viper.GetString("db.password"),
+			Host:         viper.GetString("db.host"),
+			Port:         viper.GetInt("db.port"),
+			Name:         viper.GetString("db.name"),
+			User:         viper.GetString("db.user"),
+			Password:     viper.GetString("db.password"),
+			MaxOpenConns: viper.GetInt("db.max_open_conns"),
+			MaxIdleConns: viper.GetInt("db.max_idle_conns"),
 		},
 		&migrate.InitMigrateDBPhase{
 			Host:     viper.GetString("db.host"),

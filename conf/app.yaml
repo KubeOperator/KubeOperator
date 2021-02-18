@@ -9,6 +9,8 @@ db:
   user: root
   password: KubeOperator@admin123
   name: ko
+  max_open_conns: 200
+  max_idle_conns: 10
 jwt:
   secret: iXDgDaEYBzIzustW
   exp: 480
