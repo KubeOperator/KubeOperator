@@ -9,6 +9,7 @@ import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from '../../manifest/manifest.service';
+import * as ipaddr from 'ipaddr.js';
 
 
 @Component({
@@ -32,6 +33,10 @@ export class ClusterCreateComponent implements OnInit {
     nameValid = true;
     nameChecking = false;
     helmVersions: string[] = [];
+
+    clusterMaxPod = 0;
+    clusterMaxService = 0;
+    clusterMaxNode = 0;
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
     @ViewChild('basicForm') basicForm: NgForm;
@@ -75,6 +80,9 @@ export class ClusterCreateComponent implements OnInit {
         this.item.kubePodSubnet = '10.244.0.0/18';
         this.item.kubeServiceSubnet = '10.244.64.0/18';
         this.item.dockerSubnet = '172.17.0.1/16';
+        this.clusterMaxPod = 16383;
+        this.clusterMaxService = 16383;
+        this.clusterMaxNode = 149;
         this.item.kubeMaxPods = 110;
         this.item.certsExpired = 36500;
         this.item.kubernetesAudit = 'no';
@@ -222,4 +230,35 @@ export class ClusterCreateComponent implements OnInit {
         }
         return hostName;
     }
+
+    onPodSubnetChange() {
+        if (this.item.kubePodSubnet) {
+            const addrs = this.item.kubePodSubnet.split('/');
+            const mask = addrs[1];
+            this.clusterMaxPod = this.networkLength(Number(mask));
+            return;
+        }
+        this.clusterMaxPod = 0;
+    }
+
+    onServiceSubnetChange() {
+        if (this.item.kubeServiceSubnet) {
+            const addrs = this.item.kubeServiceSubnet.split('/');
+            const mask = addrs[1];
+            this.clusterMaxService = this.networkLength(Number(mask));
+            return;
+        }
+        this.clusterMaxService = 0;
+    }
+
+    onMaxPodChange() {
+        this.clusterMaxNode = Math.ceil(this.clusterMaxPod / this.item.kubeMaxPods);
+    }
+
+
+    networkLength(c: number) {
+        return Math.pow(2, 32 - c) - 1;
+    }
+
+
 }
