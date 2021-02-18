@@ -1,4 +1,19 @@
 <div class="clr-row">
+    <div class="clr-col-3">
+        <clr-dropdown>
+            <button class="btn btn-outline-primary" clrDropdownTrigger>
+                {{largeVersion}}
+                <clr-icon shape="caret down"></clr-icon>
+            </button>
+            <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+                <label class="dropdown-header" aria-hidden="true">{{'APP_VERSION_HELPER'|translate}}</label>
+                <div aria-label="Dropdown header Action 1" clrDropdownItem (click)="changeVersion('v1.20')">v1.20</div>
+                <div aria-label="Dropdown header Action 2" clrDropdownItem (click)="changeVersion('v1.18')">v1.18</div>
+            </clr-dropdown-menu>
+        </clr-dropdown>
+    </div>
+</div>
+<div class="clr-row">
     <app-manifest-alert></app-manifest-alert>
     <div class="clr-col-3" *ngFor="let item of items; let i = index">
         <div class="card">
@@ -19,7 +34,8 @@
                         <br/>
                         <span class="card-media-text">
                             <ul>
-                                <li *ngFor="let nameVersion of item.coreVars">{{nameVersion.name}}:{{nameVersion.version}}</li>
+                                <li *ngFor="let nameVersion of item.coreVars">{{nameVersion.name}}
+                                    :{{nameVersion.version}}</li>
                             </ul>
                         </span>
                     </div>

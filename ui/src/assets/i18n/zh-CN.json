@@ -666,5 +666,7 @@
   "APP_YUM_REPLACE_MSG": "此操作将会对 K8S 节点服务器原始 yum repo 文件进行备份，之后生成并仅使用 KubeOperator 的 yum repo",
   "APP_YUM_COEXIST_MSG": "此操作将保持K8S节点服务器原始 yum repo 文件不变，同时生成并使用 kubeoperator 的 yum repo",
   "APP_YUM_NO_MSG": "此操作将保持使用 K8S 节点服务器原始 yum repo 文件，不对K8S节点服务器的 yum repo 做任何操作",
-  "APP_FORCE": "强制删除"
+  "APP_FORCE": "强制删除",
+  "APP_VERSION_SELECTION": "版本选择",
+  "APP_VERSION_HELPER": "请选择版本"
 }
