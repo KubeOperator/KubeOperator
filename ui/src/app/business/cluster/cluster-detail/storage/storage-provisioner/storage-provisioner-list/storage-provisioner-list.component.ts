@@ -26,7 +26,6 @@ export class StorageProvisionerListComponent implements OnInit {
 
     ngOnInit(): void {
         this.refresh();
-        this.polling();
     }
 
     ngOnDestroy(): void {
@@ -43,14 +42,17 @@ export class StorageProvisionerListComponent implements OnInit {
 
     onCreate() {
         this.createEvent.emit();
+        clearInterval(this.timer);
     }
 
     onDelete() {
         this.deleteEvent.emit(this.selected);
+        clearInterval(this.timer);
     }
 
     refresh() {
         this.list();
+        this.polling();
     }
 
     onShowLogger(item: StorageProvisioner) {

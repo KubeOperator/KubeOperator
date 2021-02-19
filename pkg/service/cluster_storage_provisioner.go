@@ -286,7 +286,7 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 		if err != nil && checkError(err) {
 			return err
 		}
-		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, " huawei-csi-node", metav1.DeleteOptions{})
+		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
 		if err != nil && checkError(err) {
 			return err
 		}

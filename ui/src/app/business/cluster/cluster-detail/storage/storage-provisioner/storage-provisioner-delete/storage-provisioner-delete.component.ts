@@ -53,8 +53,8 @@ export class StorageProvisionerDeleteComponent implements OnInit {
                 return;
             }
             this.service.delete(this.currentCluster.name, this.items[0].name).subscribe(res => {
-                this.opened = false;
                 this.deleted.emit();
+                this.opened = false;
             });
         });
 
@@ -62,5 +62,6 @@ export class StorageProvisionerDeleteComponent implements OnInit {
 
     onCancel() {
         this.opened = false;
+        this.deleted.emit();
     }
 }
