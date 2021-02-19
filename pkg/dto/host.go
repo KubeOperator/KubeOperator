@@ -1,7 +1,9 @@
 package dto
 
-import "github.com/KubeOperator/KubeOperator/pkg/model"
-import "github.com/KubeOperator/KubeOperator/pkg/errorf"
+import (
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
+)
 
 type Host struct {
 	model.Host
@@ -24,6 +26,11 @@ type HostPage struct {
 type HostOp struct {
 	Operation string `json:"operation" validate:"required"`
 	Items     []Host `json:"items" validate:"required"`
+}
+
+type HostSync struct {
+	HostName   string `json:"hostName"`
+	HostStatus string `json:"hostStatus"`
 }
 
 type ImportHostResponse struct {

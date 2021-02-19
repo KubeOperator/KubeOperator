@@ -2,6 +2,8 @@ package controller
 
 import (
 	"errors"
+	"io/ioutil"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -9,7 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
-	"io/ioutil"
 )
 
 var (
@@ -136,8 +137,14 @@ func (h HostController) DeleteBy(name string) error {
 	return h.HostService.Delete(name)
 }
 
-func (h HostController) PostSyncBy(name string) (dto.Host, error) {
-	return h.HostService.Sync(name)
+func (h HostController) PostSync() error {
+	var req []dto.HostSync
+	err := h.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+
+	return h.HostService.SyncList(req)
 }
 
 func (h HostController) PostBatch() error {

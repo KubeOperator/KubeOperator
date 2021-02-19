@@ -391,6 +391,8 @@
   "APP_DETAIL": "Detail",
   "APP_MANIFEST": "Version",
   "APP_SYNC": "Sync",
+  "APP_SYNC_ENSURE": "Synchronize the following hosts?",
+  "APP_SYNC_START_SUCCESS": "Host synchronization started, please refresh later...",
   "APP_CIS_RESULT": "Cis Result",
   "APP_NUMBER": "Number",
   "APP_DESCRIBE": "Describe",

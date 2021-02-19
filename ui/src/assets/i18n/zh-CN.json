@@ -397,6 +397,8 @@
   "APP_DETAIL": "详情",
   "APP_MANIFEST": "版本管理",
   "APP_SYNC": "同步",
+  "APP_SYNC_ENSURE": "是否确认同步下列主机？",
+  "APP_SYNC_START_SUCCESS": "主机同步已开始，请稍后刷新...",
   "APP_CIS_RESULT": "Cis 扫描结果",
   "APP_NUMBER": "编号",
   "APP_DESCRIBE": "描述",

@@ -18,6 +18,10 @@
             <clr-icon shape="cog"></clr-icon>
             {{"APP_GRANT"|translate}}
         </button>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="openSync()" [disabled]="selected.length<1">
+            <clr-icon shape="sync"></clr-icon>
+            {{"APP_SYNC"|translate}}
+        </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CLUSTER'|translate}}</clr-dg-column>
