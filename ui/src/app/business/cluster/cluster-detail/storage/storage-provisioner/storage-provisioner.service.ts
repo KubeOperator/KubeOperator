@@ -22,7 +22,7 @@ export class StorageProvisionerService {
     }
 
     delete(clusterName: string, name: string): Observable<any> {
-        const url = this.baseUrl.replace('{cluster_name}', clusterName) + name + '/';
+        const url = this.baseUrl.replace('{cluster_name}', clusterName) + '/' + name;
         return this.http.delete<any>(url);
     }
 

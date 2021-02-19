@@ -52,7 +52,7 @@ export class StorageProvisionerDeleteComponent implements OnInit {
                 this.modalAlertService.showAlert(this.translateService.instant('PROVISIONER_DELETE_FAILED'), AlertLevels.ERROR);
                 return;
             }
-            this.service.batch(this.currentCluster.name, this.items).subscribe(res => {
+            this.service.delete(this.currentCluster.name, this.items[0].name).subscribe(res => {
                 this.opened = false;
                 this.deleted.emit();
             });
