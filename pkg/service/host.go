@@ -82,18 +82,53 @@ func (h hostService) List(projectName string) ([]dto.Host, error) {
 }
 
 func (h hostService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var hostDTOs []dto.Host
+	var (
+		page      page.Page
+		hostDTOs  []dto.Host
+		hostIDs   []string
+		resources []model.ProjectResource
+		projects  []model.Project
+	)
 	total, mos, err := h.hostRepo.Page(num, size)
 	if err != nil {
 		return page, err
 	}
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{
-			Host:        mo,
-			ClusterName: mo.Cluster.Name,
-			ZoneName:    mo.Zone.Name,
-		})
+		hostIDs = append(hostIDs, mo.ID)
+	}
+	if err := db.DB.Model(&model.ProjectResource{}).Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).Find(&resources).Error; err != nil {
+		return page, err
+	}
+	if err := db.DB.Model(&model.Project{}).Find(&projects).Error; err != nil {
+		return page, err
+	}
+
+	for _, mo := range mos {
+		isExist := false
+		for _, res := range resources {
+			if mo.ID == res.ResourceID {
+				isExist = true
+				for _, pro := range projects {
+					if pro.ID == res.ProjectID {
+						hostDTOs = append(hostDTOs, dto.Host{
+							Host:        mo,
+							ProjectName: pro.Name,
+							ClusterName: mo.Cluster.Name,
+							ZoneName:    mo.Zone.Name,
+						})
+						break
+					}
+				}
+				break
+			}
+		}
+		if !isExist {
+			hostDTOs = append(hostDTOs, dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			})
+		}
 	}
 	page.Total = total
 	page.Items = hostDTOs

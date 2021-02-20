@@ -18,7 +18,7 @@ type InitCronPhase struct {
 func (c *InitCronPhase) Init() error {
 	Cron = cron.New()
 	if c.Enable {
-		_, err := Cron.AddJob("@every 1h", job.NewRefreshHostInfo())
+		_, err := Cron.AddJob("@hourly", job.NewRefreshHostInfo())
 		if err != nil {
 			return fmt.Errorf("can not add corn job: %s", err.Error())
 		}

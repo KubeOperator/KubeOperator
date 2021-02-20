@@ -8,6 +8,7 @@ import (
 type Host struct {
 	model.Host
 	ClusterName string `json:"clusterName"`
+	ProjectName string `json:"projectName"`
 	ZoneName    string `json:"zoneName"`
 }
 
