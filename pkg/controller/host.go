@@ -144,6 +144,13 @@ func (h HostController) PostSync() error {
 		return err
 	}
 
+	var hostStr string
+	for _, host := range req {
+		hostStr += (host.HostName + ",")
+	}
+	operator := h.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.SYNC_HOST_LIST, hostStr)
+
 	return h.HostService.SyncList(req)
 }
 
