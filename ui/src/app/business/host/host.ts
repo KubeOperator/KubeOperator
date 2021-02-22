@@ -34,6 +34,11 @@ export class HostCreateRequest extends BaseRequest {
     credentialId: string;
 }
 
+export class HostSync {
+    HostName: string;
+    HostStatus: string;
+}
+
 export class Project {
     id: string;
     name: string;

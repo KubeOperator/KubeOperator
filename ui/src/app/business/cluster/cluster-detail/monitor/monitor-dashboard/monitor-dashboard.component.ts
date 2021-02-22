@@ -64,9 +64,13 @@ export class MonitorDashboardComponent implements OnInit {
         this.cpuDateList = [];
         this.cpuValueList = [];
         this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '"system"', start.toString(), end.toString()).subscribe(data => {
+            if (data.data.result.length === 0) {
+                this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
+                return;
+            }
             this.cpuDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getHours() + ":" + timeNow.getMinutes();
+                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[]
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -117,9 +121,13 @@ export class MonitorDashboardComponent implements OnInit {
         this.memeryDateList = [];
         this.memeryValueList = [];
         this.service.QueryMemeryTotal(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            if (data.data.result.length === 0) {
+                this.initCharts('memeryChart', 'Memery Basic', this.memeryDateList, this.memeryValueList, 'GiB');
+                return;
+            }
             this.memeryDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getHours() + ":" + timeNow.getMinutes();
+                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[]
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -168,9 +176,13 @@ export class MonitorDashboardComponent implements OnInit {
         this.diskDateList = [];
         this.diskValueList = [];
         this.service.QueryDisk(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            if (data.data.result.length === 0) {
+                this.initCharts('diskChart', 'Disk Space Used Basic', this.diskDateList, this.diskValueList, '%');
+                return;
+            }
             this.diskDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getHours() + ":" + timeNow.getMinutes();
+                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[];
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -185,9 +197,13 @@ export class MonitorDashboardComponent implements OnInit {
         this.networkDateList = [];
         this.networkValueList = [];
         this.service.QueryNetworkRecv(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            if (data.data.result.length === 0) {
+                this.initCharts('networkChart', 'Network Traffic Basic', this.networkDateList, this.networkValueList, 'kb/s');
+                return;
+            }
             this.networkDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getHours() + ":" + timeNow.getMinutes();
+                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             for (const res of data.data.result) {
                 let itemDatas: string[];
@@ -209,7 +225,6 @@ export class MonitorDashboardComponent implements OnInit {
                 }
             })
         })
-        
     }
 
     initCharts(chartName: string, title: string, xDatas: string[], yDatas: string[], formatStr: string) {

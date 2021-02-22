@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -31,6 +32,7 @@ type HostService interface {
 	Page(num, size int) (page.Page, error)
 	Create(creation dto.HostCreate) (dto.Host, error)
 	Delete(name string) error
+	SyncList(names []dto.HostSync) error
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
 	DownloadTemplateFile() error
@@ -80,18 +82,53 @@ func (h hostService) List(projectName string) ([]dto.Host, error) {
 }
 
 func (h hostService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var hostDTOs []dto.Host
+	var (
+		page      page.Page
+		hostDTOs  []dto.Host
+		hostIDs   []string
+		resources []model.ProjectResource
+		projects  []model.Project
+	)
 	total, mos, err := h.hostRepo.Page(num, size)
 	if err != nil {
 		return page, err
 	}
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{
-			Host:        mo,
-			ClusterName: mo.Cluster.Name,
-			ZoneName:    mo.Zone.Name,
-		})
+		hostIDs = append(hostIDs, mo.ID)
+	}
+	if err := db.DB.Model(&model.ProjectResource{}).Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).Find(&resources).Error; err != nil {
+		return page, err
+	}
+	if err := db.DB.Model(&model.Project{}).Find(&projects).Error; err != nil {
+		return page, err
+	}
+
+	for _, mo := range mos {
+		isExist := false
+		for _, res := range resources {
+			if mo.ID == res.ResourceID {
+				isExist = true
+				for _, pro := range projects {
+					if pro.ID == res.ProjectID {
+						hostDTOs = append(hostDTOs, dto.Host{
+							Host:        mo,
+							ProjectName: pro.Name,
+							ClusterName: mo.Cluster.Name,
+							ZoneName:    mo.Zone.Name,
+						})
+						break
+					}
+				}
+				break
+			}
+		}
+		if !isExist {
+			hostDTOs = append(hostDTOs, dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			})
+		}
 	}
 	page.Total = total
 	page.Items = hostDTOs
@@ -130,6 +167,29 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 	return dto.Host{Host: host}, err
 }
 
+func (h hostService) SyncList(hosts []dto.HostSync) error {
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 2) // 信号量
+	for _, host := range hosts {
+		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.Initializing {
+			continue
+		}
+		wg.Add(1)
+		go func(name string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			log.Infof("gather host [%s] info", name)
+			_, err := h.Sync(name)
+			if err != nil {
+				log.Errorf("gather host info error: %s", err.Error())
+			}
+		}(host.HostName)
+	}
+
+	return nil
+}
+
 func (h hostService) Sync(name string) (dto.Host, error) {
 	host, err := h.hostRepo.Get(name)
 	if err != nil {
@@ -139,12 +199,13 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 	if err != nil {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
-		_ = h.hostRepo.Save(&host)
+		if err := syncHostInfo(&host); err != nil {
+			return dto.Host{Host: host}, err
+		}
 		return dto.Host{Host: host}, err
 	}
 	host.Status = constant.ClusterRunning
-	err = h.hostRepo.Save(&host)
-	if err != nil {
+	if err := syncHostInfo(&host); err != nil {
 		return dto.Host{Host: host}, err
 	}
 	return dto.Host{Host: host}, nil
@@ -197,7 +258,7 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		t := strings.Index(result, "]")
 		host.GpuInfo = result[s+1 : t]
 	}
-	_ = h.hostRepo.Save(host)
+	_ = syncHostInfo(host)
 	return err
 }
 
@@ -460,4 +521,56 @@ func (h hostService) ImportHosts(file []byte) error {
 	} else {
 		return nil
 	}
+}
+
+func syncHostInfo(host *model.Host) error {
+	tx := db.DB.Begin()
+	if host.Name == "" {
+		return nil
+	}
+
+	if len(host.Volumes) > 0 {
+		for i := range host.Volumes {
+			var volume model.Volume
+			if notFound := tx.Where(&model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
+				First(&volume).RecordNotFound(); notFound {
+				if err := tx.Create(&host.Volumes[i]).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			} else {
+				host.Volumes[i].ID = volume.ID
+				if err := tx.Save(&host.Volumes[i]).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+	}
+	var ip model.Ip
+	tx.Where(&model.Ip{Address: host.Ip}).First(&ip)
+	if ip.ID != "" && ip.Status != constant.IpUsed {
+		ip.Status = constant.IpUsed
+		if err := tx.Save(&ip).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	if err := tx.Model(&model.Host{}).Where(&model.Host{ID: host.ID}).
+		Updates(map[string]interface{}{
+			"memory":     host.Memory,
+			"cpu_core":   host.CpuCore,
+			"os":         host.Os,
+			"os_version": host.OsVersion,
+			"gpu_num":    host.GpuNum,
+			"gpu_info":   host.GpuInfo,
+			"has_gpu":    host.HasGpu,
+			"status":     host.Status,
+			"message":    host.Message,
+			"datastore":  host.Datastore,
+		}).Error; err != nil {
+		return err
+	}
+	tx.Commit()
+	return nil
 }
