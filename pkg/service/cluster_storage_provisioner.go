@@ -165,7 +165,6 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 			VcHost:     fmt.Sprintf("%v", vars["vc_host"]),
 			VcPort:     fmt.Sprintf("%v", vars["vc_port"]),
 			Datacenter: fmt.Sprintf("%v", vars["datacenter"]),
-			Datastore:  fmt.Sprintf("%v", vars["datastore"]),
 			Folder:     fmt.Sprintf("%v", vars["folder"]),
 		}
 	case "external-ceph":
