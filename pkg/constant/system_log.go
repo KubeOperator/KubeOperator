@@ -53,8 +53,9 @@ const (
 	START_CLUSTER_CIS_SCAN         = "开始集群CIS扫描|Start cluster CIS scan"
 	DELETE_CLUSTER_CIS_SCAN_RESULT = "删除集群CIS扫描结果|Delete cluster CIS scan results"
 
-	CREATE_HOST = "添加主机|Create host"
-	DELETE_HOST = "删除主机|Delete host"
+	CREATE_HOST    = "添加主机|Create host"
+	SYNC_HOST_LIST = "主机同步|Sync host"
+	DELETE_HOST    = "删除主机|Delete host"
 
 	CREATE_REGION    = "添加区域|Create region"
 	DELETE_REGION    = "删除区域|Delete region"

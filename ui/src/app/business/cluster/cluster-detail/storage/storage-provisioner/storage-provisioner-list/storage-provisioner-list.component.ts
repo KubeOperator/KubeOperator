@@ -43,10 +43,12 @@ export class StorageProvisionerListComponent implements OnInit {
 
     onCreate() {
         this.createEvent.emit();
+        clearInterval(this.timer);
     }
 
     onDelete() {
         this.deleteEvent.emit(this.selected);
+        clearInterval(this.timer);
     }
 
     refresh() {

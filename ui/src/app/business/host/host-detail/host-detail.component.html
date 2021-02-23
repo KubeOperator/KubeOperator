@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
     <h3 class="modal-title">{{'APP_HOST_SPEC'|translate}}</h3>
     <div class="modal-body">
-        <div *ngIf="item!=null && !loading">
+        <div *ngIf="item!=null">
             <h5>{{'APP_BASIC_INFORMATION'|translate}}</h5>
             <hr/>
             {{'APP_CPU'|translate}}:{{item.cpuCore}} <br/>
@@ -51,13 +51,9 @@
             <!--                </clr-dg-row>-->
             <!--            </clr-datagrid>-->
         </div>
-        <div *ngIf="loading" style="text-align: center">
-            <clr-spinner></clr-spinner>
-        </div>
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn" (click)="onCancel()" [disabled]="loading">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn" (click)="onSync()" [disabled]="loading">{{'APP_REFRESH'|translate}}</button>
+        <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
     </div>
 </clr-modal>

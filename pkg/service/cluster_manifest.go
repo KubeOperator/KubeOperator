@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -14,6 +16,7 @@ type ClusterManifestService interface {
 	List() ([]dto.ClusterManifest, error)
 	ListActive() ([]dto.ClusterManifest, error)
 	Update(update dto.ClusterManifestUpdate) (model.ClusterManifest, error)
+	ListByLargeVersion(version string) ([]dto.ClusterManifest, error)
 }
 
 type clusterManifestService struct {
@@ -37,21 +40,31 @@ func (c clusterManifestService) List() ([]dto.ClusterManifest, error) {
 		clusterManifest.Name = mo.Name
 		clusterManifest.Version = mo.Version
 		clusterManifest.IsActive = mo.IsActive
+
 		var core []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.CoreVars = core
+
 		var network []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.NetworkVars = network
+
+		var tool []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.ToolVars), &tool); err != nil {
+			return clusterManifests, err
+		}
+		clusterManifest.ToolVars = tool
+
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
 			return clusterManifests, err
 		}
 		clusterManifest.OtherVars = other
+
 		clusterManifests = append(clusterManifests, clusterManifest)
 	}
 
@@ -101,6 +114,47 @@ func (c clusterManifestService) Update(update dto.ClusterManifestUpdate) (model.
 		return manifest, err
 	}
 	return manifest, err
+}
+
+func (c clusterManifestService) ListByLargeVersion(version string) ([]dto.ClusterManifest, error) {
+	var clusterManifests []dto.ClusterManifest
+	var manifests []model.ClusterManifest
+	db.DB.Model(model.ClusterManifest{}).Where("version LIKE ?", "%"+version+"%").Find(&manifests)
+	if len(manifests) == 0 {
+		return []dto.ClusterManifest{}, nil
+	}
+	for _, mo := range manifests {
+		var clusterManifest dto.ClusterManifest
+		clusterManifest.Name = mo.Name
+		clusterManifest.Version = mo.Version
+		clusterManifest.IsActive = mo.IsActive
+		var core []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
+			log.Errorf("clusterManifestService ListActive(mo.CoreVars) json.Unmarshal failed, error: %s", err.Error())
+		}
+
+		clusterManifest.CoreVars = core
+		var network []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
+			log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
+		}
+		clusterManifest.NetworkVars = network
+
+		var tool []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.ToolVars), &tool); err != nil {
+			log.Errorf("clusterManifestService ListActive(mo.ToolVars) json.Unmarshal failed, error: %s", err.Error())
+		}
+		clusterManifest.ToolVars = tool
+
+		var other []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
+			log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
+		}
+		clusterManifest.OtherVars = other
+
+		clusterManifests = append(clusterManifests, clusterManifest)
+	}
+	return sortManifest(clusterManifests), nil
 }
 
 func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {

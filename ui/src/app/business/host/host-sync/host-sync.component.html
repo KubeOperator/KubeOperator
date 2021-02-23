@@ -1,0 +1,13 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_SYNC'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <span style="font-size: 15px;">{{'APP_SYNC_ENSURE'|translate}}</span>
+        <ul style="margin-left: 20%;" *ngFor="let host of hostSyncList">
+          <li>{{host.HostName}}</li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" [clrLoading]="isSubmitGoing" (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

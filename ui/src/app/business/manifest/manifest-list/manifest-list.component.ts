@@ -20,7 +20,7 @@ export class ManifestListComponent implements OnInit {
     loading = false;
     @Output() detailEvent = new EventEmitter<Manifest>();
     @Output() alertEvent = new EventEmitter();
-
+    largeVersion = 'v1.20';
 
 
     ngOnInit(): void {
@@ -28,9 +28,14 @@ export class ManifestListComponent implements OnInit {
     }
 
     refresh() {
-        this.manifestService.list().subscribe(data => {
+        this.manifestService.listByLargeVersion(this.largeVersion).subscribe(data => {
             this.items = data;
         });
+    }
+
+    changeVersion(largeVersion) {
+        this.largeVersion = largeVersion;
+        this.refresh();
     }
 
     onDetail(item: Manifest) {
@@ -45,7 +50,7 @@ export class ManifestListComponent implements OnInit {
         const updateItem = new Manifest();
         Object.assign(updateItem, item);
         updateItem.isActive = !item.isActive;
-        if (updateItem.isActive){
+        if (updateItem.isActive) {
             this.onAlert();
         }
         this.manifestService.update(updateItem).subscribe(data => {

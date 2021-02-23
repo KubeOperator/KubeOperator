@@ -11,21 +11,21 @@ const (
 )
 
 type VsphereStoragePhase struct {
-	VcUsername      string
-	VcPassword      string
-	VcHost          string
-	VcPort          string
-	Datacenter      string
-	Datastore       string
-	Folder          string
-	ProvisionerName string
+	VcUsername        string
+	VcPassword        string
+	VcHost            string
+	VcPort            string
+	Datacenter        string
+	Folder            string
+	ProvisionerName   string
+	StoragePolicyName string
 }
 
 func (n VsphereStoragePhase) Name() string {
 	return "CreateVsphereStorage"
 }
 
-func (n VsphereStoragePhase) Run(b kobe.Interface,writer io.Writer) error {
+func (n VsphereStoragePhase) Run(b kobe.Interface, writer io.Writer) error {
 	if n.VcUsername != "" {
 		b.SetVar("vc_username", n.VcUsername)
 	}
@@ -46,14 +46,13 @@ func (n VsphereStoragePhase) Run(b kobe.Interface,writer io.Writer) error {
 		b.SetVar("datacenter", n.Datacenter)
 	}
 
-	if n.Datastore != "" {
-		b.SetVar("datastore", n.Datastore)
-	}
 	if n.Folder != "" {
 		b.SetVar("folder", n.Folder)
 	}
 
+	if n.StoragePolicyName != "" {
+		b.SetVar("vc_storage_policy", n.StoragePolicyName)
+	}
 
-
-	return phases.RunPlaybookAndGetResult(b, vsphereStorage,"",writer)
+	return phases.RunPlaybookAndGetResult(b, vsphereStorage, "", writer)
 }

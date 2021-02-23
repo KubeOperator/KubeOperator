@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -17,6 +14,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/storage"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	errors2 "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ClusterStorageProvisionerService interface {
@@ -84,6 +84,10 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 	return clusterStorageProvisionerDTOS, nil
 }
 func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName string, provisioner string) error {
+	err := c.deleteProvisioner(clusterName, provisioner)
+	if err != nil {
+		return err
+	}
 	return c.provisionerRepo.Delete(clusterName, provisioner)
 }
 
@@ -161,7 +165,6 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 			VcHost:     fmt.Sprintf("%v", vars["vc_host"]),
 			VcPort:     fmt.Sprintf("%v", vars["vc_port"]),
 			Datacenter: fmt.Sprintf("%v", vars["datacenter"]),
-			Datastore:  fmt.Sprintf("%v", vars["datastore"]),
 			Folder:     fmt.Sprintf("%v", vars["folder"]),
 		}
 	case "external-ceph":
@@ -183,4 +186,129 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 	}
 
 	return p
+}
+
+func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
+	var provisioner model.ClusterStorageProvisioner
+	db.DB.Where(model.ClusterStorageProvisioner{Name: provisionerName}).First(&provisioner)
+	if provisioner.ID == "" {
+		return errors.New("not found")
+	}
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return err
+	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
+		Token: secret.KubernetesToken,
+		Hosts: endpoints,
+	})
+	if err != nil {
+		return err
+	}
+	switch provisioner.Type {
+	case "nfs":
+		contextTo := context.TODO()
+		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "nfs-client-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "run-nfs-client-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "external-ceph":
+		contextTo := context.TODO()
+		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().Roles("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().RoleBindings("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.PolicyV1beta1().PodSecurityPolicies().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "oceanstor":
+		contextTo := context.TODO()
+		err = client.CoreV1().ConfigMaps("kube-system").Delete(contextTo, "huawei-csi-configmap", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-provisioner-runner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-provisioner-role", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-attacher-runner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-attacher-role", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-driver-registrar-runner", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-driver-registrar-role", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkError(err error) bool {
+
+	if e, ok := err.(*errors2.StatusError); ok {
+		if e.ErrStatus.Code == 404 {
+			return false
+		} else {
+			return true
+		}
+	}
+	return true
 }

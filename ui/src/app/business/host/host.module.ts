@@ -9,11 +9,12 @@ import { HostGrantComponent } from './host-grant/host-grant.component';
 import {SharedModule} from '../../shared/shared.module';
 import { HostStatusDetailComponent } from './host-status-detail/host-status-detail.component';
 import { HostImportComponent } from './host-import/host-import.component';
+import { HostSyncComponent } from './host-sync/host-sync.component';
 
 
 
 @NgModule({
-  declarations: [HostComponent, HostListComponent, HostCreateComponent, HostDeleteComponent, HostDetailComponent,HostGrantComponent, HostStatusDetailComponent, HostImportComponent],
+  declarations: [HostComponent, HostListComponent, HostCreateComponent, HostDeleteComponent, HostDetailComponent,HostGrantComponent, HostStatusDetailComponent, HostImportComponent, HostSyncComponent],
     imports: [
         CoreModule,
         SharedModule,

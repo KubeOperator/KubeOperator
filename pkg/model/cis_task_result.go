@@ -8,6 +8,7 @@ import (
 type CisTaskResult struct {
 	common.BaseModel
 	ID          string `json:"-"`
+	ClusterID   string `json:"clusterId"`
 	CisTaskId   string `json:"cisTaskId"`
 	Number      string `json:"number"`
 	Desc        string `json:"desc"`

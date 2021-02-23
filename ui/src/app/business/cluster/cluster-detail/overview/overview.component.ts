@@ -3,7 +3,6 @@ import {ClusterService} from '../../cluster.service';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {KubernetesService} from '../../kubernetes.service';
-import {LoggingService} from '../../logging.service';
 import {V1Deployment, V1Namespace, V1Node, V1Pod} from '@kubernetes/client-node';
 
 @Component({

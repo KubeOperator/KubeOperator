@@ -29,6 +29,10 @@ func (m *ManifestController) GetActive() ([]dto.ClusterManifest, error) {
 	return m.ManifestService.ListActive()
 }
 
+func (m *ManifestController) GetBy(version string) ([]dto.ClusterManifest, error) {
+	return m.ManifestService.ListByLargeVersion(version)
+}
+
 func (m ManifestController) PatchBy(name string) (model.ClusterManifest, error) {
 	var req dto.ClusterManifestUpdate
 	err := m.Ctx.ReadJSON(&req)

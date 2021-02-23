@@ -168,11 +168,15 @@ func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStoragePr
 	return &p, nil
 }
 
-func (c ClusterController) DeleteProvisionerBy(clusterName string, name string) error {
+func (c ClusterController) PostProvisionerDeleteBy(clusterName string) error {
+	var item dto.ClusterStorageProvisioner
+	if err := c.Ctx.ReadJSON(&item); err != nil {
+		return err
+	}
 	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+name)
+	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+item.Name)
 
-	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, name)
+	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, item.Name)
 }
 
 func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {

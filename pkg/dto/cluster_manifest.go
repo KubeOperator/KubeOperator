@@ -6,6 +6,7 @@ type ClusterManifest struct {
 	IsActive    bool          `json:"isActive"`
 	CoreVars    []NameVersion `json:"coreVars"`
 	NetworkVars []NameVersion `json:"networkVars"`
+	ToolVars    []NameVersion `json:"toolVars"`
 	OtherVars   []NameVersion `json:"otherVars"`
 }
 
