@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Manifest} from "./manifest";
+import {Manifest, ManifestGroup} from "./manifest";
 
 @Injectable({
     providedIn: 'root'
@@ -25,7 +25,7 @@ export class ManifestService {
         return this.http.patch<Manifest>(this.baseUrl + '/' + item.name, item);
     }
 
-    listByLargeVersion(version): Observable<Manifest[]> {
-        return this.http.get<Manifest[]>(this.baseUrl + '/' + version);
+    listByLargeVersion(): Observable<ManifestGroup[]> {
+        return this.http.get<ManifestGroup[]>(this.baseUrl + '/group' );
     }
 }

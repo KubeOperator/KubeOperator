@@ -1,55 +1,48 @@
-<div class="clr-row">
-    <div class="clr-col-3">
-        <clr-dropdown>
-            <button class="btn btn-outline-primary" clrDropdownTrigger>
-                {{largeVersion}}
-                <clr-icon shape="caret down"></clr-icon>
-            </button>
-            <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
-                <label class="dropdown-header" aria-hidden="true">{{'APP_VERSION_HELPER'|translate}}</label>
-                <div aria-label="Dropdown header Action 1" clrDropdownItem (click)="changeVersion('v1.20')">v1.20</div>
-                <div aria-label="Dropdown header Action 2" clrDropdownItem (click)="changeVersion('v1.18')">v1.18</div>
-            </clr-dropdown-menu>
-        </clr-dropdown>
-    </div>
-</div>
-<div class="clr-row">
-    <app-manifest-alert></app-manifest-alert>
-    <div class="clr-col-3" *ngFor="let item of items; let i = index">
-        <div class="card">
-            <div class="card-header">
-                <div style="text-align: right">
-                    <button class="btn btn-sm btn-link" (click)="onDetail(item)">
-                        {{'APP_DETAIL'|translate}}
-                    </button>
-                </div>
-            </div>
-            <div class="card-block">
-                <div class="card-media-block">
-                    <img [src]="'./assets/images/tool/kubernetes.png'" class="card-media-image">
-                    <div class="card-media-description">
+<clr-accordion clrAccordionMultiPanel="true">
+    <clr-accordion-panel clrAccordionPanelOpen=true *ngFor="let group of items;">
+        <clr-accordion-title>{{group.largeVersion}}</clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+            <div class="clr-row">
+                <div class="clr-col-3" *ngFor="let item of group.clusterManifests; let i = index">
+                    <div class="card">
+                        <div class="card-header">
+                            <div style="text-align: right">
+                                <button class="btn btn-sm btn-link" (click)="onDetail(item)">
+                                    {{'APP_DETAIL'|translate}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-block">
+                            <div class="card-media-block">
+                                <img [src]="'./assets/images/tool/kubernetes.png'" class="card-media-image">
+                                <div class="card-media-description">
                         <span class="card-media-title">
                             {{item.name}}
                         </span>
-                        <br/>
-                        <span class="card-media-text">
+                                    <br/>
+                                    <span class="card-media-text">
                             <ul>
                                 <li *ngFor="let nameVersion of item.coreVars">{{nameVersion.name}}
                                     :{{nameVersion.version}}</li>
                             </ul>
                         </span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="clr-row">
-                        <div class="clr-offset-8 clr-toggle-wrapper">
-                            <input class="clr-toggle" id="toggle{{i}}" type="checkbox" name="supper"
-                                   [(ngModel)]="item.isActive" (click)="update(item)"/>
-                            <label for="toggle{{i}}">{{'APP_ENABLE'|translate}}</label>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="clr-row">
+                                    <div class="clr-offset-8 clr-toggle-wrapper">
+                                        <input class="clr-toggle" id="toggle{{i}}" type="checkbox" name="supper"
+                                               [(ngModel)]="item.isActive" (click)="update(item)"/>
+                                        <label for="toggle{{i}}">{{'APP_ENABLE'|translate}}</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+            <br>
+        </clr-accordion-content>
+    </clr-accordion-panel>
+</clr-accordion>
+
