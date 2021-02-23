@@ -61,6 +61,7 @@
   "APP_HOST_MEMORY_GB": "内存(GB)",
   "APP_HOST_DISK": "磁盘(GB)",
   "APP_GPU": "GPU(个)",
+  "APP_ARCHITECTUR": "系统架构",
   "APP_OS": "操作系统",
   "APP_STATUS": "状态",
   "APP_USER": "用户",

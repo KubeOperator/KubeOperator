@@ -393,6 +393,7 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		}
 		host.Os = result["ansible_distribution"].(string)
 		host.OsVersion = result["ansible_distribution_version"].(string)
+		host.Architecture = result["ansible_architecture"].(string)
 		if result["ansible_processor_vcpus"] != nil {
 			host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
 		}
@@ -558,16 +559,17 @@ func syncHostInfo(host *model.Host) error {
 	}
 	if err := tx.Model(&model.Host{}).Where(&model.Host{ID: host.ID}).
 		Updates(map[string]interface{}{
-			"memory":     host.Memory,
-			"cpu_core":   host.CpuCore,
-			"os":         host.Os,
-			"os_version": host.OsVersion,
-			"gpu_num":    host.GpuNum,
-			"gpu_info":   host.GpuInfo,
-			"has_gpu":    host.HasGpu,
-			"status":     host.Status,
-			"message":    host.Message,
-			"datastore":  host.Datastore,
+			"memory":       host.Memory,
+			"cpu_core":     host.CpuCore,
+			"os":           host.Os,
+			"os_version":   host.OsVersion,
+			"gpu_num":      host.GpuNum,
+			"gpu_info":     host.GpuInfo,
+			"has_gpu":      host.HasGpu,
+			"status":       host.Status,
+			"message":      host.Message,
+			"datastore":    host.Datastore,
+			"architecture": host.Architecture,
 		}).Error; err != nil {
 		return err
 	}
