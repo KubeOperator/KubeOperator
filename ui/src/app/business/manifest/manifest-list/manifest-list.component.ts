@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Manifest} from '../manifest';
+import {Manifest, ManifestGroup} from '../manifest';
 import {ManifestService} from '../manifest.service';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
@@ -16,27 +16,22 @@ export class ManifestListComponent implements OnInit {
                 private translateService: TranslateService) {
     }
 
-    items: Manifest[] = [];
+    items: ManifestGroup[] = [];
     loading = false;
     @Output() detailEvent = new EventEmitter<Manifest>();
     @Output() alertEvent = new EventEmitter();
-    largeVersion = 'v1.20';
-
+    largeVersion = 'v1.18';
 
     ngOnInit(): void {
         this.refresh();
     }
 
     refresh() {
-        this.manifestService.listByLargeVersion(this.largeVersion).subscribe(data => {
+        this.manifestService.listByLargeVersion().subscribe(data => {
             this.items = data;
         });
     }
 
-    changeVersion(largeVersion) {
-        this.largeVersion = largeVersion;
-        this.refresh();
-    }
 
     onDetail(item: Manifest) {
         this.detailEvent.emit(item);

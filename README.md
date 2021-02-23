@@ -143,7 +143,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">GPU 方案
         </td>
-        <td class="features-third-td-background-style">支持 NVIDIA GPU（X-PACK）
+        <td class="features-third-td-background-style">支持 NVIDIA GPU
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
