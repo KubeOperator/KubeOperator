@@ -30,7 +30,7 @@ func (c *CisTask) BeforeDelete() error {
 	if c.Status == constant.ClusterRunning {
 		return errors.New("task is running")
 	}
-	if err := db.DB.Where(CisTaskResult{CisTaskId: c.ID}).Delete(CisTaskResult{}).Error; err != nil {
+	if err := db.DB.Where(CisTaskResult{CisTaskId: c.ID}).Delete(&CisTaskResult{}).Error; err != nil {
 		return err
 	}
 	return nil

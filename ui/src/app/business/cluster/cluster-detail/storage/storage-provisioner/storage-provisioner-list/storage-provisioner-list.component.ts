@@ -33,14 +33,6 @@ export class StorageProvisionerListComponent implements OnInit {
         clearInterval(this.timer);
     }
 
-    list() {
-        this.loading = true;
-        this.service.list(this.currentCluster.name).subscribe(data => {
-            this.items = data;
-            this.loading = false;
-        });
-    }
-
     onCreate() {
         this.createEvent.emit();
     }
@@ -50,7 +42,11 @@ export class StorageProvisionerListComponent implements OnInit {
     }
 
     refresh() {
-        this.list();
+        this.loading = true;
+        this.service.list(this.currentCluster.name).subscribe(data => {
+            this.items = data;
+            this.loading = false;
+        });
     }
 
     onShowLogger(item: StorageProvisioner) {
@@ -59,8 +55,20 @@ export class StorageProvisionerListComponent implements OnInit {
 
     polling() {
         this.timer = setInterval(() => {
-            this.refresh();
-        }, 20000);
+            let flag = false;
+            const needPolling = ['Initializing', 'Terminating'];
+            for (const item of this.items) {
+                if (needPolling.indexOf(item.status) !== -1) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                this.service.list(this.currentCluster.name).subscribe(data => {
+                    this.items = data;
+                });
+            }
+        }, 10000);
     }
 
     openMessage(item) {

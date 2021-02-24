@@ -169,11 +169,16 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 
 func (h hostService) SyncList(hosts []dto.HostSync) error {
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 2) // 信号量
+	sem := make(chan struct{}, 2)
 	for _, host := range hosts {
-		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.Initializing {
+		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.ClusterInitializing || host.HostStatus == constant.ClusterSynchronizing {
 			continue
 		}
+		// 先更新所有待同步主机状态
+		if err := db.DB.Model(&model.Host{}).Where("name = ?", host.HostName).Update("status", constant.ClusterSynchronizing).Error; err != nil {
+			log.Errorf("update host status error: %s", err.Error())
+		}
+
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -186,7 +191,6 @@ func (h hostService) SyncList(hosts []dto.HostSync) error {
 			}
 		}(host.HostName)
 	}
-
 	return nil
 }
 

@@ -113,7 +113,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 	var (
 		manifest model.ClusterManifest
-		toolVars []versionHelp
+		toolVars []model.VersionHelp
 	)
 	if err := tx.Where("version = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
 		tx.Rollback()

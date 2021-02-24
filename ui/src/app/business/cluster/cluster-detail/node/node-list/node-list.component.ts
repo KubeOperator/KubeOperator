@@ -35,6 +35,7 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.refresh();
+        this.polling();
     }
 
     ngOnDestroy(): void {
@@ -45,14 +46,6 @@ export class NodeListComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.selected = [];
         this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(d => {
-            if (d.items !== null) {
-                for (const item of d.items) {
-                    if (item.status !== 'Running' && item.status !== 'Failed') {
-                        this.polling();
-                        break;
-                    }
-                }
-            }
             this.items = d.items;
             this.total = d.total;
             this.loading = false;
@@ -152,12 +145,10 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     onCreate() {
         this.createEvent.emit();
-        this.polling();
     }
 
     onDelete() {
         this.deleteEvent.emit(this.selected);
-        this.polling();
     }
 
     onShowStatus(item: Node) {
@@ -170,24 +161,20 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     polling() {
         this.timer = setInterval(() => {
-            let keepPoll = false;
-            this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(data => {
-                if (data.items !== null) {
-                    for (const item of data.items) {
-                        if (item.status === 'Running' || item.status === 'Failed') {
-                            continue;
-                        } else {
-                            keepPoll = true;
-                            break;
-                        }
-                    }
+            let flag = false;
+            const needPolling = ['Initializing', 'Terminating'];
+            for (const item of this.items) {
+                if (needPolling.indexOf(item.status) !== -1) {
+                    flag = true;
+                    break;
                 }
-                if (!keepPoll) {
-                    clearInterval(this.timer);
-                }
-                this.items = data.items;
-                this.total = data.total;
-            });
+            }
+            if (flag) {
+                this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(data => {
+                    this.items = data.items;
+                    this.total = data.total;
+                });
+            }
         }, 10000);
     }
 

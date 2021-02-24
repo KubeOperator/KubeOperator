@@ -319,7 +319,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 
 	var (
 		manifest model.ClusterManifest
-		toolVars []versionHelp
+		toolVars []model.VersionHelp
 	)
 	if err := tx.Where("name = ?", spec.Version).First(&manifest).Error; err != nil {
 		tx.Rollback()

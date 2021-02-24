@@ -97,11 +97,6 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	return nil
 }
 
-type versionHelp struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-}
-
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 
 	status, err := c.clusterService.GetStatus(cluster.Name)
@@ -150,7 +145,7 @@ func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID
 	var (
 		tools    []model.ClusterTool
 		manifest model.ClusterManifest
-		toolVars []versionHelp
+		toolVars []model.VersionHelp
 	)
 	if err := tx.Where("name = ?", version).First(&manifest).Error; err != nil {
 		tx.Rollback()

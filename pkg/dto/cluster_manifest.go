@@ -7,6 +7,7 @@ type ClusterManifest struct {
 	CoreVars    []NameVersion `json:"coreVars"`
 	NetworkVars []NameVersion `json:"networkVars"`
 	ToolVars    []NameVersion `json:"toolVars"`
+	StorageVars []NameVersion `json:"storageVars"`
 	OtherVars   []NameVersion `json:"otherVars"`
 }
 

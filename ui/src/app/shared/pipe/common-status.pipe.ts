@@ -21,6 +21,9 @@ export class CommonStatusPipe implements PipeTransform {
                 case 'Initializing':
                     result = this.translateService.instant('APP_STATUS_INITIALING');
                     break;
+                case 'Synchronizing':
+                    result = this.translateService.instant('APP_STATUS_SYNCHRONIZING');
+                    break;
                 case 'Creating':
                     result = this.translateService.instant('APP_STATUS_CREATING');
                     break;
