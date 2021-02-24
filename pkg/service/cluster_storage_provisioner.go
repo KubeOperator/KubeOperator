@@ -216,7 +216,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 }
 
 func (c clusterStorageProvisionerService) errCreateStorageProvisioner(clusterName string, provisioner model.ClusterStorageProvisioner, err error) {
-	log.Errorf("unmarshal provisioner.Vars error %s", err.Error())
+	log.Errorf(err.Error())
 	provisioner.Status = constant.ClusterFailed
 	provisioner.Message = err.Error()
 	_ = c.provisionerRepo.Save(clusterName, &provisioner)
