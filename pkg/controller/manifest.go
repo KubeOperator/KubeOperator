@@ -29,8 +29,8 @@ func (m *ManifestController) GetActive() ([]dto.ClusterManifest, error) {
 	return m.ManifestService.ListActive()
 }
 
-func (m *ManifestController) GetBy(version string) ([]dto.ClusterManifest, error) {
-	return m.ManifestService.ListByLargeVersion(version)
+func (m *ManifestController) GetGroup() ([]dto.ClusterManifestGroup, error) {
+	return m.ManifestService.ListByLargeVersion()
 }
 
 func (m ManifestController) PatchBy(name string) (model.ClusterManifest, error) {

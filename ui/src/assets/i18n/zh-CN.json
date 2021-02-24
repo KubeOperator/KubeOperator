@@ -61,6 +61,7 @@
   "APP_HOST_MEMORY_GB": "内存(GB)",
   "APP_HOST_DISK": "磁盘(GB)",
   "APP_GPU": "GPU(个)",
+  "APP_ARCHITECTUR": "系统架构",
   "APP_OS": "操作系统",
   "APP_STATUS": "状态",
   "APP_USER": "用户",
@@ -669,7 +670,12 @@
   "APP_YUM_REPLACE_MSG": "此操作将会对 K8S 节点服务器原始 yum repo 文件进行备份，之后生成并仅使用 KubeOperator 的 yum repo",
   "APP_YUM_COEXIST_MSG": "此操作将保持K8S节点服务器原始 yum repo 文件不变，同时生成并使用 kubeoperator 的 yum repo",
   "APP_YUM_NO_MSG": "此操作将保持使用 K8S 节点服务器原始 yum repo 文件，不对K8S节点服务器的 yum repo 做任何操作",
-  "APP_FORCE": "强制删除",
   "APP_VERSION_SELECTION": "版本选择",
-  "APP_VERSION_HELPER": "请选择版本"
+  "APP_VERSION_HELPER": "请选择版本",
+  "APP_FORCE": "强制删除",
+  "APP_POD_SUBNET_HELPER": "此项目不可与节点网络段和 Service 网络段重叠",
+  "APP_SERVICE_SUBNET_HELPER": "此项目不可与节点网络段和 Pod 网络段重叠",
+  "APP_CLUSTER_POD_MAX": "当前网络配置下，集群最大 Pod 数量为 ",
+  "APP_CLUSTER_SERVICE_MAX": "当前网络配置下，集群最大 Service 数量为 ",
+  "APP_CLUSTER_NODE_MAX": "当前网络配置下，集群最大 Node 数量为 "
 }

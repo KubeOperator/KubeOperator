@@ -21,9 +21,10 @@ export class StorageProvisionerService {
         return this.http.post<StorageProvisioner>(this.baseUrl.replace('{cluster_name}', clusterName), item);
     }
 
-    delete(clusterName: string, name: string): Observable<any> {
-        const url = this.baseUrl.replace('{cluster_name}', clusterName) + name + '/';
-        return this.http.delete<any>(url);
+    delete(clusterName: string, item: StorageProvisioner): Observable<any> {
+        const deleteUrl = '/api/v1/clusters/provisioner/delete/{cluster_name}';
+        const url = deleteUrl.replace('{cluster_name}', clusterName) ;
+        return this.http.post<any>(url, {item});
     }
 
     batch(clusterName: string, items: StorageProvisioner[]): Observable<any> {

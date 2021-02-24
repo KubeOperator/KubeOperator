@@ -75,16 +75,24 @@
         <ng-template clrPageTitle>{{"APP_CLUSTER_SETUP"|translate}}</ng-template>
         <form clrForm #setupForm='ngForm'>
             <clr-input-container>
-                <label>{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</label>
-                <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPods">
-            </clr-input-container>
-            <clr-input-container>
-                <label>Pod {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"/>
+                <label>POD {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"
+                       (change)="onPodSubnetChange();onMaxPodChange()"/>
+                <clr-control-helper>{{'APP_POD_SUBNET_HELPER'|translate}}</clr-control-helper>
+                <clr-control-helper>{{'APP_CLUSTER_POD_MAX'|translate}} {{clusterMaxPod}}</clr-control-helper>
             </clr-input-container>
             <clr-input-container>
                 <label>Service {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
+                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"
+                       (change)="onServiceSubnetChange()"/>
+                <clr-control-helper>{{'APP_SERVICE_SUBNET_HELPER'|translate}}</clr-control-helper>
+                <clr-control-helper>{{'APP_CLUSTER_SERVICE_MAX'|translate}} {{clusterMaxService}}</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>POD {{"APP_COUNT"|translate}}/{{"APP_NODE"|translate}}</label>
+                <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPods"
+                       (change)="onMaxPodChange()">
+                <clr-control-helper>{{'APP_CLUSTER_NODE_MAX'|translate}} {{clusterMaxNode}}</clr-control-helper>
             </clr-input-container>
             <clr-select-container>
                 <label>proxy {{"APP_MODE"|translate}}</label>
@@ -155,8 +163,10 @@
                     <option value="host-gw">host-gw</option>
                     <option value="vxlan">vxlan</option>
                 </select>
-                <clr-control-helper *ngIf="item.flannelBackend === 'vxlan' ">{{"APP_NETWORK_VXLAN_MSG"|translate}}</clr-control-helper>
-                <clr-control-helper *ngIf="item.flannelBackend === 'host-gw' ">{{"APP_NETWORK_HOSTGW_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper
+                        *ngIf="item.flannelBackend === 'vxlan' ">{{"APP_NETWORK_VXLAN_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper
+                        *ngIf="item.flannelBackend === 'host-gw' ">{{"APP_NETWORK_HOSTGW_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
             <clr-select-container *ngIf="item.networkType === 'calico'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
@@ -165,8 +175,10 @@
                     <option value="off">bgp</option>
                     <option value="Always">ipip</option>
                 </select>
-                <clr-control-helper *ngIf="item.calicoIpv4poolIpip == 'off'">{{"APP_NETWORK_BGP_MSG"|translate}}</clr-control-helper>
-                <clr-control-helper *ngIf="item.calicoIpv4poolIpip == 'Always'">{{"APP_NETWORK_IPIP_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper
+                        *ngIf="item.calicoIpv4poolIpip == 'off'">{{"APP_NETWORK_BGP_MSG"|translate}}</clr-control-helper>
+                <clr-control-helper
+                        *ngIf="item.calicoIpv4poolIpip == 'Always'">{{"APP_NETWORK_IPIP_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
         </form>
     </clr-wizard-page>

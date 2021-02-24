@@ -8,6 +8,11 @@ export class Manifest {
     isActive: boolean;
 }
 
+export class ManifestGroup {
+    largeVersion: string;
+    clusterManifests: Manifest [] = [];
+}
+
 export class Category {
     name: string;
     items: Item[] = [];

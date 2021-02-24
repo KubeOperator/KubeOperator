@@ -16,7 +16,7 @@ export class HostSyncComponent implements OnInit {
         private commonAlertService: CommonAlertService,
         private translateService: TranslateService,
     ){}
-    
+
     opened = false;
     hosts: Host[] = [];
     hostSyncList: HostSync[] = [];

@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_host` ADD COLUMN `architecture` VARCHAR(255) NULL;

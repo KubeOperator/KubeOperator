@@ -22,6 +22,11 @@ type NameVersion struct {
 	Version string `json:"version"`
 }
 
+type ClusterManifestGroup struct {
+	LargeVersion     string            `json:"largeVersion"`
+	ClusterManifests []ClusterManifest `json:"clusterManifests"`
+}
+
 func (c ClusterManifest) GetVars() map[string]string {
 	vars := make(map[string]string)
 	for _, v := range c.CoreVars {

@@ -16,7 +16,7 @@ type ClusterManifestService interface {
 	List() ([]dto.ClusterManifest, error)
 	ListActive() ([]dto.ClusterManifest, error)
 	Update(update dto.ClusterManifestUpdate) (model.ClusterManifest, error)
-	ListByLargeVersion(version string) ([]dto.ClusterManifest, error)
+	ListByLargeVersion() ([]dto.ClusterManifestGroup, error)
 }
 
 type clusterManifestService struct {
@@ -116,45 +116,58 @@ func (c clusterManifestService) Update(update dto.ClusterManifestUpdate) (model.
 	return manifest, err
 }
 
-func (c clusterManifestService) ListByLargeVersion(version string) ([]dto.ClusterManifest, error) {
-	var clusterManifests []dto.ClusterManifest
-	var manifests []model.ClusterManifest
-	db.DB.Model(model.ClusterManifest{}).Where("version LIKE ?", "%"+version+"%").Find(&manifests)
-	if len(manifests) == 0 {
-		return []dto.ClusterManifest{}, nil
+func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup, error) {
+
+	var clusterManifestGroups []dto.ClusterManifestGroup
+	var largeVersions []dto.ClusterManifest
+	db.DB.Raw("select distinct substring_index(version,'.',2) version from ko_cluster_manifest").Scan(&largeVersions)
+	if len(largeVersions) == 0 {
+		return []dto.ClusterManifestGroup{}, nil
 	}
-	for _, mo := range manifests {
-		var clusterManifest dto.ClusterManifest
-		clusterManifest.Name = mo.Name
-		clusterManifest.Version = mo.Version
-		clusterManifest.IsActive = mo.IsActive
-		var core []dto.NameVersion
-		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
-			log.Errorf("clusterManifestService ListActive(mo.CoreVars) json.Unmarshal failed, error: %s", err.Error())
+	for _, largeVersion := range largeVersions {
+		var clusterManifestGroup dto.ClusterManifestGroup
+		clusterManifestGroup.LargeVersion = largeVersion.Version
+		var manifests []model.ClusterManifest
+		db.DB.Model(model.ClusterManifest{}).Where("version LIKE ?", "%"+largeVersion.Version+"%").Find(&manifests)
+		if len(manifests) == 0 {
+			continue
 		}
+		var clusterManifests []dto.ClusterManifest
+		for _, mo := range manifests {
+			var clusterManifest dto.ClusterManifest
+			clusterManifest.Name = mo.Name
+			clusterManifest.Version = mo.Version
+			clusterManifest.IsActive = mo.IsActive
+			var core []dto.NameVersion
+			if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
+				log.Errorf("clusterManifestService ListActive(mo.CoreVars) json.Unmarshal failed, error: %s", err.Error())
+			}
 
-		clusterManifest.CoreVars = core
-		var network []dto.NameVersion
-		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
-			log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
+			clusterManifest.CoreVars = core
+			var network []dto.NameVersion
+			if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
+				log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
+			}
+			clusterManifest.NetworkVars = network
+
+			var tool []dto.NameVersion
+			if err := json.Unmarshal([]byte(mo.ToolVars), &tool); err != nil {
+				log.Errorf("clusterManifestService ListActive(mo.ToolVars) json.Unmarshal failed, error: %s", err.Error())
+			}
+			clusterManifest.ToolVars = tool
+
+			var other []dto.NameVersion
+			if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
+				log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
+			}
+			clusterManifest.OtherVars = other
+			clusterManifests = append(clusterManifests, clusterManifest)
 		}
-		clusterManifest.NetworkVars = network
-
-		var tool []dto.NameVersion
-		if err := json.Unmarshal([]byte(mo.ToolVars), &tool); err != nil {
-			log.Errorf("clusterManifestService ListActive(mo.ToolVars) json.Unmarshal failed, error: %s", err.Error())
-		}
-		clusterManifest.ToolVars = tool
-
-		var other []dto.NameVersion
-		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
-			log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
-		}
-		clusterManifest.OtherVars = other
-
-		clusterManifests = append(clusterManifests, clusterManifest)
+		clusterManifestGroup.ClusterManifests = sortManifest(clusterManifests)
+		clusterManifestGroups = append(clusterManifestGroups, clusterManifestGroup)
 	}
-	return sortManifest(clusterManifests), nil
+
+	return clusterManifestGroups, nil
 }
 
 func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {

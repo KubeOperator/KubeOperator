@@ -19,6 +19,7 @@ export class Host extends BaseModel {
     zoneName: string;
     message: string;
     hasGpu: boolean;
+    architecture: string;
 }
 
 export class Volume extends BaseModel {
