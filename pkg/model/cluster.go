@@ -383,7 +383,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
 	}
-	if c.Spec.Architectures != "" {
+	if c.Spec.DockerSubnet != "" {
 		result[facts.DockerSubnetFactName] = c.Spec.DockerSubnet
 	}
 	if c.Spec.HelmVersion != "" {
