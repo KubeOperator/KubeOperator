@@ -36,8 +36,8 @@ export class HostCreateRequest extends BaseRequest {
 }
 
 export class HostSync {
-    HostName: string;
-    HostStatus: string;
+    hostName: string;
+    hostStatus: string;
 }
 
 export class Project {

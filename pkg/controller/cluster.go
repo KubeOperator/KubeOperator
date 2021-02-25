@@ -167,6 +167,25 @@ func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStoragePr
 
 	return &p, nil
 }
+func (c ClusterController) PostProvisionerSyncBy(name string) error {
+	var req []dto.ClusterStorageProvisionerSync
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	if err := c.ClusterStorageProvisionerService.SyncStorageProvisioner(name, req); err != nil {
+		return err
+	}
+
+	var proStr string
+	for _, pro := range req {
+		proStr += (pro.Name + ",")
+	}
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.SYNC_CLUSTER_STORAGE_SUPPLIER, proStr)
+
+	return nil
+}
 
 func (c ClusterController) PostProvisionerDeleteBy(clusterName string) error {
 	var item dto.ClusterStorageProvisioner

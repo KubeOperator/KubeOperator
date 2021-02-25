@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -382,7 +383,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
 	}
-	if c.Spec.Architectures != "" {
+	if c.Spec.DockerSubnet != "" {
 		result[facts.DockerSubnetFactName] = c.Spec.DockerSubnet
 	}
 	if c.Spec.HelmVersion != "" {
@@ -397,6 +398,10 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.YumOperate != "" {
 		result[facts.YumRepoFactName] = c.Spec.YumOperate
 	}
+	if c.Spec.KubeNetworkNodePrefix != 0 {
+		result[facts.KubeNetworkNodePrefixFactName] = fmt.Sprint(c.Spec.KubeNetworkNodePrefix)
+	}
+
 	return result
 }
 

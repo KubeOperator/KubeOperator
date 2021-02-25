@@ -27,6 +27,7 @@ const (
 	ClusterSynchronizing = "Synchronizing"
 
 	ClusterSourceLocal    = "local"
+	ClusterNotReady       = "NotReady"
 	ClusterSourceExternal = "external"
 
 	ConditionTrue    = "True"

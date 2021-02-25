@@ -1,8 +1,11 @@
 <app-storage-provisioner-list [currentCluster]="currentCluster"
                               (createEvent)="openCreate()"
+                              (syncEvent)="openSync($event)"
                               (deleteEvent)="openDelete($event)"></app-storage-provisioner-list>
 <app-storage-provisioner-create [currentCluster]="currentCluster"
                                 (selected)="openSelected($event)"></app-storage-provisioner-create>
+<app-storage-provisioner-sync [clusterName]="currentCluster.name"
+                                (synced)="refresh()"></app-storage-provisioner-sync>
 <app-storage-provisioner-delete [currentCluster]="currentCluster"
                                 (deleted)="refresh()"></app-storage-provisioner-delete>
 <app-storage-provisioner-create-nfs [currentCluster]="currentCluster"

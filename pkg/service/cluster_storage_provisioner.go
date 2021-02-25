@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -30,6 +31,7 @@ const (
 type ClusterStorageProvisionerService interface {
 	ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error)
 	CreateStorageProvisioner(clusterName string, creation dto.ClusterStorageProvisionerCreation) (dto.ClusterStorageProvisioner, error)
+	SyncStorageProvisioner(clusterName string, syncs []dto.ClusterStorageProvisionerSync) error
 	DeleteStorageProvisioner(clusterName string, provisioner string) error
 	BatchStorageProvisioner(clusterName string, batch dto.ClusterStorageProvisionerBatch) error
 }
@@ -220,6 +222,86 @@ func (c clusterStorageProvisionerService) errCreateStorageProvisioner(clusterNam
 	provisioner.Status = constant.ClusterFailed
 	provisioner.Message = err.Error()
 	_ = c.provisionerRepo.Save(clusterName, &provisioner)
+}
+
+func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName string, provisioners []dto.ClusterStorageProvisionerSync) error {
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 2)
+	for _, provisioner := range provisioners {
+		if provisioner.Status == constant.ClusterInitializing || provisioner.Status == constant.ClusterTerminating {
+			continue
+		}
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).Update("status", constant.ClusterSynchronizing).Error; err != nil {
+			log.Errorf("update host status to synchronizing error: %s", err.Error())
+		}
+
+		wg.Add(1)
+		go func(provisioner dto.ClusterStorageProvisionerSync) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			log.Infof("gather provisioner [%s] info", provisioner.Name)
+			if err := c.sync(clusterName, provisioner); err != nil {
+				log.Errorf("gather provisioner info error: %s", err.Error())
+				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
+					Updates(map[string]interface{}{
+						"status":  constant.ClusterFailed,
+						"message": err.Error(),
+					}).Error; err != nil {
+					log.Errorf("update host status to failed error: %s", err.Error())
+				}
+			} else {
+				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
+					Updates(map[string]interface{}{"status": constant.ClusterRunning}).Error; err != nil {
+					log.Errorf("update host status to running error: %s", err.Error())
+				}
+			}
+		}(provisioner)
+	}
+	return nil
+}
+
+func (c clusterStorageProvisionerService) sync(clusterName string, provisioner dto.ClusterStorageProvisionerSync) error {
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return err
+	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
+		Token: secret.KubernetesToken,
+		Hosts: endpoints,
+	})
+	if err != nil {
+		return err
+	}
+	switch provisioner.Type {
+	case "external-ceph":
+		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "external-ceph", metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "nfs":
+		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), provisioner.Name, metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "vsphere":
+		_, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "vsphere-csi-controller", metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "rook-ceph":
+		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	case "oceanstor":
+		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "huawei-csi-controller", metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
