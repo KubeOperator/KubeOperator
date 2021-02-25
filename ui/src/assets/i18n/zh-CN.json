@@ -677,5 +677,6 @@
   "APP_SERVICE_SUBNET_HELPER": "此项目不可与节点网络段和 Pod 网络段重叠",
   "APP_CLUSTER_POD_MAX": "当前网络配置下，集群最大 Pod 数量为 ",
   "APP_CLUSTER_SERVICE_MAX": "当前网络配置下，集群最大 Service 数量为 ",
-  "APP_CLUSTER_NODE_MAX": "当前网络配置下，集群最大 Node 数量为 "
+  "APP_CLUSTER_NODE_MAX": "当前网络配置下，集群最大 Node 数量为 ",
+  "APP_PROVISIONER_DELETE_WARNING": "rook-ceph节点没办法通过KubeOperator删除,原因:https://rook.io/docs/rook/v1.5/ceph-teardown.html"
 }

@@ -30,8 +30,8 @@ export class StorageProvisionerDeleteComponent implements OnInit {
     }
 
     open(items: StorageProvisioner[]) {
-        this.opened = true;
         this.items = items;
+        this.opened = true;
     }
 
     onSubmit() {
