@@ -677,5 +677,9 @@
   "APP_SERVICE_SUBNET_HELPER": "此项目不可与节点网络段和 Pod 网络段重叠",
   "APP_CLUSTER_POD_MAX": "当前网络配置下，集群最大 Pod 数量为 ",
   "APP_CLUSTER_SERVICE_MAX": "当前网络配置下，集群最大 Service 数量为 ",
-  "APP_CLUSTER_NODE_MAX": "当前网络配置下，集群最大 Node 数量为 "
+  "APP_CLUSTER_NODE_MAX": "当前网络配置下，集群最大 Node 数量为 ",
+  "APP_NUM_LIMIT": "数量上限",
+  "APP_CIDR_HELPER": "CIDR不能与目标IP段重叠， 否则会造成初始化失败",
+  "APP_CONTAINER": "容器",
+  "APP_MAX_NODES_HELPLER": "当前容器网络配置下，集群最多拥有"
 }

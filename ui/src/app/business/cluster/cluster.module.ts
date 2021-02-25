@@ -49,35 +49,35 @@ import {RegistryListComponent} from './cluster-detail/repository/registry/regist
 import {ToolsEnableComponent} from './cluster-detail/tools/tools-enable/tools-enable.component';
 import {ToolsUpgradeComponent} from './cluster-detail/tools/tools-upgrade/tools-upgrade.component';
 import {NotReadyComponent} from './cluster-detail/not-ready/not-ready.component';
-import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-failed.component';
-import { NodeCreateComponent } from './cluster-detail/node/node-create/node-create.component';
-import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
-import { NodeStatusComponent } from './cluster-detail/node/node-status/node-status.component';
-import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
-import { StorageProvisionerCreateExternalCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
-import { StorageProvisionerCreateRookCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
-import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
-import { BackupComponent } from './cluster-detail/backup/backup.component';
+import {ToolsFailedComponent} from './cluster-detail/tools/tools-failed/tools-failed.component';
+import {NodeCreateComponent} from './cluster-detail/node/node-create/node-create.component';
+import {NodeDeleteComponent} from './cluster-detail/node/node-delete/node-delete.component';
+import {NodeStatusComponent} from './cluster-detail/node/node-status/node-status.component';
+import {WebkubectlComponent} from './cluster-detail/overview/webkubectl/webkubectl.component';
+import {StorageProvisionerCreateExternalCephComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
+import {StorageProvisionerCreateRookCephComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
+import {StorageProvisionerCreateVsphereComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
+import {BackupComponent} from './cluster-detail/backup/backup.component';
 import {BackupModule} from './cluster-detail/backup/backup.module';
-import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tools-disable.component';
-import { PersistentVolumeCreateLocalStorageComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component';
-import { SecurityComponent } from './cluster-detail/security/security.component';
-import { SecurityTaskListComponent } from './cluster-detail/security/security-task-list/security-task-list.component';
-import { SecurityTaskCreateComponent } from './cluster-detail/security/security-task-create/security-task-create.component';
-import { SecurityTaskDetailComponent } from './cluster-detail/security/security-task-detail/security-task-detail.component';
-import { SecurityTaskDeleteComponent } from './cluster-detail/security/security-task-delete/security-task-delete.component';
-import { EventComponent } from './cluster-detail/event/event.component';
-import { ClusterUpgradeComponent } from './cluster-upgrade/cluster-upgrade.component';
-import { ClusterLoggerComponent } from './cluster-logger/cluster-logger.component';
-import { ClusterGradeComponent } from './cluster-detail/cluster-grade/cluster-grade.component';
+import {ToolsDisableComponent} from './cluster-detail/tools/tools-disable/tools-disable.component';
+import {PersistentVolumeCreateLocalStorageComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component';
+import {SecurityComponent} from './cluster-detail/security/security.component';
+import {SecurityTaskListComponent} from './cluster-detail/security/security-task-list/security-task-list.component';
+import {SecurityTaskCreateComponent} from './cluster-detail/security/security-task-create/security-task-create.component';
+import {SecurityTaskDetailComponent} from './cluster-detail/security/security-task-detail/security-task-detail.component';
+import {SecurityTaskDeleteComponent} from './cluster-detail/security/security-task-delete/security-task-delete.component';
+import {EventComponent} from './cluster-detail/event/event.component';
+import {ClusterUpgradeComponent} from './cluster-upgrade/cluster-upgrade.component';
+import {ClusterLoggerComponent} from './cluster-logger/cluster-logger.component';
+import {ClusterGradeComponent} from './cluster-detail/cluster-grade/cluster-grade.component';
 import {NgxEchartsModule} from 'ngx-echarts';
-import { NamespaceDeleteComponent } from './cluster-detail/namespace/namespace-delete/namespace-delete.component';
-import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-create/namespace-create.component';
-import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
-import { F5Component } from './cluster-detail/f5/f5.component';
-import { ClusterHealthCheckComponent } from './cluster-health-check/cluster-health-check.component';
-import { StorageClassDeleteComponent } from './cluster-detail/storage/storage-class/storage-class-delete/storage-class-delete.component';
-import { PersistentVolumeDeleteComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-delete/persistent-volume-delete.component';
+import {NamespaceDeleteComponent} from './cluster-detail/namespace/namespace-delete/namespace-delete.component';
+import {NamespaceCreateComponent} from './cluster-detail/namespace/namespace-create/namespace-create.component';
+import {StorageProvisionerCreateOceanStorComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
+import {F5Component} from './cluster-detail/f5/f5.component';
+import {ClusterHealthCheckComponent} from './cluster-health-check/cluster-health-check.component';
+import {StorageClassDeleteComponent} from './cluster-detail/storage/storage-class/storage-class-delete/storage-class-delete.component';
+import {PersistentVolumeDeleteComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-delete/persistent-volume-delete.component';
 
 
 @NgModule({
@@ -85,7 +85,7 @@ import { PersistentVolumeDeleteComponent } from './cluster-detail/storage/persis
         OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent,
         StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent,
         NodeListComponent, NodeDetailComponent, PersistentVolumeClaimListComponent,
-        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent,IstioListComponent,IstioDisableComponent,
+        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent, IstioListComponent, IstioDisableComponent,
         MonitorComponent, MonitorDashboardComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,

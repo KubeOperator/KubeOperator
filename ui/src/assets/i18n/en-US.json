@@ -672,5 +672,9 @@
   "APP_CLUSTER_NODE_MAX": "Under the current network configuration, the maximum number of cluster nodes is",
   "APP_FORCE": "Force",
   "APP_VERSION_SELECTION": "Version selection",
-  "APP_VERSION_HELPER": "Please select version"
+  "APP_VERSION_HELPER": "Please select version",
+  "APP_NUM_LIMIT": "Num limit",
+  "APP_CIDR_HELPER": "CIDR cannot overlap with the target IP segment, otherwise initialization will fail",
+  "APP_CONTAINER": "Container",
+  "APP_MAX_NODES_HELPLER": "Under the current container network configuration, the cluster has a maximum of"
 }
