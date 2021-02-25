@@ -22,6 +22,7 @@ export class StorageProvisionerListComponent implements OnInit {
     detailItem: StorageProvisioner = new StorageProvisioner();
     @Output() createEvent = new EventEmitter();
     @Output() deleteEvent = new EventEmitter();
+    @Output() syncEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
 
     ngOnInit(): void {
@@ -41,6 +42,10 @@ export class StorageProvisionerListComponent implements OnInit {
         this.deleteEvent.emit(this.selected);
     }
 
+    onSync() {
+        this.syncEvent.emit(this.selected);
+    }
+
     refresh() {
         this.loading = true;
         this.service.list(this.currentCluster.name).subscribe(data => {
@@ -56,7 +61,7 @@ export class StorageProvisionerListComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             let flag = false;
-            const needPolling = ['Initializing', 'Terminating'];
+            const needPolling = ['Initializing', 'Terminating', 'Synchronizing'];
             for (const item of this.items) {
                 if (needPolling.indexOf(item.status) !== -1) {
                     flag = true;

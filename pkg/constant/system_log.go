@@ -29,6 +29,7 @@ const (
 
 	CREATE_CLUSTER_STORAGE_SUPPLIER = "添加集群存储供应商|Create cluster storage vendor"
 	DELETE_CLUSTER_STORAGE_SUPPLIER = "删除集群存储供应商|Delete cluster storage vendor"
+	SYNC_CLUSTER_STORAGE_SUPPLIER   = "同步集群存储供应商|Sync cluster storage vendor"
 	CREATE_CLUSTER_PVC              = "添加集群持久卷|Create cluster pvc"
 	DELETE_CLUSTER_PVC              = "删除集群持久卷|Delete cluster pvc"
 

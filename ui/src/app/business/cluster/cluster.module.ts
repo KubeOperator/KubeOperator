@@ -37,6 +37,7 @@ import {PersistentVolumeCreateHostPathComponent} from './cluster-detail/storage/
 import {StorageProvisionerComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 import {StorageProvisionerListComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-list/storage-provisioner-list.component';
 import {StorageProvisionerCreateComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create.component';
+import {StorageProvisionerSyncComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-sync/storage-provisioner-sync.component';
 import {StorageProvisionerCreateNfsComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
 import {StorageProvisionerDeleteComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-delete/storage-provisioner-delete.component';
 import {ToolsComponent} from './cluster-detail/tools/tools.component';
@@ -94,6 +95,7 @@ import {PersistentVolumeDeleteComponent} from './cluster-detail/storage/persiste
         StorageProvisionerComponent,
         StorageProvisionerListComponent,
         StorageProvisionerCreateComponent,
+        StorageProvisionerSyncComponent,
         StorageProvisionerCreateNfsComponent,
         StorageProvisionerDeleteComponent,
         ToolsComponent,
