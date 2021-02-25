@@ -413,6 +413,32 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 		if err != nil && checkError(err) {
 			return err
 		}
+	case "vsphere":
+		contextTo := context.TODO()
+		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "vsphere-csi-controller-binding", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "vsphere-csi-controller-role", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().StatefulSets("kube-system").Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.StorageV1().CSIDrivers().Delete(contextTo, "csi.vsphere.vmware.com", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "vsphere-csi-node", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
 	}
 	return nil
 }
