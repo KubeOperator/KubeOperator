@@ -2,6 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
 import {StorageProvisionerListComponent} from './storage-provisioner-list/storage-provisioner-list.component';
+import {StorageProvisionerSyncComponent} from './storage-provisioner-sync/storage-provisioner-sync.component';
 import {StorageProvisionerCreateComponent} from './storage-provisioner-create/storage-provisioner-create.component';
 import {StorageProvisionerCreateNfsComponent} from './storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
 import {CreateStorageProvisionerRequest, StorageProvisioner} from './storage-provisioner';
@@ -29,6 +30,9 @@ export class StorageProvisionerComponent implements OnInit {
 
     @ViewChild(StorageProvisionerDeleteComponent, {static: true})
     delete: StorageProvisionerDeleteComponent;
+
+    @ViewChild(StorageProvisionerSyncComponent, {static: true})
+    sync: StorageProvisionerSyncComponent;
 
     @ViewChild(StorageProvisionerCreateNfsComponent, {static: true})
     nfs: StorageProvisionerCreateNfsComponent;
@@ -78,6 +82,10 @@ export class StorageProvisionerComponent implements OnInit {
                 this.oceanStor.open(item);
                 break;
         }
+    }
+
+    openSync (items: StorageProvisioner[]) {
+        this.sync.open(items);
     }
 
     refresh() {

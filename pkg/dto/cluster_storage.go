@@ -13,6 +13,12 @@ type ClusterStorageProvisionerCreation struct {
 	Vars map[string]interface{} `json:"vars"`
 }
 
+type ClusterStorageProvisionerSync struct {
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Status string `json:"status"`
+}
+
 type ClusterStorageProvisionerBatch struct {
 	Items     []ClusterStorageProvisioner `json:"items"`
 	Operation string                      `json:"operation"`

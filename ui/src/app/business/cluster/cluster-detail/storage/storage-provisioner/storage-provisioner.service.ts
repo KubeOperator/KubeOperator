@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {CreateStorageProvisionerRequest, StorageProvisioner} from './storage-provisioner';
+import {CreateStorageProvisionerRequest, ProvisionerSync, StorageProvisioner} from './storage-provisioner';
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +19,12 @@ export class StorageProvisionerService {
 
     create(clusterName: string, item: CreateStorageProvisionerRequest): Observable<StorageProvisioner> {
         return this.http.post<StorageProvisioner>(this.baseUrl.replace('{cluster_name}', clusterName), item);
+    }
+
+    syncList(clusterName: string, hosts: ProvisionerSync[]): Observable<any> {
+        const syncUrl = '/api/v1/clusters/provisioner/sync/{cluster_name}';
+        const url = syncUrl.replace('{cluster_name}', clusterName) ;
+        return this.http.post<ProvisionerSync[]>(url, hosts);
     }
 
     delete(clusterName: string, item: StorageProvisioner): Observable<any> {

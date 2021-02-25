@@ -1,9 +1,9 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
     <h3 class="modal-title">{{'APP_SYNC'|translate}}</h3>
     <div class="modal-body modal-height">
-        <span style="font-size: 15px;">{{'APP_HOST_SYNC_ENSURE'|translate}}</span>
-        <ul style="margin-left: 20%;" *ngFor="let host of hostSyncList">
-          <li>{{host.hostName}}</li>
+        <span style="font-size: 15px;">{{'APP_PROVISIONER_SYNC_ENSURE'|translate}}</span>
+        <ul style="margin-left: 20%;" *ngFor="let host of provisionerList">
+          <li>{{host.name}}  ({{host.type}})</li>
         </ul>
     </div>
     <div class="modal-footer">
