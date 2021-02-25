@@ -37,7 +37,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
     polling() {
         this.timer = setInterval(() => {
             let flag = false;
-            const needPolling = ['Initializing', 'Creating'];
+            const needPolling = ['Initializing', 'Creating', 'Synchronizing'];
             for (const item of this.items) {
                 if (needPolling.indexOf(item.status) !== -1) {
                     flag = true;
@@ -45,7 +45,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
                 }
             }
             if (flag) {
-                this.hostService.list().subscribe(data => {
+                this.hostService.page(this.page, this.size).subscribe(data => {
                     data.items.forEach(n => {
                         this.items.forEach(item => {
                             if (item.name === n.name) {
@@ -69,7 +69,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
                     });
                 });
             }
-        }, 5000);
+        }, 10000);
     }
 
     ngOnDestroy() {

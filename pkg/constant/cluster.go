@@ -23,9 +23,11 @@ const (
 	ClusterLogStatusRunning = "RUNNING"
 
 	// 表示创建资源
-	ClusterCreating = "Creating"
+	ClusterCreating      = "Creating"
+	ClusterSynchronizing = "Synchronizing"
 
 	ClusterSourceLocal    = "local"
+	ClusterNotReady       = "NotReady"
 	ClusterSourceExternal = "external"
 
 	ConditionTrue    = "True"

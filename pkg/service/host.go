@@ -169,11 +169,16 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 
 func (h hostService) SyncList(hosts []dto.HostSync) error {
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 2) // 信号量
+	sem := make(chan struct{}, 2)
 	for _, host := range hosts {
-		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.Initializing {
+		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.ClusterInitializing || host.HostStatus == constant.ClusterSynchronizing {
 			continue
 		}
+		// 先更新所有待同步主机状态
+		if err := db.DB.Model(&model.Host{}).Where("name = ?", host.HostName).Update("status", constant.ClusterSynchronizing).Error; err != nil {
+			log.Errorf("update host status to synchronizing error: %s", err.Error())
+		}
+
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -186,26 +191,27 @@ func (h hostService) SyncList(hosts []dto.HostSync) error {
 			}
 		}(host.HostName)
 	}
-
 	return nil
 }
 
 func (h hostService) Sync(name string) (dto.Host, error) {
 	host, err := h.hostRepo.Get(name)
 	if err != nil {
+		log.Errorf("host of %s not found error: %s", name, err.Error())
 		return dto.Host{Host: host}, err
 	}
-	err = h.GetHostConfig(&host)
-	if err != nil {
+	if err := h.GetHostConfig(&host); err != nil {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
-		if err := syncHostInfo(&host); err != nil {
+		if err := syncHostInfoWithDB(&host); err != nil {
+			log.Errorf("update host info error: %s", err.Error())
 			return dto.Host{Host: host}, err
 		}
 		return dto.Host{Host: host}, err
 	}
 	host.Status = constant.ClusterRunning
-	if err := syncHostInfo(&host); err != nil {
+	if err := syncHostInfoWithDB(&host); err != nil {
+		log.Errorf("update host info error: %s", err.Error())
 		return dto.Host{Host: host}, err
 	}
 	return dto.Host{Host: host}, nil
@@ -252,13 +258,16 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		host.GpuNum = 0
 	}
 	host.GpuNum = strings.Count(result, "NVIDIA")
+	if host.GpuNum == 0 {
+		host.HasGpu = false
+		host.GpuInfo = ""
+	}
 	if host.GpuNum > 0 {
 		host.HasGpu = true
 		s := strings.Index(result, "[")
 		t := strings.Index(result, "]")
 		host.GpuInfo = result[s+1 : t]
 	}
-	_ = syncHostInfo(host)
 	return err
 }
 
@@ -524,7 +533,7 @@ func (h hostService) ImportHosts(file []byte) error {
 	}
 }
 
-func syncHostInfo(host *model.Host) error {
+func syncHostInfoWithDB(host *model.Host) error {
 	tx := db.DB.Begin()
 	if host.Name == "" {
 		return nil
@@ -548,14 +557,9 @@ func syncHostInfo(host *model.Host) error {
 			}
 		}
 	}
-	var ip model.Ip
-	tx.Where(&model.Ip{Address: host.Ip}).First(&ip)
-	if ip.ID != "" && ip.Status != constant.IpUsed {
-		ip.Status = constant.IpUsed
-		if err := tx.Save(&ip).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
+	if err := tx.Model(&model.Ip{}).Where("address = ?", host.Ip).Update("status", constant.IpUsed).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 	if err := tx.Model(&model.Host{}).Where(&model.Host{ID: host.ID}).
 		Updates(map[string]interface{}{

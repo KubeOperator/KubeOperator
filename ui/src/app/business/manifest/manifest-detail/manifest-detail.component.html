@@ -38,6 +38,18 @@
             </table>
         </div>
         <div>
+            <h5>storage</h5>
+            <hr>
+            <table class="table table-vertical">
+                <tbody>
+                <tr *ngFor="let nameVersion of item.storageVars">
+                    <th style="width: 50%;">{{nameVersion.name}}</th>
+                    <td>{{nameVersion.version}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
             <h5>other</h5>
             <hr>
             <table class="table table-vertical">

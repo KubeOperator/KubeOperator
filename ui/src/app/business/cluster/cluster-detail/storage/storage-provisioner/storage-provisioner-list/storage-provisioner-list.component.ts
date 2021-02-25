@@ -22,6 +22,7 @@ export class StorageProvisionerListComponent implements OnInit {
     detailItem: StorageProvisioner = new StorageProvisioner();
     @Output() createEvent = new EventEmitter();
     @Output() deleteEvent = new EventEmitter();
+    @Output() syncEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
 
     ngOnInit(): void {
@@ -33,26 +34,24 @@ export class StorageProvisionerListComponent implements OnInit {
         clearInterval(this.timer);
     }
 
-    list() {
+    onCreate() {
+        this.createEvent.emit();
+    }
+
+    onDelete() {
+        this.deleteEvent.emit(this.selected);
+    }
+
+    onSync() {
+        this.syncEvent.emit(this.selected);
+    }
+
+    refresh() {
         this.loading = true;
         this.service.list(this.currentCluster.name).subscribe(data => {
             this.items = data;
             this.loading = false;
         });
-    }
-
-    onCreate() {
-        this.createEvent.emit();
-        clearInterval(this.timer);
-    }
-
-    onDelete() {
-        this.deleteEvent.emit(this.selected);
-        clearInterval(this.timer);
-    }
-
-    refresh() {
-        this.list();
     }
 
     onShowLogger(item: StorageProvisioner) {
@@ -61,8 +60,20 @@ export class StorageProvisionerListComponent implements OnInit {
 
     polling() {
         this.timer = setInterval(() => {
-            this.refresh();
-        }, 20000);
+            let flag = false;
+            const needPolling = ['Initializing', 'Terminating', 'Synchronizing'];
+            for (const item of this.items) {
+                if (needPolling.indexOf(item.status) !== -1) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                this.service.list(this.currentCluster.name).subscribe(data => {
+                    this.items = data;
+                });
+            }
+        }, 10000);
     }
 
     openMessage(item) {

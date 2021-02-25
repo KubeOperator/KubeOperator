@@ -33,6 +33,7 @@ type ClusterSpec struct {
 	NetworkInterface      string `json:"networkInterface"`
 	SupportGpu            string `json:"supportGpu"`
 	YumOperate            string `json:"yumOperate"`
+	KubeNetworkNodePrefix int    `json:"kubeNetworkNodePrefix"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {

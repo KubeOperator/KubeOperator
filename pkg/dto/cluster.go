@@ -50,9 +50,6 @@ type ClusterCreate struct {
 	ContainerdStorageDIr  string       `json:"containerdStorageDIr"`
 	FlannelBackend        string       `json:"flannelBackend"`
 	CalicoIpv4poolIpip    string       `json:"calicoIpv4PoolIpip"`
-	KubePodSubnet         string       `json:"kubePodSubnet"`
-	KubeServiceSubnet     string       `json:"kubeServiceSubnet"`
-	KubeMaxPods           int          `json:"kubeMaxPods"`
 	KubeProxyMode         string       `json:"kubeProxyMode"`
 	IngressControllerType string       `json:"ingressControllerType"`
 	Architectures         string       `json:"architectures"`
@@ -64,6 +61,9 @@ type ClusterCreate struct {
 	NetworkInterface      string       `json:"networkInterface"`
 	SupportGpu            string       `json:"supportGpu"`
 	YumOperate            string       `json:"yumOperate"`
+	ClusterCIDR           string       `json:"clusterCidr"`
+	MaxClusterServiceNum  int          `json:"maxClusterServiceNum"`
+	MaxNodePodNum         int          `json:"maxNodePodNum"`
 }
 
 type ClusterBatch struct {

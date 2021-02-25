@@ -50,7 +50,7 @@
         <clr-dg-cell>{{item.os}} {{item.osVersion}}</clr-dg-cell>
         <clr-dg-cell>{{item.architecture}}</clr-dg-cell>
         <clr-dg-cell>
-            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing'">
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Synchronizing'">
                 Loading...
             </clr-spinner>
             <span *ngIf="item.status === 'Failed'">

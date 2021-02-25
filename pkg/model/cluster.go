@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -64,10 +65,6 @@ func (c Cluster) BeforeDelete() error {
 			tx.Rollback()
 			return err
 		}
-		if err := tx.Delete(&ClusterStatusCondition{ClusterStatusID: cluster.StatusID}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
 	}
 	if cluster.SecretID != "" {
 		if err := tx.Delete(&ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
@@ -127,13 +124,18 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
-	if err := tx.Where(&CisTask{ClusterID: c.ID}).Delete(&CisTask{}).Error; err != nil {
+	var cisTasks []CisTask
+	if err := tx.Where(CisTask{ClusterID: c.ID}).Find(&cisTasks).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Where(&CisTaskResult{ClusterID: c.ID}).Delete(&CisTaskResult{}).Error; err != nil {
-		tx.Rollback()
-		return err
+	if len(cisTasks) > 0 {
+		for _, task := range cisTasks {
+			if err := tx.Delete(&task).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
 	}
 
 	if err := tx.Where(&ClusterStorageProvisioner{ClusterID: c.ID}).Delete(&ClusterStorageProvisioner{}).Error; err != nil {
@@ -396,6 +398,10 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.YumOperate != "" {
 		result[facts.YumRepoFactName] = c.Spec.YumOperate
 	}
+	if c.Spec.KubeNetworkNodePrefix != 0 {
+		result[facts.KubeNetworkNodePrefixFactName] = fmt.Sprint(c.Spec.KubeNetworkNodePrefix)
+	}
+
 	return result
 }
 

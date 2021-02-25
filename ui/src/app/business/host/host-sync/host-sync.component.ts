@@ -31,8 +31,8 @@ export class HostSyncComponent implements OnInit {
         this.hosts = items;
         this.hostSyncList = this.hosts.map(function (item) {
             let hostItem = new HostSync;
-            hostItem.HostName = item.name;
-            hostItem.HostStatus = item.status;
+            hostItem.hostName = item.name;
+            hostItem.hostStatus = item.status;
             return hostItem;
         })
         this.opened = true;
@@ -48,7 +48,7 @@ export class HostSyncComponent implements OnInit {
             this.isSubmitGoing = false;
             this.opened = false;
             this.sync.emit();
-            this.commonAlertService.showAlert(this.translateService.instant('APP_SYNC_START_SUCCESS'), AlertLevels.SUCCESS);
+            this.commonAlertService.showAlert(this.translateService.instant('APP_HOST_SYNC_START_SUCCESS'), AlertLevels.SUCCESS);
         })
     }
 }

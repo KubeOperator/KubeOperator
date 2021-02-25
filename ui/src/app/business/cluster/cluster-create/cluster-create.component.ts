@@ -9,7 +9,6 @@ import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from '../../manifest/manifest.service';
-import * as ipaddr from 'ipaddr.js';
 
 
 @Component({
@@ -34,9 +33,14 @@ export class ClusterCreateComponent implements OnInit {
     nameChecking = false;
     helmVersions: string[] = [];
 
-    clusterMaxPod = 0;
-    clusterMaxService = 0;
-    clusterMaxNode = 0;
+
+    part1Options = ['192', '172', '10'];
+    part2Options = [];
+    part3Options = [];
+    parts = ['192', '168', '0', '0', '16'];
+    maskOptions = [];
+    maxNodesNum = 255;
+
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
     @ViewChild('basicForm') basicForm: NgForm;
@@ -50,11 +54,90 @@ export class ClusterCreateComponent implements OnInit {
                 private manifestService: ManifestService) {
     }
 
+
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
         });
+
     }
+
+
+    onPart1Change() {
+        switch (this.parts[0]) {
+            case '192':
+                this.part2Options = ['168'];
+                this.maskOptions = [].concat(['16', '17', '18', '19']);
+                this.parts[4] = this.maskOptions[0];
+                break;
+            case '172':
+                const selects1 = [];
+                for (let i = 16; i < 32; i++) {
+                    if (i !== 17) {
+                        selects1.push(i + '');
+                    }
+                }
+                this.part2Options = selects1;
+                this.parts[1] = this.part2Options[0];
+                this.maskOptions = [].concat(['16', '17', '18', '19']);
+                this.parts[4] = this.maskOptions[0];
+                break;
+            case '10':
+                this.parts[1] = this.part2Options[0];
+                this.maskOptions = [].concat(['14', '15', '16', '17', '18', '19']);
+                this.parts[4] = this.maskOptions[0];
+                break;
+        }
+        this.onMaskChange();
+    }
+
+    onMaskChange() {
+        const mask = Number(this.parts[4]);
+        if (this.parts[0] === '192' || this.parts[0] === '172') {
+            const a = Math.pow(2, (32 - mask - 8));
+            const selects = [];
+            for (let i = 0; i < 256; i += a) {
+                selects.push(i);
+            }
+            this.part3Options = selects;
+            this.parts[2] = this.part3Options[0];
+        }
+        if (this.parts[0] === '10') {
+            if (mask < 16) {
+                const a = Math.pow(2, (32 - mask - 16));
+                const selects = [];
+                for (let i = 0; i < 256; i += a) {
+                    selects.push(i);
+                }
+                this.part2Options = selects;
+                this.parts[1] = this.part2Options[0];
+
+            } else {
+                const select1 = [];
+                for (let i = 0; i < 256; i++) {
+                    select1.push(i);
+                }
+                this.part2Options = select1;
+                this.parts[1] = this.part2Options[0];
+                const a = Math.pow(2, (32 - mask - 8));
+                const selects = [];
+                for (let i = 0; i < 256; i += a) {
+                    selects.push(i);
+                }
+                this.part3Options = selects;
+                this.parts[2] = this.part3Options[0];
+            }
+        }
+        this.getNodeNum();
+    }
+
+
+    getNodeNum() {
+        this.item.clusterCidr = this.releaseCidr();
+        // tslint:disable-next-line:max-line-length
+        this.maxNodesNum = Math.pow(2, 32 - Number(this.parts[4])) / this.item.maxNodePodNum - Math.ceil(this.item.maxClusterServiceNum / this.item.maxNodePodNum);
+    }
+
 
     reset() {
         this.wizard.reset();
@@ -67,6 +150,13 @@ export class ClusterCreateComponent implements OnInit {
         this.nameValid = true;
         this.nameChecking = false;
         this.helmVersions = ['v3', 'v2'];
+        this.part1Options = ['192', '172', '10'];
+        this.part2Options = [];
+        this.part3Options = [];
+        this.parts = ['192', '168', '0', '0', '16'];
+        this.maskOptions = [];
+        this.maxNodesNum = 255;
+
     }
 
     setDefaultValue() {
@@ -77,14 +167,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.containerdStorageDir = '/var/lib/containerd';
         this.item.flannelBackend = 'vxlan';
         this.item.calicoIpv4poolIpip = 'Always';
-        this.item.kubePodSubnet = '10.244.0.0/18';
-        this.item.kubeServiceSubnet = '10.244.64.0/18';
         this.item.dockerSubnet = '172.17.0.1/16';
-        this.clusterMaxPod = 16383;
-        this.clusterMaxService = 16383;
-        this.clusterMaxNode = 149;
-        this.item.kubeMaxPods = 110;
-        this.item.certsExpired = 36500;
         this.item.kubernetesAudit = 'no';
         this.item.kubeProxyMode = 'iptables';
         this.item.ingressControllerType = 'nginx';
@@ -94,6 +177,10 @@ export class ClusterCreateComponent implements OnInit {
         this.item.helmVersion = 'v3';
         this.item.supportGpu = 'disable';
         this.item.yumOperate = 'replace';
+        this.item.clusterCidr = '192.168.0.0/16';
+        this.item.maxNodePodNum = 256;
+        this.item.maxClusterServiceNum = 256;
+        this.onPart1Change();
     }
 
     onNameCheck() {
@@ -109,7 +196,6 @@ export class ClusterCreateComponent implements OnInit {
         }, 1000);
 
     }
-
 
     open() {
         this.reset();
@@ -231,33 +317,8 @@ export class ClusterCreateComponent implements OnInit {
         return hostName;
     }
 
-    onPodSubnetChange() {
-        if (this.item.kubePodSubnet) {
-            const addrs = this.item.kubePodSubnet.split('/');
-            const mask = addrs[1];
-            this.clusterMaxPod = this.networkLength(Number(mask));
-            return;
-        }
-        this.clusterMaxPod = 0;
-    }
-
-    onServiceSubnetChange() {
-        if (this.item.kubeServiceSubnet) {
-            const addrs = this.item.kubeServiceSubnet.split('/');
-            const mask = addrs[1];
-            this.clusterMaxService = this.networkLength(Number(mask));
-            return;
-        }
-        this.clusterMaxService = 0;
-    }
-
-    onMaxPodChange() {
-        this.clusterMaxNode = Math.ceil(this.clusterMaxPod / this.item.kubeMaxPods);
-    }
-
-
-    networkLength(c: number) {
-        return Math.pow(2, 32 - c) - 1;
+    releaseCidr() {
+        return this.parts[0] + '.' + this.parts[1] + '.' + this.parts[2] + '.' + this.parts[3] + '/' + this.parts[4];
     }
 
 

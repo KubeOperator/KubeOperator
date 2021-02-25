@@ -1,12 +1,13 @@
 package job
 
 import (
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	"sync"
 )
 
 var log = logger.Default
@@ -27,7 +28,7 @@ func (r *RefreshHostInfo) Run() {
 	sem := make(chan struct{}, 2) // 信号量
 	db.DB.Model(&model.Host{}).Find(&hosts)
 	for _, host := range hosts {
-		if host.Status == constant.ClusterCreating || host.Status == constant.Initializing {
+		if host.Status == constant.ClusterCreating || host.Status == constant.ClusterInitializing || host.Status == constant.ClusterSynchronizing {
 			continue
 		}
 		wg.Add(1)

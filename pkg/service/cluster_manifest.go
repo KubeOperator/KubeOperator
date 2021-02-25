@@ -59,6 +59,12 @@ func (c clusterManifestService) List() ([]dto.ClusterManifest, error) {
 		}
 		clusterManifest.ToolVars = tool
 
+		var storage []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.StorageVars), &storage); err != nil {
+			return clusterManifests, err
+		}
+		clusterManifest.StorageVars = storage
+
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
 			return clusterManifests, err
@@ -155,6 +161,12 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 				log.Errorf("clusterManifestService ListActive(mo.ToolVars) json.Unmarshal failed, error: %s", err.Error())
 			}
 			clusterManifest.ToolVars = tool
+
+			var storage []dto.NameVersion
+			if err := json.Unmarshal([]byte(mo.StorageVars), &storage); err != nil {
+				log.Errorf("clusterManifestService ListActive(mo.StorageVars) json.Unmarshal failed, error: %s", err.Error())
+			}
+			clusterManifest.StorageVars = storage
 
 			var other []dto.NameVersion
 			if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {

@@ -14,3 +14,9 @@ export class CreateStorageProvisionerRequest {
     type: string;
     vars: {} = {};
 }
+
+export class ProvisionerSync {
+    name: string;
+    type: string;
+    status: string;
+}

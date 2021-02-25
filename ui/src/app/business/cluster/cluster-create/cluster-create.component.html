@@ -74,26 +74,62 @@
     <clr-wizard-page [clrWizardPageNextDisabled]="setupForm.invalid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_SETUP"|translate}}</ng-template>
         <form clrForm #setupForm='ngForm'>
-            <clr-input-container>
-                <label>POD {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"
-                       (change)="onPodSubnetChange();onMaxPodChange()"/>
-                <clr-control-helper>{{'APP_POD_SUBNET_HELPER'|translate}}</clr-control-helper>
-                <clr-control-helper>{{'APP_CLUSTER_POD_MAX'|translate}} {{clusterMaxPod}}</clr-control-helper>
-            </clr-input-container>
-            <clr-input-container>
-                <label>Service {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"
-                       (change)="onServiceSubnetChange()"/>
-                <clr-control-helper>{{'APP_SERVICE_SUBNET_HELPER'|translate}}</clr-control-helper>
-                <clr-control-helper>{{'APP_CLUSTER_SERVICE_MAX'|translate}} {{clusterMaxService}}</clr-control-helper>
-            </clr-input-container>
-            <clr-input-container>
-                <label>POD {{"APP_COUNT"|translate}}/{{"APP_NODE"|translate}}</label>
-                <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPods"
-                       (change)="onMaxPodChange()">
-                <clr-control-helper>{{'APP_CLUSTER_NODE_MAX'|translate}} {{clusterMaxNode}}</clr-control-helper>
-            </clr-input-container>
+            <div class="clr-row" style="margin-top: 15px">
+                <div class="clr-col-2 clr-control-label">
+                    {{"APP_CONTAINER"|translate}}{{"APP_NETWORK"|translate}}
+                </div>
+                <div class="clr-col-10">
+                    <select name="cidr1" [(ngModel)]="parts[0]" (change)="onPart1Change()">
+                        <option *ngFor="let op of part1Options" [value]="op">{{op}}</option>
+                    </select>
+                    .
+                    <select name="cidr2" [(ngModel)]="parts[1]"
+                            [disabled]="part2Options.length<2" (change)="getNodeNum()">
+                        <option *ngFor="let op of part2Options" [value]="op">{{op}}</option>
+                    </select>
+                    .
+                    <select name="cidr3" [(ngModel)]="parts[2]" [disabled]="part3Options.length<2"
+                            (change)="getNodeNum()">
+                        <option *ngFor="let op of part3Options" [value]="op">{{op}}</option>
+                    </select>
+                    .
+                    <select name="cidr4" [(ngModel)]="parts[3]" disabled>
+                        <option>0</option>
+                    </select>
+                    /
+                    <select name="cidr5" [(ngModel)]="parts[4]" (change)="onMaskChange()">
+                        <option *ngFor="let op of maskOptions" [value]="op">{{op}}</option>
+                    </select>
+                    <p class="clr-subtext clr-form-control-8-helper">
+                        {{"APP_CIDR_HELPER"|translate}}
+                    </p>
+                </div>
+            </div>
+
+            <clr-select-container>
+                <label>POD {{"APP_NUM_LIMIT"|translate}}/{{"APP_NODE"|translate}}</label>
+                <select clrSelect name="pod_max_num" [(ngModel)]="item.maxNodePodNum" (change)="getNodeNum()">
+                    <option value="32">32</option>
+                    <option value="64">64</option>
+                    <option value="128">128</option>
+                    <option value="256">256</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container>
+                <label>Service {{"APP_NUM_LIMIT"|translate}}/{{"APP_CLUSTER"|translate}}</label>
+                <select clrSelect name="service_max_num" [(ngModel)]="item.maxClusterServiceNum"
+                        (change)="getNodeNum()">
+                    <option value="32">32</option>
+                    <option value="64">64</option>
+                    <option value="128">128</option>
+                    <option value="256">256</option>
+                    <option value="512">512</option>
+                    <option value="1024">1024</option>
+                    <option value="2048">2048</option>
+                    <option value="4096">4096</option>
+                </select>
+            </clr-select-container>
             <clr-select-container>
                 <label>proxy {{"APP_MODE"|translate}}</label>
                 <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
@@ -111,6 +147,10 @@
                 </select>
             </clr-select-container>
         </form>
+
+        <p>
+            {{"APP_MAX_NODES_HELPLER"|translate}} {{maxNodesNum}} {{"APP_NODE"|translate}}
+        </p>
     </clr-wizard-page>
 
 
@@ -122,7 +162,7 @@
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="docker">docker</option>
-                    <option value="containerd" *ngIf="item.architectures =='amd64'">containerd</option>
+                    <option value="containerd">containerd</option>
                 </select>
             </clr-select-container>
             <clr-input-container *ngIf="item.runtimeType == 'docker'">
@@ -289,17 +329,18 @@
                 <table class="table table-noborder">
                     <tbody>
                     <tr>
-                        <td class="left bold">{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</td>
-                        <td class="left">{{item.kubeMaxPods}}</td>
+                        <td class="left bold">{{"APP_CLUSTER"|translate}} CIDR</td>
+                        <td class="left">{{item.clusterCidr}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold">Pod {{"APP_SUBNET"|translate}}</td>
-                        <td class="left">{{item.kubePodSubnet}}</td>
+                        <td class="left bold">POD {{"APP_NUM_LIMIT"|translate}}/{{"APP_NODE"|translate}}</td>
+                        <td class="left">{{item.maxNodePodNum}}</td>
                     </tr>
                     <tr>
-                        <td class="left bold">Service {{"APP_SUBNET"|translate}}</td>
-                        <td class="left">{{item.kubeServiceSubnet}}</td>
+                        <td class="left bold">Service {{"APP_NUM_LIMIT"|translate}}/{{"APP_CLUSTER"|translate}}</td>
+                        <td class="left">{{item.maxClusterServiceNum}}</td>
                     </tr>
+
                     <tr>
                         <td class="left bold">proxy {{"APP_MODE"|translate}}</td>
                         <td class="left">{{item.kubeProxyMode}}</td>

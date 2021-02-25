@@ -3,6 +3,7 @@ export class Manifest {
     coreVars: NameVersion[] = [];
     networkVars: NameVersion[] = [];
     toolVars: NameVersion[] = [];
+    storageVars: NameVersion[] = [];
     otherVars: NameVersion[] = [];
     version: string;
     isActive: boolean;

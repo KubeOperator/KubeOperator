@@ -53,11 +53,7 @@ export class ClusterCreateRequest extends BaseModel {
     containerdStorageDir: string;
     flannelBackend: string;
     calicoIpv4poolIpip: string;
-    kubePodSubnet: string;
-    kubeServiceSubnet: string;
     kubeProxyMode: string;
-    kubeMaxPods: number;
-    certsExpired: number;
     kubernetesAudit: string;
     ingressControllerType: string;
     plan: string;
@@ -69,6 +65,9 @@ export class ClusterCreateRequest extends BaseModel {
     networkInterface: string;
     supportGpu: string;
     yumOperate: string;
+    maxClusterServiceNum: number;
+    maxNodePodNum: number;
+    clusterCidr: string;
 }
 
 export class CLusterImportRequest {
