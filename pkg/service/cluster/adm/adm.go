@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"io"
@@ -83,11 +82,6 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 		c.Kobe.SetVar(k, v)
 	}
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
-	repo := repository.NewSystemSettingRepository()
-	registryIp, _ := repo.Get("ip")
-	registryProtocol, _ := repo.Get("REGISTRY_PROTOCOL")
-	c.Kobe.SetVar(facts.RegistryProtocolFactName, registryProtocol.Value)
-	c.Kobe.SetVar(facts.RegistryHostnameFactName, registryIp.Value)
 	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
