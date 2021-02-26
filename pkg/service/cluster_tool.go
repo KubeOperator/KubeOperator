@@ -87,7 +87,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	}
 
 	var toolDetail model.ClusterToolDetail
-	if err := db.DB.Where("name = ? AND version = ? AND architecture = ?", tool.Name, tool.Version, cluster.Spec.Architectures).Find(&toolDetail).Error; err != nil {
+	if err := db.DB.Where("name = ? AND version = ?", tool.Name, tool.Version).Find(&toolDetail).Error; err != nil {
 		return tool, err
 	}
 

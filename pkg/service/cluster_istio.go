@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -238,15 +237,8 @@ func getNs(endpoints []kubernetes.Host, secret dto.ClusterSecret, namespace stri
 }
 
 func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetes.Host, secret model.ClusterSecret, namespace string) (istios.IstioHelmInfo, error) {
-	var (
-		p       istios.IstioHelmInfo
-		localIP model.SystemSetting
-	)
-	err := db.DB.Where(&model.SystemSetting{Key: "ip"}).First(&localIP).Error
-	if err != nil || localIP.Value == "" {
-		return p, errors.New("invalid system setting: ip")
-	}
-	p.LocalhostName = localIP.Value
+	var p istios.IstioHelmInfo
+	p.LocalhostName = constant.LocalRepositoryDomainName
 	helmClient, err := helm.NewClient(&helm.Config{
 		Hosts:         endpoints,
 		BearerToken:   secret.KubernetesToken,

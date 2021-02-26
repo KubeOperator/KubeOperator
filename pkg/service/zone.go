@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -12,10 +17,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"io"
-	"net/http"
-	"os"
-	"strings"
 )
 
 var (
@@ -120,8 +121,10 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
-
-	ip := z.systemSettingService.GetLocalHostName()
+	ip, err := z.systemSettingService.GetLocalIP()
+	if err != nil {
+		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
+	}
 	if ip == "" {
 		return nil, errors.New(IpNotExist)
 	}
@@ -328,10 +331,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	if err != nil {
 		return err
 	}
-	ip, err := z.systemSettingService.Get("ip")
+	ip, err := z.systemSettingService.GetLocalIP()
 	if err != nil {
 		return err
 	}
+
 	regionVars := region.RegionVars.(map[string]interface{})
 	regionVars["datacenter"] = region.Datacenter
 	if region.Provider == constant.VSphere {
@@ -348,11 +352,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
-		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip.Value)
-		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
+		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip)
+		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip)
 	}
 	if region.Provider == constant.OpenStack {
-		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
+		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip)
 	}
 	if region.Provider == constant.FusionCompute {
 		zoneVars := creation.CloudVars.(map[string]interface{})
@@ -389,7 +393,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			ovfResp, err := http.Get(fmt.Sprintf(constant.FusionComputeOvfPath, ip.Value))
+			ovfResp, err := http.Get(fmt.Sprintf(constant.FusionComputeOvfPath, ip))
 			if err != nil {
 				return err
 			}
@@ -406,7 +410,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			vhdResp, err := http.Get(fmt.Sprintf(constant.FusionComputeVhdPath, ip.Value))
+			vhdResp, err := http.Get(fmt.Sprintf(constant.FusionComputeVhdPath, ip))
 			if err != nil {
 				return err
 			}

@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -13,7 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"time"
 )
 
 type ClusterEventService interface {
@@ -129,12 +130,6 @@ func (c clusterEventService) GetNpd(clusterName string) (bool, error) {
 }
 
 func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
-
-	localIP, err := c.systemRepo.Get("ip")
-	if err != nil || localIP.Value == "" {
-		return false, err
-	}
-
 	secret, err := c.clusterService.GetSecrets(clusterName)
 	if err != nil {
 		return false, err
@@ -195,7 +190,7 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 									"--logtostderr",
 									"--config.system-log-monitor=/config/abrt-adaptor.json,/config/docker-monitor.json,/config/kernel-monitor.json,/config/systemd-monitor.json",
 								},
-								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1-%s", localIP.Value, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
+								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1-%s", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
 								Resources: corev1.ResourceRequirements{
 									Limits: corev1.ResourceList{
 										"cpu":    resource.MustParse("10m"),

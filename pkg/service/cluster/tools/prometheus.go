@@ -10,16 +10,18 @@ import (
 )
 
 type Prometheus struct {
-	Tool          *model.ClusterTool
-	Cluster       *Cluster
-	LocalhostName string
+	Tool                *model.ClusterTool
+	Cluster             *Cluster
+	LocalHostName       string
+	LocalRepositoryPort int
 }
 
-func NewPrometheus(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Prometheus, error) {
+func NewPrometheus(cluster *Cluster, tool *model.ClusterTool) (*Prometheus, error) {
 	p := &Prometheus{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalhostName: localhostName,
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
 	}
 	return p, nil
 }
@@ -32,13 +34,13 @@ func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstal
 	_ = json.Unmarshal([]byte(p.Tool.Vars), &values)
 	values["alertmanager.enabled"] = false
 	values["pushgateway.enabled"] = false
-	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["configmap_image_name"])
+	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalHostName, p.LocalRepositoryPort, imageMap["configmap_image_name"])
 	values["configmapReload.prometheus.image.tag"] = imageMap["configmap_image_tag"]
-	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["metrics_image_name"])
+	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalHostName, p.LocalRepositoryPort, imageMap["metrics_image_name"])
 	values["kube-state-metrics.image.tag"] = imageMap["metrics_image_tag"]
-	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["exporter_image_name"])
+	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalHostName, p.LocalRepositoryPort, imageMap["exporter_image_name"])
 	values["nodeExporter.image.tag"] = imageMap["exporter_image_tag"]
-	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["prometheus_image_name"])
+	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalHostName, p.LocalRepositoryPort, imageMap["prometheus_image_name"])
 	values["server.image.tag"] = imageMap["prometheus_image_tag"]
 
 	if isInstall {

@@ -9,11 +9,24 @@ import (
 )
 
 type Grafana struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalHostName string
-	prometheusNs  string
-	lokiNs        string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
+	prometheusNs        string
+	lokiNs              string
+}
+
+func NewGrafana(cluster *Cluster, tool *model.ClusterTool, prometheusNs, lokiNs string) (*Grafana, error) {
+	p := &Grafana{
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		prometheusNs:        prometheusNs,
+		lokiNs:              lokiNs,
+	}
+	return p, nil
 }
 
 func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
@@ -22,10 +35,10 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(g.Tool.Vars), &values)
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["grafana_image_name"])
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["grafana_image_name"])
 	values["image.tag"] = imageMap["grafana_image_tag"]
 	values["initChownData.enabled"] = true
-	values["initChownData.image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["busybox_image_name"])
+	values["initChownData.image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["busybox_image_name"])
 	values["initChownData.image.tag"] = imageMap["busybox_image_tag"]
 	values["downloadDashboardsImage.repository"] = imageMap["curl_image_name"]
 	values["downloadDashboardsImage.tag"] = imageMap["curl_image_tag"]
@@ -72,17 +85,6 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 
 	str, _ := json.Marshal(&values)
 	g.Tool.Vars = string(str)
-}
-
-func NewGrafana(cluster *Cluster, localhostName string, tool *model.ClusterTool, prometheusNs, lokiNs string) (*Grafana, error) {
-	p := &Grafana{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalHostName: localhostName,
-		prometheusNs:  prometheusNs,
-		lokiNs:        lokiNs,
-	}
-	return p, nil
 }
 
 func (g Grafana) Install(toolDetail model.ClusterToolDetail) error {

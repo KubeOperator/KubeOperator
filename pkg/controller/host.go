@@ -100,11 +100,11 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	localIp, err := h.SystemSettingService.Get("ip")
+	localIp, err := h.SystemSettingService.GetLocalIP()
 	if err != nil {
 		return nil, errors.New(SystemIpNotFound)
 	}
-	if localIp.Value == req.Ip {
+	if localIp == req.Ip {
 		return nil, errors.New("IS_LOCAL_HOST")
 	}
 	item, _ := h.HostService.Get(req.Name)
