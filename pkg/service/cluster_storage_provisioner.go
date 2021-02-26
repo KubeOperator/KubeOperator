@@ -363,7 +363,7 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 		if err != nil && checkError(err) {
 			return err
 		}
-		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
 		if err != nil && checkError(err) {
 			return err
 		}

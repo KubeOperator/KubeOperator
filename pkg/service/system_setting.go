@@ -1,8 +1,12 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message/client"
@@ -11,7 +15,7 @@ import (
 
 type SystemSettingService interface {
 	Get(name string) (dto.SystemSetting, error)
-	GetLocalHostName() string
+	GetLocalIP() (string, error)
 	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
@@ -119,12 +123,24 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 	return result, nil
 }
 
-func (s systemSettingService) GetLocalHostName() string {
-	mo, err := s.systemSettingRepo.Get("ip")
-	if err != nil || mo.Value == "" {
-		return ""
+func (s systemSettingService) GetLocalIP() (string, error) {
+	var arch_type model.SystemSetting
+	if err := db.DB.Model(&model.SystemSetting{}).Where("key = ?", "arch_type").First(&arch_type).Error; err != nil {
+		return "", fmt.Errorf("can't found arch_type from system setting, err %s", err.Error())
 	}
-	return mo.Value
+
+	if arch_type.Value == "single" {
+		var sysSetting model.SystemSetting
+		if err := db.DB.Model(&model.SystemSetting{}).Where("key = ?", "ip").First(&sysSetting).Error; err != nil {
+			return "", fmt.Errorf("can't found ip from system setting, err %s", err.Error())
+		}
+		return sysSetting.Value, nil
+	}
+	var sysRegistry model.SystemRegistry
+	if err := db.DB.Model(&model.SystemRegistry{}).Where("architecture = ?", "amd64").First(&sysRegistry).Error; err != nil {
+		return "", fmt.Errorf("can't found registry from system registry, err %s", err.Error())
+	}
+	return sysRegistry.RegistryHostname, nil
 }
 
 func (s systemSettingService) CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error {

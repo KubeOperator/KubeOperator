@@ -122,6 +122,7 @@
   "APP_STORAGE_PROVISIONER": "存储提供商",
   "APP_PROVISIONER_SYNC_ENSURE": "是否确认同步下列存储提供商？",
   "APP_PROVISIONER_SYNC_START_SUCCESS": "存储提供商同步已开始，请稍候...",
+  "APP_DELETE_STORAGE_PROVISIONER_ROOK": "rook-ceph 暂不支持直接删除，请参照下方链接在集群中手动删除。",
   "APP_PLAN_PROMPT": "部署计划 (Plan): 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，使用什么样的机器规格，部署什么类型的集群的一个抽象概念",
   "APP_PLAN_DELETE": "删除部署计划",
   "APP_PLAN_DEPLOY_TEMPLATE": "部署模型",

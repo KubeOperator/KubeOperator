@@ -59,7 +59,11 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 }
 
 func (s SystemSettingController) GetIp() string {
-	return s.SystemSettingService.GetLocalHostName()
+	ip, err := s.SystemSettingService.GetLocalIP()
+	if err != nil {
+		return err.Error()
+	}
+	return ip
 }
 
 func (s SystemSettingController) PostCheckBy(typeName string) error {

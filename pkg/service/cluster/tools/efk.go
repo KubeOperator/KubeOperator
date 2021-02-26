@@ -9,9 +9,20 @@ import (
 )
 
 type EFK struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalHostName string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
+}
+
+func NewEFK(cluster *Cluster, tool *model.ClusterTool) (*EFK, error) {
+	p := &EFK{
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+	}
+	return p, nil
 }
 
 func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
@@ -20,9 +31,9 @@ func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool)
 
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(e.Tool.Vars), &values)
-	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["fluentd_image_name"])
+	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["fluentd_image_name"])
 	values["fluentd-elasticsearch.imageTag"] = imageMap["fluentd_image_tag"]
-	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["elasticsearch_image_name"])
+	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["elasticsearch_image_name"])
 	values["elasticsearch.imageTag"] = imageMap["elasticsearch_image_tag"]
 
 	if isInstall {
@@ -38,15 +49,6 @@ func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool)
 	}
 	str, _ := json.Marshal(&values)
 	e.Tool.Vars = string(str)
-}
-
-func NewEFK(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*EFK, error) {
-	p := &EFK{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalHostName: localhostName,
-	}
-	return p, nil
 }
 
 func (e EFK) Install(toolDetail model.ClusterToolDetail) error {

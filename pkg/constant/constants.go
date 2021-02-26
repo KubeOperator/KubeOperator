@@ -13,6 +13,7 @@ const (
 	BatchOperationCreate = "create"
 	BatchOperationDelete = "delete"
 
+	LocalRepositoryDomainName = "registry.kubeoperator.io"
 	LocalRpmRepositoryPort    = 8081
 	LocalHelmRepositoryPort   = 8081
 	LocalDockerRepositoryPort = 8082

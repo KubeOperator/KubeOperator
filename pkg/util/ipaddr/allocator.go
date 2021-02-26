@@ -3,10 +3,10 @@ package ipaddr
 import (
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/allocator"
+	api "k8s.io/api/core/v1"
 	"math/big"
 	"net"
-	api "k8s.io/api/core/v1"
-	"github.com/KubeOperator/KubeOperator/pkg/util/allocator"
 )
 
 // Interface manages the allocation of IP addresses out of a range. Interface

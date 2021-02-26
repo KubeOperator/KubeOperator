@@ -119,6 +119,7 @@
   "APP_STORAGE_PROVISIONER": "Storage Provisioner",
   "APP_PROVISIONER_SYNC_ENSURE": "Synchronize the following storage providers?",
   "APP_PROVISIONER_SYNC_START_SUCCESS": "Provisioner synchronization started, please wait a moment...",
+  "APP_DELETE_STORAGE_PROVISIONER_ROOK": "rook-ceph storage provider does not support direct deletion. Please refer to the link below to delete manually.",
   "APP_PLAN_PROMPT": "Deployment Plan (Plan): An abstract concept used in KubeOperator to describe in which region, in which Availability Zones, what machine specifications are used, and what type of cluster is deployed",
   "APP_PLAN_DELETE": "Delete Deploy Plan",
   "APP_PLAN_DEPLOY_TEMPLATE": "Deployment Model",

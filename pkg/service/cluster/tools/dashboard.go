@@ -9,16 +9,18 @@ import (
 )
 
 type Dashboard struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalHostName string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
 }
 
-func NewDashboard(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Dashboard, error) {
+func NewDashboard(cluster *Cluster, tool *model.ClusterTool) (*Dashboard, error) {
 	p := &Dashboard{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalHostName: localhostName,
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
 	}
 	return p, nil
 }
@@ -34,9 +36,9 @@ func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	values["protocolHttp"] = "true"
 	values["service.externalPort"] = 9090
 	values["metricsScraper.enabled"] = true
-	values["metricsScraper.image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["metrics_image_name"])
+	values["metricsScraper.image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, d.LocalRepositoryPort, imageMap["metrics_image_name"])
 	values["metricsScraper.image.tag"] = imageMap["metrics_image_tag"]
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["dashboard_image_name"])
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, d.LocalRepositoryPort, imageMap["dashboard_image_name"])
 	values["image.tag"] = imageMap["dashboard_image_tag"]
 	str, _ := json.Marshal(&values)
 	d.Tool.Vars = string(str)

@@ -172,13 +172,12 @@ func updateRepo() error {
 		}
 	}
 	r := repository.NewSystemSettingRepository()
-	s, err := r.Get("ip")
 	p, err := r.Get("REGISTRY_PROTOCOL")
 	if err != nil {
 		return errors.New("invalid local host ip")
 	}
 	if !flag {
-		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, s.Value), "admin", "admin123")
+		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, constant.LocalRepositoryDomainName), "admin", "admin123")
 		if err != nil {
 			log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
