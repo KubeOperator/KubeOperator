@@ -35,26 +35,31 @@ func (n *ClusterNode) BeforeCreate() (err error) {
 	return nil
 }
 
+func getSetting(key string) (string, error) {
+	var systemSetting SystemSetting
+	if err := db.DB.Where(&SystemSetting{Key: key}).First(&systemSetting).Error; err != nil {
+		return systemSetting.Value, err
+	}
+	return systemSetting.Value, nil
+}
+
 func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 	var systemRegistry SystemRegistry
-	var systemSetting SystemSetting
 	var registry Registry
 
-	err := db.DB.Where(&SystemSetting{Key: "arch_type"}).First(&systemSetting).Error
+	archType, err := getSetting("arch_type")
 	if err != nil {
 		return nil, err
 	}
-	if systemSetting.Value == "single" {
-		err = db.DB.Where(&SystemSetting{Key: "ip"}).First(&systemSetting).Error
+	if archType == "single" {
+		registry.RegistryHostname, err = getSetting("ip")
 		if err != nil {
 			return nil, err
 		}
-		registry.RegistryHostname = systemSetting.Value
-		err = db.DB.Where(&SystemSetting{Key: "REGISTRY_PROTOCOL"}).First(&systemSetting).Error
+		registry.RegistryProtocol, err = getSetting("REGISTRY_PROTOCOL")
 		if err != nil {
 			return nil, err
 		}
-		registry.RegistryProtocol = systemSetting.Value
 		switch n.Host.Architecture {
 		case "x86_64":
 			registry.Architecture = "amd64"
@@ -63,7 +68,7 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 		default:
 			registry.Architecture = "amd64"
 		}
-	} else if systemSetting.Value == "mixed" {
+	} else if archType == "mixed" {
 		err := db.DB.Where(&SystemRegistry{Architecture: arch}).First(&systemRegistry).Error
 		if err != nil {
 			return nil, err
@@ -77,7 +82,6 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 			registry.Architecture = "arm64"
 		}
 	}
-	fmt.Println(registry)
 	return &registry, nil
 }
 
