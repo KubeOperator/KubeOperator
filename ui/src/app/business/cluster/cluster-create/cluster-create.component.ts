@@ -301,7 +301,7 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     changeArch(type) {
-        if (type === 'arm64') {
+        if (type !== 'amd64') {
             this.item.helmVersion = 'v3';
             this.helmVersions = ['v3'];
         } else {

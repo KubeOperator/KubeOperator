@@ -9,9 +9,20 @@ import (
 )
 
 type Loki struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalHostName string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
+}
+
+func NewLoki(cluster *Cluster, tool *model.ClusterTool) (*Loki, error) {
+	p := &Loki{
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+	}
+	return p, nil
 }
 
 func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
@@ -20,8 +31,8 @@ func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool
 
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(l.Tool.Vars), &values)
-	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["loki_image_name"])
-	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, constant.LocalDockerRepositoryPort, imageMap["promtail_image_name"])
+	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["loki_image_name"])
+	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["promtail_image_name"])
 	values["loki.image.tag"] = imageMap["loki_image_tag"]
 	values["promtail.image.tag"] = imageMap["promtail_image_tag"]
 
@@ -38,15 +49,6 @@ func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool
 
 	str, _ := json.Marshal(&values)
 	l.Tool.Vars = string(str)
-}
-
-func NewLoki(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Loki, error) {
-	p := &Loki{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalHostName: localhostName,
-	}
-	return p, nil
 }
 
 func (l Loki) Install(toolDetail model.ClusterToolDetail) error {

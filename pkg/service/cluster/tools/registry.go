@@ -9,16 +9,18 @@ import (
 )
 
 type Registry struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalhostName string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
 }
 
-func NewRegistry(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Registry, error) {
+func NewRegistry(cluster *Cluster, tool *model.ClusterTool) (*Registry, error) {
 	p := &Registry{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalhostName: localhostName,
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
 	}
 	return p, nil
 }
@@ -29,7 +31,7 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(r.Tool.Vars), &values)
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalhostName, constant.LocalDockerRepositoryPort, imageMap["registry_image_name"])
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalHostName, r.LocalRepositoryPort, imageMap["registry_image_name"])
 	values["image.tag"] = imageMap["registry_image_tag"]
 
 	if isInstall {

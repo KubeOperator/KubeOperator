@@ -32,14 +32,12 @@ type CisService interface {
 type cisService struct {
 	clusterRepo    repository.ClusterRepository
 	clusterService ClusterService
-	systemRepo     repository.SystemSettingRepository
 }
 
 func NewCisService() CisService {
 	return &cisService{
 		clusterRepo:    repository.NewClusterRepository(),
 		clusterService: NewClusterService(),
-		systemRepo:     repository.NewSystemSettingRepository(),
 	}
 }
 
@@ -170,15 +168,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask) {
 	task.Status = CisTaskStatusRunning
 	db.DB.Save(&task)
-	systemRepo := repository.NewSystemSettingRepository()
 
-	localIP, err := systemRepo.Get("ip")
-	if err != nil || localIP.Value == "" {
-		task.Message = "local ip is null"
-		task.Status = CisTaskStatusFailed
-		db.DB.Save(&task)
-		return
-	}
 	jobId := fmt.Sprintf("kube-bench-%s", uuid.NewV4().String())
 	j := v1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -193,7 +183,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1-%s", localIP.Value, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
+							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1-%s", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{

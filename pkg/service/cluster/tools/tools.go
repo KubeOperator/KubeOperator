@@ -3,14 +3,12 @@ package tools
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"helm.sh/helm/v3/pkg/strvals"
@@ -63,23 +61,17 @@ func NewCluster(cluster model.Cluster, endpoints []kubernetesUtil.Host, secret m
 }
 
 func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string, enable bool) (Interface, error) {
-	systemRepo := repository.NewSystemSettingRepository()
-	localIP, err := systemRepo.Get("ip")
-	if err != nil || localIP.Value == "" {
-		return nil, errors.New("invalid system setting: ip")
-	}
-
 	c, err := NewCluster(cluster, endpoints, secret, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}
 	switch tool.Name {
 	case "prometheus":
-		return NewPrometheus(c, localIP.Value, tool)
+		return NewPrometheus(c, tool)
 	case "logging":
-		return NewEFK(c, localIP.Value, tool)
+		return NewEFK(c, tool)
 	case "loki":
-		return NewLoki(c, localIP.Value, tool)
+		return NewLoki(c, tool)
 	case "grafana":
 		if enable {
 			prometheusNs, err := getGrafanaSourceNs(cluster, "prometheus")
@@ -87,18 +79,18 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []
 				return nil, err
 			}
 			lokiNs, _ := getGrafanaSourceNs(cluster, "loki")
-			return NewGrafana(c, localIP.Value, tool, prometheusNs, lokiNs)
+			return NewGrafana(c, tool, prometheusNs, lokiNs)
 		} else {
-			return NewGrafana(c, localIP.Value, tool, "", "")
+			return NewGrafana(c, tool, "", "")
 		}
 	case "registry":
-		return NewRegistry(c, localIP.Value, tool)
+		return NewRegistry(c, tool)
 	case "dashboard":
-		return NewDashboard(c, localIP.Value, tool)
+		return NewDashboard(c, tool)
 	case "chartmuseum":
-		return NewChartmuseum(c, localIP.Value, tool)
+		return NewChartmuseum(c, tool)
 	case "kubeapps":
-		return NewKubeapps(c, localIP.Value, tool)
+		return NewKubeapps(c, tool)
 	}
 	return nil, nil
 }

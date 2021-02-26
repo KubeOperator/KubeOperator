@@ -9,16 +9,18 @@ import (
 )
 
 type Chartmuseum struct {
-	Cluster       *Cluster
-	Tool          *model.ClusterTool
-	LocalhostName string
+	Cluster             *Cluster
+	Tool                *model.ClusterTool
+	LocalHostName       string
+	LocalRepositoryPort int
 }
 
-func NewChartmuseum(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Chartmuseum, error) {
+func NewChartmuseum(cluster *Cluster, tool *model.ClusterTool) (*Chartmuseum, error) {
 	p := &Chartmuseum{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalhostName: localhostName,
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
 	}
 	return p, nil
 }
@@ -30,7 +32,7 @@ func (c Chartmuseum) setDefaultValue(toolDetail model.ClusterToolDetail, isInsta
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["env.open.DISABLE_API"] = false
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, versionMap["chartmuseum_image_name"])
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, c.LocalRepositoryPort, versionMap["chartmuseum_image_name"])
 	values["image.tag"] = versionMap["chartmuseum_image_tag"]
 
 	if isInstall {

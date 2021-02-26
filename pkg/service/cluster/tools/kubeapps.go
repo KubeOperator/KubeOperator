@@ -9,16 +9,18 @@ import (
 )
 
 type Kubeapps struct {
-	Tool          *model.ClusterTool
-	Cluster       *Cluster
-	LocalhostName string
+	Tool                *model.ClusterTool
+	Cluster             *Cluster
+	LocalHostName       string
+	LocalRepositoryPort int
 }
 
-func NewKubeapps(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Kubeapps, error) {
+func NewKubeapps(cluster *Cluster, tool *model.ClusterTool) (*Kubeapps, error) {
 	p := &Kubeapps{
-		Tool:          tool,
-		Cluster:       cluster,
-		LocalhostName: localhostName,
+		Tool:                tool,
+		Cluster:             cluster,
+		LocalHostName:       constant.LocalRepositoryDomainName,
+		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
 	}
 	return p, nil
 }
@@ -80,9 +82,9 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
 
-	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
+	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalHostName, k.LocalRepositoryPort)
 	values["useHelm3"] = true
 	values["postgresql.enabled"] = true
 	values["postgresql.image.repository"] = imageMap["postgresql_image_name"]
@@ -101,9 +103,9 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]
 	delete(values, "postgresql.enabled")
 	delete(values, "postgresql.image.repository")
 	delete(values, "postgresql.image.tag")
-	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
+	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalHostName, k.LocalRepositoryPort)
 
 	return values
 }
