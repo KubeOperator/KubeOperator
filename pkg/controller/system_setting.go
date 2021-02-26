@@ -21,7 +21,6 @@ func NewSystemSettingController() *SystemSettingController {
 }
 
 func (s SystemSettingController) Get() (interface{}, error) {
-
 	item, err := s.SystemSettingService.List()
 	if err != nil {
 		return nil, err
@@ -80,3 +79,26 @@ func (s SystemSettingController) PostCheckBy(typeName string) error {
 	}
 	return nil
 }
+
+func (s SystemSettingController) GetRegistry() (interface{}, error) {
+	item, err := s.SystemSettingService.ListRegistry()
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+//func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
+//	item, err := s.SystemSettingService.ListByTab(name)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return item, nil
+//}
+//func (s SystemSettingController) ListByRegistry() string {
+//	return s.SystemSettingService.GetLocalHostName()
+//}
+//
+//func (s SystemSettingController) PostRegistry() string {
+//	return s.SystemSettingService.GetLocalHostName()
+//}

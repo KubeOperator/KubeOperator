@@ -16,11 +16,13 @@ type SystemSettingService interface {
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
 	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
+	ListRegistry() ([]dto.SystemRegistry, error)
 }
 
 type systemSettingService struct {
-	systemSettingRepo repository.SystemSettingRepository
-	userRepo          repository.UserRepository
+	systemSettingRepo  repository.SystemSettingRepository
+	systemRegistryRepo repository.SystemRegistryRepository
+	userRepo           repository.UserRepository
 }
 
 func NewSystemSettingService() SystemSettingService {
@@ -28,6 +30,20 @@ func NewSystemSettingService() SystemSettingService {
 		systemSettingRepo: repository.NewSystemSettingRepository(),
 		userRepo:          repository.NewUserRepository(),
 	}
+}
+
+func (s systemSettingService) ListRegistry() ([]dto.SystemRegistry, error) {
+	var SystemRegistryDto []dto.SystemRegistry
+	//mos, err := s.systemRegistryRepo.List()
+	//if err != nil {
+	//	return SystemRegistryDto, err
+	//}
+	//for _, mo := range mos {
+	//	SystemRegistryDto = append(SystemRegistryDto, dto.SystemRegistry{
+	//		SystemRegistry: mo,
+	//	})
+	//}
+	return SystemRegistryDto, nil
 }
 
 func (s systemSettingService) Get(key string) (dto.SystemSetting, error) {
