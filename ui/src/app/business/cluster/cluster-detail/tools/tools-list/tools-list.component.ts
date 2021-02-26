@@ -92,8 +92,19 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     polling() {
         this.timer = setInterval(() => {
-            this.refresh();
-        }, 5000);
+            let flag = false;
+            const needPolling = ['Initializing', 'Terminating', 'Upgrading'];
+            for (const item of this.items) {
+                if (needPolling.indexOf(item.status) !== -1) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                this.service.list(this.currentCluster.name).subscribe(data => {
+                    this.items = data;
+                });
+            }
+        }, 10000);
     }
-
 }
