@@ -104,6 +104,7 @@
                 </clr-input-container>
             </div>
         </form>
+        <app-modal-alert></app-modal-alert>
         <div class="modal-footer">
             <button *ngIf="item.type!='SFTP'" type="button" class="btn btn-success-outline" (click)="getBuckets()"
                     [disabled]="isSubmitGoing" [clrLoading]="loadingBucket">
