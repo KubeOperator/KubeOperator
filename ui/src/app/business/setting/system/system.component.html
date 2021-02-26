@@ -2,20 +2,32 @@
     <form clrForm #settingForm="ngForm">
         <div *ngIf="item">
             <clr-select-container>
-                <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
-                <select clrSelect name="options" [(ngModel)]="item.vars['REGISTRY_PROTOCOL']" required>
-                    <option value="http">http</option>
-                    <option value="https">https</option>
+                <label>部署模式</label>
+                <select clrSelect name="arch" [(ngModel)]="item.vars['arch_type']" required>
+                    <option value="single">Single</option>
+                    <option value="mixed">Mixed</option>
                 </select>
-                <clr-control-helper>{{'APP_SYSTEM_PROTOCOL_HELPER'| translate}}</clr-control-helper>
+                <clr-control-helper>部署模式，混合架构选择Mixed，单架构选择Single</clr-control-helper>
             </clr-select-container>
-            <clr-input-container>
-                <label>{{'APP_REGISTRY_IP'|translate}}</label>
-                <input clrInput [(ngModel)]="item.vars['ip']" name="ip" size=45 required
-                       pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"/>
-                <clr-control-helper>{{'APP_SYSTEM_IP_HELPER'|translate}}</clr-control-helper>
-                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
-            </clr-input-container>
+
+<!--            <div *ngIf="item.vars['arch_type']=='single'">-->
+<!--                <clr-select-container>-->
+<!--                    <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>-->
+<!--                    <select clrSelect name="options" [(ngModel)]="item.vars['REGISTRY_PROTOCOL']" required>-->
+<!--                        <option value="http">http</option>-->
+<!--                        <option value="https">https</option>-->
+<!--                    </select>-->
+<!--                    <clr-control-helper>{{'APP_SYSTEM_PROTOCOL_HELPER'| translate}}</clr-control-helper>-->
+<!--                </clr-select-container>-->
+
+<!--                <clr-input-container>-->
+<!--                    <label>{{'APP_REGISTRY_IP'|translate}}</label>-->
+<!--                    <input clrInput [(ngModel)]="item.vars['ip']" name="ip" size=45 required-->
+<!--                           pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"/>-->
+<!--                    <clr-control-helper>{{'APP_SYSTEM_IP_HELPER'|translate}}</clr-control-helper>-->
+<!--                    <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>-->
+<!--                </clr-input-container>-->
+<!--            </div>-->
 
             <clr-input-container>
                 <label>{{'APP_SYSTEM_NTP_SERVER'|translate}}</label>

@@ -65,6 +65,7 @@ import {SystemLogComponent} from './business/system-log/system-log.component';
 import {IpPoolComponent} from './business/deploy-plan/ip-pool/ip-pool.component';
 import {IpComponent} from './business/deploy-plan/ip-pool/ip/ip.component';
 import {IpPoolRoutingResolverService} from './business/deploy-plan/ip-pool/ip-pool-routing-resolver.service';
+import {RegistrySettingComponent} from './business/setting/registry-setting/registry-setting.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -170,6 +171,7 @@ const routes: Routes = [
                     {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
                     {path: 'message', component: MessageComponent},
+                    {path: 'registry-setting', component: RegistrySettingComponent}
                 ]
             },
             {

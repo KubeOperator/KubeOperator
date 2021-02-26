@@ -11,11 +11,12 @@ import {LdapComponent} from './ldap/ldap.component';
 import {ThemeComponent} from './theme/theme.component';
 import {MessageComponent} from './message/message.component';
 import {EmailComponent} from './email/email.component';
+import { RegistrySettingComponent } from './registry-setting/registry-setting.component';
 
 
 @NgModule({
     declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent,
-        LdapComponent, ThemeComponent, MessageComponent, EmailComponent],
+        LdapComponent, ThemeComponent, MessageComponent, EmailComponent, RegistrySettingComponent],
     imports: [
         RouterModule,
         CoreModule,
