@@ -21,6 +21,8 @@ type SystemSettingService interface {
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
 	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
 	ListRegistry() ([]dto.SystemRegistry, error)
+	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
+	CreateRegistry(creation []dto.SystemRegistryCreate) ([]dto.SystemRegistry, error)
 }
 
 type systemSettingService struct {
@@ -31,23 +33,10 @@ type systemSettingService struct {
 
 func NewSystemSettingService() SystemSettingService {
 	return &systemSettingService{
-		systemSettingRepo: repository.NewSystemSettingRepository(),
-		userRepo:          repository.NewUserRepository(),
+		systemSettingRepo:  repository.NewSystemSettingRepository(),
+		systemRegistryRepo: repository.NewSystemRegistryRepository(),
+		userRepo:           repository.NewUserRepository(),
 	}
-}
-
-func (s systemSettingService) ListRegistry() ([]dto.SystemRegistry, error) {
-	var SystemRegistryDto []dto.SystemRegistry
-	//mos, err := s.systemRegistryRepo.List()
-	//if err != nil {
-	//	return SystemRegistryDto, err
-	//}
-	//for _, mo := range mos {
-	//	SystemRegistryDto = append(SystemRegistryDto, dto.SystemRegistry{
-	//		SystemRegistry: mo,
-	//	})
-	//}
-	return SystemRegistryDto, nil
 }
 
 func (s systemSettingService) Get(key string) (dto.SystemSetting, error) {
@@ -73,6 +62,7 @@ func (s systemSettingService) List() (dto.SystemSettingResult, error) {
 	systemSettingResult.Vars = vars
 	return systemSettingResult, err
 }
+
 func (s systemSettingService) ListByTab(tabName string) (dto.SystemSettingResult, error) {
 	var systemSettingResult dto.SystemSettingResult
 	vars := make(map[string]string)
@@ -180,4 +170,54 @@ func (s systemSettingService) CheckSettingByType(tabName string, creation dto.Sy
 		return err
 	}
 	return nil
+}
+
+func (s systemSettingService) ListRegistry() ([]dto.SystemRegistry, error) {
+	var systemRegistryDto []dto.SystemRegistry
+	mos, err := s.systemRegistryRepo.List()
+	if err != nil {
+		return systemRegistryDto, err
+	}
+	for _, mo := range mos {
+		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{
+			SystemRegistry: mo,
+		})
+	}
+	return systemRegistryDto, nil
+}
+
+func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry, error) {
+	r, err := s.systemRegistryRepo.Get(arch)
+	if err != nil {
+		return dto.SystemRegistry{}, err
+	}
+	systemRegistryDto := dto.SystemRegistry{
+		SystemRegistry: model.SystemRegistry{
+			ID:               r.ID,
+			RegistryHostname: r.RegistryHostname,
+			RegistryProtocol: r.RegistryProtocol,
+			Architecture:     r.Architecture,
+		},
+	}
+	return systemRegistryDto, nil
+}
+
+func (s systemSettingService) CreateRegistry(creation []dto.SystemRegistryCreate) ([]dto.SystemRegistry, error) {
+	var result []dto.SystemRegistry
+	for _, mo := range creation {
+		systemRegistry := model.SystemRegistry{
+			ID:               mo.ID,
+			Architecture:     mo.Architecture,
+			RegistryProtocol: mo.RegistryProtocol,
+			RegistryHostname: mo.RegistryHostname,
+		}
+		err := s.systemRegistryRepo.Save(&systemRegistry)
+		if err != nil {
+			return result, err
+		}
+		result = append(result, dto.SystemRegistry{
+			SystemRegistry: systemRegistry,
+		})
+	}
+	return result, nil
 }

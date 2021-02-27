@@ -7,7 +7,10 @@ type SystemRegistry struct {
 }
 
 type SystemRegistryCreate struct {
-	registry map[string]string `json:"vars" validate:"required"`
+	model.SystemRegistry
+	RegistryHostname string `json:"registry_hostname" validate:"required"`
+	RegistryProtocol string `json:"registry_protocol" validate:"required"`
+	Architecture     string `json:"architecture" validate:"required"`
 }
 
 type SystemRegistryUpdate struct {

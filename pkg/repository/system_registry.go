@@ -11,10 +11,14 @@ type SystemRegistryRepository interface {
 	Save(registry *model.SystemRegistry) error
 }
 
-type systemRegistry struct {
+type systemRegistryRepository struct {
 }
 
-func (s systemRegistry) Get(arch string) (model.SystemRegistry, error) {
+func NewSystemRegistryRepository() SystemRegistryRepository {
+	return &systemRegistryRepository{}
+}
+
+func (s systemRegistryRepository) Get(arch string) (model.SystemRegistry, error) {
 	var registry model.SystemRegistry
 	if err := db.DB.Where(&model.SystemRegistry{Architecture: arch}).First(&registry).Error; err != nil {
 		return registry, err
@@ -22,7 +26,7 @@ func (s systemRegistry) Get(arch string) (model.SystemRegistry, error) {
 	return registry, nil
 }
 
-func (s systemRegistry) List() ([]model.SystemRegistry, error) {
+func (s systemRegistryRepository) List() ([]model.SystemRegistry, error) {
 	var registry []model.SystemRegistry
 	if err := db.DB.Model(&model.SystemRegistry{}).Find(&registry).Error; err != nil {
 		return registry, err
@@ -30,10 +34,10 @@ func (s systemRegistry) List() ([]model.SystemRegistry, error) {
 	return registry, nil
 }
 
-func (s systemRegistry) Save(registry *model.SystemRegistry) error {
+func (s systemRegistryRepository) Save(registry *model.SystemRegistry) error {
 	if db.DB.NewRecord(registry) {
 		return db.DB.Create(&registry).Error
 	} else {
-		return db.DB.Model(&registry).Updates(&registry).Error
+		return db.DB.Model(&registry).Update(&registry).Error
 	}
 }

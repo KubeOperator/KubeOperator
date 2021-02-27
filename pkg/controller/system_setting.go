@@ -92,17 +92,23 @@ func (s SystemSettingController) GetRegistry() (interface{}, error) {
 	return item, nil
 }
 
-//func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
-//	item, err := s.SystemSettingService.ListByTab(name)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return item, nil
-//}
-//func (s SystemSettingController) ListByRegistry() string {
-//	return s.SystemSettingService.GetLocalHostName()
-//}
-//
-//func (s SystemSettingController) PostRegistry() string {
-//	return s.SystemSettingService.GetLocalHostName()
-//}
+func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
+	item, err := s.SystemSettingService.GetRegistryByArch(arch)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+func (s SystemSettingController) PostRegistry() ([]dto.SystemRegistry, error) {
+	var req []dto.SystemRegistryCreate
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.SystemSettingService.CreateRegistry(req)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
