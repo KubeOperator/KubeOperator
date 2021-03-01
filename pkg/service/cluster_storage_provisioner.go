@@ -306,7 +306,7 @@ func (c clusterStorageProvisionerService) sync(clusterName string, provisioner d
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
 	var provisioner model.ClusterStorageProvisioner
-	db.DB.Where(model.ClusterStorageProvisioner{Name: provisionerName}).First(&provisioner)
+	db.DB.Debug().Where("name = ?", provisionerName).First(&provisioner)
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}
