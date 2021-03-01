@@ -681,5 +681,6 @@
   "APP_NUM_LIMIT": "Num limit",
   "APP_CIDR_HELPER": "CIDR cannot overlap with the target IP segment, otherwise initialization will fail",
   "APP_CONTAINER": "Container",
-  "APP_MAX_NODES_HELPLER": "Under the current container network configuration, the cluster has a maximum of"
+  "APP_MAX_NODES_HELPLER": "Under the current container network configuration, the cluster has a maximum of",
+  "APP_PROVISIONER_VSPHERE_WARNING": "Minimum requirements for VMware environment:\n1. vCenter 6.7 Update 3\n2. ESXi v6.7.0+"
 }
