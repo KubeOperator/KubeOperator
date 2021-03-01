@@ -112,15 +112,11 @@ func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error)
 	return item, nil
 }
 
-func (s SystemSettingController) PostRegistry() ([]dto.SystemRegistry, error) {
-	var req []dto.SystemRegistryCreate
+func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
+	var req dto.SystemRegistryCreate
 	err := s.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
 	}
-	result, err := s.SystemSettingService.CreateRegistry(req)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return s.SystemSettingService.CreateRegistry(req)
 }

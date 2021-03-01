@@ -23,7 +23,7 @@ type SystemSettingService interface {
 	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
 	ListRegistry() ([]dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
-	CreateRegistry(creation []dto.SystemRegistryCreate) ([]dto.SystemRegistry, error)
+	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
 	PageRegistry(num, size int) (page.Page, error)
 }
 
@@ -204,24 +204,18 @@ func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry
 	return systemRegistryDto, nil
 }
 
-func (s systemSettingService) CreateRegistry(creation []dto.SystemRegistryCreate) ([]dto.SystemRegistry, error) {
-	var result []dto.SystemRegistry
-	for _, mo := range creation {
-		systemRegistry := model.SystemRegistry{
-			ID:           mo.ID,
-			Architecture: mo.Architecture,
-			Protocol:     mo.Protocol,
-			Hostname:     mo.Hostname,
-		}
-		err := s.systemRegistryRepo.Save(&systemRegistry)
-		if err != nil {
-			return result, err
-		}
-		result = append(result, dto.SystemRegistry{
-			SystemRegistry: systemRegistry,
-		})
+func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
+	systemRegistry := model.SystemRegistry{
+		ID:           creation.ID,
+		Architecture: creation.Architecture,
+		Protocol:     creation.Protocol,
+		Hostname:     creation.Hostname,
 	}
-	return result, nil
+	err := s.systemRegistryRepo.Save(&systemRegistry)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
 func (s systemSettingService) PageRegistry(num, size int) (page.Page, error) {
