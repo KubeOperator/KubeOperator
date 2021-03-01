@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -84,12 +85,23 @@ func (s SystemSettingController) PostCheckBy(typeName string) error {
 	return nil
 }
 
-func (s SystemSettingController) GetRegistry() (interface{}, error) {
-	item, err := s.SystemSettingService.ListRegistry()
-	if err != nil {
-		return nil, err
+func (s SystemSettingController) GetRegistry() (page.Page, error) {
+	p, _ := s.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := s.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := s.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return s.SystemSettingService.PageRegistry(num, size)
+	} else {
+		var page page.Page
+		items, err := s.SystemSettingService.ListRegistry()
+		if err != nil {
+			return page, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return page, nil
 	}
-	return item, nil
+
 }
 
 func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {

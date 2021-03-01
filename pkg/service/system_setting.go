@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -23,6 +24,7 @@ type SystemSettingService interface {
 	ListRegistry() ([]dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation []dto.SystemRegistryCreate) ([]dto.SystemRegistry, error)
+	PageRegistry(num, size int) (page.Page, error)
 }
 
 type systemSettingService struct {
@@ -130,7 +132,7 @@ func (s systemSettingService) GetLocalIP() (string, error) {
 	if err := db.DB.Model(&model.SystemRegistry{}).Where("architecture = ?", "amd64").First(&sysRegistry).Error; err != nil {
 		return "", fmt.Errorf("can't found registry from system registry, err %s", err.Error())
 	}
-	return sysRegistry.RegistryHostname, nil
+	return sysRegistry.Hostname, nil
 }
 
 func (s systemSettingService) CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error {
@@ -193,10 +195,10 @@ func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry
 	}
 	systemRegistryDto := dto.SystemRegistry{
 		SystemRegistry: model.SystemRegistry{
-			ID:               r.ID,
-			RegistryHostname: r.RegistryHostname,
-			RegistryProtocol: r.RegistryProtocol,
-			Architecture:     r.Architecture,
+			ID:           r.ID,
+			Hostname:     r.Hostname,
+			Protocol:     r.Protocol,
+			Architecture: r.Architecture,
 		},
 	}
 	return systemRegistryDto, nil
@@ -206,10 +208,10 @@ func (s systemSettingService) CreateRegistry(creation []dto.SystemRegistryCreate
 	var result []dto.SystemRegistry
 	for _, mo := range creation {
 		systemRegistry := model.SystemRegistry{
-			ID:               mo.ID,
-			Architecture:     mo.Architecture,
-			RegistryProtocol: mo.RegistryProtocol,
-			RegistryHostname: mo.RegistryHostname,
+			ID:           mo.ID,
+			Architecture: mo.Architecture,
+			Protocol:     mo.Protocol,
+			Hostname:     mo.Hostname,
 		}
 		err := s.systemRegistryRepo.Save(&systemRegistry)
 		if err != nil {
@@ -220,4 +222,19 @@ func (s systemSettingService) CreateRegistry(creation []dto.SystemRegistryCreate
 		})
 	}
 	return result, nil
+}
+
+func (s systemSettingService) PageRegistry(num, size int) (page.Page, error) {
+	var page page.Page
+	var systemRegistryDto []dto.SystemRegistry
+	total, mos, err := s.systemRegistryRepo.Page(num, size)
+	if err != nil {
+		return page, err
+	}
+	for _, mo := range mos {
+		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{SystemRegistry: mo})
+	}
+	page.Total = total
+	page.Items = systemRegistryDto
+	return page, err
 }
