@@ -34,16 +34,8 @@ type hostRepository struct {
 
 func (h hostRepository) Get(name string) (model.Host, error) {
 	var host model.Host
-	if err := db.DB.Where("name = ?", name).First(&host).Preload("Volumes").Preload("Credential").Error; err != nil {
-		return host, err
-	}
-	if err := db.DB.First(&host).Related(&host.Volumes).Error; err != nil {
-		return host, err
-	}
-	if err := db.DB.First(&host).Related(&host.Credential).Error; err != nil {
-		return host, err
-	}
-	return host, nil
+	err := db.DB.Where("name = ?", name).Preload("Volumes").Preload("Credential").First(&host).Error
+	return host, err
 }
 
 func (h hostRepository) List(projectName string) ([]model.Host, error) {

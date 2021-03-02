@@ -119,9 +119,7 @@ func (c clusterNodeRepository) AllMaster(clusterId string) ([]model.ClusterNode,
 func (c clusterNodeRepository) Delete(id string) error {
 	node := model.ClusterNode{ID: id}
 	tx := db.DB.Begin()
-	if err := db.DB.
-		First(&node).
-		Related(&node.Host).Error; err != nil {
+	if err := db.DB.Preload("Host").First(&node).Error; err != nil {
 		return err
 	}
 	if err := db.DB.Delete(&node).Error; err != nil {

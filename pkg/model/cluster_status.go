@@ -22,9 +22,7 @@ func (s *ClusterStatus) BeforeCreate() (err error) {
 
 func (s ClusterStatus) BeforeDelete() (err error) {
 	status := ClusterStatus{ID: s.ID}
-	if err := db.DB.
-		First(&status).
-		Related(&status.ClusterStatusConditions).Error; err != nil {
+	if err := db.DB.Preload("ClusterStatusConditions").First(&status).Error; err != nil {
 		return err
 	}
 	tx := db.DB.Begin()
