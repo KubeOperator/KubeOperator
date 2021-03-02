@@ -1,1 +1,36 @@
-<p>registry-update works!</p>
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_EDIT'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #registryUpdateForm='ngForm'>
+            <clr-select-container>
+                <label>架构</label>
+                <select clrSelect [(ngModel)]="item.architecture" name="architecture" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="x86_64">x86_64</option>
+                    <option value="aarch64">aarch64</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container>
+                <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
+                <select clrSelect [(ngModel)]="item.protocol" name="protocol" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="http">http</option>
+                    <option value="https">https</option>
+                </select>
+            </clr-select-container>
+            <clr-input-container>
+                <label>{{'APP_REGISTRY_IP'|translate}}</label>
+                <input clrInput [size]="32" name="hostname" [(ngModel)]="item.hostname" size=45 required
+                       pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"
+                       required/>
+                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
+            </clr-input-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="registryUpdateForm.invalid">提交
+        </button>
+    </div>
+</clr-modal>

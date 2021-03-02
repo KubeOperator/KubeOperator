@@ -1,7 +1,7 @@
 import {BaseModelService} from './BaseModelService';
-import {EventEmitter, OnInit, Output, Directive} from '@angular/core';
+import {Directive, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModel} from './BaseModel';
-import {MultiClusterRepository} from "../../business/multi-cluster/multi-cluster-repository";
+import {MultiClusterRepository} from '../../business/multi-cluster/multi-cluster-repository';
 
 @Directive()
 export abstract class BaseModelDirective<T extends BaseModel> implements OnInit {

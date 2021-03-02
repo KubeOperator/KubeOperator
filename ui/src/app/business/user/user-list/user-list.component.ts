@@ -23,7 +23,6 @@ export class UserListComponent extends BaseModelDirective<User> implements OnIni
         super.ngOnInit();
     }
 
-
     updateUser(item) {
         this.userService.update(item.name, item).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);

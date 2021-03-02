@@ -1,13 +1,14 @@
 import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 
 export class Registry extends BaseModel {
-    RegistryHostname: string;
-    RegistryProtocol: string;
-    Architecture: string;
+    id: string;
+    hostname: string;
+    protocol: string;
+    architecture: string;
 }
 
 export class RegistryCreateRequest extends BaseRequest {
-    RegistryHostname: string;
-    RegistryProtocol: string;
-    Architecture: string;
+    hostname: string;
+    protocol: string;
+    architecture: string;
 }

@@ -12,16 +12,22 @@ import {ThemeComponent} from './theme/theme.component';
 import {MessageComponent} from './message/message.component';
 import {EmailComponent} from './email/email.component';
 import { RegistrySettingComponent } from './registry-setting/registry-setting.component';
+import { RegistryCreateComponent } from './registry-setting/registry-create/registry-create.component';
+import { RegistryListComponent } from './registry-setting/registry-list/registry-list.component';
+import { RegistryDeleteComponent } from './registry-setting/registry-delete/registry-delete.component';
+import { RegistryUpdateComponent } from './registry-setting/registry-update/registry-update.component';
+import {SharedModule} from '../../shared/shared.module';
 
 
 @NgModule({
     declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent,
-        LdapComponent, ThemeComponent, MessageComponent, EmailComponent, RegistrySettingComponent],
+        LdapComponent, ThemeComponent, MessageComponent, EmailComponent, RegistrySettingComponent, RegistryCreateComponent, RegistryListComponent, RegistryDeleteComponent, RegistryUpdateComponent],
     imports: [
         RouterModule,
         CoreModule,
         CredentialModule,
         BackupAccountModule,
+        SharedModule,
     ]
 })
 

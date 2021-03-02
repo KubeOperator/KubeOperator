@@ -14,18 +14,27 @@ export class RegistryService extends BaseModelService<Registry> {
         super(http);
     }
 
-    mixedGet(): Observable<Registry> {
-        const itemUrl = `${this.baseUrl}`;
-        return this.http.get<Registry>(itemUrl);
+    // mixedGet(): Observable<Registry> {
+    //     const itemUrl = `${this.baseUrl}`;
+    //     return this.http.get<Registry>(itemUrl);
+    // }
+    //
+    updateRegistryBy(arch: string, item: Registry): Observable<Registry> {
+        const url = `${this.baseUrl}/${arch}`;
+        return this.http.patch<Registry>(url, item);
     }
 
-    getRegistrtyBy(arch): Observable<string> {
-        const itemUrl = `${this.baseUrl}/${arch}`;
-        return this.http.get<string>(itemUrl);
-    }
-
-    CreateRegistry(): Observable<Registry> {
-        const itemUrl = `${this.baseUrl}`;
-        return this.http.get<Registry>(itemUrl);
-    }
+    // //
+    // // update(name: string, item: BaseRequest, ipPoolName?: string): Observable<Ip> {
+    // //     let url = this.baseUrl;
+    // //     if (ipPoolName) {
+    // //         url = this.baseUrl.replace('{name}', ipPoolName);
+    // //     }
+    // //     return this.http.patch<Ip>(url, item);
+    // // }
+    //
+    // CreateRegistry(): Observable<Registry> {
+    //     const itemUrl = `${this.baseUrl}`;
+    //     return this.http.get<Registry>(itemUrl);
+    // }
 }
