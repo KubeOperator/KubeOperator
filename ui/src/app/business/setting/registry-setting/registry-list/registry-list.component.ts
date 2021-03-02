@@ -5,7 +5,8 @@ import {SystemService} from '../../system.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {RegistryService} from '../registry.service';
-import {System} from '../../system/system';
+import {System, SystemCreateRequest} from '../../system/system';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-registry-list',
@@ -13,7 +14,9 @@ import {System} from '../../system/system';
     styleUrls: ['./registry-list.component.css']
 })
 export class RegistryListComponent extends BaseModelDirective<Registry> implements OnInit {
+    item: System = new System();
     systemItem: System = new System();
+    createItem: SystemCreateRequest = new SystemCreateRequest();
 
     constructor(private systemService: SystemService, private commonAlertService: CommonAlertService,
                 private translateService: TranslateService, private registryService: RegistryService) {
@@ -29,11 +32,20 @@ export class RegistryListComponent extends BaseModelDirective<Registry> implemen
         this.systemService.singleGet().subscribe(res => {
             this.systemItem = res;
         });
-        if (this.systemItem.vars['arch_type'] === 'Mixed') {
-            console.log('mixed running');
-            // this.registryService.mixedGet().subscribe(res => {
-            //     this.items = res;
-            // });
-        }
+    }
+
+    SingleOnSubmit() {
+        this.createItem.vars = this.item.vars;
+        this.createItem.tab = 'SYSTEM';
+        this.systemService.create(this.createItem).subscribe(res => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            window.location.reload();
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
+    MixedOnSubmit() {
+        console.log('Mixed');
     }
 }
