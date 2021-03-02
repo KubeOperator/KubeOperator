@@ -120,3 +120,41 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	}
 	return s.SystemSettingService.CreateRegistry(req)
 }
+
+func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegistry, error) {
+	var req dto.SystemRegistryUpdate
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return s.SystemSettingService.UpdateRegistry(req)
+}
+
+func (s SystemSettingController) PostRegistryBatch() error {
+	var req dto.SystemRegistryBatchOp
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = s.SystemSettingService.BatchRegistry(req)
+	if err != nil {
+		return err
+	}
+	operator := s.Ctx.Values().GetString("operator")
+	delCres := ""
+	for _, item := range req.Items {
+		delCres += (item.Architecture + ",")
+	}
+	go kolog.Save(operator, constant.DELETE_REGISTRY, delCres)
+	return err
+}

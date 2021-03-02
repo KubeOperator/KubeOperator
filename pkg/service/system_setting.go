@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -24,7 +25,9 @@ type SystemSettingService interface {
 	ListRegistry() ([]dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
+	UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	PageRegistry(num, size int) (page.Page, error)
+	BatchRegistry(op dto.SystemRegistryBatchOp) error
 }
 
 type systemSettingService struct {
@@ -218,6 +221,20 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
+func (s systemSettingService) UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
+	systemRegistry := model.SystemRegistry{
+		ID:           creation.ID,
+		Architecture: creation.Architecture,
+		Protocol:     creation.Protocol,
+		Hostname:     creation.Hostname,
+	}
+	err := s.systemRegistryRepo.Save(&systemRegistry)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
+}
+
 func (s systemSettingService) PageRegistry(num, size int) (page.Page, error) {
 	var page page.Page
 	var systemRegistryDto []dto.SystemRegistry
@@ -231,4 +248,20 @@ func (s systemSettingService) PageRegistry(num, size int) (page.Page, error) {
 	page.Total = total
 	page.Items = systemRegistryDto
 	return page, err
+}
+
+func (s systemSettingService) BatchRegistry(op dto.SystemRegistryBatchOp) error {
+	var deleteItems []model.SystemRegistry
+	for _, item := range op.Items {
+		deleteItems = append(deleteItems, model.SystemRegistry{
+			BaseModel:    common.BaseModel{},
+			ID:           item.ID,
+			Architecture: item.Architecture,
+		})
+	}
+	err := s.systemRegistryRepo.Batch(op.Operation, deleteItems)
+	if err != nil {
+		return err
+	}
+	return nil
 }
