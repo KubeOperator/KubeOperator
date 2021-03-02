@@ -78,6 +78,10 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
                 this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
                 return;
             }
+            if (!data.vars['arch_type']) {
+                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_ARCH'), AlertLevels.ERROR);
+                return;
+            }
             super.onCreate();
         });
     }

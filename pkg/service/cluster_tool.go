@@ -223,7 +223,7 @@ func (c clusterToolService) getBaseParams(clusterName string) (dto.Cluster, []ku
 		secret  dto.ClusterSecret
 		err     error
 	)
-	if err := db.DB.Where(&model.Cluster{Name: clusterName}).Preload("Spec").Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
 		return cluster, host, secret, err
 	}
 

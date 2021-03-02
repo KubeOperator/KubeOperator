@@ -80,7 +80,7 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 						message = condition.Message + message
 					}
 					p.Message = message
-					db.DB.Model(&model.ClusterStorageProvisioner{}).Save(&p)
+					db.DB.Save(&p)
 				}
 			}
 		}
@@ -306,7 +306,7 @@ func (c clusterStorageProvisionerService) sync(clusterName string, provisioner d
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
 	var provisioner model.ClusterStorageProvisioner
-	db.DB.Where(model.ClusterStorageProvisioner{Name: provisionerName}).First(&provisioner)
+	db.DB.Where("name = ?", provisionerName).First(&provisioner)
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}

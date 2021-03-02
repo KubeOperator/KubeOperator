@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
-	"github.com/pkg/errors"
 	"math"
 	"net"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
+	"github.com/pkg/errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -271,7 +272,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	case constant.ClusterProviderPlan:
 		spec.WorkerAmount = creation.WorkerAmount
 		var plan model.Plan
-		if err := tx.Where(&model.Plan{Name: creation.Plan}).First(&plan).Error; err != nil {
+		if err := tx.Where("name = ?", creation.Plan).First(&plan).Error; err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
 		}
@@ -298,9 +299,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			}
 
 			var host model.Host
-			if err := tx.Set("gorm:query_option", "FOR UPDATE").Model(&model.Host{}).Where(&model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
+			if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("name = ?", nc.HostName).First(&host).Error; err != nil {
 				tx.Rollback()
-				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
+				return nil, fmt.Errorf("can not find host %s cluster id ", nc.HostName)
 			}
 			host.ClusterID = cluster.ID
 			if err := tx.Save(&host).Error; err != nil {
@@ -323,7 +324,8 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		return nil, err
 	}
 	var project model.Project
-	if err := tx.Where(&model.Project{Name: creation.ProjectName}).First(&project).Error; err != nil {
+	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
 	}
 	projectResource := model.ProjectResource{
@@ -332,6 +334,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		ResourceType: constant.ResourceCluster,
 	}
 	if err := tx.Create(&projectResource).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
 	}
 

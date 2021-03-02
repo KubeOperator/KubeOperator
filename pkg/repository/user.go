@@ -26,26 +26,26 @@ func NewUserRepository() UserRepository {
 func (u userRepository) Page(num, size int) (int, []model.User, error) {
 	var total int
 	var users []model.User
-	err := db.DB.Model(&model.User{}).Order("name").Count(&total).Find(&users).Offset((num - 1) * size).Limit(size).Error
+	err := db.DB.Model(&model.User{}).Count(&total).Order("name").Offset((num - 1) * size).Limit(size).Find(&users).Error
 	return total, users, err
 }
 
 func (u userRepository) List() ([]model.User, error) {
 	var users []model.User
-	err := db.DB.Model(&model.User{}).Order("name").Find(&users).Error
+	err := db.DB.Order("name").Find(&users).Error
 	return users, err
 }
 
 func (u userRepository) ListIsAdmin() ([]model.User, error) {
 	var users []model.User
-	err := db.DB.Where(&model.User{IsAdmin: true}).Find(&users).Error
+	err := db.DB.Where("is_admin = ?", true).Find(&users).Error
 	return users, err
 }
 
 func (u userRepository) Get(name string) (model.User, error) {
 	var user model.User
 	user.Name = name
-	if err := db.DB.Where(user).First(&user).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
@@ -70,7 +70,7 @@ func (u userRepository) Batch(operation string, items []model.User) error {
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for _, item := range items {
-			err := db.DB.Model(&model.User{}).Delete(&item).Error
+			err := db.DB.Delete(&item).Error
 			if err != nil {
 				tx.Rollback()
 				return err

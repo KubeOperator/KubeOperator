@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -66,7 +67,7 @@ func (c cLusterBackupStrategyService) Save(creation dto.ClusterBackupStrategyReq
 		id = old.ID
 		if old.BackupAccountID != backupAccount.ID {
 			var backupFiles []model.ClusterBackupFile
-			err := db.DB.Where(&model.ClusterBackupFile{ClusterBackupStrategyID: id, ClusterID: cluster.ID}).Find(&backupFiles).Error
+			err := db.DB.Where("cluster_backup_strategy_id = ? AND cluster_id = ?", id, cluster.ID).Find(&backupFiles).Error
 			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}

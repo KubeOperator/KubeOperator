@@ -48,6 +48,7 @@
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="arm64">ARM64</option>
                     <option value="amd64">AMD64</option>
+                    <option *ngIf="archType === 'mixed' && item.provider === 'bareMetal'" value="all">MIXED</option>
                 </select>
             </clr-select-container>
             <clr-select-container>

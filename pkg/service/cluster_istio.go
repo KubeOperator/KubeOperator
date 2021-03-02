@@ -38,10 +38,10 @@ func (c clusterIstioService) List(clusterName string) ([]dto.ClusterIstio, error
 		istios    []model.ClusterIstio
 		cluster   model.Cluster
 	)
-	if err := db.DB.Where(&model.Cluster{Name: clusterName}).Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Find(&cluster).Error; err != nil {
 		return istioDtos, err
 	}
-	if err := db.DB.Where(&model.ClusterIstio{ClusterID: cluster.ID}).Find(&istios).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&istios).Error; err != nil {
 		return istioDtos, err
 	}
 	for _, m := range istios {
@@ -163,7 +163,7 @@ func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, []k
 		secret    dto.ClusterSecret
 		err       error
 	)
-	if err := db.DB.Where(&model.Cluster{Name: clusterName}).Preload("Spec").Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
 		return cluster, endpoints, secret, err
 	}
 
@@ -198,7 +198,7 @@ func (c clusterIstioService) doUninstall(p istios.IstioInterface, istio *model.C
 
 func saveIstio(istio *model.ClusterIstio) error {
 	var item model.ClusterIstio
-	notFound := db.DB.Where(&model.ClusterIstio{ClusterID: istio.ClusterID, Name: istio.Name}).First(&item).RecordNotFound()
+	notFound := db.DB.Where("cluster_id = ? AND name = ?", istio.ClusterID, istio.Name).First(&item).RecordNotFound()
 	if notFound {
 		if err := db.DB.Create(istio).Error; err != nil {
 			return err

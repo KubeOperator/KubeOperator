@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"math/rand"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -12,7 +14,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/jinzhu/gorm"
-	"math/rand"
 )
 
 var (
@@ -88,7 +89,7 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	}
 
 	var userEmail model.User
-	db.DB.Where(&model.User{Email: creation.Email}).First(&userEmail)
+	db.DB.Where("email = ?", creation.Email).First(&userEmail)
 	if userEmail.ID != "" {
 		return nil, EmailExist
 	}

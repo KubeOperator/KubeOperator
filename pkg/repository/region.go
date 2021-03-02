@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -29,8 +30,7 @@ type regionRepository struct {
 
 func (r regionRepository) Get(name string) (model.Region, error) {
 	var region model.Region
-	region.Name = name
-	if err := db.DB.Where(region).First(&region).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&region).Error; err != nil {
 		return region, err
 	}
 	return region, nil
@@ -38,19 +38,14 @@ func (r regionRepository) Get(name string) (model.Region, error) {
 
 func (r regionRepository) List() ([]model.Region, error) {
 	var regions []model.Region
-	err := db.DB.Model(&model.Region{}).Find(&regions).Error
+	err := db.DB.Find(&regions).Error
 	return regions, err
 }
 
 func (r regionRepository) Page(num, size int) (int, []model.Region, error) {
 	var total int
 	var regions []model.Region
-	err := db.DB.Model(&model.Region{}).
-		Count(&total).
-		Find(&regions).
-		Offset((num - 1) * size).
-		Limit(size).
-		Error
+	err := db.DB.Model(&model.Region{}).Count(&total).Offset((num - 1) * size).Limit(size).Find(&regions).Error
 	return total, regions, err
 }
 

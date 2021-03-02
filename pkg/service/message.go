@@ -94,7 +94,7 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 	}
 	if len(proResources) != 0 {
 		projectId := proResources[0].ProjectID
-		if err := db.DB.Where(&model.Project{ID: projectId}).First(&project).Error; err != nil {
+		if err := db.DB.Where("id = ?", projectId).First(&project).Error; err != nil {
 			return ""
 		}
 	}

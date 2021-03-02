@@ -7,12 +7,15 @@
                 <select clrSelect [(ngModel)]="item.type" name="type" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="nfs">nfs</option>
-                    <option value="external-ceph" *ngIf="currentCluster.spec.architectures === 'amd64'">external-ceph</option>
+                    <option value="external-ceph" *ngIf="currentCluster.spec.architectures === 'amd64'">external-ceph
+                    </option>
                     <option value="rook-ceph" *ngIf="currentCluster.spec.architectures === 'amd64'">rook-ceph</option>
                     <option value="vsphere" *ngIf="currentCluster.spec.architectures === 'amd64'">vsphere</option>
                     <option value="oceanstor" *ngIf="currentCluster.spec.architectures === 'amd64'">oceanstor</option>
                 </select>
             </clr-select-container>
+            <br>
+            <span *ngIf="item.type==='vsphere'">{{'APP_PROVISIONER_VSPHERE_WARNING'|translate}}</span>
         </form>
     </div>
     <div class="modal-footer">

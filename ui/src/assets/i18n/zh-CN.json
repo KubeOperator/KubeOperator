@@ -306,6 +306,7 @@
   "APP_DELETE_BACKUP_ACCOUNT": "删除备份账号",
   "APP_LICENSE": "许可",
   "APP_NOT_SET_SYSTEM_IP": "请先设置仓库IP",
+  "APP_NOT_SET_SYSTEM_ARCH": "请先设置系统部署模式",
   "APP_BACKUP_STRATEGY": "备份策略",
   "APP_BACKUP_CRON": "备份间隔(天)",
   "APP_BACKUP_SAVE_NUM": "保留份数",
@@ -686,5 +687,6 @@
   "APP_NUM_LIMIT": "数量上限",
   "APP_CIDR_HELPER": "CIDR不能与目标IP段重叠， 否则会造成初始化失败",
   "APP_CONTAINER": "容器",
-  "APP_MAX_NODES_HELPLER": "当前容器网络配置下，集群最多拥有"
+  "APP_MAX_NODES_HELPLER": "当前容器网络配置下，集群最多拥有",
+  "APP_PROVISIONER_VSPHERE_WARNING": "VMware 环境最低要求：\n 1.vCenter 6.7 Update 3 \n 2.ESXi v6.7.0+"
 }

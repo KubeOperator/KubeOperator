@@ -26,7 +26,7 @@ func (r *RefreshHostInfo) Run() {
 	var hosts []model.Host
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 2) // 信号量
-	db.DB.Model(&model.Host{}).Find(&hosts)
+	db.DB.Find(&hosts)
 	for _, host := range hosts {
 		if host.Status == constant.ClusterCreating || host.Status == constant.ClusterInitializing || host.Status == constant.ClusterSynchronizing {
 			continue

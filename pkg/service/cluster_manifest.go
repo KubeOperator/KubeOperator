@@ -134,7 +134,7 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 		var clusterManifestGroup dto.ClusterManifestGroup
 		clusterManifestGroup.LargeVersion = largeVersion.Version
 		var manifests []model.ClusterManifest
-		db.DB.Model(model.ClusterManifest{}).Where("version LIKE ?", "%"+largeVersion.Version+"%").Find(&manifests)
+		db.DB.Where("version LIKE ?", "%"+largeVersion.Version+"%").Find(&manifests)
 		if len(manifests) == 0 {
 			continue
 		}

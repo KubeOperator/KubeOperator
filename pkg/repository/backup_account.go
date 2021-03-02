@@ -27,8 +27,7 @@ func NewBackupAccountRepository() BackupAccountRepository {
 
 func (b backupAccountRepository) Get(name string) (*model.BackupAccount, error) {
 	var backupAccount model.BackupAccount
-	backupAccount.Name = name
-	if err := db.DB.Where(backupAccount).First(&backupAccount).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&backupAccount).Error; err != nil {
 		return nil, err
 	}
 	return &backupAccount, nil
@@ -37,7 +36,7 @@ func (b backupAccountRepository) Get(name string) (*model.BackupAccount, error) 
 func (b backupAccountRepository) List(projectName string) ([]model.BackupAccount, error) {
 	var backupAccounts []model.BackupAccount
 	if projectName == "" {
-		err := db.DB.Model(&model.BackupAccount{}).Find(&backupAccounts).Error
+		err := db.DB.Find(&backupAccounts).Error
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +49,7 @@ func (b backupAccountRepository) List(projectName string) ([]model.BackupAccount
 		for _, pr := range projectResources {
 			resourceIds = append(resourceIds, pr.ResourceID)
 		}
-		err = db.DB.Model(&model.BackupAccount{}).Where("id in (?)", resourceIds).Find(&backupAccounts).Error
+		err = db.DB.Where("id in (?)", resourceIds).Find(&backupAccounts).Error
 		if err != nil {
 			return nil, err
 		}
@@ -62,11 +61,7 @@ func (b backupAccountRepository) List(projectName string) ([]model.BackupAccount
 func (b backupAccountRepository) Page(num, size int) (int, []model.BackupAccount, error) {
 	var total int
 	var backupAccounts []model.BackupAccount
-	err := db.DB.Model(&model.BackupAccount{}).
-		Count(&total).
-		Find(&backupAccounts).
-		Offset((num - 1) * size).
-		Limit(size).Error
+	err := db.DB.Model(&model.BackupAccount{}).Count(&total).Offset((num - 1) * size).Limit(size).Find(&backupAccounts).Error
 	return total, backupAccounts, err
 }
 
@@ -74,7 +69,7 @@ func (b backupAccountRepository) Save(backupAccount *model.BackupAccount) error 
 	if db.DB.NewRecord(backupAccount) {
 		return db.DB.Create(backupAccount).Error
 	} else {
-		return db.DB.Model(&backupAccount).Updates(&backupAccount).Error
+		return db.DB.Save(&backupAccount).Error
 	}
 }
 
@@ -85,7 +80,7 @@ func (b backupAccountRepository) Batch(operation string, items []model.BackupAcc
 	case constant.BatchOperationDelete:
 		for i := range items {
 			var backupAccount model.BackupAccount
-			if err := db.DB.Where(&model.BackupAccount{Name: items[i].Name}).First(&backupAccount).Error; err != nil {
+			if err := db.DB.Where("name = ?", items[i].Name).First(&backupAccount).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

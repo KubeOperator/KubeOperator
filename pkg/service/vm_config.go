@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -84,7 +85,7 @@ func (v vmConfigService) Create(creation dto.VmConfigCreate) (*dto.VmConfig, err
 		return nil, errors.New(ConfigNameExist)
 	}
 	var config model.VmConfig
-	db.DB.Where(&model.VmConfig{Cpu: creation.Cpu, Memory: creation.Memory}).Find(&config)
+	db.DB.Where("cpu = ? AND memory = ?", creation.Cpu, creation.Memory).Find(&config)
 	if config.ID != "" {
 		return nil, errors.New(ConfigExist)
 	}
