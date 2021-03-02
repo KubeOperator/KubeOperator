@@ -29,22 +29,22 @@
             <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                     <clr-icon shape="plus" size="16"></clr-icon>
-                    {{"APP_ADD"|translate}}
+                    {{'APP_ADD'|translate}}
                 </button>
                 <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
                         [disabled]="selected.length!==1">
                     <clr-icon shape="note"></clr-icon>
-                    {{"APP_EDIT"|translate}}
+                    {{'APP_EDIT'|translate}}
                 </button>
                 <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                     <clr-icon shape="close"></clr-icon>
-                    {{"APP_DELETE"|translate}}
+                    {{'APP_DELETE'|translate}}
                 </button>
             </div>
         </clr-dg-action-bar>
-        <clr-dg-column>CPU架构</clr-dg-column>
-        <clr-dg-column>协议</clr-dg-column>
-        <clr-dg-column>地址</clr-dg-column>
+        <clr-dg-column>{{'APP_SYSTEM_CPU_ARCH'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'APP_SYSTEM_REGISTRY_PROTOCOL'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'APP_SYSTEM_REGISTRY_IP'|translate}}</clr-dg-column>
         <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
 
 
@@ -58,7 +58,7 @@
             <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                                (clrDgPageChange)="refresh()">
                 {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-                {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} 仓库
+                {{'APP_PAGER_TOTAL'|translate}} {{pagination.totalItems}} 仓库
             </clr-dg-pagination>
         </clr-dg-footer>
     </clr-datagrid>
