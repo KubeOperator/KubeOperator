@@ -26,9 +26,9 @@ type planRepository struct {
 
 func (p planRepository) Get(name string) (model.Plan, error) {
 	var plan model.Plan
-	if err := db.DB.Where("name = ?", name).First(&plan).
+	if err := db.DB.Where("name = ?", name).
 		Preload("Zones").
-		Preload("Region").Find(&plan).Error; err != nil {
+		Preload("Region").First(&plan).Error; err != nil {
 		return plan, err
 	}
 	return plan, nil

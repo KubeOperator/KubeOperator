@@ -6,7 +6,6 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 )
 
 type Prometheus struct {
@@ -72,13 +71,6 @@ func (p Prometheus) Install(toolDetail model.ClusterToolDetail) error {
 		return err
 	}
 
-	if err := p.createGrafanaDataSource(); err != nil {
-		return err
-	}
-
-	if err := p.createGrafanaDashboard(); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -88,32 +80,5 @@ func (p Prometheus) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (p Prometheus) Uninstall() error {
-	gClient := grafana.NewClient()
-	if err := gClient.DeleteDashboard(p.Cluster.Name); err != nil {
-		return err
-	}
-	if err := gClient.DeleteDataSource(p.Cluster.Name); err != nil {
-		return err
-	}
 	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.HelmClient, p.Cluster.KubeClient)
-}
-
-func (p Prometheus) createGrafanaDataSource() error {
-	grafanaClient := grafana.NewClient()
-	url := fmt.Sprintf("http://server:8080/proxy/prometheus/%s/", p.Cluster.Name)
-	return grafanaClient.CreateDataSource(p.Cluster.Name, url)
-
-}
-func (p Prometheus) createGrafanaDashboard() error {
-	grafanaClient := grafana.NewClient()
-	u, err := grafanaClient.CreateDashboard(p.Cluster.Name)
-	if err != nil {
-		return err
-	}
-	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(p.Tool.Vars), &values)
-	values["url"] = u
-	str, _ := json.Marshal(&values)
-	p.Tool.Vars = string(str)
-	return nil
 }

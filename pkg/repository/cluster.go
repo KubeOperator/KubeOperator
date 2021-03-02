@@ -5,7 +5,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 )
 
 var log = logger.Default
@@ -105,27 +104,6 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 }
 
 func (c clusterRepository) Delete(name string) error {
-	var cluster model.Cluster
-	if err := db.DB.Where("name = ?", name).First(&cluster).Error; err != nil {
-		return err
-	}
-	var prometheus model.ClusterTool
-	if err := db.DB.Where("name = ? AND cluster_id = ?", "prometheus", cluster.ID).First(&prometheus).Error; err != nil {
-		log.Error(err)
-	}
-	if prometheus.Status == constant.ClusterRunning {
-		// 尝试删除 grafana
-		gClient := grafana.NewClient()
-		if err := gClient.DeleteDashboard(cluster.Name); err != nil {
-			log.Error(err)
-		}
-		if err := gClient.DeleteDataSource(cluster.Name); err != nil {
-			log.Error(err)
-		}
-	}
-	if err := db.DB.Delete(&cluster).Error; err != nil {
-		return err
-	}
-
-	return nil
+	err := db.DB.Where("name = ?", name).Delete(&model.Cluster{}).Error
+	return err
 }

@@ -9,6 +9,7 @@ import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from '../../manifest/manifest.service';
+import { SystemService } from '../../setting/system.service';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class ClusterCreateComponent implements OnInit {
     workers: any[] = [];
     plans: Plan[] = [];
     versions: string[] = [];
+    archType: string = '';
     currentProject: Project;
     nameValid = true;
     nameChecking = false;
@@ -51,17 +53,24 @@ export class ClusterCreateComponent implements OnInit {
                 private hostService: HostService,
                 private planService: PlanService,
                 private route: ActivatedRoute,
+                private settingService: SystemService,
                 private manifestService: ManifestService) {
     }
 
 
     ngOnInit(): void {
+        this.getArchType();
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
         });
 
     }
 
+    getArchType () {
+        this.settingService.singleGet().subscribe(data => {
+            this.archType = data.vars['arch_type'];
+        });
+    }
 
     onPart1Change() {
         switch (this.parts[0]) {

@@ -306,6 +306,7 @@
   "APP_DELETE_BACKUP_ACCOUNT": "删除备份账号",
   "APP_LICENSE": "许可",
   "APP_NOT_SET_SYSTEM_IP": "请先设置仓库IP",
+  "APP_NOT_SET_SYSTEM_ARCH": "请先设置系统部署模式",
   "APP_BACKUP_STRATEGY": "备份策略",
   "APP_BACKUP_CRON": "备份间隔(天)",
   "APP_BACKUP_SAVE_NUM": "保留份数",
