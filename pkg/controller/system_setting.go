@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -8,6 +9,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
+)
+
+var (
+	RegistryAlreadyExistsErr = "REGISTRY_ALREADY_EXISTS"
 )
 
 type SystemSettingController struct {
@@ -117,6 +122,10 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	err := s.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
+	}
+	item, _ := s.SystemSettingService.GetRegistryByArch(req.Architecture)
+	if item.ID != "" {
+		return nil, errors.New(RegistryAlreadyExistsErr)
 	}
 	return s.SystemSettingService.CreateRegistry(req)
 }
