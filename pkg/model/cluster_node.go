@@ -26,9 +26,9 @@ type ClusterNode struct {
 }
 
 type Registry struct {
-	Architecture     string
-	RegistryProtocol string
-	RegistryHostname string
+	Architecture string
+	Protocol     string
+	Hostname     string
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {
@@ -53,11 +53,11 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 		return nil, err
 	}
 	if archType == "single" {
-		registry.RegistryHostname, err = getSetting("ip")
+		registry.Hostname, err = getSetting("ip")
 		if err != nil {
 			return nil, err
 		}
-		registry.RegistryProtocol, err = getSetting("REGISTRY_PROTOCOL")
+		registry.Protocol, err = getSetting("REGISTRY_PROTOCOL")
 		if err != nil {
 			return nil, err
 		}
@@ -74,8 +74,8 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 		if err != nil {
 			return nil, err
 		}
-		registry.RegistryHostname = systemRegistry.RegistryHostname
-		registry.RegistryProtocol = systemRegistry.RegistryProtocol
+		registry.Hostname = systemRegistry.Hostname
+		registry.Protocol = systemRegistry.Protocol
 		switch n.Host.Architecture {
 		case "x86_64":
 			registry.Architecture = "amd64"
@@ -99,8 +99,8 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		Vars: map[string]string{
 			"has_gpu":           fmt.Sprintf("%v", n.Host.HasGpu),
 			"architecture":      r.Architecture,
-			"registry_protocol": r.RegistryProtocol,
-			"registry_hostname": r.RegistryHostname,
+			"registry_protocol": r.Protocol,
+			"registry_hostname": r.Hostname,
 		},
 	}
 }

@@ -81,6 +81,7 @@ const (
 	CREATE_CREDENTIALS    = "添加凭证|Create credentials"
 	UPDATE_CREDENTIALS    = "修改凭证信息|Update credential information"
 	DELETE_CREDENTIALS    = "删除凭证|Delete credentials"
+	DELETE_REGISTRY       = "删除凭证|Delete registry"
 	CREATE_BACKUP_ACCOUNT = "添加备份账号|Create backup account"
 	UPDATE_BACKUP_ACCOUNT = "修改备份账号信息|Update backup account information"
 	DELETE_BACKUP_ACCOUNT = "删除备份账号|Delete backup account"

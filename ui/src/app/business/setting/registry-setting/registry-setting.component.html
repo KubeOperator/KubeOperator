@@ -1,28 +1,9 @@
-<div *ngIf="item.vars['arch_type']=='single'">
-    <form clrForm #settingForm="ngForm">
-        <div *ngIf="item">
-            <clr-select-container>
-                <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
-                <select clrSelect name="options" [(ngModel)]="item.vars['REGISTRY_PROTOCOL']" required>
-                    <option value="http">http</option>
-                    <option value="https">https</option>
-                </select>
-                <clr-control-helper>{{'APP_SYSTEM_PROTOCOL_HELPER'| translate}}</clr-control-helper>
-            </clr-select-container>
-
-            <clr-input-container>
-                <label>{{'APP_REGISTRY_IP'|translate}}</label>
-                <input clrInput [(ngModel)]="item.vars['ip']" name="ip" size=45 required
-                       pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"/>
-                <clr-control-helper>{{'APP_SYSTEM_IP_HELPER'|translate}}</clr-control-helper>
-                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
-            </clr-input-container>
-        </div>
-    </form>
-    <button class="btn btn-info-outline" (click)="SingleOnSubmit()"
-            [disabled]="settingForm.invalid">{{'APP_COMMIT'|translate}}</button>
-</div>
-
-<div *ngIf="item.vars['arch_type']=='mixed'">
-    <p>This is Mixed model</p>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <app-registry-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
+                           (updateEvent)="openUpdate($event)"></app-registry-list>
+        <app-registry-create (created)="refresh()"></app-registry-create>
+        <app-registry-update (update)="refresh()"></app-registry-update>
+        <app-registry-delete (deleted)="refresh()"></app-registry-delete>
+    </div>
 </div>

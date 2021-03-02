@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -84,12 +85,23 @@ func (s SystemSettingController) PostCheckBy(typeName string) error {
 	return nil
 }
 
-func (s SystemSettingController) GetRegistry() (interface{}, error) {
-	item, err := s.SystemSettingService.ListRegistry()
-	if err != nil {
-		return nil, err
+func (s SystemSettingController) GetRegistry() (page.Page, error) {
+	p, _ := s.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := s.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := s.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return s.SystemSettingService.PageRegistry(num, size)
+	} else {
+		var page page.Page
+		items, err := s.SystemSettingService.ListRegistry()
+		if err != nil {
+			return page, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return page, nil
 	}
-	return item, nil
+
 }
 
 func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
@@ -100,15 +112,49 @@ func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error)
 	return item, nil
 }
 
-func (s SystemSettingController) PostRegistry() ([]dto.SystemRegistry, error) {
-	var req []dto.SystemRegistryCreate
+func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
+	var req dto.SystemRegistryCreate
 	err := s.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
 	}
-	result, err := s.SystemSettingService.CreateRegistry(req)
+	return s.SystemSettingService.CreateRegistry(req)
+}
+
+func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegistry, error) {
+	var req dto.SystemRegistryUpdate
+	err := s.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return s.SystemSettingService.UpdateRegistry(req)
+}
+
+func (s SystemSettingController) PostRegistryBatch() error {
+	var req dto.SystemRegistryBatchOp
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = s.SystemSettingService.BatchRegistry(req)
+	if err != nil {
+		return err
+	}
+	operator := s.Ctx.Values().GetString("operator")
+	delCres := ""
+	for _, item := range req.Items {
+		delCres += (item.Architecture + ",")
+	}
+	go kolog.Save(operator, constant.DELETE_REGISTRY, delCres)
+	return err
 }

@@ -8,15 +8,19 @@ type SystemRegistry struct {
 
 type SystemRegistryCreate struct {
 	model.SystemRegistry
-	RegistryHostname string `json:"registry_hostname" validate:"required"`
-	RegistryProtocol string `json:"registry_protocol" validate:"required"`
-	Architecture     string `json:"architecture" validate:"required"`
+	Hostname     string `json:"hostname" validate:"required"`
+	Protocol     string `json:"protocol" validate:"required"`
+	Architecture string `json:"architecture" validate:"required"`
 }
 
 type SystemRegistryUpdate struct {
-	registry map[string]string `json:"vars" validate:"required"`
+	ID           string `json:"id" validate:"required"`
+	Hostname     string `json:"hostname" validate:"required"`
+	Protocol     string `json:"protocol" validate:"required"`
+	Architecture string `json:"architecture" validate:"required"`
 }
 
-type SystemRegistryResult struct {
-	registry map[string]string `json:"vars" validate:"required"`
+type SystemRegistryBatchOp struct {
+	Operation string           `json:"operation" validate:"required"`
+	Items     []SystemRegistry `json:"items" validate:"required"`
 }
