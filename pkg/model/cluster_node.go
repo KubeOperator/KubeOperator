@@ -2,13 +2,14 @@ package model
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	_ "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type ClusterNode struct {
@@ -37,7 +38,7 @@ func (n *ClusterNode) BeforeCreate() (err error) {
 
 func getSetting(key string) (string, error) {
 	var systemSetting SystemSetting
-	if err := db.DB.Where(&SystemSetting{Key: key}).First(&systemSetting).Error; err != nil {
+	if err := db.DB.Where(map[string]interface{}{"key": key}).First(&systemSetting).Error; err != nil {
 		return systemSetting.Value, err
 	}
 	return systemSetting.Value, nil
@@ -69,7 +70,7 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 			registry.Architecture = "amd64"
 		}
 	} else if archType == "mixed" {
-		err := db.DB.Where(&SystemRegistry{Architecture: arch}).First(&systemRegistry).Error
+		err := db.DB.Where("architecture = ?", arch).First(&systemRegistry).Error
 		if err != nil {
 			return nil, err
 		}

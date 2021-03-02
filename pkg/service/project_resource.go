@@ -50,7 +50,7 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 		switch resourceType {
 		case constant.ResourceHost:
 			var hosts []model.Host
-			err = db.DB.Model(&model.Host{}).Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
+			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
 			if err != nil {
 				return nil, err
 			}
@@ -67,14 +67,14 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 			page.Items = result
 		case constant.ResourcePlan:
 			var result []model.Plan
-			err = db.DB.Model(&model.Plan{}).Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
 				return nil, err
 			}
 			page.Items = result
 		case constant.ResourceBackupAccount:
 			var result []model.BackupAccount
-			err = db.DB.Model(&model.BackupAccount{}).Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
 				return nil, err
 			}
@@ -121,8 +121,7 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 		var itemId string
 		if op.Operation == constant.BatchOperationDelete {
 			var p model.ProjectResource
-			err := db.DB.Model(&model.ProjectResource{}).
-				Where("project_id = ? AND resource_type = ? AND resource_id = ?", item.ProjectID, item.ResourceType, resourceId).First(&p).Error
+			err := db.DB.Where("project_id = ? AND resource_type = ? AND resource_id = ?", item.ProjectID, item.ResourceType, resourceId).First(&p).Error
 			if err != nil {
 				return err
 			}
@@ -130,20 +129,20 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 
 			if item.ResourceType == constant.ResourceBackupAccount {
 				var clusterResources []model.ProjectResource
-				err = db.DB.Where(&model.ProjectResource{ProjectID: item.ProjectID, ResourceType: constant.ResourceCluster}).Find(&clusterResources).Error
+				err = db.DB.Where("project_id = ? AND resource_type = ?", item.ProjectID, constant.ResourceCluster).Find(&clusterResources).Error
 				if err != nil && !gorm.IsRecordNotFoundError(err) {
 					return err
 				}
 				if len(clusterResources) > 0 {
 					for _, clusterResource := range clusterResources {
 						var backupStrategy model.ClusterBackupStrategy
-						err = db.DB.Where(&model.ClusterBackupStrategy{BackupAccountID: resourceId, ClusterID: clusterResource.ResourceID}).First(&backupStrategy).Error
+						err = db.DB.Where("backup_account_id = ? AND cluster_id = ?", resourceId, clusterResource.ResourceID).First(&backupStrategy).Error
 						if err != nil && !gorm.IsRecordNotFoundError(err) {
 							return err
 						}
 						if backupStrategy.ID != "" {
 							var backupFiles []model.ClusterBackupFile
-							err = db.DB.Where(&model.ClusterBackupFile{ClusterBackupStrategyID: backupStrategy.ID, ClusterID: clusterResource.ResourceID}).Find(&backupFiles).Error
+							err = db.DB.Where("cluster_backup_strategy_id = ? AND cluster_id = ?", backupStrategy.ID, clusterResource.ResourceID).Find(&backupFiles).Error
 							if err != nil && !gorm.IsRecordNotFoundError(err) {
 								return err
 							}
@@ -159,7 +158,7 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 		if op.Operation == constant.BatchOperationCreate {
 			if item.ResourceType == constant.ResourceHost {
 				var clusterResources []model.ProjectResource
-				err := db.DB.Where(&model.ProjectResource{ResourceID: resourceId, ResourceType: constant.ResourceHost}).Find(&clusterResources).Error
+				err := db.DB.Where("resource_id = ? AND resource_type = ?", resourceId, constant.ResourceHost).Find(&clusterResources).Error
 				if err != nil && !gorm.IsRecordNotFoundError(err) {
 					return err
 				}
@@ -189,14 +188,12 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 		if err != nil {
 			return nil, err
 		}
-		err = db.DB.Model(&model.ProjectResource{}).Select("resource_id").Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: resourceType}).Find(&projectResources).Error
-		if err != nil {
+		if err = db.DB.Select("resource_id").Where("project_id = ? AND resource_type = ?", project.ID, resourceType).Find(&projectResources).Error; err != nil {
 			return nil, err
 		}
 	}
 	if resourceType == constant.ResourceHost {
-		err := db.DB.Model(&model.ProjectResource{}).Select("resource_id").Where(&model.ProjectResource{ResourceType: resourceType}).Find(&projectResources).Error
-		if err != nil {
+		if err := db.DB.Select("resource_id").Where("resource_type = ?", resourceType).Find(&projectResources).Error; err != nil {
 			return nil, err
 		}
 	}
@@ -210,27 +207,22 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 	switch resourceType {
 	case constant.ResourceHost:
 		var result []model.Host
-		err := db.DB.Model(&model.Host{}).
-			Where("id not  in (?) and cluster_id = ''", resourceIds).
-			Find(&result).Error
-		if err != nil {
+		if err := db.DB.Where("id not  in (?) and cluster_id = ''", resourceIds).Find(&result).Error; err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case constant.ResourcePlan:
 		var result []model.Plan
 		resourceIds = append(resourceIds, "1")
-		err := db.DB.Model(&model.Plan{}).Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
+		err := db.DB.Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
 		if err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case constant.ResourceBackupAccount:
 		var result []model.BackupAccount
 		resourceIds = append(resourceIds, "1")
-		err := db.DB.Model(&model.BackupAccount{}).Where("id not in (?)", resourceIds).Find(&result).Error
+		err := db.DB.Where("id not in (?)", resourceIds).Find(&result).Error
 		if err != nil {
 			return nil, err
 		}

@@ -25,8 +25,7 @@ type zoneRepository struct {
 
 func (z zoneRepository) Get(name string) (model.Zone, error) {
 	var zone model.Zone
-	zone.Name = name
-	if err := db.DB.Where(zone).First(&zone).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&zone).Error; err != nil {
 		return zone, err
 	}
 	return zone, nil
@@ -43,7 +42,7 @@ func (z zoneRepository) ListByRegionId(id string) ([]model.Zone, error) {
 
 func (z zoneRepository) List() ([]model.Zone, error) {
 	var zones []model.Zone
-	err := db.DB.Model(&model.Zone{}).Preload("IpPool").Find(&zones).Error
+	err := db.DB.Preload("IpPool").Find(&zones).Error
 	return zones, err
 }
 
@@ -52,12 +51,12 @@ func (z zoneRepository) Page(num, size int) (int, []model.Zone, error) {
 	var zones []model.Zone
 	err := db.DB.Model(&model.Zone{}).
 		Count(&total).
+		Offset((num - 1) * size).
+		Limit(size).
 		Preload("Region").
 		Preload("IpPool").
 		Preload("IpPool.Ips").
 		Find(&zones).
-		Offset((num - 1) * size).
-		Limit(size).
 		Error
 	return total, zones, err
 }
@@ -66,7 +65,7 @@ func (z zoneRepository) Save(zone *model.Zone) error {
 	if db.DB.NewRecord(zone) {
 		return db.DB.Create(&zone).Error
 	} else {
-		return db.DB.Model(&zone).Updates(&zone).Error
+		return db.DB.Save(&zone).Error
 	}
 }
 

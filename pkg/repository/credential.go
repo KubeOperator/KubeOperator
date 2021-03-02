@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -31,8 +32,7 @@ type credentialRepository struct {
 
 func (c credentialRepository) Get(name string) (model.Credential, error) {
 	var credential model.Credential
-	credential.Name = name
-	if err := db.DB.Where(credential).First(&credential).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&credential).Error; err != nil {
 		return credential, err
 	}
 	return credential, nil
@@ -40,19 +40,14 @@ func (c credentialRepository) Get(name string) (model.Credential, error) {
 
 func (c credentialRepository) List() ([]model.Credential, error) {
 	var credentials []model.Credential
-	err := db.DB.Model(&model.Credential{}).Find(&credentials).Error
+	err := db.DB.Find(&credentials).Error
 	return credentials, err
 }
 
 func (c credentialRepository) Page(num, size int) (int, []model.Credential, error) {
 	var total int
 	var credentials []model.Credential
-	err := db.DB.Model(&model.Credential{}).
-		Count(&total).
-		Find(&credentials).
-		Offset((num - 1) * size).
-		Limit(size).
-		Error
+	err := db.DB.Model(&model.Credential{}).Count(&total).Offset((num - 1) * size).Limit(size).Find(&credentials).Error
 	return total, credentials, err
 }
 
@@ -90,8 +85,7 @@ func (c credentialRepository) Delete(name string) error {
 
 func (c credentialRepository) GetById(id string) (model.Credential, error) {
 	var credential model.Credential
-	credential.ID = id
-	if err := db.DB.Where(credential).First(&credential).Error; err != nil {
+	if err := db.DB.Where("id = ?", id).First(&credential).Error; err != nil {
 		return credential, err
 	}
 	return credential, nil

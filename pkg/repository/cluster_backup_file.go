@@ -24,14 +24,21 @@ func NewClusterBackupFileRepository() ClusterBackupFileRepository {
 func (c clusterBackupFileRepository) Page(num, size int, clusterId string) (int, []model.ClusterBackupFile, error) {
 	var total int
 	var files []model.ClusterBackupFile
-	err := db.DB.Model(&model.ClusterBackupFile{}).Where(&model.ClusterBackupFile{ClusterID: clusterId}).Count(&total).
-		Find(&files).Offset((num - 1) * size).Limit(size).Error
+	err := db.DB.Model(&model.ClusterBackupFile{}).
+		Where("cluster_id = ?", clusterId).
+		Count(&total).
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&files).Error
 	return total, files, err
 }
 
 func (c clusterBackupFileRepository) Get(name string) (model.ClusterBackupFile, error) {
 	var file model.ClusterBackupFile
-	if err := db.DB.Where(&model.ClusterBackupFile{Name: name}).Preload("ClusterBackupStrategy").Preload("ClusterBackupStrategy.BackupAccount").Find(&file).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).
+		Preload("ClusterBackupStrategy").
+		Preload("ClusterBackupStrategy.BackupAccount").
+		Find(&file).Error; err != nil {
 		return file, err
 	}
 	return file, nil
@@ -53,7 +60,7 @@ func (c clusterBackupFileRepository) Batch(operation string, items []model.Clust
 		for i := range items {
 
 			var file model.ClusterBackupFile
-			if err := db.DB.Where(&model.ClusterBackupFile{Name: items[i].Name}).First(&file).Error; err != nil {
+			if err := db.DB.Where("name = ?", items[i].Name).First(&file).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

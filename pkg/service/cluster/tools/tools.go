@@ -269,7 +269,7 @@ func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h 
 
 func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error) {
 	var sourceData model.ClusterTool
-	if err := db.DB.Model(&model.ClusterTool{}).
+	if err := db.DB.
 		Where("cluster_id = ? AND status = ? AND name = ?", cluster.ID, "Running", sourceFrom).
 		Find(&sourceData).Error; err != nil {
 		return "", err

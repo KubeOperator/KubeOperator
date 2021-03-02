@@ -26,8 +26,7 @@ type planRepository struct {
 
 func (p planRepository) Get(name string) (model.Plan, error) {
 	var plan model.Plan
-	plan.Name = name
-	if err := db.DB.Where(plan).First(&plan).
+	if err := db.DB.Where("name = ?", name).First(&plan).
 		Preload("Zones").
 		Preload("Region").Find(&plan).Error; err != nil {
 		return plan, err
@@ -51,16 +50,16 @@ func (p planRepository) GetById(id string) (model.Plan, error) {
 func (p planRepository) List(projectName string) ([]model.Plan, error) {
 	var plans []model.Plan
 	if projectName == "" {
-		err := db.DB.Model(&model.Zone{}).Find(&plans).Error
+		err := db.DB.Find(&plans).Error
 		return plans, err
 	} else {
 		var project model.Project
-		err := db.DB.Model(&model.Project{}).Where(&model.Project{Name: projectName}).First(&project).Error
+		err := db.DB.Where("name = ?", projectName).First(&project).Error
 		if err != nil {
 			return nil, err
 		}
 		var projectResources []model.ProjectResource
-		err = db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourcePlan}).Find(&projectResources).Error
+		err = db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourcePlan).Find(&projectResources).Error
 		if err != nil {
 			return nil, err
 		}
@@ -68,7 +67,7 @@ func (p planRepository) List(projectName string) ([]model.Plan, error) {
 		for _, pr := range projectResources {
 			resourceIds = append(resourceIds, pr.ResourceID)
 		}
-		err = db.DB.Model(&model.Zone{}).Where("id in (?)", resourceIds).Find(&plans).Error
+		err = db.DB.Where("id in (?)", resourceIds).Find(&plans).Error
 		return plans, err
 	}
 }
@@ -76,26 +75,21 @@ func (p planRepository) List(projectName string) ([]model.Plan, error) {
 func (p planRepository) Page(num, size int) (int, []model.Plan, error) {
 	var total int
 	var plans []model.Plan
-	err := db.DB.Model(&model.Plan{}).
-		Count(&total).
-		Find(&plans).
-		Offset((num - 1) * size).
-		Limit(size).
-		Error
+	err := db.DB.Model(&model.Plan{}).Count(&total).Offset((num - 1) * size).Limit(size).Find(&plans).Error
 
 	for i, p := range plans {
 		var zoneIds []string
 		var planZones []model.PlanZones
-		db.DB.Model(&model.PlanZones{}).Where("plan_id = ?", p.ID).Find(&planZones)
+		db.DB.Where("plan_id = ?", p.ID).Find(&planZones)
 		for _, p := range planZones {
 			zoneIds = append(zoneIds, p.ZoneID)
 		}
 		var zones []model.Zone
-		db.DB.Model(&model.Zone{}).Where("id in (?)", zoneIds).Find(&zones)
+		db.DB.Where("id in (?)", zoneIds).Find(&zones)
 		plans[i].Zones = zones
 
 		var region model.Region
-		db.DB.Model(&model.Region{}).Where("id = ?", p.RegionID).First(&region)
+		db.DB.Where("id = ?", p.RegionID).First(&region)
 		plans[i].Region = region
 	}
 

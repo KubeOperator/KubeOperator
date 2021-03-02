@@ -52,10 +52,12 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	tx := db.DB.Begin()
 	//从错误后继续
 	if cluster.Cluster.Status.Phase == constant.StatusFailed && cluster.Cluster.Status.PrePhase == constant.StatusUpgrading {
-		if err := tx.Model(&model.ClusterStatusCondition{}).Where(&model.ClusterStatusCondition{ClusterStatusID: cluster.StatusID, Status: constant.ConditionFalse}).Updates(map[string]interface{}{
-			"Status":  constant.ConditionUnknown,
-			"Message": "",
-		}).Error; err != nil {
+		if err := tx.Model(&model.ClusterStatusCondition{}).
+			Where("cluster_status_id = ? AND status = ?", cluster.StatusID, constant.ConditionFalse).
+			Updates(map[string]interface{}{
+				"Status":  constant.ConditionUnknown,
+				"Message": "",
+			}).Error; err != nil {
 			return fmt.Errorf("reset status error %s", err.Error())
 		}
 	} else {
@@ -167,7 +169,7 @@ func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID
 					} else {
 						tool.HigherVersion = item.Version
 					}
-					if err := tx.Model(&model.ClusterTool{}).Updates(&tool).Error; err != nil {
+					if err := tx.Save(&tool).Error; err != nil {
 						return fmt.Errorf("update tool version error %s", err.Error())
 					}
 				}

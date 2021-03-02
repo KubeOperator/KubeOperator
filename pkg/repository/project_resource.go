@@ -26,24 +26,23 @@ type projectResourceRepository struct {
 func (p projectResourceRepository) PageByProjectIdAndType(num, size int, projectId string, resourceType string) (int, []model.ProjectResource, error) {
 	var total int
 	var projectResources []model.ProjectResource
-	err := db.DB.
-		Model(&model.ProjectResource{}).
-		Where(&model.ProjectResource{ProjectID: projectId, ResourceType: resourceType}).
+	err := db.DB.Model(&model.ProjectResource{}).
+		Where("project_id = ? AND resource_type = ?", projectId, resourceType).
 		Count(&total).
-		Find(&projectResources).
 		Offset((num - 1) * size).
-		Limit(size).Error
+		Limit(size).
+		Find(&projectResources).Error
 	return total, projectResources, err
 }
 
 func (p projectResourceRepository) ListByProjectNameAndType(projectName string, resourceType string) ([]model.ProjectResource, error) {
 	var project model.Project
-	err := db.DB.Model(&model.Project{}).Where(&model.Project{Name: projectName}).First(&project).Error
+	err := db.DB.Where("name = ?", projectName).First(&project).Error
 	if err != nil {
 		return nil, err
 	}
 	var projectResources []model.ProjectResource
-	err = db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: resourceType}).Find(&projectResources).Error
+	err = db.DB.Where("project_id = ? AND resource_type = ?", project.ID, resourceType).Find(&projectResources).Error
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,7 @@ func (p projectResourceRepository) ListByProjectNameAndType(projectName string, 
 
 func (p projectResourceRepository) ListByResourceIDAndType(resourceId string, resourceType string) ([]model.ProjectResource, error) {
 	var projectResources []model.ProjectResource
-	err := db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ResourceID: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
+	err := db.DB.Where("resource_id = ? AND resource_type = ?", resourceId, resourceType).Find(&projectResources).Error
 	return projectResources, err
 }
 
@@ -63,7 +62,7 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 		for _, item := range items {
 			if item.ResourceType == constant.ResourceBackupAccount {
 				var clusterResources []model.ProjectResource
-				err := tx.Where(&model.ProjectResource{ProjectID: item.ProjectID, ResourceType: constant.ResourceCluster}).Find(&clusterResources).Error
+				err := tx.Where("project_id = ? AND resource_type = ?", item.ProjectID, constant.ResourceCluster).Find(&clusterResources).Error
 				if err != nil && !gorm.IsRecordNotFoundError(err) {
 					tx.Rollback()
 					return err
@@ -71,7 +70,7 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 				if len(clusterResources) > 0 {
 					for _, clusterResource := range clusterResources {
 						var backupStrategy model.ClusterBackupStrategy
-						err = tx.Where(&model.ClusterBackupStrategy{BackupAccountID: item.ResourceID, ClusterID: clusterResource.ResourceID}).Delete(&backupStrategy).Error
+						err = tx.Where("backup_account_id = ? AND cluster_id = ?", item.ResourceID, clusterResource.ResourceID).Delete(&backupStrategy).Error
 						if err != nil {
 							tx.Rollback()
 							return err
@@ -91,11 +90,11 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 		tx := db.DB.Begin()
 		for i := range items {
 			var projectResource model.ProjectResource
-			tx.Where(&model.ProjectResource{ResourceID: items[i].ResourceID, ProjectID: items[i].ProjectID}).First(&projectResource)
+			tx.Where("resource_id = ? AND project_id = ?", items[i].ResourceID, items[i].ProjectID).First(&projectResource)
 			if projectResource.ID != "" {
 				continue
 			}
-			if err := tx.Model(&model.ProjectResource{}).Create(&items[i]).Error; err != nil {
+			if err := tx.Create(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
@@ -108,7 +107,7 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 }
 
 func (p projectResourceRepository) Create(resource model.ProjectResource) error {
-	return db.DB.Model(&model.ProjectResource{}).Create(&resource).Error
+	return db.DB.Create(&resource).Error
 }
 
 func (p projectResourceRepository) DeleteByResourceIDAnyResourceType(resourceId string, resourceType string) error {
@@ -116,7 +115,7 @@ func (p projectResourceRepository) DeleteByResourceIDAnyResourceType(resourceId 
 	if resourceId == "" {
 		return nil
 	}
-	err := db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ResourceID: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
+	err := db.DB.Where("resource_id = ? AND resource_type = ?", resourceId, resourceType).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ type clusterRepository struct {
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
 	var cluster model.Cluster
 	if err := db.DB.
-		Where(&model.Cluster{Name: name}).
+		Where("name = ?", name).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
@@ -44,8 +44,7 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
-	db.DB.Model(&model.Cluster{})
-	if err := db.DB.Model(&model.Cluster{}).
+	if err := db.DB.
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
@@ -60,16 +59,16 @@ func (c clusterRepository) List() ([]model.Cluster, error) {
 }
 
 func (c clusterRepository) Page(num, size int, projectName string) (int, []model.Cluster, error) {
-	var total int
-	var clusters []model.Cluster
-	var project model.Project
-	err := db.DB.Model(&model.Project{}).Where(&model.Project{Name: projectName}).First(&project).Error
-	if err != nil {
+	var (
+		total    int
+		clusters []model.Cluster
+		project  model.Project
+	)
+	if err := db.DB.Where("name = ?", projectName).First(&project).Error; err != nil {
 		return 0, nil, err
 	}
 	var projectResources []model.ProjectResource
-	err = db.DB.Model(&model.ProjectResource{}).Where(&model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error
-	if err != nil {
+	if err := db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourceCluster).Find(&projectResources).Error; err != nil {
 		return 0, nil, err
 	}
 	var resourceIds []string
@@ -78,14 +77,14 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 	}
 
 	if err := db.DB.Model(&model.Cluster{}).
-		Offset((num-1)*size).
-		Limit(size).
 		Where("id in (?)", resourceIds).
+		Count(&total).
+		Offset((num - 1) * size).
+		Limit(size).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
 		Preload("MultiClusterRepositories").
-		Count(&total).
 		Find(&clusters).Error; err != nil {
 		return total, clusters, err
 	}
@@ -107,12 +106,11 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 
 func (c clusterRepository) Delete(name string) error {
 	var cluster model.Cluster
-	if err := db.DB.Where(&model.Cluster{Name: name}).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&cluster).Error; err != nil {
 		return err
 	}
 	var prometheus model.ClusterTool
-	err := db.DB.Where(&model.ClusterTool{Name: "prometheus", ClusterID: cluster.ID}).First(&prometheus).Error
-	if err != nil {
+	if err := db.DB.Where("name = ? AND cluster_id = ?", "prometheus", cluster.ID).First(&prometheus).Error; err != nil {
 		log.Error(err)
 	}
 	if prometheus.Status == constant.ClusterRunning {

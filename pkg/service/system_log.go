@@ -5,7 +5,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/repository"
 )
 
 type SystemLogService interface {
@@ -13,14 +12,10 @@ type SystemLogService interface {
 	Page(num, size int, queryOption, queryInfo string) (page.Page, error)
 }
 
-type systemLogService struct {
-	systemLogRepo repository.SystemLogRepository
-}
+type systemLogService struct{}
 
 func NewSystemLogService() SystemLogService {
-	return &systemLogService{
-		systemLogRepo: repository.NewSystemLogRepository(),
-	}
+	return &systemLogService{}
 }
 
 func (s systemLogService) Create(creation dto.SystemLogCreate) error {
@@ -56,7 +51,7 @@ func (u systemLogService) Page(num, size int, queryOption, queryInfo string) (pa
 			err = db.DB.Model(&model.SystemLog{}).Where("operation_info LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 		}
 	} else {
-		err = db.DB.Model(&model.SystemLog{}).Order("updated_at DESC").Count(&total).Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
+		err = db.DB.Model(&model.SystemLog{}).Count(&total).Order("updated_at DESC").Offset((num - 1) * size).Limit(size).Find(&logsOfDB).Error
 	}
 
 	if err != nil {

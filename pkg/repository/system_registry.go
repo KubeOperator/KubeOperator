@@ -20,7 +20,7 @@ func NewSystemRegistryRepository() SystemRegistryRepository {
 
 func (s systemRegistryRepository) Get(arch string) (model.SystemRegistry, error) {
 	var registry model.SystemRegistry
-	if err := db.DB.Where(&model.SystemRegistry{Architecture: arch}).First(&registry).Error; err != nil {
+	if err := db.DB.Where("architecture = ?", arch).First(&registry).Error; err != nil {
 		return registry, err
 	}
 	return registry, nil
@@ -28,7 +28,7 @@ func (s systemRegistryRepository) Get(arch string) (model.SystemRegistry, error)
 
 func (s systemRegistryRepository) List() ([]model.SystemRegistry, error) {
 	var registry []model.SystemRegistry
-	if err := db.DB.Model(&model.SystemRegistry{}).Find(&registry).Error; err != nil {
+	if err := db.DB.Find(&registry).Error; err != nil {
 		return registry, err
 	}
 	return registry, nil
@@ -38,6 +38,6 @@ func (s systemRegistryRepository) Save(registry *model.SystemRegistry) error {
 	if db.DB.NewRecord(registry) {
 		return db.DB.Create(&registry).Error
 	} else {
-		return db.DB.Model(&registry).Update(&registry).Error
+		return db.DB.Save(&registry).Error
 	}
 }

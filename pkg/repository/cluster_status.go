@@ -2,10 +2,11 @@ package repository
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type ClusterStatusRepository interface {
@@ -46,7 +47,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		}
 	} else {
 		var oldStatus model.ClusterStatus
-		db.DB.Where(&model.ClusterStatus{ID: status.ID}).First(&oldStatus)
+		db.DB.Where("id = ?", status.ID).First(&oldStatus)
 		if status.Phase != oldStatus.Phase {
 			status.PrePhase = oldStatus.Phase
 		}
@@ -62,7 +63,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
 		if tx.NewRecord(status.ClusterStatusConditions[i]) {
 			var temp model.ClusterStatusCondition
-			if tx.Where(&model.ClusterStatusCondition{ClusterStatusID: status.ClusterStatusConditions[i].ClusterStatusID, Name: status.ClusterStatusConditions[i].Name}).
+			if tx.Where("cluster_status_id = ? AND name = ?", status.ClusterStatusConditions[i].ClusterStatusID, status.ClusterStatusConditions[i].Name).
 				First(&temp).
 				RecordNotFound() {
 				status.ClusterStatusConditions[i].CreatedAt = time.Now()

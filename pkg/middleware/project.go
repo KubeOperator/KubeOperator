@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/kataras/iris/v12/context"
 	"github.com/storyicon/grbac"
-	"net/http"
-	"net/url"
 )
 
 func ProjectMiddleware(ctx context.Context) {
@@ -46,7 +47,7 @@ func queryProjectRoles(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("decode error: %s", projectName)
 	}
 	var project model.Project
-	notFound := db.DB.Where(&model.Project{Name: projectName}).First(&project).RecordNotFound()
+	notFound := db.DB.Where("name = ?", projectName).First(&project).RecordNotFound()
 	if notFound {
 		return nil, fmt.Errorf("project: %s not found", projectName)
 	}
@@ -56,10 +57,7 @@ func queryProjectRoles(ctx context.Context) ([]string, error) {
 		return []string{constant.SystemRoleAdmin}, nil
 	}
 	var member model.ProjectMember
-	db.DB.Where(&model.ProjectMember{
-		ProjectID: project.ID,
-		UserID:    u.UserId,
-	}).First(&member)
+	db.DB.Where("project_id = ? AND user_id = ?", project.ID, u.UserId).First(&member)
 	if member.ID != "" {
 		roles = append(roles, member.Role)
 	}

@@ -19,8 +19,7 @@ type userReceiverRepository struct {
 
 func (u userReceiverRepository) Get(userId string) (model.UserReceiver, error) {
 	var userReceiver model.UserReceiver
-	userReceiver.UserID = userId
-	if err := db.DB.Where(userReceiver).First(&userReceiver).Error; err != nil {
+	if err := db.DB.Where("user_id = ?", userId).First(&userReceiver).Error; err != nil {
 		return userReceiver, err
 	}
 	return userReceiver, nil
@@ -30,6 +29,6 @@ func (u userReceiverRepository) Save(userReceiver *model.UserReceiver) error {
 	if db.DB.NewRecord(userReceiver) {
 		return db.DB.Create(&userReceiver).Error
 	} else {
-		return db.DB.Model(&userReceiver).Updates(&userReceiver).Error
+		return db.DB.Save(&userReceiver).Error
 	}
 }

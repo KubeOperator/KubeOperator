@@ -25,7 +25,7 @@ func recoverClusterTask() error {
 	for _, cluster := range clusters {
 		if cluster.Status == constant.StatusCreating || cluster.Status == constant.StatusTerminating || cluster.Status == constant.StatusInitializing {
 			var status model.ClusterStatus
-			if err := db.DB.Where(&model.ClusterStatus{ID: cluster.StatusID}).First(&status).Error; err != nil {
+			if err := db.DB.Where("id = ?", cluster.StatusID).First(&status).Error; err != nil {
 				return err
 			}
 			status.PrePhase = status.Phase
@@ -35,7 +35,7 @@ func recoverClusterTask() error {
 				return err
 			}
 			var conditions []model.ClusterStatusCondition
-			if err := db.DB.Where(&model.ClusterStatusCondition{ClusterStatusID: status.ID}).Order("last_probe_time asc").Find(&conditions).Error; err != nil {
+			if err := db.DB.Where("cluster_status_id = ?", status.ID).Order("last_probe_time asc").Find(&conditions).Error; err != nil {
 				return err
 			}
 			if len(conditions) > 0 {

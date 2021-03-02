@@ -28,8 +28,7 @@ func (c clusterBackupStrategyRepository) Get(clusterName string) (*model.Cluster
 	if err != nil {
 		return nil, err
 	}
-	clusterBackupStrategy.ClusterID = cluster.ID
-	if err := db.DB.Where(clusterBackupStrategy).Preload("BackupAccount").First(&clusterBackupStrategy).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Preload("BackupAccount").First(&clusterBackupStrategy).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return &clusterBackupStrategy, nil
 		} else {
@@ -43,13 +42,13 @@ func (c clusterBackupStrategyRepository) Save(clusterBackupStrategy *model.Clust
 	if db.DB.NewRecord(clusterBackupStrategy) {
 		return db.DB.Create(clusterBackupStrategy).Error
 	} else {
-		return db.DB.Model(&clusterBackupStrategy).Updates(&clusterBackupStrategy).Error
+		return db.DB.Save(&clusterBackupStrategy).Error
 	}
 }
 
 func (c clusterBackupStrategyRepository) List() ([]model.ClusterBackupStrategy, error) {
 	var clusterBackupStrategies []model.ClusterBackupStrategy
-	err := db.DB.Model(&model.ClusterBackupStrategy{}).Order("created_at desc").Find(&clusterBackupStrategies).Error
+	err := db.DB.Order("created_at desc").Find(&clusterBackupStrategies).Error
 	if err != nil {
 		return nil, err
 	}

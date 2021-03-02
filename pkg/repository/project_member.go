@@ -22,21 +22,20 @@ func NewProjectMemberRepository() ProjectMemberRepository {
 
 func (p projectMemberRepository) ListByProjectId(projectId string) ([]model.ProjectMember, error) {
 	var projectMembers []model.ProjectMember
-	err := db.DB.Where(&model.ProjectMember{ProjectID: projectId}).Find(&projectMembers).Error
+	err := db.DB.Where("project_id = ?", projectId).Find(&projectMembers).Error
 	return projectMembers, err
 }
 
 func (p projectMemberRepository) PageByProjectId(num, size int, projectId string) (int, []model.ProjectMember, error) {
 	var total int
 	var projectMembers []model.ProjectMember
-	err := db.DB.
-		Model(&model.ProjectMember{}).
-		Where(&model.ProjectMember{ProjectID: projectId}).
-		Preload("User").
+	err := db.DB.Model(&model.Project{}).
+		Where("project_id = ?", projectId).
 		Count(&total).
-		Find(&projectMembers).
 		Offset((num - 1) * size).
-		Limit(size).Error
+		Limit(size).
+		Preload("User").
+		Find(&projectMembers).Error
 	return total, projectMembers, err
 }
 
@@ -58,7 +57,7 @@ func (p projectMemberRepository) Batch(operation string, items []model.ProjectMe
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
 		for i := range items {
-			if err := tx.Model(&model.ProjectMember{}).Create(&items[i]).Error; err != nil {
+			if err := tx.Create(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
@@ -68,7 +67,7 @@ func (p projectMemberRepository) Batch(operation string, items []model.ProjectMe
 	case constant.BatchOperationUpdate:
 		tx := db.DB.Begin()
 		for i := range items {
-			if err := tx.Model(&model.ProjectMember{}).Save(&items[i]).Error; err != nil {
+			if err := tx.Save(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

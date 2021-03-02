@@ -96,10 +96,10 @@ func (h hostService) Page(num, size int) (page.Page, error) {
 	for _, mo := range mos {
 		hostIDs = append(hostIDs, mo.ID)
 	}
-	if err := db.DB.Model(&model.ProjectResource{}).Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).Find(&resources).Error; err != nil {
+	if err := db.DB.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).Find(&resources).Error; err != nil {
 		return page, err
 	}
-	if err := db.DB.Model(&model.Project{}).Find(&projects).Error; err != nil {
+	if err := db.DB.Find(&projects).Error; err != nil {
 		return page, err
 	}
 
@@ -513,17 +513,22 @@ func (h hostService) ImportHosts(file []byte) error {
 	}
 
 	for _, host := range hosts {
-		err = h.hostRepo.Save(&host)
-		if err != nil {
+		if err := h.hostRepo.Save(&host); err != nil {
 			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_SAVE", host.Name, err.Error()))
 			continue
 		}
 		go h.RunGetHostConfig(&host)
 		var ip model.Ip
-		db.DB.Where(&model.Ip{Address: host.Ip}).First(&ip)
+		if err := db.DB.Where("address = ?", host.Ip).First(&ip).Error; err != nil {
+			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_IP_QUERY", host.Name, err.Error()))
+			continue
+		}
 		if ip.ID != "" {
 			ip.Status = constant.IpUsed
-			db.DB.Save(&ip)
+			if err := db.DB.Save(&ip).Error; err != nil {
+				errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_IP_STATUS_SAVE", host.Name, err.Error()))
+				continue
+			}
 		}
 	}
 	if len(errs) > 0 {
@@ -542,7 +547,7 @@ func syncHostInfoWithDB(host *model.Host) error {
 	if len(host.Volumes) > 0 {
 		for i := range host.Volumes {
 			var volume model.Volume
-			if notFound := tx.Where(&model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
+			if notFound := tx.Where("host_id = ? AND name = ?", host.ID, host.Volumes[i].Name).
 				First(&volume).RecordNotFound(); notFound {
 				if err := tx.Create(&host.Volumes[i]).Error; err != nil {
 					tx.Rollback()
@@ -561,7 +566,7 @@ func syncHostInfoWithDB(host *model.Host) error {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Model(&model.Host{}).Where(&model.Host{ID: host.ID}).
+	if err := tx.Model(&model.Host{}).Where("id = ?", host.ID).
 		Updates(map[string]interface{}{
 			"memory":       host.Memory,
 			"cpu_core":     host.CpuCore,

@@ -59,18 +59,18 @@ type CisResult struct {
 
 func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
 	var cluster model.Cluster
-	if err := db.DB.Where(&model.Cluster{Name: clusterName}).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return nil, err
 	}
 	p := page.Page{}
 	var tasks []model.CisTask
 	if err := db.DB.Model(&model.CisTask{}).
+		Where("cluster_id = ?", cluster.ID).
 		Count(&p.Total).
+		Order("created_at desc").
 		Offset((num - 1) * size).
 		Limit(size).
-		Where(&model.CisTask{ClusterID: cluster.ID}).
 		Preload("Results").
-		Order("created_at desc").
 		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -91,12 +91,12 @@ const (
 
 func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
 	var cluster model.Cluster
-	if err := db.DB.Where(&model.Cluster{Name: clusterName}).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return nil, err
 	}
 	var tasks []model.CisTask
 	if err := db.DB.
-		Where(&model.CisTask{ClusterID: cluster.ID}).
+		Where("cluster_id = ?", cluster.ID).
 		Preload("Results").
 		Find(&tasks).Error; err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	}
 
 	var clusterTasks []model.CisTask
-	db.DB.Where(&model.CisTask{Status: constant.ClusterRunning, ClusterID: cluster.ID}).Find(&clusterTasks)
+	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)
 	if len(clusterTasks) > 0 {
 		return nil, errors.New("CIS_TASK_ALREADY_RUNNING")
 	}
@@ -159,7 +159,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 	if err != nil {
 		return err
 	}
-	if err := db.DB.Where(&model.CisTask{ID: id, ClusterID: cluster.ID}).Delete(&model.CisTask{}).Error; err != nil {
+	if err := db.DB.Where("id = ? AND cluster_id = ?", id, cluster.ID).Delete(&model.CisTask{}).Error; err != nil {
 		return err
 	}
 	return nil

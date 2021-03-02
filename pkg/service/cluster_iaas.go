@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -14,10 +19,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
-	"reflect"
-	"strconv"
-	"strings"
-	"sync"
 )
 
 type ClusterIaasService interface {
@@ -328,12 +329,16 @@ func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*mode
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, _ := p.GetIpInUsed(zoneVars["network"])
 	var hs []model.Host
-	db.DB.Model(&model.Host{}).Find(&hs)
+	if err := db.DB.Find(&hs).Error; err != nil {
+		return err
+	}
 	for i := range hs {
 		pool = append(pool, hs[i].Ip)
 	}
 	var ips []model.Ip
-	db.DB.Where(&model.Ip{IpPoolID: zone.IpPoolID, Status: constant.IpAvailable}).Order("inet_aton(address)").Find(&ips)
+	if err := db.DB.Where("ip_pool_id = ? AND status = ?", zone.IpPoolID, constant.IpAvailable).Order("inet_aton(address)").Find(&ips).Error; err != nil {
+		return err
+	}
 	var wg sync.WaitGroup
 	for i := range ips {
 		wg.Add(1)

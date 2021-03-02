@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -73,7 +74,7 @@ func (p projectMemberService) Batch(op dto.ProjectMemberOP) error {
 		}
 		if op.Operation == constant.BatchOperationUpdate || op.Operation == constant.BatchOperationDelete {
 			var pm model.ProjectMember
-			err := db.DB.Model(&model.ProjectMember{}).Where(&model.ProjectMember{UserID: user.ID, ProjectID: project.ID}).First(&pm).Error
+			err := db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).First(&pm).Error
 			if err != nil {
 				return err
 			}
@@ -94,7 +95,7 @@ func (p projectMemberService) Batch(op dto.ProjectMemberOP) error {
 func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, error) {
 	var result dto.AddMemberResponse
 	var users []model.User
-	err := db.DB.Model(&model.User{}).Select("name").Where("is_admin = 0 AND name LIKE ?", "%"+name+"%").Find(&users).Error
+	err := db.DB.Select("name").Where("is_admin = 0 AND name LIKE ?", "%"+name+"%").Find(&users).Error
 	if err != nil {
 		return result, err
 	}
@@ -121,7 +122,7 @@ func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.Proj
 		return nil, err
 	}
 	var oldPm dto.ProjectMember
-	err = db.DB.Model(&model.ProjectMember{}).Where(&model.ProjectMember{UserID: user.ID, ProjectID: project.ID}).Find(&oldPm).Error
+	err = db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).Find(&oldPm).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -152,10 +153,7 @@ func (p projectMemberService) Get(name string, projectName string) (*dto.Project
 	}
 
 	var pm model.ProjectMember
-	notFound := db.DB.Where(&model.ProjectMember{
-		UserID:    u.ID,
-		ProjectID: pj.ID,
-	}).First(&pm).RecordNotFound()
+	notFound := db.DB.Where("user_id = ? AND project_id = ?", u.ID, pj.ID).First(&pm).RecordNotFound()
 	if notFound {
 		return nil, fmt.Errorf("project member: %s not found in project %s", name, projectName)
 	}

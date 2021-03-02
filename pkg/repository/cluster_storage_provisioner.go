@@ -23,14 +23,10 @@ func NewClusterStorageProvisionerRepository() ClusterStorageProvisionerRepositor
 func (c clusterStorageProvisionerRepository) List(clusterName string) ([]model.ClusterStorageProvisioner, error) {
 	var cluster model.Cluster
 	var ps []model.ClusterStorageProvisioner
-	if err := db.DB.
-		Where(&model.Cluster{Name: clusterName}).
-		First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return ps, err
 	}
-	if err := db.DB.
-		Where(&model.ClusterStorageProvisioner{ClusterID: cluster.ID}).
-		Find(&ps).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&ps).Error; err != nil {
 		return ps, err
 	}
 	return ps, nil
@@ -38,9 +34,7 @@ func (c clusterStorageProvisionerRepository) List(clusterName string) ([]model.C
 
 func (c clusterStorageProvisionerRepository) Save(clusterName string, provisioner *model.ClusterStorageProvisioner) error {
 	var cluster model.Cluster
-	if err := db.DB.
-		Where(&model.Cluster{Name: clusterName}).
-		First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return err
 	}
 	provisioner.ClusterID = cluster.ID
@@ -58,13 +52,11 @@ func (c clusterStorageProvisionerRepository) Save(clusterName string, provisione
 
 func (c clusterStorageProvisionerRepository) Delete(clusterName string, provisionerName string) error {
 	var cluster model.Cluster
-	if err := db.DB.
-		Where(&model.Cluster{Name: clusterName}).
-		First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return err
 	}
 	var provisioner model.ClusterStorageProvisioner
-	if err := db.DB.Where(&model.ClusterStorageProvisioner{Name: provisionerName}).First(&provisioner).Error; err != nil {
+	if err := db.DB.Where("name = ?", provisionerName).First(&provisioner).Error; err != nil {
 		return err
 	}
 	err := db.DB.Delete(&provisioner).Error

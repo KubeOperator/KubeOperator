@@ -66,7 +66,7 @@ func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
 		return nil, err
 	}
 
-	err = db.DB.Where(&model.ClusterNode{ClusterID: cluster.ID, Name: name}).Find(&n).Error
+	err = db.DB.Where("cluster_id = ? AND name = ?", cluster.ID, name).Find(&n).Error
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 		return fmt.Errorf("can not found %s", clusterName)
 	}
 	var currentNodes []model.ClusterNode
-	if err := db.DB.Where(&model.ClusterNode{ClusterID: cluster.ID}).Preload("Host").Preload("Host.Credential").Preload("Host.Zone").Find(&currentNodes).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Preload("Host").Preload("Host.Credential").Preload("Host.Zone").Find(&currentNodes).Error; err != nil {
 		return fmt.Errorf("can not read cluster %s current nodes %s", cluster.Name, err.Error())
 	}
 	for _, node := range currentNodes {
@@ -237,7 +237,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 		hostIDs        []string
 		hostIPs        []string
 	)
-	if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).
+	if err := db.DB.Where("name in (?)", item.Nodes).
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
@@ -268,7 +268,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
-		if err := tx.Where(&model.Plan{ID: cluster.PlanID}).First(&p).Error; err != nil {
+		if err := tx.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
 			c.updateNodeStatus(nodeIDs, err.Error(), false)
 			log.Errorf("can not load plan err %s", err.Error())
 		}
@@ -288,13 +288,13 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 		}
 		log.Info("delete all nodes successful! now start updata cluster datas")
 
-		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
+		if err := tx.Where("id in (?)", hostIDs).
 			Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(nodeIDs, err.Error(), true)
 			log.Errorf("can not update hosts clusterID reason %s", err.Error())
 		}
-		if err := tx.Model(&model.ProjectResource{}).Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
+		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ProjectResource{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(nodeIDs, err.Error(), true)
@@ -320,7 +320,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 			log.Errorf("can not update hosts clusterID reason %s", err.Error())
 		}
 	}
-	if err := tx.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+	if err := tx.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 		tx.Rollback()
 		log.Errorf("can not delete nodes reason %s", err.Error())
 	}
@@ -366,7 +366,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 	switch cluster.Spec.Provider {
 	case constant.ClusterProviderBareMetal:
 		var hosts []model.Host
-		if err := db.DB.Model(&model.Host{}).Where("name in (?)", hostNames).
+		if err := db.DB.Where("name in (?)", hostNames).
 			Preload("Volumes").
 			Preload("Credential").
 			Find(&hosts).Error; err != nil {
@@ -379,7 +379,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		newNodes = ns
 	case constant.ClusterProviderPlan:
 		var plan model.Plan
-		if err := db.DB.Where(&model.Plan{ID: cluster.PlanID}).First(&plan).
+		if err := db.DB.Where("id = ?", cluster.PlanID).First(&plan).
 			Preload("Zones").
 			Preload("Region").Find(&plan).Error; err != nil {
 			return fmt.Errorf("can not load plan err %s", err.Error())
@@ -441,7 +441,7 @@ func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, n
 		return err
 	}
 	var allNodes []model.ClusterNode
-	if err := db.DB.Where(&model.ClusterNode{ClusterID: cluster.ID}).
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").Find(&allNodes).Error; err != nil {
@@ -455,7 +455,7 @@ func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, n
 	}
 
 	if err := c.doCreateHosts(cluster, allHosts); err != nil {
-		if err := db.DB.Model(&model.Host{}).Where("id in (?)", newHostIDs).Delete(&model.Host{}).Error; err != nil {
+		if err := db.DB.Where("id in (?)", newHostIDs).Delete(&model.Host{}).Error; err != nil {
 			log.Errorf("can not delete hosts reason %s", err.Error())
 		}
 		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
@@ -582,7 +582,7 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 	}
 
 	var clusterResource model.ProjectResource
-	if err := db.DB.Where(&model.ProjectResource{ResourceID: cluster.ID, ResourceType: constant.ResourceCluster}).First(&clusterResource).Error; err != nil {
+	if err := db.DB.Where("resource_id = ? AND resource_type = ?", cluster.ID, constant.ResourceCluster).First(&clusterResource).Error; err != nil {
 		return nil, fmt.Errorf("can not find project resource %s", err.Error())
 	}
 
@@ -593,7 +593,10 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 			return nil, fmt.Errorf("can not save host %s reasone %s", newHosts[i].Name, err.Error())
 		}
 		var ip model.Ip
-		tx.Where(&model.Ip{Address: newHosts[i].Ip}).First(&ip)
+		if err := tx.Where("address = ?", newHosts[i].Ip).First(&ip).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not save host %s reasone %s", newHosts[i].Name, err.Error())
+		}
 		if ip.ID != "" {
 			ip.Status = constant.IpUsed
 			ip.ClusterID = cluster.ID

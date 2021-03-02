@@ -45,7 +45,7 @@ func (i ipPoolService) Page(num, size int) (page.Page, error) {
 	var ipPoolDTOS []dto.IpPool
 	var total int
 	var ipPools []model.IpPool
-	err := db.DB.Model(&model.IpPool{}).Preload("Ips").Count(&total).Find(&ipPools).Offset((num - 1) * size).Limit(size).Error
+	err := db.DB.Model(&model.IpPool{}).Count(&total).Offset((num - 1) * size).Limit(size).Preload("Ips").Find(&ipPools).Error
 	if err != nil {
 		return page, err
 	}
@@ -69,7 +69,7 @@ func (i ipPoolService) Page(num, size int) (page.Page, error) {
 func (i ipPoolService) List() ([]dto.IpPool, error) {
 	var ipPoolDTOS []dto.IpPool
 	var ipPools []model.IpPool
-	err := db.DB.Model(&model.IpPool{}).Preload("Ips").Find(&ipPools).Error
+	err := db.DB.Preload("Ips").Find(&ipPools).Error
 	if err != nil {
 		return ipPoolDTOS, err
 	}
@@ -133,7 +133,7 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 	case constant.BatchOperationDelete:
 		for i := range opItems {
 			var ipPool model.IpPool
-			if err := tx.Where(&model.IpPool{Name: opItems[i].Name}).First(&ipPool).Error; err != nil {
+			if err := tx.Where("name = ?", opItems[i].Name).First(&ipPool).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
