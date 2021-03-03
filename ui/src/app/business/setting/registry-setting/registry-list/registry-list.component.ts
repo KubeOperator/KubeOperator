@@ -35,17 +35,12 @@ export class RegistryListComponent extends BaseModelDirective<Registry> implemen
     }
 
     SingleOnSubmit() {
-        this.createItem.vars = this.item.vars;
+        this.createItem.vars = this.systemItem.vars;
         this.createItem.tab = 'SYSTEM';
         this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-            window.location.reload();
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
-    }
-
-    MixedOnSubmit() {
-        console.log('Mixed');
     }
 }

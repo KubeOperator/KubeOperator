@@ -3,7 +3,7 @@
     <div class="modal-body modal-height">
         <form clrForm #registryUpdateForm='ngForm'>
             <clr-select-container>
-                <label>架构</label>
+                <label>{{'APP_ARCHITECTURE'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.architecture" name="architecture" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="x86_64">x86_64</option>
