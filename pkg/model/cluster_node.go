@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	_ "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
@@ -50,16 +51,16 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 
 	archType, err := getSetting("arch_type")
 	if err != nil {
-		return nil, err
+		return &registry, err
 	}
 	if archType == "single" {
 		registry.Hostname, err = getSetting("ip")
 		if err != nil {
-			return nil, err
+			return &registry, err
 		}
 		registry.Protocol, err = getSetting("REGISTRY_PROTOCOL")
 		if err != nil {
-			return nil, err
+			return &registry, err
 		}
 		switch n.Host.Architecture {
 		case "x86_64":
@@ -72,7 +73,7 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 	} else if archType == "mixed" {
 		err := db.DB.Where("architecture = ?", arch).First(&systemRegistry).Error
 		if err != nil {
-			return nil, err
+			return &registry, err
 		}
 		registry.Hostname = systemRegistry.Hostname
 		registry.Protocol = systemRegistry.Protocol
@@ -87,15 +88,25 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 }
 
 func (n ClusterNode) ToKobeHost() *api.Host {
-	password, privateKey, _ := n.Host.GetHostPasswordAndPrivateKey()
+	var log = logger.Default
+	if err := n.Host.GetHostConfig(); err != nil {
+		log.Errorf("get host config err, err: %s", err.Error())
+	}
+	if err := db.DB.Model(&Host{}).Where("id = ?", n.Host.ID).Updates(map[string]interface{}{
+		"architecture": n.Host.Architecture,
+		"os":           n.Host.Os,
+		"os_version":   n.Host.OsVersion}).Error; err != nil {
+		log.Errorf("get host config err, err: %s", err.Error())
+	}
+
 	r, _ := n.GetRegistry(n.Host.Architecture)
 	return &api.Host{
 		Ip:         n.Host.Ip,
 		Name:       n.Name,
 		Port:       int32(n.Host.Port),
 		User:       n.Host.Credential.Username,
-		Password:   password,
-		PrivateKey: string(privateKey),
+		Password:   n.Host.Credential.Password,
+		PrivateKey: n.Host.Credential.PrivateKey,
 		Vars: map[string]string{
 			"has_gpu":           fmt.Sprintf("%v", n.Host.HasGpu),
 			"architecture":      r.Architecture,

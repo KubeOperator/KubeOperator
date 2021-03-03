@@ -1,13 +1,19 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"github.com/KubeOperator/kobe/api"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const (
@@ -88,6 +94,102 @@ func (h *Host) BeforeDelete(tx *gorm.DB) error {
 				tx.Rollback()
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+func (h *Host) GetHostConfig() error {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("gather fact error!")
+		}
+	}()
+
+	password, privateKey, err := h.GetHostPasswordAndPrivateKey()
+	h.Credential.Password = password
+	h.Credential.PrivateKey = string(privateKey)
+	if err != nil {
+		return err
+	}
+	ansible := kobe.NewAnsible(&kobe.Config{
+		Inventory: &api.Inventory{
+			Hosts: []*api.Host{
+				{
+					Ip:         h.Ip,
+					Name:       h.Name,
+					Port:       int32(h.Port),
+					User:       h.Credential.Username,
+					Password:   password,
+					PrivateKey: string(privateKey),
+					Vars:       map[string]string{},
+				},
+			},
+			Groups: []*api.Group{
+				{
+					Name:     "master",
+					Children: []string{},
+					Vars:     map[string]string{},
+					Hosts:    []string{h.Name},
+				},
+			},
+		},
+	})
+	resultId, err := ansible.RunAdhoc("master", "setup", "")
+	if err != nil {
+		return err
+	}
+	var result kobe.Result
+	err = wait.Poll(5*time.Second, 5*time.Minute, func() (done bool, err error) {
+		res, err := ansible.GetResult(resultId)
+		if err != nil {
+			return true, err
+		}
+		if res.Finished {
+			if res.Success {
+				result, err = kobe.ParseResult(res.Content)
+				if err != nil {
+					return true, err
+				}
+			} else {
+				if res.Content != "" {
+					result, err = kobe.ParseResult(res.Content)
+					if err != nil {
+						return true, err
+					}
+					result.GatherFailedInfo()
+					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
+						by, _ := json.Marshal(&result.HostFailedInfo)
+						return true, errors.New(string(by))
+					}
+				}
+			}
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	var facts interface{}
+	if len(result.Plays) > 0 && len(result.Plays[0].Tasks) > 0 {
+		facts = result.Plays[0].Tasks[0].Hosts[h.Name]["ansible_facts"]
+	} else {
+		return errors.New("no result return")
+	}
+
+	if facts == nil {
+		return err
+	} else {
+		result, ok := facts.(map[string]interface{})
+		if !ok {
+			return err
+		}
+		h.Os = result["ansible_distribution"].(string)
+		h.OsVersion = result["ansible_distribution_version"].(string)
+		h.Architecture = result["ansible_architecture"].(string)
+		if result["ansible_processor_vcpus"] != nil {
+			h.CpuCore = int(result["ansible_processor_vcpus"].(float64))
 		}
 	}
 	return nil

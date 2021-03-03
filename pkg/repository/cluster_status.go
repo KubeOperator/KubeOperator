@@ -29,7 +29,11 @@ func (c clusterStatusRepository) Get(id string) (model.ClusterStatus, error) {
 	status := model.ClusterStatus{
 		ID: id,
 	}
-	if err := db.DB.Order("last_probe_time asc").Preload("ClusterStatusConditions").First(&status).Error; err != nil {
+	if err := db.DB.
+		First(&status).
+		Order("last_probe_time asc").
+		Related(&status.ClusterStatusConditions).
+		Error; err != nil {
 		return status, err
 	}
 	return status, nil
