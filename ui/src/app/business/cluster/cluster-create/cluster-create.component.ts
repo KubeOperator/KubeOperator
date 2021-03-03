@@ -77,7 +77,8 @@ export class ClusterCreateComponent implements OnInit {
 
     getRegistry () {
         this.settingService.getRegistry().subscribe(data => {
-            this.repoList = data.items
+            this.repoList = (data.items === null) ? [] : data.items
+            this.changeArch('amd64');
         });
     }
 
@@ -320,21 +321,41 @@ export class ClusterCreateComponent implements OnInit {
 
     changeArch(type) {
         this.repoCheck = true;
-        if (type === 'all') {
-            let isAmdExit, isArmExit : boolean = false;
-            for (const repo of this.repoList) {
-                if (repo.architecture === 'x86_64') {
-                    isAmdExit = true;
-                    continue;
-                }
-                if (repo.architecture === 'aarch64') {
-                    isArmExit = true;
-                    continue;
-                }
-            }
-            if (!(isAmdExit && isArmExit)) {
-                this.repoCheck = false;
-                return
+        let isAmdExit: boolean = false;
+        let isArmExit: boolean = false;
+        if (this.archType === 'mixed') {
+            switch (type) {
+                case 'amd64': 
+                    for (const repo of this.repoList) {
+                        if (repo.architecture === 'x86_64') {
+                            isAmdExit = true;
+                            break;
+                        }
+                    }
+                    this.repoCheck = isAmdExit;
+                    break;
+                case 'arm64': 
+                    for (const repo of this.repoList) {
+                        if (repo.architecture === 'aarch64') {
+                            isArmExit = true;
+                            break;
+                        }
+                    }
+                    this.repoCheck = isArmExit;
+                    break;
+                case 'all': 
+                    for (const repo of this.repoList) {
+                        if (repo.architecture === 'x86_64') {
+                            isAmdExit = true;
+                            continue;
+                        }
+                        if (repo.architecture === 'aarch64') {
+                            isArmExit = true;
+                            continue;
+                        }
+                    }
+                    this.repoCheck = isAmdExit && isArmExit;
+                    break;
             }
         }
         if (type !== 'amd64') {
