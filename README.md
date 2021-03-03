@@ -9,7 +9,7 @@
 
 KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别的 Kubernetes 集群。
 
-KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware 和 OpenStack 等 IaaS 平台，支持 x86 和 arm64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
+KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware 和 OpenStack 等 IaaS 平台，支持 x86_64 和 arm64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
@@ -71,23 +71,23 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="18">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="17">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
         <td class="features-third-td-background-style">1 个 Master 节点 n 个 Worker 节点模式：适合开发测试用途
-        </td>       
+        </td>
     </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">3 个 Master 节点 n 个 Worker 节点模式：适合生产用途
         </td>
-    </tr>    
+    </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="5">计算方案
+        <td class="features-third-td-background-style" rowspan="4">计算方案
         </td>
         <td class="features-third-td-background-style">独立主机：支持自行准备的虚机、公有云主机和物理机
-        </td>  
-    </tr>    
+        </td>
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">vSphere 平台：支持自动创建主机（使用 Terraform）
         </td>
@@ -99,21 +99,17 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">FusionCompute 平台：支持自动创建主机 （使用 Terraform）
         </td>
-    </tr>    
-    <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 x86 和 Arm64 CPU 架构
-        </td>
     </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">存储方案
         </td>
-        <td class="features-third-td-background-style">独立主机：支持 NFS / Ceph RBD / Local Volume
+        <td class="features-third-td-background-style">独立主机：支持 NFS / Ceph RBD / Rook Ceph / Local Volume
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">vSphere 平台：支持 vSphere Datastore （vSAN 及 vSphere 兼容的集中存储）
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">Openstack 平台：支持 Openstack Cinder （Ceph 及 Cinder 兼容的集中存储）
         </td>
@@ -121,23 +117,23 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">FusionCompute 平台：支持 OceanStor
         </td>
-    </tr>    
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">网络方案
         </td>
+        <td class="features-third-td-background-style">支持 CoreDNS
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持 Flannel / Calico 网络插件
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持 ingress-nginx / traefik
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持通过 F5 Big IP 对外暴露服务（X-PACK）
-        </td>
-    </tr> 
-    <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 Traefik / ingress-nginx
-        </td>
-    </tr>    
-    <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 CoreDNS
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
@@ -145,131 +141,153 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
         <td class="features-third-td-background-style">支持 NVIDIA GPU
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">操作系统
         </td>
-        <td class="features-third-td-background-style">支持 RHEL/CentOS 7.4 以上版本
+        <td class="features-third-td-background-style">支持 RHEL / CentOS / EulerOS 操作系统
         </td>
-    </tr>  
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">容器运行时
         </td>
-        <td class="features-third-td-background-style">支持 Docker / containerd
+        <td class="features-third-td-background-style">支持 Docker / Containerd
         </td>
-    </tr>     
-    <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="3">Day 1 部署
-        </td>
-        <td class="features-third-td-background-style" rowspan="3">部署
-        </td>  
-        <td class="features-third-td-background-style">提供离线环境下的完整安装包
-        </td>         
     </tr>
-     <tr class="subscription-level-tr-border">
+    <tr class="subscription-level-tr-border">
+        <td class="features-first-td-background-style" rowspan="6">Day 1 部署
+        </td>
+        <td class="features-third-td-background-style" rowspan="6">部署
+        </td>
+        <td class="features-third-td-background-style">支持在线和离线安装模式
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持 Kubeadm 部署
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持 x86_64 和 arm64 CPU 架构
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持可视化方式展示部署过程
         </td>
     </tr>
-     <tr class="subscription-level-tr-border">
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持一键自动化部署（使用 Ansible）
         </td>
-    </tr> 
-    <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="21">Day 2 运营
-        </td>
-        <td class="features-third-td-background-style" rowspan="9">管理
-        </td>  
-        <td class="features-third-td-background-style">支持以项目为核心的分级授权管理
-        </td>         
     </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">支持系统管理员、项目管理员和只读用户等三种角色
+        <td class="features-third-td-background-style">支持已有集群导入
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">支持对接 LDAP/AD（X-PACK）
+        <td class="features-first-td-background-style" rowspan="22">Day 2 运营
         </td>
-    </tr>    
+        <td class="features-third-td-background-style" rowspan="9">管理
+        </td>
+        <td class="features-third-td-background-style">支持以项目为核心的分级授权管理
+        </td>
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">对外开放 REST API
+        <td class="features-third-td-background-style">支持系统管理员、项目管理员和集群管理员三种角色
         </td>
-    </tr>    
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">可通过应用商店安装 K8s Dashboard 管理应用
+        <td class="features-third-td-background-style">支持多集群配置管理（X-PACK）
         </td>
-    </tr>     
-     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">可通过应用商店安装 Weave Scope 管理应用
-        </td>
-    </tr>  
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">提供 Web Kubectl 界面
+        <td class="features-third-td-background-style">支持对接 LDAP/AD（X-PACK）
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">内置 Helm 
+        <td class="features-third-td-background-style">支持自定义 Logo 和 配色（X-PACK）
         </td>
-    </tr>   
+    </tr>
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">支持更新证书
+        <td class="features-third-td-background-style">对外开放 REST API
         </td>
-    </tr>     
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持国际化 i18n
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">提供 Web Kubectl 界面
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">内置 Helm
+        </td>
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">可观察性
         </td>
-         <td class="features-third-td-background-style">内置 Prometheus，支持对集群、节点、Pod、Container的全方位监控和告警
+        <td class="features-third-td-background-style">内置 Prometheus，支持对集群、节点、Pod、Container 的全方位监控和告警
         </td>
     </tr>
-     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">内置 Loki 日志方案
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">内置 EFK、Loki 日志方案
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">内置 Grafana 作为监控和日志展示
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持消息中心，通过钉钉、微信通知各种集群异常事件（X-PACK）
         </td>
-    </tr>      
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">升级
         </td>
-         <td class="features-third-td-background-style">支持集群升级
+        <td class="features-third-td-background-style">支持集群升级
         </td>
-    </tr> 
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">伸缩
         </td>
-         <td class="features-third-td-background-style">支持增加或者减少 Worker 节点
+        <td class="features-third-td-background-style">支持增加或者减少 Worker 节点
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">备份
         </td>
-         <td class="features-third-td-background-style">支持 etcd 定期备份
+        <td class="features-third-td-background-style">支持 etcd 定期备份和立即备份
         </td>
-    </tr>  
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">恢复
+        </td>
+        <td class="features-third-td-background-style">支持 etcd 备份策略文件恢复和本地文件恢复
+        </td>
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style"  rowspan="2">安全合规
         </td>
-         <td class="features-third-td-background-style">支持集群健康评分（X-PACK）
+        <td class="features-third-td-background-style">支持集群健康评分（X-PACK）
         </td>
-    </tr>   
+    </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持 CSI 安全扫描
         </td>
-    </tr>    
-     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="2">应用商店
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style" rowspan="3">应用商店
         </td>
-         <td class="features-third-td-background-style">提供 GitLab、Jenkins、Harbor、Argo CD 等 CI/CD 工具
+        <td class="features-third-td-background-style">提供 GitLab、Jenkins、Harbor、Argo CD、Sonarqube 等 CI/CD 工具
         </td>
-    </tr> 
-     <tr class="subscription-level-tr-border">
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">提供 Kuboard、Weave Scope、Redmine 等管理工具
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">提供深度学习AI 应用，比如 TensorFlow
         </td>
-    </tr>    
+    </tr>
  </table>
 
 具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)

@@ -233,7 +233,7 @@
   "APP_SYSTEM_IP": "系统 IP",
   "APP_DEPLOY_SINGLE": "单一",
   "APP_DEPLOY_MIXED": "混合",
-  "APP_SYSTEM_DEPLOY_HELPER": "混合架构，如：K8S集群包含x86_64和aarch64两种架构，选择混合。只有某一种架构时，单架构选择单一",
+  "APP_SYSTEM_DEPLOY_HELPER": "Kubernetes 集群包含 x86_64 和 aarch64 两种架构，选择混合。只有其中某一种架构时，选择单一",
   "APP_SYSTEM_IP_HELPER": "必填,请填写KubeOperator本机的IPV4地址",
   "APP_SYSTEM_PROTOCOL_HELPER": "必选,Nexus访问地址，http或https",
   "APP_SYSTEM_LANGUAGE_CN": "简体中文",

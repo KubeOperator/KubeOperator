@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 
@@ -132,7 +133,7 @@ func (s systemSettingService) GetLocalIP() (string, error) {
 		return sysSetting.Value, nil
 	}
 	var sysRegistry model.SystemRegistry
-	if err := db.DB.Where("architecture = ?", "amd64").First(&sysRegistry).Error; err != nil {
+	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&sysRegistry).Error; err != nil {
 		return "", fmt.Errorf("can't found registry from system registry, err %s", err.Error())
 	}
 	return sysRegistry.Hostname, nil
