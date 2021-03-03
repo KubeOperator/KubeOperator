@@ -5,8 +5,6 @@ import {SystemService} from '../system.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
-import * as ipaddr from 'ipaddr.js';
-
 
 @Component({
     selector: 'app-system',
@@ -37,9 +35,6 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
     }
 
     onSubmit() {
-        if (!this.checkIp()) {
-            return;
-        }
         this.createItem.vars = this.item.vars;
         this.createItem.tab = 'SYSTEM';
         this.systemService.create(this.createItem).subscribe(res => {
@@ -48,14 +43,5 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
-    }
-
-    checkIp() {
-        const ip = this.item.vars['ntp_server'];
-        if (!ipaddr.isValid(ip)) {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_IP_INVALID'), AlertLevels.ERROR);
-            return false;
-        }
-        return true;
     }
 }
