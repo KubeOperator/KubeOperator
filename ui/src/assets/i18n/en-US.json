@@ -230,7 +230,7 @@
   "APP_REGISTRY_PROTOCOL": "Registry protocol",
   "APP_REGISTRY_IP": "Registry IP",
   "APP_SYSTEM_IP": "System IP",
-  "APP_SYSTEM_DEPLOY_HELPER": "Hybrid architecture, such as: K8S cluster contains x86_64 and aarch64 two architectures, choose hybrid. When there is only one architecture, choose single architecture",
+  "APP_SYSTEM_DEPLOY_HELPER": "The Kubernetes cluster contains both x86_64 and aarch64 architectures, choosing a mix. When there is only one of these architectures, choose a single one",
   "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of KubeOperator",
   "APP_SYSTEM_PROTOCOL_HELPER": "Required, nexus access address, http or https",
   "APP_SYSTEM_LANGUAGE_CN": "简体中文",
