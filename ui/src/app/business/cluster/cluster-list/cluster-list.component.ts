@@ -8,6 +8,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
 import {SystemService} from '../../setting/system.service';
 import {TranslateService} from '@ngx-translate/core';
+import {RegistryService} from '../../setting/registry-setting/registry.service';
 
 @Component({
     selector: 'app-cluster-list',
@@ -21,6 +22,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
                 private router: Router,
                 private route: ActivatedRoute,
                 private settingService: SystemService,
+                private registryService: RegistryService,
                 private translateService: TranslateService) {
         super(clusterService);
     }
@@ -74,15 +76,23 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
 
     onCreate() {
         this.settingService.singleGet().subscribe(data => {
-            if (!data.vars['ip']) {
-                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
-                return;
-            }
             if (!data.vars['arch_type']) {
                 this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_ARCH'), AlertLevels.ERROR);
                 return;
             }
-            super.onCreate();
+            if (!data.vars['ip']) {
+                this.registryService.mixedGet(1, 1).subscribe(registry => {
+                    if (registry.total < 1) {
+                        console.log('错误');
+                        this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
+                        return;
+                    };
+                    super.onCreate();
+                }, error => {
+                    this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
+                    return;
+                });
+            }
         });
     }
 

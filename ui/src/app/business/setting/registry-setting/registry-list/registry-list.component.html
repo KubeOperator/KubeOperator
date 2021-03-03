@@ -1,5 +1,5 @@
 <div *ngIf="systemItem.vars['arch_type']=='single'">
-    <form clrForm #settingForm="ngForm">
+    <form clrForm #registryForm="ngForm">
         <div *ngIf="systemItem">
             <clr-select-container>
                 <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
@@ -20,7 +20,7 @@
         </div>
     </form>
     <button class="btn btn-info-outline" (click)="SingleOnSubmit()"
-            [disabled]="settingForm.invalid">{{'APP_COMMIT'|translate}}</button>
+            [disabled]="registryForm.invalid">{{'APP_COMMIT'|translate}}</button>
 </div>
 
 <div *ngIf="systemItem.vars['arch_type']=='mixed'">
@@ -58,7 +58,7 @@
             <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                                (clrDgPageChange)="refresh()">
                 {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-                {{'APP_PAGER_TOTAL'|translate}} {{pagination.totalItems}} 仓库
+                {{'APP_PAGER_TOTAL'|translate}} {{pagination.totalItems}} {{ 'APP_REGISTRY'| translate}}
             </clr-dg-pagination>
         </clr-dg-footer>
     </clr-datagrid>

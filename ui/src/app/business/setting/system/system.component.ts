@@ -40,11 +40,6 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
         if (!this.checkIp()) {
             return;
         }
-        if (this.item.vars['ip'] === this.item.vars['ntp_server']) {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_SYSTEM_EQUAL'), AlertLevels.ERROR);
-            return;
-        }
-
         this.createItem.vars = this.item.vars;
         this.createItem.tab = 'SYSTEM';
         this.systemService.create(this.createItem).subscribe(res => {
@@ -56,7 +51,7 @@ export class SystemComponent extends BaseModelDirective<System> implements OnIni
     }
 
     checkIp() {
-        const ip = this.item.vars['ip'];
+        const ip = this.item.vars['ntp_server'];
         if (!ipaddr.isValid(ip)) {
             this.commonAlertService.showAlert(this.translateService.instant('APP_IP_INVALID'), AlertLevels.ERROR);
             return false;
