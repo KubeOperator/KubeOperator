@@ -30,6 +30,8 @@ export class ClusterCreateComponent implements OnInit {
     plans: Plan[] = [];
     versions: string[] = [];
     archType: string = '';
+    repoList: any[] = [];
+    repoCheck: boolean = true;
     currentProject: Project;
     nameValid = true;
     nameChecking = false;
@@ -60,6 +62,7 @@ export class ClusterCreateComponent implements OnInit {
 
     ngOnInit(): void {
         this.getArchType();
+        this.getRegistry();
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
         });
@@ -69,6 +72,12 @@ export class ClusterCreateComponent implements OnInit {
     getArchType () {
         this.settingService.singleGet().subscribe(data => {
             this.archType = data.vars['arch_type'];
+        });
+    }
+
+    getRegistry () {
+        this.settingService.getRegistry().subscribe(data => {
+            this.repoList = data.items
         });
     }
 
@@ -310,6 +319,24 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     changeArch(type) {
+        this.repoCheck = true;
+        if (type === 'all') {
+            let isAmdExit, isArmExit : boolean = false;
+            for (const repo of this.repoList) {
+                if (repo.architecture === 'x86_64') {
+                    isAmdExit = true;
+                    continue;
+                }
+                if (repo.architecture === 'aarch64') {
+                    isArmExit = true;
+                    continue;
+                }
+            }
+            if (!(isAmdExit && isArmExit)) {
+                this.repoCheck = false;
+                return
+            }
+        }
         if (type !== 'amd64') {
             this.item.helmVersion = 'v3';
             this.helmVersions = ['v3'];

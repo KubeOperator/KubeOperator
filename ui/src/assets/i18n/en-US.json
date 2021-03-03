@@ -419,6 +419,7 @@
   "Failed": "Failed",
   "APP_SYNC_NOTE": "Synchronization starts, please check the user list later",
   "APP_CLUSTER_NAME_HELPER": "Support lowercase English, numbers and -  cannot start with a number",
+  "APP_CLUSTER_REPO_CHECK": "To create a mixed architecture cluster, you should first add x86_64  and aarch64 repo to the system settings",
   "APP_THEME": "Theme",
   "APP_SYSTEM_NAME": "System Name",
   "APP_CLUSTER_RESTORE_BY_LOCAL": "Local file recovery",
