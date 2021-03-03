@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	HostAlreadyExistsErr = "HOST_ALREADY_EXISTS"
-	SystemIpNotFound     = "SYSTEM_IP_NOT_FOUND"
+	HostAlreadyExistsErr     = "HOST_ALREADY_EXISTS"
+	SystemRegistryIpNotFound = "SYSTEM_REGISTRY_IP_NOT_FOUND"
 )
 
 type HostController struct {
@@ -102,7 +102,11 @@ func (h HostController) Post() (*dto.Host, error) {
 
 	localIp, err := h.SystemSettingService.GetLocalIP()
 	if err != nil {
-		return nil, errors.New(SystemIpNotFound)
+		var registry []dto.SystemRegistry
+		registry, err = h.SystemSettingService.ListRegistry()
+		if len(registry) < 0 || registry == nil {
+			return nil, errors.New(SystemRegistryIpNotFound)
+		}
 	}
 	if localIp == req.Ip {
 		return nil, errors.New("IS_LOCAL_HOST")
