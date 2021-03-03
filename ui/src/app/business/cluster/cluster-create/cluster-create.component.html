@@ -7,7 +7,7 @@
     <clr-wizard-button [type]="'next'">{{"APP_NEXT"|translate}}</clr-wizard-button>
     <clr-wizard-button [type]="'finish'">{{"APP_FINISH"|translate}}</clr-wizard-button>
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid || nameChecking || !nameValid">
+    <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid || nameChecking || !repoCheck || !nameValid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_INFO"|translate}}</ng-template>
         <form clrForm #basicForm='ngForm'>
             <clr-input-container>
@@ -16,12 +16,12 @@
                        pattern="[a-z]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
                        (blur)="onNameCheck()"
                        required/>
+                <clr-control-helper style="color: red;" *ngIf="!nameValid">
+                    {{'APP_CLUSTER_NAME_INVALID'|translate}}<br/>
+                </clr-control-helper>
                 <clr-control-helper>
                     <span *ngIf="nameChecking"><clr-spinner clrInline></clr-spinner>
                         {{'APP_CHECKING'|translate}}<br/>
-                    </span>
-                    <span *ngIf="!nameValid">
-                        {{'APP_CLUSTER_NAME_INVALID'|translate}}<br/>
                     </span>
                     {{'APP_CLUSTER_NAME_HELPER'|translate}}<br/>
                 </clr-control-helper>
@@ -50,6 +50,9 @@
                     <option value="amd64">AMD64</option>
                     <option *ngIf="archType === 'mixed' && item.provider === 'bareMetal'" value="all">MIXED</option>
                 </select>
+                <clr-control-helper style="color: red;" *ngIf="!repoCheck">
+                    {{"APP_CLUSTER_REPO_CHECK"|translate}}
+                </clr-control-helper>
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_YUM_REPO"|translate}}</label>

@@ -425,6 +425,7 @@
   "Failed": "失败",
   "APP_SYNC_NOTE": "同步开始，请稍后去用户列表查看",
   "APP_CLUSTER_NAME_HELPER": "支持小写英文、数字和- 不能以数字开头",
+  "APP_CLUSTER_REPO_CHECK": "创建混合架构集群，应先在系统设置中添加 x86_64 及 aarch64 仓库",
   "APP_THEME": "主题",
   "APP_SYSTEM_NAME": "系统名称",
   "APP_CLUSTER_RESTORE_BY_LOCAL": "本地文件恢复",
