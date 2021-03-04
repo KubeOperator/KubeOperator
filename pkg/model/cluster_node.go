@@ -77,7 +77,7 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		PrivateKey: n.Host.Credential.PrivateKey,
 		Vars: map[string]string{
 			"has_gpu":           fmt.Sprintf("%v", n.Host.HasGpu),
-			"architecture":      r.Architecture,
+			"architectures":     r.Architecture,
 			"registry_protocol": r.Protocol,
 			"registry_hostname": r.Hostname,
 		},
