@@ -162,7 +162,7 @@ const routes: Routes = [
                 canActivate: [AdminAuthService],
                 canActivateChild: [AdminAuthService],
                 children: [
-                    {path: '', redirectTo: 'system', pathMatch: 'full'},
+                    {path: '', redirectTo: 'registry-setting', pathMatch: 'full'},
                     {path: 'system', component: SystemComponent},
                     {path: 'credential', component: CredentialComponent},
                     {path: 'backupAccounts', component: BackupAccountComponent},
