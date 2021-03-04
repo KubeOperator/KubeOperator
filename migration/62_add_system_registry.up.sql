@@ -8,5 +8,14 @@ CREATE TABLE IF NOT EXISTS `ko_system_registry`
     `architecture`      varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 );
-insert ignore into ko.ko_system_setting (`created_at`, `updated_at`, `id`, `key`, `value`, `tab`)
-values (date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'arch_type', 'single', 'SYSTEM');
+insert into ko.ko_system_registry(
+    id,
+    created_at,
+    updated_at,
+    hostname,
+    protocol
+)
+SELECT UUID(),DATE(NOW()),DATE(NOW()),
+       MAX(CASE `key` WHEN 'ip' THEN value ELSE 0 END ) hostname,
+       MAX(CASE `key` WHEN 'REGISTRY_PROTOCOL' THEN value ELSE 0 END ) protocol
+FROM ko_system_setting;
