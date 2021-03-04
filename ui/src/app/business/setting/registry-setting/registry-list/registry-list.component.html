@@ -1,4 +1,4 @@
-<div *ngIf="systemItem.vars['arch_type']=='mixed'">
+<div>
     <clr-datagrid  [clrDgLoading]="loading" [(clrDgSelected)]="selected">
         <clr-dg-action-bar>
             <div class="btn-group">
@@ -21,7 +21,6 @@
         <clr-dg-column>{{'APP_SYSTEM_REGISTRY_PROTOCOL'|translate}}</clr-dg-column>
         <clr-dg-column>{{'APP_SYSTEM_REGISTRY_IP'|translate}}</clr-dg-column>
         <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
-
 
         <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
             <clr-dg-cell>{{item.architecture}}</clr-dg-cell>
