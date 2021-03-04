@@ -29,7 +29,6 @@ export class ClusterCreateComponent implements OnInit {
     workers: any[] = [];
     plans: Plan[] = [];
     versions: string[] = [];
-    archType: string = '';
     repoList: any[] = [];
     repoCheck: boolean = true;
     currentProject: Project;
@@ -316,40 +315,38 @@ export class ClusterCreateComponent implements OnInit {
         this.repoCheck = true;
         let isAmdExit: boolean = false;
         let isArmExit: boolean = false;
-        if (this.archType === 'mixed') {
-            switch (type) {
-                case 'amd64':
-                    for (const repo of this.repoList) {
-                        if (repo.architecture === 'x86_64') {
-                            isAmdExit = true;
-                            break;
-                        }
+        switch (type) {
+            case 'amd64':
+                for (const repo of this.repoList) {
+                    if (repo.architecture === 'x86_64') {
+                        isAmdExit = true;
+                        break;
                     }
-                    this.repoCheck = isAmdExit;
-                    break;
-                case 'arm64':
-                    for (const repo of this.repoList) {
-                        if (repo.architecture === 'aarch64') {
-                            isArmExit = true;
-                            break;
-                        }
+                }
+                this.repoCheck = isAmdExit;
+                break;
+            case 'arm64':
+                for (const repo of this.repoList) {
+                    if (repo.architecture === 'aarch64') {
+                        isArmExit = true;
+                        break;
                     }
-                    this.repoCheck = isArmExit;
-                    break;
-                case 'all':
-                    for (const repo of this.repoList) {
-                        if (repo.architecture === 'x86_64') {
-                            isAmdExit = true;
-                            continue;
-                        }
-                        if (repo.architecture === 'aarch64') {
-                            isArmExit = true;
-                            continue;
-                        }
+                }
+                this.repoCheck = isArmExit;
+                break;
+            case 'all':
+                for (const repo of this.repoList) {
+                    if (repo.architecture === 'x86_64') {
+                        isAmdExit = true;
+                        continue;
                     }
-                    this.repoCheck = isAmdExit && isArmExit;
-                    break;
-            }
+                    if (repo.architecture === 'aarch64') {
+                        isArmExit = true;
+                        continue;
+                    }
+                }
+                this.repoCheck = isAmdExit && isArmExit;
+                break;
         }
         if (type !== 'amd64') {
             this.item.helmVersion = 'v3';
