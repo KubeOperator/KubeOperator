@@ -308,7 +308,7 @@
   "APP_ADD_STORAGE_PROVISIONER": "add storage provisioner",
   "APP_LICENSE": "License",
   "APP_NOT_SET_SYSTEM_IP": "Please add the corresponding repo in the system settings",
-  "APP_NOT_SET_SYSTEM_ARCH": "Please set the system architecture mode",
+  "APP_NOT_SET_SYSTEM_IP_X86": "Please add x86_64 repo in the system settings",
   "APP_BACKUP_STRATEGY": "Backup Strategy",
   "APP_BACKUP_CRON": "Backup Interval (days)",
   "APP_BACKUP_SAVE_NUM": "Keep copies",

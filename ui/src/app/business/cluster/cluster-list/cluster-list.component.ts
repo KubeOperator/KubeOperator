@@ -6,7 +6,6 @@ import {CommonAlertService} from '../../../layout/common-alert/common-alert.serv
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
-import {SystemService} from '../../setting/system.service';
 import {TranslateService} from '@ngx-translate/core';
 
 @Component({
@@ -20,7 +19,6 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
                 private commonAlert: CommonAlertService,
                 private router: Router,
                 private route: ActivatedRoute,
-                private settingService: SystemService,
                 private translateService: TranslateService) {
         super(clusterService);
     }
@@ -73,19 +71,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     }
 
     onCreate() {
-        this.settingService.singleGet().subscribe(data => {
-            if (!data.vars['arch_type']) {
-                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_ARCH'), AlertLevels.ERROR);
-                return;
-            }
-            if (data.vars['arch_type'] === 'single') {
-                if (!data.vars['ip']) {
-                    this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
-                    return;
-                }
-            }
-            super.onCreate();
-        })
+        super.onCreate();
     }
 
     onDelete() {
