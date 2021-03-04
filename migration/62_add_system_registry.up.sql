@@ -15,7 +15,10 @@ insert into ko.ko_system_registry(
     hostname,
     protocol
 )
-SELECT UUID(),DATE(NOW()),DATE(NOW()),
-       MAX(CASE `key` WHEN 'ip' THEN value ELSE 0 END ) hostname,
-       MAX(CASE `key` WHEN 'REGISTRY_PROTOCOL' THEN value ELSE 0 END ) protocol
-FROM ko_system_setting;
+SELECT * FROM (
+  SELECT UUID() id,DATE(NOW()) created_at,DATE(NOW()) updated_at,
+         MAX(CASE `key` WHEN 'ip' THEN value ELSE '' END ) hostname,
+         MAX(CASE `key` WHEN 'REGISTRY_PROTOCOL' THEN value ELSE '' END ) protocol
+  FROM ko_system_setting) t
+WHERE t.hostname != '';
+
