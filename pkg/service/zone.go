@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -121,12 +122,9 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
-	ip, err := z.systemSettingService.GetLocalIP()
-	if err != nil {
+	var repo model.SystemRegistry
+	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
 		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
-	}
-	if ip == "" {
-		return nil, errors.New(IpNotExist)
 	}
 
 	old, _ := z.Get(creation.Name)
@@ -331,10 +329,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	if err != nil {
 		return err
 	}
-	ip, err := z.systemSettingService.GetLocalIP()
-	if err != nil {
-		return err
+	var repo model.SystemRegistry
+	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
+		return fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
 	}
+	ip := repo.Hostname
 
 	regionVars := region.RegionVars.(map[string]interface{})
 	regionVars["datacenter"] = region.Datacenter

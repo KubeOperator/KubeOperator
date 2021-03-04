@@ -70,7 +70,7 @@ export class ClusterCreateComponent implements OnInit {
 
     getRegistry() {
         this.settingService.getRegistry().subscribe(data => {
-            this.repoList = (data.items === null) ? [] : data.items;
+            this.repoList = (data.items === null) ? [] : data.items
             this.changeArch('amd64');
         });
     }

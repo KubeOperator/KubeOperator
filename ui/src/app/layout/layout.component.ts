@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ThemeService} from '../business/setting/theme/theme.service';
 import {HeaderComponent} from './header/header.component';
 import {LicenseService} from '../business/setting/license/license.service';
-import {RegistryService} from '../business/setting/registry-setting/registry.service';
+import {SystemService} from '../business/setting/system.service';
 
 @Component({
     selector: 'app-layout',
@@ -11,7 +11,7 @@ import {RegistryService} from '../business/setting/registry-setting/registry.ser
 })
 export class LayoutComponent implements OnInit {
 
-    constructor(private themeService: ThemeService, private licenseService: LicenseService, private  registryService: RegistryService) {
+    constructor(private themeService: ThemeService, private licenseService: LicenseService, private  systemService: SystemService) {
     }
 
     @ViewChild(HeaderComponent, {static: true})
@@ -21,10 +21,14 @@ export class LayoutComponent implements OnInit {
     ngOnInit(): void {
         this.licenseService.setLicense();
         this.setTheme();
-        this.registryService.mixedGet(1, 1).subscribe(registry => {
-            if (registry.total < 1) {
+        this.systemService.getRegistry().subscribe(res => {
+            if (res === null) {
                 this.alert = true;
             }
+            if (res.total === 0) {
+                this.alert = true;
+            }
+        }, error => {
         });
     }
 

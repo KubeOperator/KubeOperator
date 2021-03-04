@@ -17,18 +17,21 @@ export class ManifestListComponent implements OnInit {
     }
 
     items: ManifestGroup[] = [];
-    loading = false;
+    loading = true;
     @Output() detailEvent = new EventEmitter<Manifest>();
     @Output() alertEvent = new EventEmitter();
-    largeVersion = 'v1.18';
 
     ngOnInit(): void {
         this.refresh();
     }
 
     refresh() {
+        this.loading = true;
         this.manifestService.listByLargeVersion().subscribe(data => {
+            this.loading = false;
             this.items = data;
+        }, error => {
+            this.loading = false;
         });
     }
 

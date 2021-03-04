@@ -18,7 +18,7 @@ import (
 
 type SystemSettingService interface {
 	Get(name string) (dto.SystemSetting, error)
-	GetLocalIP() (string, error)
+	GetLocalIPs() ([]model.SystemRegistry, error)
 	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
@@ -119,24 +119,12 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 	return result, nil
 }
 
-func (s systemSettingService) GetLocalIP() (string, error) {
-	var arch_type model.SystemSetting
-	if err := db.DB.Where(map[string]interface{}{"key": "arch_type"}).First(&arch_type).Error; err != nil {
-		return "", fmt.Errorf("can't found arch_type from system setting, err %s", err.Error())
+func (s systemSettingService) GetLocalIPs() ([]model.SystemRegistry, error) {
+	var sysRepo []model.SystemRegistry
+	if err := db.DB.Find(&sysRepo).Error; err != nil {
+		return sysRepo, fmt.Errorf("can't found repo from system registry, err %s", err.Error())
 	}
-
-	if arch_type.Value == "single" {
-		var sysSetting model.SystemSetting
-		if err := db.DB.Where(map[string]interface{}{"key": "ip"}).First(&sysSetting).Error; err != nil {
-			return "", fmt.Errorf("can't found ip from system setting, err %s", err.Error())
-		}
-		return sysSetting.Value, nil
-	}
-	var sysRegistry model.SystemRegistry
-	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&sysRegistry).Error; err != nil {
-		return "", fmt.Errorf("can't found registry from system registry, err %s", err.Error())
-	}
-	return sysRegistry.Hostname, nil
+	return sysRepo, nil
 }
 
 func (s systemSettingService) CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error {

@@ -1,4 +1,7 @@
-<clr-accordion clrAccordionMultiPanel="true">
+<div *ngIf="loading" style="text-align: center">
+    <clr-spinner></clr-spinner>
+</div>
+<clr-accordion clrAccordionMultiPanel="true" *ngIf="!loading">
     <clr-accordion-panel clrAccordionPanelOpen=true *ngFor="let group of items;">
         <clr-accordion-title>{{group.largeVersion}}</clr-accordion-title>
         <clr-accordion-content *clrIfExpanded>

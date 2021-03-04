@@ -130,6 +130,7 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 	if len(largeVersions) == 0 {
 		return []dto.ClusterManifestGroup{}, nil
 	}
+	quickSortVersion(largeVersions, 0, len(largeVersions)-1)
 	for _, largeVersion := range largeVersions {
 		var clusterManifestGroup dto.ClusterManifestGroup
 		clusterManifestGroup.LargeVersion = largeVersion.Version
