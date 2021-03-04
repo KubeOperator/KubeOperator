@@ -485,6 +485,11 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		k.SetVar(i, facts.DefaultFacts[i])
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	var systemSetting model.SystemSetting
+	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	if systemSetting.ID != "" {
+		k.SetVar(facts.NtpServerName, systemSetting.Value)
+	}
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {
 		k.SetVar(key, value)

@@ -658,6 +658,11 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 		k.SetVar(j, v)
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	var systemSetting model.SystemSetting
+	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	if systemSetting.ID != "" {
+		k.SetVar(facts.NtpServerName, systemSetting.Value)
+	}
 	err = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, "", writer)
 	if err != nil {
 		return err
@@ -694,7 +699,11 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 		k.SetVar(j, v)
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
-
+	var systemSetting model.SystemSetting
+	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	if systemSetting.ID != "" {
+		k.SetVar(facts.NtpServerName, systemSetting.Value)
+	}
 	maniFest, _ := adm.GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
