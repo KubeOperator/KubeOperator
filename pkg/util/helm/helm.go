@@ -173,16 +173,16 @@ func updateRepo(arch string) error {
 			flag = true
 		}
 	}
-	r := repository.NewSystemSettingRepository()
-	p, err := r.Get("REGISTRY_PROTOCOL")
-	if err != nil {
-		return errors.New("invalid local host ip")
-	}
-	repoIP, err := getRepoIP(arch)
-	if err != nil {
-		return err
-	}
 	if !flag {
+		r := repository.NewSystemSettingRepository()
+		p, err := r.Get("REGISTRY_PROTOCOL")
+		if err != nil {
+			return errors.New("invalid local host ip")
+		}
+		repoIP, err := getRepoIP(arch)
+		if err != nil {
+			return err
+		}
 		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, repoIP), "admin", "admin123")
 		if err != nil {
 			log.Errorf("addRepo failed, error: %s", err.Error())
@@ -297,17 +297,17 @@ func getRepoIP(arch string) (string, error) {
 	var repo model.SystemRegistry
 	switch arch {
 	case "amd64":
-		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
 			return "", err
 		}
 		return repo.Hostname, nil
 	case "arm64":
-		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
 			return "", err
 		}
 		return repo.Hostname, nil
 	case "all":
-		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
 			return "", err
 		}
 		return repo.Hostname, nil
