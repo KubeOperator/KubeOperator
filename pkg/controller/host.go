@@ -100,15 +100,14 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	localIp, err := h.SystemSettingService.GetLocalIP()
-	if err != nil {
-		var registry []dto.SystemRegistry
-		registry, err = h.SystemSettingService.ListRegistry()
-		if len(registry) < 0 || registry == nil {
-			return nil, errors.New(SystemRegistryIpNotFound)
+	repos, err := h.SystemSettingService.GetLocalIPs()
+	isExit := false
+	for _, repo := range repos {
+		if repo.Hostname == req.Ip {
+			isExit = true
 		}
 	}
-	if localIp == req.Ip {
+	if isExit {
 		return nil, errors.New("IS_LOCAL_HOST")
 	}
 	item, _ := h.HostService.Get(req.Name)

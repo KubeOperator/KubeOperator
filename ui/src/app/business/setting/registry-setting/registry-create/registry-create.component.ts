@@ -52,6 +52,7 @@ export class RegistryCreateComponent extends BaseModelDirective<Registry> implem
             this.created.emit();
             this.onCancel();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            window.location.reload();
         }, error => {
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

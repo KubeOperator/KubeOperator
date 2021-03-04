@@ -21,8 +21,11 @@ export class LayoutComponent implements OnInit {
     ngOnInit(): void {
         this.licenseService.setLicense();
         this.setTheme();
-        this.systemService.getIp().subscribe(res => {
+        this.systemService.getRegistry().subscribe(res => {
             if (res === null) {
+                this.alert = true;
+            }
+            if (res.total === 0) {
                 this.alert = true;
             }
         }, error => {

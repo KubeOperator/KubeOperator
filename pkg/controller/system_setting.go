@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -62,14 +63,6 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	go kolog.Save(operator, constant.CREATE_EMAIL, "-")
 
 	return result, nil
-}
-
-func (s SystemSettingController) GetIp() string {
-	ip, err := s.SystemSettingService.GetLocalIP()
-	if err != nil {
-		return err.Error()
-	}
-	return ip
 }
 
 func (s SystemSettingController) PostCheckBy(typeName string) error {
