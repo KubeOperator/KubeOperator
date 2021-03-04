@@ -10,8 +10,6 @@ import {Page} from '../../../shared/class/Page';
 })
 export class RegistryService extends BaseModelService<Registry> {
     baseUrl = '/api/v1/settings/registry';
-    // items: T[] = [];
-
     constructor(http: HttpClient) {
         super(http);
     }

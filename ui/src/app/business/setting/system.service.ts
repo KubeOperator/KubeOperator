@@ -20,12 +20,7 @@ export class SystemService extends BaseModelService<System> {
         return this.http.get<System>(itemUrl);
     }
 
-    getIp(): Observable<string> {
-        const itemUrl = `${this.baseUrl}/ip`;
-        return this.http.get<string>(itemUrl);
-    }
-    
-    getRegistry() : any {
+    getRegistry(): any {
         const url = '/api/v1/settings/registry';
         return this.http.get<any>(url);
     }

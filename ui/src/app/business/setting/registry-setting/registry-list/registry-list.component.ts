@@ -14,7 +14,6 @@ import {System} from '../../system/system';
 })
 export class RegistryListComponent extends BaseModelDirective<Registry> implements OnInit {
     item: System = new System();
-    systemItem: System = new System();
 
     constructor(private systemService: SystemService, private commonAlertService: CommonAlertService,
                 private translateService: TranslateService, private registryService: RegistryService) {
@@ -23,12 +22,6 @@ export class RegistryListComponent extends BaseModelDirective<Registry> implemen
 
     ngOnInit(): void {
         super.ngOnInit();
-        // this.listSystemSettings();
     }
 
-    // listSystemSettings() {
-    //     this.systemService.singleGet().subscribe(res => {
-    //         this.systemItem = res;
-    //     });
-    // }
 }

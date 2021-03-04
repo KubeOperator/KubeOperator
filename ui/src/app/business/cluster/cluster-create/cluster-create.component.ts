@@ -9,7 +9,7 @@ import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from '../../manifest/manifest.service';
-import { SystemService } from '../../setting/system.service';
+import {SystemService} from '../../setting/system.service';
 
 
 @Component({
@@ -61,7 +61,6 @@ export class ClusterCreateComponent implements OnInit {
 
 
     ngOnInit(): void {
-        this.getArchType();
         this.getRegistry();
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
@@ -69,15 +68,9 @@ export class ClusterCreateComponent implements OnInit {
 
     }
 
-    getArchType () {
-        this.settingService.singleGet().subscribe(data => {
-            this.archType = data.vars['arch_type'];
-        });
-    }
-
-    getRegistry () {
+    getRegistry() {
         this.settingService.getRegistry().subscribe(data => {
-            this.repoList = (data.items === null) ? [] : data.items
+            this.repoList = (data.items === null) ? [] : data.items;
             this.changeArch('amd64');
         });
     }
@@ -325,7 +318,7 @@ export class ClusterCreateComponent implements OnInit {
         let isArmExit: boolean = false;
         if (this.archType === 'mixed') {
             switch (type) {
-                case 'amd64': 
+                case 'amd64':
                     for (const repo of this.repoList) {
                         if (repo.architecture === 'x86_64') {
                             isAmdExit = true;
@@ -334,7 +327,7 @@ export class ClusterCreateComponent implements OnInit {
                     }
                     this.repoCheck = isAmdExit;
                     break;
-                case 'arm64': 
+                case 'arm64':
                     for (const repo of this.repoList) {
                         if (repo.architecture === 'aarch64') {
                             isArmExit = true;
@@ -343,7 +336,7 @@ export class ClusterCreateComponent implements OnInit {
                     }
                     this.repoCheck = isArmExit;
                     break;
-                case 'all': 
+                case 'all':
                     for (const repo of this.repoList) {
                         if (repo.architecture === 'x86_64') {
                             isAmdExit = true;
