@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -99,7 +101,7 @@ func LoadCharts(path string) (*chart.Chart, error) {
 }
 
 func (c Client) Install(name, chartName, chartVersion string, values map[string]interface{}) (*release.Release, error) {
-	if err := updateRepo(); err != nil {
+	if err := updateRepo(c.Architectures); err != nil {
 		return nil, err
 	}
 	client := action.NewInstall(c.installActionConfig)
@@ -122,7 +124,7 @@ func (c Client) Install(name, chartName, chartVersion string, values map[string]
 }
 
 func (c Client) Upgrade(name, chartName, chartVersion string, values map[string]interface{}) (*release.Release, error) {
-	if err := updateRepo(); err != nil {
+	if err := updateRepo(c.Architectures); err != nil {
 		return nil, err
 	}
 	client := action.NewUpgrade(c.installActionConfig)
@@ -163,7 +165,7 @@ func GetSettings() *cli.EnvSettings {
 
 }
 
-func updateRepo() error {
+func updateRepo(arch string) error {
 	repos, _ := ListRepo()
 	flag := false
 	for _, r := range repos {
@@ -176,8 +178,12 @@ func updateRepo() error {
 	if err != nil {
 		return errors.New("invalid local host ip")
 	}
+	repoIP, err := getRepoIP(arch)
+	if err != nil {
+		return err
+	}
 	if !flag {
-		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, constant.LocalRepositoryDomainName), "admin", "admin123")
+		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, repoIP), "admin", "admin123")
 		if err != nil {
 			log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
@@ -285,6 +291,28 @@ func addRepo(name string, url string, username string, password string) error {
 		return err
 	}
 	return nil
+}
+
+func getRepoIP(arch string) (string, error) {
+	var repo model.SystemRegistry
+	switch arch {
+	case "amd64":
+		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
+			return "", err
+		}
+		return repo.Hostname, nil
+	case "arm64":
+		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
+			return "", err
+		}
+		return repo.Hostname, nil
+	case "all":
+		if err := db.DB.Where("architectures = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
+			return "", err
+		}
+		return repo.Hostname, nil
+	}
+	return "", fmt.Errorf("no such architecture")
 }
 
 func ListRepo() ([]*repo.Entry, error) {

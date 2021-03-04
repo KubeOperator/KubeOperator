@@ -80,10 +80,10 @@ func TestClient_Uninstall(t *testing.T) {
 // 	fmt.Println(r.Name)
 // }
 
-func TestClient_AddRepo(t *testing.T) {
-	DbInit()
-	err := updateRepo()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+// func TestClient_AddRepo(t *testing.T) {
+// 	DbInit()
+// 	err := updateRepo()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// }
