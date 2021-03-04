@@ -1,29 +1,4 @@
-<div *ngIf="systemItem.vars['arch_type']=='single'">
-    <form clrForm #registryForm="ngForm">
-        <div *ngIf="systemItem">
-            <clr-select-container>
-                <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
-                <select clrSelect name="options" [(ngModel)]="systemItem.vars['REGISTRY_PROTOCOL']" required>
-                    <option value="http">http</option>
-                    <option value="https">https</option>
-                </select>
-                <clr-control-helper>{{'APP_SYSTEM_PROTOCOL_HELPER'| translate}}</clr-control-helper>
-            </clr-select-container>
-
-            <clr-input-container>
-                <label>{{'APP_REGISTRY_IP'|translate}}</label>
-                <input clrInput [(ngModel)]="systemItem.vars['ip']" name="ip" size=45 required
-                       pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"/>
-                <clr-control-helper>{{'APP_SYSTEM_IP_HELPER'|translate}}</clr-control-helper>
-                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
-            </clr-input-container>
-        </div>
-    </form>
-    <button class="btn btn-info-outline" (click)="SingleOnSubmit()"
-            [disabled]="registryForm.invalid">{{'APP_COMMIT'|translate}}</button>
-</div>
-
-<div *ngIf="systemItem.vars['arch_type']=='mixed'">
+<div>
     <clr-datagrid  [clrDgLoading]="loading" [(clrDgSelected)]="selected">
         <clr-dg-action-bar>
             <div class="btn-group">
@@ -46,7 +21,6 @@
         <clr-dg-column>{{'APP_SYSTEM_REGISTRY_PROTOCOL'|translate}}</clr-dg-column>
         <clr-dg-column>{{'APP_SYSTEM_REGISTRY_IP'|translate}}</clr-dg-column>
         <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
-
 
         <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
             <clr-dg-cell>{{item.architecture}}</clr-dg-cell>

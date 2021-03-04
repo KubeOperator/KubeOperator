@@ -1,15 +1,6 @@
 <div>
     <form clrForm #settingForm="ngForm">
         <div *ngIf="item">
-            <clr-select-container>
-                <label>{{ 'APP_DEPLOY_TYPE' | translate }}</label>
-                <select clrSelect name="arch" [(ngModel)]="item.vars['arch_type']" required>
-                    <option value="single">{{ 'APP_DEPLOY_SINGLE'| translate }}</option>
-                    <option value="mixed">{{ 'APP_DEPLOY_MIXED'| translate }}</option>
-                </select>
-                <clr-control-helper>{{ 'APP_SYSTEM_DEPLOY_HELPER' | translate }}</clr-control-helper>
-            </clr-select-container>
-
             <clr-input-container>
                 <label>{{'APP_SYSTEM_NTP_SERVER'|translate}}</label>
                 <input clrInput [(ngModel)]="item.vars['ntp_server']" name="ntp" size=45/>
