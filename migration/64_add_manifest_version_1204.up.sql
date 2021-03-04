@@ -1,3 +1,5 @@
+update ko_cluster_manifest set is_active=0 where id='4480cb9d-4fef-11eb-9c5f-0242ac120002';
+
 insert into `ko`.`ko_cluster_manifest`(
     `id`,
     `name`,

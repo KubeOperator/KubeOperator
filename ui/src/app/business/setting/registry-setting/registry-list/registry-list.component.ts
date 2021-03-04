@@ -23,12 +23,12 @@ export class RegistryListComponent extends BaseModelDirective<Registry> implemen
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.listSystemSettings();
+        // this.listSystemSettings();
     }
 
-    listSystemSettings() {
-        this.systemService.singleGet().subscribe(res => {
-            this.systemItem = res;
-        });
-    }
+    // listSystemSettings() {
+    //     this.systemService.singleGet().subscribe(res => {
+    //         this.systemItem = res;
+    //     });
+    // }
 }

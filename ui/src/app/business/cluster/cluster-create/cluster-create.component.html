@@ -48,7 +48,7 @@
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option *ngIf="item.provider === 'bareMetal'" value="arm64">ARM64</option>
                     <option value="amd64">AMD64</option>
-                    <option *ngIf="archType === 'mixed' && item.provider === 'bareMetal'" value="all">MIXED</option>
+                    <option *ngIf="item.provider === 'bareMetal'" value="all">MIXED</option>
                 </select>
                 <clr-control-helper style="color: red;" *ngIf="!repoCheck">
                     {{"APP_NOT_SET_SYSTEM_IP"|translate}}

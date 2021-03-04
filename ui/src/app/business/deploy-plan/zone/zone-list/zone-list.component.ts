@@ -30,38 +30,24 @@ export class ZoneListComponent extends BaseModelDirective<Zone> implements OnIni
     }
 
     onCreate() {
-        this.settingService.singleGet().subscribe(data => {
-            if (!data.vars['arch_type']) {
-                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_ARCH'), AlertLevels.ERROR);
-                return;
+        this.settingService.getRegistry().subscribe(data => {
+            if (data.items === null) {
+                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP_X86'), AlertLevels.ERROR);
+                return
             }
-            if (data.vars['arch_type'] === 'single') {
-                if (!data.vars['ip']) {
-                    this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
-                    return;
+            let isRepoExit: boolean = false;
+            for (const repo of data.items) {
+                if (repo.architecture === 'x86_64') {
+                    isRepoExit = true;
+                    break;
                 }
-                this.createEvent.emit();
-            } else {
-                this.settingService.getRegistry().subscribe(data => {
-                    if (data.items === null) {
-                        this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
-                        return
-                    }
-                    let isRepoExit: boolean = false;
-                    for (const repo of data.items) {
-                        if (repo.architecture === 'x86_64') {
-                            isRepoExit = true;
-                            break;
-                        }
-                    }
-                    if (!isRepoExit) {
-                        this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
-                        return
-                    }
-                    this.createEvent.emit();
-                });
             }
-        })
+            if (!isRepoExit) {
+                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP_X86'), AlertLevels.ERROR);
+                return
+            }
+            this.createEvent.emit();
+        });
     }
 
     onDetail(item) {
