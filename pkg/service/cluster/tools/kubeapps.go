@@ -3,9 +3,9 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	helm2 "github.com/KubeOperator/KubeOperator/pkg/util/helm"
 )
 
 type Kubeapps struct {
@@ -28,7 +28,6 @@ func NewKubeapps(cluster *Cluster, tool *model.ClusterTool) (*Kubeapps, error) {
 func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
-
 	values := map[string]interface{}{}
 	switch toolDetail.ChartVersion {
 	case "3.7.2":
@@ -81,10 +80,11 @@ func (k Kubeapps) Uninstall() error {
 func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
-
+	var c helm2.Client
+	repoIP, _ := c.GetRepoIP("amd64")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalHostName, k.LocalRepositoryPort)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:8081/repository/kubeapps", repoIP)
 	values["useHelm3"] = true
 	values["postgresql.enabled"] = true
 	values["postgresql.image.repository"] = imageMap["postgresql_image_name"]
@@ -99,13 +99,15 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]
 	if len(k.Tool.Vars) != 0 {
 		_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
 	}
+	var c helm2.Client
+	repoIP, _ := c.GetRepoIP("amd64")
 	delete(values, "useHelm3")
 	delete(values, "postgresql.enabled")
 	delete(values, "postgresql.image.repository")
 	delete(values, "postgresql.image.tag")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalHostName, k.LocalRepositoryPort)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:8081/repository/kubeapps", repoIP)
 
 	return values
 }
