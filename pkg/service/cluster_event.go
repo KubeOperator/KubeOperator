@@ -190,7 +190,7 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 									"--logtostderr",
 									"--config.system-log-monitor=/config/abrt-adaptor.json,/config/docker-monitor.json,/config/kernel-monitor.json,/config/systemd-monitor.json",
 								},
-								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1-%s", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
+								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort),
 								Resources: corev1.ResourceRequirements{
 									Limits: corev1.ResourceList{
 										"cpu":    resource.MustParse("10m"),
