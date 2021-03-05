@@ -134,7 +134,7 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	}
 
 	var toolDetail model.ClusterToolDetail
-	if err := db.DB.Where("name = ? AND version = ? AND architecture = ?", tool.Name, tool.HigherVersion, cluster.Spec.Architectures).Find(&toolDetail).Error; err != nil {
+	if err := db.DB.Where("name = ? AND version = ?", tool.Name, tool.HigherVersion).Find(&toolDetail).Error; err != nil {
 		return tool, err
 	}
 
