@@ -171,7 +171,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -179,9 +179,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -2010,6 +2010,10 @@
         },
         "dto.ClusterBackupStrategyRequest": {
             "type": "object",
+            "required": [
+                "backupAccountName",
+                "clusterName"
+            ],
             "properties": {
                 "backupAccountName": {
                     "type": "string"
@@ -2044,6 +2048,9 @@
                 "calicoIpv4PoolIpip": {
                     "type": "string"
                 },
+                "clusterCidr": {
+                    "type": "string"
+                },
                 "containerdStorageDIr": {
                     "type": "string"
                 },
@@ -2062,20 +2069,17 @@
                 "ingressControllerType": {
                     "type": "string"
                 },
-                "kubeMaxPods": {
-                    "type": "integer"
-                },
-                "kubePodSubnet": {
-                    "type": "string"
-                },
                 "kubeProxyMode": {
-                    "type": "string"
-                },
-                "kubeServiceSubnet": {
                     "type": "string"
                 },
                 "kubernetesAudit": {
                     "type": "string"
+                },
+                "maxClusterServiceNum": {
+                    "type": "integer"
+                },
+                "maxNodePodNum": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2112,6 +2116,9 @@
                 },
                 "workerAmount": {
                     "type": "integer"
+                },
+                "yumOperate": {
+                    "type": "string"
                 }
             }
         },
@@ -2201,6 +2208,9 @@
         "dto.Host": {
             "type": "object",
             "properties": {
+                "architecture": {
+                    "type": "string"
+                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -2248,6 +2258,9 @@
                 },
                 "port": {
                     "type": "integer"
+                },
+                "projectName": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -2840,8 +2853,7 @@
             "required": [
                 "cpu",
                 "memory",
-                "name",
-                "provider"
+                "name"
             ],
             "properties": {
                 "cpu": {
@@ -2863,8 +2875,7 @@
             "required": [
                 "cpu",
                 "memory",
-                "name",
-                "provider"
+                "name"
             ],
             "properties": {
                 "cpu": {
@@ -3050,6 +3061,9 @@
                 "kubeMaxPods": {
                     "type": "integer"
                 },
+                "kubeNetworkNodePrefix": {
+                    "type": "integer"
+                },
                 "kubePodSubnet": {
                     "type": "string"
                 },
@@ -3094,6 +3108,9 @@
                 },
                 "workerAmount": {
                     "type": "integer"
+                },
+                "yumOperate": {
+                    "type": "string"
                 }
             }
         },

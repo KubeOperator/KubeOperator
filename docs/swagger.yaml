@@ -136,12 +136,17 @@ definitions:
         type: integer
       status:
         type: string
+    required:
+    - backupAccountName
+    - clusterName
     type: object
   dto.ClusterCreate:
     properties:
       architectures:
         type: string
       calicoIpv4PoolIpip:
+        type: string
+      clusterCidr:
         type: string
       containerdStorageDIr:
         type: string
@@ -155,16 +160,14 @@ definitions:
         type: string
       ingressControllerType:
         type: string
-      kubeMaxPods:
-        type: integer
-      kubePodSubnet:
-        type: string
       kubeProxyMode:
-        type: string
-      kubeServiceSubnet:
         type: string
       kubernetesAudit:
         type: string
+      maxClusterServiceNum:
+        type: integer
+      maxNodePodNum:
+        type: integer
       name:
         type: string
       networkInterface:
@@ -189,6 +192,8 @@ definitions:
         type: string
       workerAmount:
         type: integer
+      yumOperate:
+        type: string
     required:
     - name
     - version
@@ -251,6 +256,8 @@ definitions:
     type: object
   dto.Host:
     properties:
+      architecture:
+        type: string
       clusterId:
         type: string
       clusterName:
@@ -283,6 +290,8 @@ definitions:
         type: string
       port:
         type: integer
+      projectName:
+        type: string
       status:
         type: string
       updatedAt:
@@ -687,7 +696,6 @@ definitions:
     - cpu
     - memory
     - name
-    - provider
     type: object
   dto.VmConfigUpdate:
     properties:
@@ -703,7 +711,6 @@ definitions:
     - cpu
     - memory
     - name
-    - provider
     type: object
   dto.Zone:
     properties:
@@ -818,6 +825,8 @@ definitions:
         type: integer
       kubeMaxPods:
         type: integer
+      kubeNetworkNodePrefix:
+        type: integer
       kubePodSubnet:
         type: string
       kubeProxyMode:
@@ -848,6 +857,8 @@ definitions:
         type: string
       workerAmount:
         type: integer
+      yumOperate:
+        type: string
     type: object
   model.Ip:
     properties:
@@ -1055,14 +1066,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
