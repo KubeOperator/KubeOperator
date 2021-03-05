@@ -41,7 +41,6 @@ const (
 	CalicoIpv4poolIpIpFactName           = "calico_ipv4pool_ipip"
 	FlannelBackendFactName               = "flannel_backend"
 	KubernetesAuditFactName              = "kubernetes_audit"
-	ArchitecturesFactName                = "architectures"
 	IngressControllerTypeFactName        = "ingress_controller_type"
 	HelmVersionFactName                  = "helm_version"
 	EtcdVersionFactName                  = "etcd_version"
@@ -58,6 +57,7 @@ const (
 	NetworkInterfaceFactName             = "network_interface"
 	SupportGpuName                       = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
+	NtpServerName                        = "ntp_server"
 )
 
 var DefaultFacts = map[string]string{
@@ -99,7 +99,6 @@ var DefaultFacts = map[string]string{
 	KubernetesAuditFactName:              "no",
 	IngressControllerTypeFactName:        "nginx",
 	FlannelBackendFactName:               "vxlan",
-	ArchitecturesFactName:                "amd64",
 	HelmVersionFactName:                  "v3",
 	EtcdVersionFactName:                  "v3.4.9",
 	DockerVersionFactName:                "19.03.9",
@@ -115,4 +114,5 @@ var DefaultFacts = map[string]string{
 	NetworkInterfaceFactName:             "",
 	SupportGpuName:                       "disable",
 	YumRepoFactName:                      "replace",
+	NtpServerName:                        "ntp1.aliyun.com",
 }

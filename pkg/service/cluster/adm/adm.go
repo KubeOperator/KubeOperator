@@ -82,6 +82,11 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 		c.Kobe.SetVar(k, v)
 	}
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
+	var systemSetting model.SystemSetting
+	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	if systemSetting.ID != "" {
+		c.Kobe.SetVar(facts.NtpServerName, systemSetting.Value)
+	}
 	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()

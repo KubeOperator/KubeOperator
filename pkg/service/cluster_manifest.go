@@ -98,6 +98,11 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 			log.Errorf("clusterManifestService ListActive(mo.NetworkVars) json.Unmarshal failed, error: %s", err.Error())
 		}
 		clusterManifest.NetworkVars = network
+		var storage []dto.NameVersion
+		if err := json.Unmarshal([]byte(mo.StorageVars), &storage); err != nil {
+			return clusterManifests, err
+		}
+		clusterManifest.StorageVars = storage
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
 			log.Errorf("clusterManifestService ListActive(mo.OtherVars) json.Unmarshal failed, error: %s", err.Error())
@@ -130,7 +135,7 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 	if len(largeVersions) == 0 {
 		return []dto.ClusterManifestGroup{}, nil
 	}
-	quickSortVersion(largeVersions, 0, len(largeVersions)-1)
+	sortManifest(largeVersions)
 	for _, largeVersion := range largeVersions {
 		var clusterManifestGroup dto.ClusterManifestGroup
 		clusterManifestGroup.LargeVersion = largeVersion.Version
@@ -183,88 +188,15 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 	return clusterManifestGroups, nil
 }
 
-func sortManifest(mos []dto.ClusterManifest) []dto.ClusterManifest {
-
-	version1s := make(map[string][]dto.ClusterManifest)
-	for _, manifest := range mos {
-		versionStr := strings.Replace(manifest.Version, "v", "", -1)
-		version1Index := strings.Index(versionStr, ".")
-		if version1Index == -1 {
-			continue
-		}
-		version1 := versionStr[0:version1Index]
-		if isExist(version1, version1s) {
-			version1s[version1] = append(version1s[version1], manifest)
-		} else {
-			version1s[version1] = []dto.ClusterManifest{manifest}
-		}
-	}
-	var result []dto.ClusterManifest
-	for _, v := range version1s {
-		quickSortVersion(v, 0, len(v)-1)
-		sortKoVersion(v)
-		result = append(result, v...)
-	}
-	return result
-}
-
-func isExist(version string, versions map[string][]dto.ClusterManifest) bool {
-	for k := range versions {
-		if k == version {
-			return true
-		}
-	}
-	return false
-}
-func quickSortVersion(arr []dto.ClusterManifest, start, end int) {
-	if start < end {
-		i, j := start, end
-		key := arr[(start+end)/2]
-		for i <= j {
-			for getVersion(arr[i]) > getVersion(key) {
-				i++
-			}
-			for getVersion(arr[j]) < getVersion(key) {
-				j--
-			}
-			if i <= j {
-				arr[i], arr[j] = arr[j], arr[i]
-				i++
-				j--
-			}
-		}
-
-		if end > i {
-			quickSortVersion(arr, i, end)
-		}
-
-		if start < j {
-			quickSortVersion(arr, start, j)
-		}
-	}
-}
-
-func getVersion(manifest dto.ClusterManifest) float64 {
-	versionStr := strings.Replace(manifest.Version, "v", "", -1)
-	version1Index := strings.Index(versionStr, ".")
-	version2 := strings.Replace(versionStr[version1Index+1:], ".", "", -1)
-	version, _ := strconv.ParseFloat(version2, 64)
-	return version
-}
-
-func sortKoVersion(arr []dto.ClusterManifest) {
-	var value dto.ClusterManifest
-	for index := range arr {
-		if index > 0 {
-			value = arr[index-1]
-		}
-		if arr[index].Version == value.Version {
-			if getKoVersion(value) < getKoVersion(arr[index]) {
-				arr[index-1] = arr[index]
-				arr[index] = value
+func sortManifest(arr []dto.ClusterManifest) []dto.ClusterManifest {
+	for i := 0; i < len(arr)-1; i++ {
+		for j := i + 1; j <= len(arr)-1; j++ {
+			if !compareVersion(arr[i], arr[j]) {
+				arr[j], arr[i] = arr[i], arr[j]
 			}
 		}
 	}
+	return arr
 }
 
 func getKoVersion(manifest dto.ClusterManifest) float64 {
@@ -272,4 +204,45 @@ func getKoVersion(manifest dto.ClusterManifest) float64 {
 	koVersionString := manifest.Name[koIndex+2:]
 	version, _ := strconv.ParseFloat(koVersionString, 64)
 	return version
+}
+
+func compareVersion(version1 dto.ClusterManifest, version2 dto.ClusterManifest) bool {
+
+	v1slice := getVersionSlice(version1)
+	v2slice := getVersionSlice(version2)
+
+	if getVersionNumber(v1slice[0]) > getVersionNumber(v2slice[0]) {
+		return true
+	} else if getVersionNumber(v1slice[0]) == getVersionNumber(v2slice[0]) {
+		if getVersionNumber(v1slice[1]) > getVersionNumber(v2slice[1]) {
+			return true
+		} else if getVersionNumber(v1slice[1]) == getVersionNumber(v2slice[1]) {
+			if getVersionNumber(v1slice[2]) > getVersionNumber(v2slice[2]) {
+				return true
+			} else if getVersionNumber(v1slice[2]) == getVersionNumber(v2slice[2]) {
+				if getKoVersion(version1) > getKoVersion(version2) {
+					return true
+				} else {
+					return false
+				}
+			} else {
+				return false
+			}
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+}
+
+func getVersionNumber(versionStr string) float64 {
+	version, _ := strconv.ParseFloat(versionStr, 64)
+	return version
+}
+
+func getVersionSlice(version dto.ClusterManifest) []string {
+	versionNumStr := strings.Replace(version.Version, "v", "", -1)
+	slice := strings.Split(versionNumStr, ".")
+	return slice
 }

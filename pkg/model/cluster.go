@@ -376,9 +376,6 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.IngressControllerType != "" {
 		result[facts.IngressControllerTypeFactName] = c.Spec.IngressControllerType
 	}
-	if c.Spec.Architectures != "" {
-		result[facts.ArchitecturesFactName] = c.Spec.Architectures
-	}
 	if c.Spec.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
 	}

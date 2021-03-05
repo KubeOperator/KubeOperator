@@ -29,7 +29,7 @@ export class StorageProvisionerCreateVsphereComponent implements OnInit {
         this.reset();
         this.opened = true;
         this.item = item;
-        this.item.name = 'kubernetes.io/vsphere-volume';
+        this.item.name = 'csi.vsphere.vmware.com';
         this.nfsForm.resetForm(this.item);
     }
 

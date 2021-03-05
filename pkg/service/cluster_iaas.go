@@ -406,6 +406,9 @@ func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*m
 
 	zoneVars := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
+	if zoneVars["datastore"] == nil {
+		return nil
+	}
 	_, ok := zoneVars["datastore"].(string)
 	if ok {
 		return nil

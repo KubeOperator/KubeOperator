@@ -30,7 +30,7 @@ export class ClusterCreateComponent implements OnInit {
     plans: Plan[] = [];
     versions: string[] = [];
     repoList: any[] = [];
-    repoCheck: boolean = true;
+    repoCheck = true;
     currentProject: Project;
     nameValid = true;
     nameChecking = false;
@@ -43,6 +43,9 @@ export class ClusterCreateComponent implements OnInit {
     parts = ['192', '168', '0', '0', '16'];
     maskOptions = [];
     maxNodesNum = 255;
+
+    podMaxNumOptions = [32, 64, 128, 256];
+    serviceMaxNumOptions = [32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
