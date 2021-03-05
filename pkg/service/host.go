@@ -517,16 +517,15 @@ func (h hostService) ImportHosts(file []byte) error {
 			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_SAVE", host.Name, err.Error()))
 			continue
 		}
-		go h.RunGetHostConfig(&host)
+		saveHost := host
+		go h.RunGetHostConfig(&saveHost)
 		var ip model.Ip
 		if err := db.DB.Where("address = ?", host.Ip).First(&ip).Error; err != nil {
-			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_IP_QUERY", host.Name, err.Error()))
 			continue
 		}
 		if ip.ID != "" {
 			ip.Status = constant.IpUsed
 			if err := db.DB.Save(&ip).Error; err != nil {
-				errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_IP_STATUS_SAVE", host.Name, err.Error()))
 				continue
 			}
 		}
