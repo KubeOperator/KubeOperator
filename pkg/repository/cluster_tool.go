@@ -51,7 +51,7 @@ func (c clusterToolRepository) Get(clusterName string, name string) (model.Clust
 	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return tool, err
 	}
-	if err := db.DB.Where("cluster_id = ? AND name = ?", tool.ClusterID, name).First(&tool).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ? AND name = ?", cluster.ID, name).First(&tool).Error; err != nil {
 		return tool, err
 	}
 	return tool, nil
