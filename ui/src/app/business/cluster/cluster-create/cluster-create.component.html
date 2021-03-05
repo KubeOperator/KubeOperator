@@ -113,10 +113,7 @@
             <clr-select-container>
                 <label>POD {{"APP_NUM_LIMIT"|translate}}/{{"APP_NODE"|translate}}</label>
                 <select clrSelect name="pod_max_num" [(ngModel)]="item.maxNodePodNum" (change)="getNodeNum()">
-                    <option value="32">32</option>
-                    <option value="64">64</option>
-                    <option value="128">128</option>
-                    <option value="256">256</option>
+                    <option *ngFor="let o of podMaxNumOptions" [ngValue]="o">{{o}}</option>
                 </select>
             </clr-select-container>
 
@@ -124,14 +121,7 @@
                 <label>Service {{"APP_NUM_LIMIT"|translate}}/{{"APP_CLUSTER"|translate}}</label>
                 <select clrSelect name="service_max_num" [(ngModel)]="item.maxClusterServiceNum"
                         (change)="getNodeNum()">
-                    <option value="32">32</option>
-                    <option value="64">64</option>
-                    <option value="128">128</option>
-                    <option value="256">256</option>
-                    <option value="512">512</option>
-                    <option value="1024">1024</option>
-                    <option value="2048">2048</option>
-                    <option value="4096">4096</option>
+                    <option *ngFor="let o of serviceMaxNumOptions" [ngValue]="o">{{o}}</option>
                 </select>
             </clr-select-container>
             <clr-select-container>

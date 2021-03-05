@@ -104,7 +104,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
-	oldNamespace, namespace := c.getNamespace(clusterName, tool)
+	oldNamespace, namespace := c.getNamespace(cluster.ID, tool)
 	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if ns.ObjectMeta.Name == "" {
 		n := &v1.Namespace{
@@ -194,7 +194,7 @@ func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTo
 	_ = c.toolRepo.Save(tool)
 }
 
-func (c clusterToolService) getNamespace(clusterName string, tool dto.ClusterTool) (string, string) {
+func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool) (string, string) {
 	namespace := ""
 	Sp, ok := tool.Vars["namespace"]
 	if !ok {
@@ -202,8 +202,8 @@ func (c clusterToolService) getNamespace(clusterName string, tool dto.ClusterToo
 	} else {
 		namespace = Sp.(string)
 	}
-	oldTools, err := c.toolRepo.Get(clusterName, tool.Name)
-	if err != nil {
+	var oldTools model.ClusterTool
+	if err := db.DB.Where("cluster_id = ? AND name = ?", clusterID, tool.Name).First(&oldTools).Error; err != nil {
 		return namespace, namespace
 	}
 	oldVars := map[string]interface{}{}
