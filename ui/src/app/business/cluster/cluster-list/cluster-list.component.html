@@ -54,10 +54,10 @@
         <clr-dg-cell>
 
             <span *ngIf="item.status === 'Initializing' || item.status === 'Upgrading'||item.status === 'Failed' || (item.status === 'Terminating' && item.provider === 'bareMetal')">
-               <a (click)="onStatusDetail(item)" href="javascript:void(0)">{{item.status}}</a>
+               <a (click)="onStatusDetail(item)" href="javascript:void(0)">{{item.status|translate}}</a>
             </span>
             <span *ngIf="(item.status!=='Initializing' && item.status!=='Failed'&& item.status !== 'Upgrading' && item.status !== 'Terminating') || (item.status === 'Terminating' && item.provider === 'plan') ">
-               {{item.status}}
+               {{item.status|translate}}
             </span>
             <clr-spinner clrAssertive clrInline
                          *ngIf="item.status === 'Initializing' || item.status === 'Terminating'||item.status === 'Creating' || item.status == 'Upgrading'">

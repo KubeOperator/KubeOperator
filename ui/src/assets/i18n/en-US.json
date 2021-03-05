@@ -291,6 +291,7 @@
   "Initializing": "Initializing",
   "Terminating": "Terminating",
   "Running": "Running",
+  "Upgrading": "Upgrading",
   "APP_BACKUP": "Backup",
   "APP_ARCHITECTURE": "architectures",
   "local": "local",
