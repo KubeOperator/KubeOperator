@@ -204,10 +204,10 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	return &dto.Zone{Zone: zone}, err
 }
 
-func (z zoneService) Update(creation dto.ZoneUpdate) (*dto.Zone, error) {
+func (z zoneService) Update(update dto.ZoneUpdate) (*dto.Zone, error) {
 
-	param := creation.CloudVars.(map[string]interface{})
-	ipPool, err := z.ipPoolService.Get(creation.IpPoolName)
+	param := update.CloudVars.(map[string]interface{})
+	ipPool, err := z.ipPoolService.Get(update.IpPoolName)
 	if err != nil {
 		return nil, err
 	}
@@ -222,14 +222,19 @@ func (z zoneService) Update(creation dto.ZoneUpdate) (*dto.Zone, error) {
 	param["dns1"] = ipPool.Ips[0].DNS1
 	param["dns2"] = ipPool.Ips[0].DNS2
 
-	vars, _ := json.Marshal(creation.CloudVars)
+	vars, _ := json.Marshal(update.CloudVars)
+	old, err := z.zoneRepo.Get(update.Name)
+	if err != nil {
+		return nil, err
+	}
 	zone := model.Zone{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
-		Vars:      string(vars),
-		RegionID:  creation.RegionID,
-		ID:        creation.ID,
-		IpPoolID:  ipPool.ID,
+		Name:         update.Name,
+		Vars:         string(vars),
+		RegionID:     update.RegionID,
+		ID:           old.ID,
+		IpPoolID:     ipPool.ID,
+		Status:       old.Status,
+		CredentialID: old.CredentialID,
 	}
 
 	err = z.zoneRepo.Save(&zone)
