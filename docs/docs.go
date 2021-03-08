@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -2028,6 +2028,10 @@ var doc = `{
         },
         "dto.ClusterBackupStrategyRequest": {
             "type": "object",
+            "required": [
+                "backupAccountName",
+                "clusterName"
+            ],
             "properties": {
                 "backupAccountName": {
                     "type": "string"
@@ -2062,6 +2066,9 @@ var doc = `{
                 "calicoIpv4PoolIpip": {
                     "type": "string"
                 },
+                "clusterCidr": {
+                    "type": "string"
+                },
                 "containerdStorageDIr": {
                     "type": "string"
                 },
@@ -2080,20 +2087,17 @@ var doc = `{
                 "ingressControllerType": {
                     "type": "string"
                 },
-                "kubeMaxPods": {
-                    "type": "integer"
-                },
-                "kubePodSubnet": {
-                    "type": "string"
-                },
                 "kubeProxyMode": {
-                    "type": "string"
-                },
-                "kubeServiceSubnet": {
                     "type": "string"
                 },
                 "kubernetesAudit": {
                     "type": "string"
+                },
+                "maxClusterServiceNum": {
+                    "type": "integer"
+                },
+                "maxNodePodNum": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2130,6 +2134,9 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
+                },
+                "yumOperate": {
+                    "type": "string"
                 }
             }
         },
@@ -2219,6 +2226,9 @@ var doc = `{
         "dto.Host": {
             "type": "object",
             "properties": {
+                "architecture": {
+                    "type": "string"
+                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -2266,6 +2276,9 @@ var doc = `{
                 },
                 "port": {
                     "type": "integer"
+                },
+                "projectName": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -2858,8 +2871,7 @@ var doc = `{
             "required": [
                 "cpu",
                 "memory",
-                "name",
-                "provider"
+                "name"
             ],
             "properties": {
                 "cpu": {
@@ -2881,8 +2893,7 @@ var doc = `{
             "required": [
                 "cpu",
                 "memory",
-                "name",
-                "provider"
+                "name"
             ],
             "properties": {
                 "cpu": {
@@ -3068,6 +3079,9 @@ var doc = `{
                 "kubeMaxPods": {
                     "type": "integer"
                 },
+                "kubeNetworkNodePrefix": {
+                    "type": "integer"
+                },
                 "kubePodSubnet": {
                     "type": "string"
                 },
@@ -3112,6 +3126,9 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
+                },
+                "yumOperate": {
+                    "type": "string"
                 }
             }
         },

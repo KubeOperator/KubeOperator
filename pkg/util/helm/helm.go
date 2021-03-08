@@ -44,6 +44,7 @@ type Interface interface {
 	Upgrade(name string, chartName string, chartVersion string, values map[string]interface{}) (*release.Release, error)
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
 	List() ([]*release.Release, error)
+	GetRepoIP(arch string) (string, error)
 }
 
 type Config struct {
@@ -179,7 +180,8 @@ func updateRepo(arch string) error {
 		if err != nil {
 			return errors.New("invalid local host ip")
 		}
-		repoIP, err := getRepoIP(arch)
+		var c Client
+		repoIP, err := c.GetRepoIP(arch)
 		if err != nil {
 			return err
 		}
@@ -293,7 +295,7 @@ func addRepo(name string, url string, username string, password string) error {
 	return nil
 }
 
-func getRepoIP(arch string) (string, error) {
+func (c Client) GetRepoIP(arch string) (string, error) {
 	var repo model.SystemRegistry
 	switch arch {
 	case "amd64":

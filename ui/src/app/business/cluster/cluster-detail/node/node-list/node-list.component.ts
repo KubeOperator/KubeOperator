@@ -109,6 +109,9 @@ export class NodeListComponent implements OnInit, OnDestroy {
                         case 'node-role.kubernetes.io/worker':
                             roles.push('worker');
                             break;
+                        case 'node-role.kubernetes.io/control-plane':
+                            roles.push('control-plane');
+                            break;
                     }
                 }
             }
