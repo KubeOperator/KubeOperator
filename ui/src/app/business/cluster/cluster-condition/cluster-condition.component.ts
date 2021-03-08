@@ -25,6 +25,7 @@ export class ClusterConditionComponent implements OnInit {
 
     onCancel() {
         clearInterval(this.timer);
+        this.retry.emit();
         this.opened = false;
     }
 
@@ -70,28 +71,24 @@ export class ClusterConditionComponent implements OnInit {
                 this.service.batch('delete', delItems).subscribe(data => {
                     this.retry.emit();
                     this.polling();
-                    this.opened = false;
                 });
                 break;
             case 'Initializing':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
                     this.polling();
-                    this.opened = false;
                 });
                 break;
             case 'Creating':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
                     this.polling();
-                    this.opened = false;
                 });
                 break;
             case 'Waiting':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
                     this.polling();
-                    this.opened = false;
                 });
                 break;
         }
