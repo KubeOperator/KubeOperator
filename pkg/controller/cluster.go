@@ -368,14 +368,10 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) error {
 		return err
 	}
 	operator := c.Ctx.Values().GetString("operator")
-	node := ""
-	for _, item := range req.Nodes {
-		node += (item + ",")
-	}
 	if req.Operation == "delete" {
-		go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName+"-"+node)
+		go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
 	} else {
-		go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName+"-"+node)
+		go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
 	}
 
 	return nil
