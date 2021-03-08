@@ -29,7 +29,7 @@ func (p projectMemberRepository) ListByProjectId(projectId string) ([]model.Proj
 func (p projectMemberRepository) PageByProjectId(num, size int, projectId string) (int, []model.ProjectMember, error) {
 	var total int
 	var projectMembers []model.ProjectMember
-	err := db.DB.Model(&model.Project{}).
+	err := db.DB.Model(&model.ProjectMember{}).
 		Where("project_id = ?", projectId).
 		Count(&total).
 		Offset((num - 1) * size).
