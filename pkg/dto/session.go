@@ -1,12 +1,11 @@
 package dto
 
 type LoginCredential struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Language  string `json:"language"`
-	CaptchaId string `json:"captchaId"`
-	Code      string `json:"code"`
-	// console or api
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Language   string `json:"language"`
+	CaptchaId  string `json:"captchaId"`
+	Code       string `json:"code"`
 	AuthMethod string `json:"authMethod"`
 }
 

@@ -152,7 +152,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 
 	// 获取版本
 	if err := db.DB.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can find manifest version: %s", err.Error()))
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find manifest version: %s", err.Error()))
 		return
 	}
 	if err := json.Unmarshal([]byte(manifest.StorageVars), &storageVars); err != nil {
@@ -165,14 +165,14 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		if storage.Name == provisioner.Type {
 			isExist = true
 			if err := db.DB.Where("name = ? AND version = ?", storage.Name, storage.Version).First(&storageDic).Error; err != nil {
-				c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can find storage provisioner dic : %s", err.Error()))
+				c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find storage provisioner dic : %s", err.Error()))
 				return
 			}
 			break
 		}
 	}
 	if !isExist {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can find storage provisioner dic: %s", provisioner.Type))
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find storage provisioner dic: %s", provisioner.Type))
 		return
 	}
 	if err := json.Unmarshal([]byte(storageDic.Vars), &storageDicVars); err != nil {
@@ -210,7 +210,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer)
 	}
 	if err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("unmarshal provisioner.Vars error %s", err.Error()))
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 		return
 	}
 	provisioner.Status = constant.ClusterRunning

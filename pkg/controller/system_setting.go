@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	RegistryAlreadyExistsErr = "REGISTRY_ALREADY_EXISTS"
+	RegistryAlreadyExistsErr = errors.New("REGISTRY_ALREADY_EXISTS")
 )
 
 type SystemSettingController struct {
@@ -118,7 +118,7 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	}
 	item, _ := s.SystemSettingService.GetRegistryByArch(req.Architecture)
 	if item.ID != "" {
-		return nil, errors.New(RegistryAlreadyExistsErr)
+		return nil, RegistryAlreadyExistsErr
 	}
 
 	operator := s.Ctx.Values().GetString("operator")
