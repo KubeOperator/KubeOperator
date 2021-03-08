@@ -104,7 +104,6 @@ IP_NOT_AVAILABLE: "IP %s 被占用，不能被释放"
 #ip-pool
 IP_POOL_DELETE_FAILED: "Ip 池已经关联可用区，无法删除"
 
-
-
-
+#registry
+REGISTRY_ALREADY_EXISTS: "该架构类型的仓库已经存在"
 
