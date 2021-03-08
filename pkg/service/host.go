@@ -303,8 +303,6 @@ func (h hostService) GetHostMem(host *model.Host) error {
 }
 
 func (h hostService) RunGetHostConfig(host *model.Host) {
-	host.Status = constant.ClusterInitializing
-	_ = h.hostRepo.Save(host)
 	err := h.GetHostConfig(host)
 	if err != nil {
 		host.Status = constant.ClusterFailed

@@ -1,6 +1,4 @@
 import {BaseModel, BaseRequest} from '../../shared/class/BaseModel';
-import {Credential} from '../setting/credential/credential';
-import {Cluster} from '../cluster/cluster';
 
 export class Host extends BaseModel {
     name: string;
@@ -14,6 +12,7 @@ export class Host extends BaseModel {
     gpuInfo: string;
     status: string;
     volumes: Volume[];
+    projectName: string;
     clusterName: string;
     clusterId: string;
     zoneName: string;
