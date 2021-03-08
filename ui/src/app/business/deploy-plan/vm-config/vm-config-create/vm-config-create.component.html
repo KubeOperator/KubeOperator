@@ -11,12 +11,12 @@
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_CPU'|translate}}:</label>
-                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1" [(ngModel)]="item.cpu"
+                <input clrInput type="number" min="1" max="1000" oninput="if(value<1)value=1" [(ngModel)]="item.cpu"
                        name="cpu" required>
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_HOST_MEMORY_GB'|translate}}:</label>
-                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1" [(ngModel)]="item.memory"
+                <input clrInput type="number" min="1" max="1000" oninput="if(value<1)value=1" [(ngModel)]="item.memory"
                        name="memory" required>
             </clr-input-container>
             <!--            <clr-select-container>-->

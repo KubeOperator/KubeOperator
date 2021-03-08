@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -297,7 +297,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -331,7 +333,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -1936,7 +1940,6 @@ var doc = `{
                     "type": "string"
                 },
                 "spec": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -1976,14 +1979,12 @@ var doc = `{
             ],
             "properties": {
                 "backupAccount": {
-                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -2348,7 +2349,6 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -2464,7 +2464,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "authMethod": {
-                    "description": "console or api",
                     "type": "string"
                 },
                 "captchaId": {
@@ -2577,7 +2576,6 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -2914,7 +2912,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "_": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "cloudVars": {
@@ -2930,7 +2927,6 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {

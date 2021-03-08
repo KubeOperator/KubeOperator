@@ -63,7 +63,6 @@ definitions:
         type: string
       spec:
         $ref: '#/definitions/model.ClusterSpec'
-        type: object
       status:
         type: string
       updatedAt:
@@ -87,12 +86,10 @@ definitions:
     properties:
       backupAccount:
         $ref: '#/definitions/model.BackupAccount'
-        type: object
       clusterName:
         type: string
       file:
         $ref: '#/definitions/model.ClusterBackupFile'
-        type: object
       name:
         type: string
     required:
@@ -339,7 +336,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/model.IpPool'
-        type: object
       ipPoolId:
         type: string
       status:
@@ -414,7 +410,6 @@ definitions:
   dto.LoginCredential:
     properties:
       authMethod:
-        description: console or api
         type: string
       captchaId:
         type: string
@@ -491,7 +486,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.SessionUser'
-        type: object
     type: object
   dto.Project:
     properties:
@@ -716,7 +710,6 @@ definitions:
     properties:
       _:
         $ref: '#/definitions/model.IpPool'
-        type: object
       cloudVars:
         type: object
       createdAt:
@@ -727,7 +720,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/dto.IpPool'
-        type: object
       ipPoolId:
         type: string
       ipPoolName:
@@ -1066,14 +1058,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -1141,7 +1133,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Backup CLuster
@@ -1162,7 +1155,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Restore CLuster

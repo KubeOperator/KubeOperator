@@ -103,6 +103,6 @@ IP_NOT_AVAILABLE: "IP %s is occupied and cannot be released"
 #ip-pool
 IP_POOL_DELETE_FAILED: "The IP pool has been associated with the available zone and cannot be deleted"
 
-
-
+#registry
+REGISTRY_ALREADY_EXISTS: "The registry of this architecture type already exists"
 
