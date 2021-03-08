@@ -171,7 +171,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -179,9 +179,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -279,7 +279,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -313,7 +315,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -1918,7 +1922,6 @@
                     "type": "string"
                 },
                 "spec": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -1958,14 +1961,12 @@
             ],
             "properties": {
                 "backupAccount": {
-                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -2330,7 +2331,6 @@
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -2446,7 +2446,6 @@
             "type": "object",
             "properties": {
                 "authMethod": {
-                    "description": "console or api",
                     "type": "string"
                 },
                 "captchaId": {
@@ -2559,7 +2558,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -2896,7 +2894,6 @@
             "type": "object",
             "properties": {
                 "_": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "cloudVars": {
@@ -2912,7 +2909,6 @@
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {
