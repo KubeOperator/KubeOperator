@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/util/validator_error"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -65,9 +66,10 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 		return nil, err
 	}
 	validate := validator.New()
+	validator_error.RegisterTagNameFunc(v.Ctx, validate)
 	err = validate.Struct(req)
 	if err != nil {
-		return nil, err
+		return nil, validator_error.Tr(v.Ctx, validate, err)
 	}
 
 	operator := v.Ctx.Values().GetString("operator")
@@ -93,9 +95,10 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 		return nil, err
 	}
 	validate := validator.New()
+	validator_error.RegisterTagNameFunc(v.Ctx, validate)
 	err = validate.Struct(req)
 	if err != nil {
-		return nil, err
+		return nil, validator_error.Tr(v.Ctx, validate, err)
 	}
 	result, err := v.VmConfigService.Update(req)
 	if err != nil {
