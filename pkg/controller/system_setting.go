@@ -120,6 +120,10 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	if item.ID != "" {
 		return nil, errors.New(RegistryAlreadyExistsErr)
 	}
+
+	operator := s.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_REGISTRY, req.Architecture)
+
 	return s.SystemSettingService.CreateRegistry(req)
 }
 
@@ -134,6 +138,10 @@ func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegist
 	if err != nil {
 		return nil, err
 	}
+
+	operator := s.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPDATE_REGISTRY, req.Architecture)
+
 	return s.SystemSettingService.UpdateRegistry(req)
 }
 
