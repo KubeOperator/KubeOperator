@@ -299,6 +299,8 @@
   "Terminating": "销毁中",
   "Running": "运行中",
   "Upgrading": "升级中",
+  "NotReady": "未就绪",
+  "Synchronizing": "同步中",
   "APP_BACKUP": "备份",
   "APP_ARCHITECTURE": "架构",
   "local": "本地",

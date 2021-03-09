@@ -276,29 +276,44 @@ func (c clusterStorageProvisionerService) sync(clusterName string, provisioner d
 	}
 	switch provisioner.Type {
 	case "external-ceph":
-		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "external-ceph", metav1.GetOptions{})
+		ex, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "external-ceph", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
+		}
+		if ex.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
 		}
 	case "nfs":
-		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), provisioner.Name, metav1.GetOptions{})
+		nfs, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), provisioner.Name, metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
+		}
+		if nfs.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
 		}
 	case "vsphere":
-		_, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "vsphere-csi-controller", metav1.GetOptions{})
+		vs, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "vsphere-csi-controller", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
+		}
+		if vs.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
 		}
 	case "rook-ceph":
-		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
+		rook, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
 		}
+		if rook.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
+		}
 	case "oceanstor":
-		_, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "huawei-csi-controller", metav1.GetOptions{})
+		oc, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "huawei-csi-controller", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
+		}
+		if oc.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
 		}
 	}
 	return nil
