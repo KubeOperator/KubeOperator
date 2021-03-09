@@ -55,9 +55,37 @@
                 </tr>
 
                 <tr>
+                    <th>StoragePolicy Type</th>
+                    <td>
+                        <select required [(ngModel)]="item.parameters['storagePolicyType']" name="storagePolicyType">
+                            <option value="BuiltIn">Built In</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                    </td>
+
+                <tr *ngIf="item.parameters['storagePolicyType']==='BuiltIn'">
                     <th>StoragePolicy</th>
                     <td>
-                        <input [size]="34" class="clr-input" name="storagePolicy" [(ngModel)]="item.parameters['storagePolicyName']" required>
+                        <select required [(ngModel)]="item.parameters['storagePolicyName']" name="storagePolicy">
+                            <option value="vSAN Default Storage Policy">vSAN Default Storage Policy</option>
+                            <option value="Management Storage Policy - Large">Management Storage Policy - Large</option>
+                            <option value="Management Storage Policy - Single Node">Management Storage Policy - Single
+                                Node
+                            </option>
+                            <option value="Management Storage policy - Thin">Management Storage policy - Thin</option>
+                            <option value="Management Storage Policy - Regular">Management Storage Policy - Regular
+                            </option>
+                            <option value="Management Storage Policy - Stretched">Management Storage Policy -
+                                Stretched
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr *ngIf="item.parameters['storagePolicyType']==='Custom'">
+                    <th>StoragePolicy</th>
+                    <td>
+                        <input required size="34" [(ngModel)]="item.parameters['storagePolicyName']"
+                               name="storagePolicy">
                     </td>
                 </tr>
                 </tbody>
@@ -237,7 +265,8 @@
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
                 [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>

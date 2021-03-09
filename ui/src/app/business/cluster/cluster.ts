@@ -19,6 +19,7 @@ export class Spec {
     kubeProxyMode: string;
     networkType: string;
     flannelBackend: string;
+    calicoIpv4PoolIpip: string;
     architectures: string;
     runtimeType: string;
 }
