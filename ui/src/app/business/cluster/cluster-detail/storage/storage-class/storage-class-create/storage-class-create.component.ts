@@ -80,6 +80,8 @@ export class StorageClassCreateComponent implements OnInit {
                     break;
                 case 'vsphere':
                     this.item.parameters['datastore'] = this.provisioner.vars['datastore'];
+                    this.item.parameters['storagePolicyName'] = 'vSAN Default Storage Policy';
+                    this.item.parameters['storagePolicyType'] = 'BuiltIn';
                     break;
             }
         }
