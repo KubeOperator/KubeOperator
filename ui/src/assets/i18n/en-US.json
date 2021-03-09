@@ -292,6 +292,8 @@
   "Terminating": "Terminating",
   "Running": "Running",
   "Upgrading": "Upgrading",
+  "NotReady": "NotReady",
+  "Synchronizing": "Synchronizing",
   "APP_BACKUP": "Backup",
   "APP_ARCHITECTURE": "architectures",
   "local": "local",

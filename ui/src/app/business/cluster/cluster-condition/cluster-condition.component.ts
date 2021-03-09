@@ -14,7 +14,9 @@ export class ClusterConditionComponent implements OnInit {
     cluster: Cluster;
     item: ClusterStatus = new ClusterStatus();
     loading = false;
+    retryLoadding = false;
     timer;
+    keepPolling = true;
     @Output() retry = new EventEmitter();
 
     constructor(private service: ClusterService, private loggerService: ClusterLoggerService) {
@@ -57,12 +59,12 @@ export class ClusterConditionComponent implements OnInit {
     }
 
     onRetry() {
+        this.retryLoadding = true;
         switch (this.item.prePhase) {
             case 'Upgrading':
                 this.service.upgrade(this.cluster.name, this.cluster.spec.upgradeVersion).subscribe(data => {
                     this.retry.emit();
-                    this.polling();
-                    this.opened = false;
+                    this.retryLoadding = false;
                 });
                 break;
             case 'Terminating':
@@ -70,25 +72,25 @@ export class ClusterConditionComponent implements OnInit {
                 delItems.push(this.cluster);
                 this.service.batch('delete', delItems).subscribe(data => {
                     this.retry.emit();
-                    this.polling();
+                    this.retryLoadding = false;
                 });
                 break;
             case 'Initializing':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
-                    this.polling();
+                    this.retryLoadding = false;
                 });
                 break;
             case 'Creating':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
-                    this.polling();
+                    this.retryLoadding = false;
                 });
                 break;
             case 'Waiting':
                 this.service.init(this.cluster.name).subscribe(data => {
                     this.retry.emit();
-                    this.polling();
+                    this.retryLoadding = false;
                 });
                 break;
         }
@@ -100,21 +102,23 @@ export class ClusterConditionComponent implements OnInit {
 
     polling() {
         this.timer = setInterval(() => {
-            this.service.status(this.cluster.name).subscribe(data => {
-                if (this.item.phase !== 'Running') {
-                    this.item.conditions = data.conditions;
-                } else {
-                    clearInterval(this.timer);
-                }
-                if (this.item.phase !== data.phase) {
-                    this.item.phase = data.phase;
-                }
-                if (this.item.prePhase !== data.prePhase) {
-                    this.item.prePhase = data.prePhase;
-                }
-            }, error => {
-                this.opened = false;
-            });
+            if (this.keepPolling) {
+                this.service.status(this.cluster.name).subscribe(data => {
+                    if (this.item.phase !== 'Running') {
+                        this.item.conditions = data.conditions;
+                    } else {
+                        this.keepPolling = false;
+                    }
+                    if (this.item.phase !== data.phase) {
+                        this.item.phase = data.phase;
+                    }
+                    if (this.item.prePhase !== data.prePhase) {
+                        this.item.prePhase = data.prePhase;
+                    }
+                }, error => {
+                    this.opened = false;
+                });
+            }
         }, 3000);
     }
 }
