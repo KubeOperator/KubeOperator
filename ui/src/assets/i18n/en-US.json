@@ -349,8 +349,8 @@
   "APP_BACKUP_FILE_LIST": "Backup Files",
   "APP_BACKUP_FILE_FOLDER": "Backup File Folder",
   "APP_BACKUP_FILE": "Backup File",
-  "APP_BACKUP_START_SUCCESS": "Backup has started! Please check the history later",
-  "APP_RESTORE_START_SUCCESS": "Restore has started! Please check the history later",
+  "APP_BACKUP_START_SUCCESS": "Backup has started! Please check the log later",
+  "APP_RESTORE_START_SUCCESS": "Restore has started! Please check the log later",
   "CLUSTER_BACKUP": "Cluster Backup",
   "CLUSTER_RESTORE": "Cluster Restore",
   "APP_OVERVIEW": "Overview",
@@ -691,5 +691,5 @@
   "APP_CIDR_HELPER": "CIDR cannot overlap with the target IP segment, otherwise initialization will fail",
   "APP_CONTAINER": "Container",
   "APP_MAX_NODES_HELPLER": "Under the current container network configuration, the cluster has a maximum of",
-  "APP_PROVISIONER_VSPHERE_WARNING": "Minimum requirements for VMware environment:\n1. vCenter 6.7 Update 3\n2. ESXi v6.7.0+"
+  "APP_PROVISIONER_VSPHERE_WARNING": "Minimum requirements for VMware environment:\n1. vCenter 6.7 Update 3\n2. ESXi v6.7.0"
 }

@@ -356,8 +356,8 @@
   "APP_BACKUP_FILE_LIST": "备份列表",
   "APP_BACKUP_FILE_FOLDER": "备份位置",
   "APP_BACKUP_FILE": "备份文件",
-  "APP_BACKUP_START_SUCCESS": "已经开始备份！请稍后查看历史",
-  "APP_RESTORE_START_SUCCESS": "已经开始恢复！请稍后查看历史",
+  "APP_BACKUP_START_SUCCESS": "已经开始备份！请稍后查看日志",
+  "APP_RESTORE_START_SUCCESS": "已经开始恢复！请稍后查看日志",
   "CLUSTER_BACKUP": "集群备份",
   "CLUSTER_RESTORE": "集群恢复",
   "APP_OVERVIEW": "概览",
@@ -697,5 +697,5 @@
   "APP_CIDR_HELPER": "CIDR不能与目标IP段重叠， 否则会造成初始化失败",
   "APP_CONTAINER": "容器",
   "APP_MAX_NODES_HELPLER": "当前容器网络配置下，集群最多拥有",
-  "APP_PROVISIONER_VSPHERE_WARNING": "VMware 环境最低要求\n1.vCenter 6.7 Update 3 \n2.ESXi v6.7.0+"
+  "APP_PROVISIONER_VSPHERE_WARNING": "VMware 环境最低要求\n1.vCenter 6.7 Update 3 \n2.ESXi v6.7.0"
 }
