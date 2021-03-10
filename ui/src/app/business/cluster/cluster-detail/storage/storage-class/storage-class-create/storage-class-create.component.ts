@@ -93,6 +93,10 @@ export class StorageClassCreateComponent implements OnInit {
             return;
         }
         this.isSubmitGoing = true;
+
+        if (this.item.parameters['storagePolicyType']) {
+            delete this.item.parameters['storagePolicyType'];
+        }
         this.kubernetesService.createStorageClass(this.currentCluster.name, this.item).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();
