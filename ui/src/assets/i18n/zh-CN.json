@@ -703,5 +703,10 @@
   "APP_CIDR_HELPER": "CIDR不能与目标IP段重叠， 否则会造成初始化失败",
   "APP_CONTAINER": "容器",
   "APP_MAX_NODES_HELPLER": "当前容器网络配置下，集群最多拥有",
-  "APP_PROVISIONER_VSPHERE_WARNING": "VMware 环境最低要求\n1.vCenter 6.7 Update 3 \n2.ESXi v6.7.0"
+  "APP_PROVISIONER_VSPHERE_WARNING": "VMware 环境最低要求\n1.vCenter 6.7 Update 3 \n2.ESXi v6.7.0",
+  "APP_BUILT_IN": "内置",
+  "APP_CUSTOM": "自定义",
+  "APP_PROVISIONER_NAME": "提供商名称",
+  "APP_STORAGE_POLICY_TYPE": "存储策略类型",
+  "APP_STORAGE_POLICY": "存储策略"
 }
