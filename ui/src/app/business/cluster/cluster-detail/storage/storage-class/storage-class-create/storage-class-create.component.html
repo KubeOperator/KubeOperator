@@ -23,7 +23,7 @@
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='nfs'">
                 <tbody>
                 <tr>
-                    <th>provisioner_name</th>
+                    <th>{{'APP_PROVISIONER_NAME'|translate}}</th>
                     <td>
                         <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
                                disabled>
@@ -35,7 +35,7 @@
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='rook-ceph'">
                 <tbody>
                 <tr>
-                    <th>provisioner_name</th>
+                    <th>{{'APP_PROVISIONER_NAME'|translate}}</th>
                     <td>
                         <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
                                disabled>
@@ -47,7 +47,7 @@
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='vsphere'">
                 <tbody>
                 <tr>
-                    <th>provisioner_name</th>
+                    <th>{{'APP_PROVISIONER_NAME'|translate}}</th>
                     <td>
                         <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
                                disabled>
@@ -55,16 +55,24 @@
                 </tr>
 
                 <tr>
-                    <th>StoragePolicy Type</th>
+                    <th>{{'APP_STORAGE_POLICY_TYPE'|translate}}</th>
                     <td>
-                        <select required [(ngModel)]="item.parameters['storagePolicyType']" name="storagePolicyType">
-                            <option value="BuiltIn">Built In</option>
-                            <option value="Custom">Custom</option>
-                        </select>
+                        <clr-radio-container clrInline>
+                            <clr-radio-wrapper>
+                                <input type="radio" clrRadio required value="BuiltIn"
+                                       [(ngModel)]="item.parameters['storagePolicyType']" name="storagePolicyType"/>
+                                <label>{{'APP_BUILT_IN'|translate}}</label>
+                            </clr-radio-wrapper>
+                            <clr-radio-wrapper>
+                                <input type="radio" clrRadio required value="Custom"
+                                       [(ngModel)]="item.parameters['storagePolicyType']" name="storagePolicyType"/>
+                                <label>{{'APP_CUSTOM'|translate}}</label>
+                            </clr-radio-wrapper>
+                        </clr-radio-container>
                     </td>
 
                 <tr *ngIf="item.parameters['storagePolicyType']==='BuiltIn'">
-                    <th>StoragePolicy</th>
+                    <th>{{'APP_STORAGE_POLICY'|translate}}</th>
                     <td>
                         <select required [(ngModel)]="item.parameters['storagePolicyName']" name="storagePolicy">
                             <option value="vSAN Default Storage Policy">vSAN Default Storage Policy</option>
@@ -82,7 +90,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="item.parameters['storagePolicyType']==='Custom'">
-                    <th>StoragePolicy</th>
+                    <th>{{'APP_STORAGE_POLICY'|translate}}</th>
                     <td>
                         <input required size="34" [(ngModel)]="item.parameters['storagePolicyName']"
                                name="storagePolicy">
