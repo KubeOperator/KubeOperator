@@ -76,3 +76,12 @@
     </clr-dg-footer>
 </clr-datagrid>
 
+<clr-modal [(clrModalOpen)]="repoAlert" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_TIPS'|translate}}</h3>
+    <div class="modal-body modal-height">
+        {{alertMsg}}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+    </div>
+</clr-modal>

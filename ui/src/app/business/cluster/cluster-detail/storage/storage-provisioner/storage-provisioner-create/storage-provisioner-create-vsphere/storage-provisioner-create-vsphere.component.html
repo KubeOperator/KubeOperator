@@ -6,18 +6,8 @@
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [(ngModel)]="item.name" name="name"
                        pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" size="34" disabled
-                       required>
+                       required>ˇ
                 <clr-control-helper>{{'APP_STORAGE_NAME_HELPER'|translate}}</clr-control-helper>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>vCenter {{"APP_USERNAME"|translate}}</label>
-                <input clrInput [(ngModel)]="item.vars['vc_username']" name="vc_username" size="34" required>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>vCenter {{"APP_PASSWORD"|translate}}</label>
-                <input clrInput type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password" size="34" required>
             </clr-input-container>
 
             <clr-input-container>
@@ -29,6 +19,15 @@
                 <label>vCenter {{"APP_PORT"|translate}}</label>
                 <input clrInput type="number" [(ngModel)]="item.vars['vc_port']" name="vc_port" min="80" max="65535"
                        size="34" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>vCenter {{"APP_USERNAME"|translate}}</label>
+                <input clrInput [(ngModel)]="item.vars['vc_username']" name="vc_username" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>vCenter {{"APP_PASSWORD"|translate}}</label>
+                <input clrInput type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password" size="34" required>
             </clr-input-container>
 
             <clr-input-container>

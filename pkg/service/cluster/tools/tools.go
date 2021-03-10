@@ -237,7 +237,7 @@ func waitForRunning(namespace string, deploymentName string, minReplicas int32, 
 
 func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
 	kubeClient.CoreV1()
-	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
+	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().StatefulSets(namespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
 		if err != nil {
 			return true, err

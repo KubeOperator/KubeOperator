@@ -7,6 +7,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
 import {TranslateService} from '@ngx-translate/core';
+import {SystemService} from '../../../business/setting/system.service';
 
 @Component({
     selector: 'app-cluster-list',
@@ -19,6 +20,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
                 private commonAlert: CommonAlertService,
                 private router: Router,
                 private route: ActivatedRoute,
+                private  systemService: SystemService,
                 private translateService: TranslateService) {
         super(clusterService);
     }
@@ -31,6 +33,8 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     currentProject: Project;
     loading = false;
     isDeleteButtonDisable = true;
+    repoAlert = false;
+    alertMsg: string;
 
 
     ngOnInit(): void {
@@ -46,11 +50,11 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     }
 
     onDetail(item: Cluster) {
-        if (item.status !== 'Running') {
-            this.commonAlert.showAlert('cluster is not ready', AlertLevels.ERROR);
-        } else {
-            this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name]).then();
-        }
+        this.checkRepo(item, 'detail');
+    }
+    
+    onCancel() {
+        this.repoAlert = false;
     }
 
     onImport() {
@@ -64,7 +68,6 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
             this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name, 'nodes']).then();
         }
     }
-
 
     onStatusDetail(cluster: Cluster) {
         this.statusDetailEvent.emit(cluster);
@@ -106,15 +109,67 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     }
 
     onUpgrade(item: Cluster) {
-        if (item.source !== 'local') {
-            this.commonAlert.showAlert(this.translateService.instant('APP_CLUSTER_IMPORT_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
-            return;
-        }
-        if (item.status !== 'Running') {
-            this.commonAlert.showAlert(this.translateService.instant('APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
-            return;
-        }
-        this.upgradeEvent.emit(item);
+        this.checkRepo(item, 'upgrade');
+    }
+
+    checkRepo (item: Cluster, goto: string) {
+        let amdRepo = false;
+        let armRepo = false;
+        this.systemService.getRegistry().subscribe(res => {
+            if (res === null) {
+                this.alertMsg = this.translateService.instant('APP_REPO_HELP');
+            }
+            for (const re of res.items) {
+                if (re.architecture === 'aarch64') {
+                    armRepo = true;
+                    break;
+                }
+            }
+            for (const re of res.items) {
+                if (re.architecture === 'x86_64') {
+                    amdRepo = true;
+                    break;
+                }
+            }
+            switch (item.spec.architectures) {
+                case 'amd64': 
+                    if (!amdRepo) {
+                        this.alertMsg = this.translateService.instant('APP_AMD_REPO_HELP');
+                        this.repoAlert = true;
+                    }
+                    break;
+                case 'arm64':
+                    if (!armRepo) {
+                        this.alertMsg = this.translateService.instant('APP_ARM_REPO_HELP');
+                        this.repoAlert = true;
+                    }
+                    break;
+                case 'all':
+                    if (!amdRepo || !armRepo) {
+                        this.alertMsg = this.translateService.instant('APP_MIXED_REPO_HELP');
+                        this.repoAlert = true;
+                    }
+                    break;
+            }
+            if (!this.repoAlert && goto === 'detail') {
+                if (item.status !== 'Running') {
+                    this.commonAlert.showAlert('cluster is not ready', AlertLevels.ERROR);
+                } else {
+                    this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name]).then();
+                }
+            }
+            if (!this.repoAlert && goto === 'upgrade') {
+                if (item.source !== 'local') {
+                    this.commonAlert.showAlert(this.translateService.instant('APP_CLUSTER_IMPORT_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
+                    return;
+                }
+                if (item.status !== 'Running') {
+                    this.commonAlert.showAlert(this.translateService.instant('APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
+                    return;
+                }
+                this.upgradeEvent.emit(item);
+            }
+        })
     }
 
     onHealthCheck(item: Cluster) {

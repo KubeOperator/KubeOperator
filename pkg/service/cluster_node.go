@@ -659,7 +659,7 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	var systemSetting model.SystemSetting
-	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
 	if systemSetting.ID != "" {
 		k.SetVar(facts.NtpServerName, systemSetting.Value)
 	}
@@ -700,7 +700,7 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	var systemSetting model.SystemSetting
-	db.DB.Model(model.SystemSetting{}).Where("key = 'ntp_server'").First(&systemSetting)
+	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
 	if systemSetting.ID != "" {
 		k.SetVar(facts.NtpServerName, systemSetting.Value)
 	}

@@ -37,6 +37,6 @@ func (u userNotificationConfigRepository) Save(notificationConfig *model.UserNot
 	if db.DB.NewRecord(notificationConfig) {
 		return db.DB.Create(&notificationConfig).Error
 	} else {
-		return db.DB.Save(&notificationConfig).Error
+		return db.DB.Model(&notificationConfig).Updates(&notificationConfig).Error
 	}
 }
