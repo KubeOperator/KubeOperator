@@ -45,7 +45,7 @@ export class VmConfigUpdateComponent extends BaseModelDirective<VmConfig> implem
             this.updated.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

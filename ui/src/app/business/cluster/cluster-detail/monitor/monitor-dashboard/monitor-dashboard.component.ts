@@ -70,7 +70,7 @@ export class MonitorDashboardComponent implements OnInit {
             }
             this.cpuDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
+                return (timeNow.getMonth() + 1) + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[]
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -127,7 +127,7 @@ export class MonitorDashboardComponent implements OnInit {
             }
             this.memeryDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
+                return (timeNow.getMonth() + 1) + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[]
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -182,7 +182,7 @@ export class MonitorDashboardComponent implements OnInit {
             }
             this.diskDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
+                return (timeNow.getMonth() + 1) + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             let itemDatas: string[];
             itemDatas = data.data.result[0].values.map(function (item) {
@@ -203,7 +203,7 @@ export class MonitorDashboardComponent implements OnInit {
             }
             this.networkDateList = data.data.result[0].values.map(function (item) {
                 const timeNow = new Date(item[0] * 1000);
-                return timeNow.getMonth() + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
+                return (timeNow.getMonth() + 1) + "月" + timeNow.getDate() + "日" + timeNow.getHours() + ":" + timeNow.getMinutes();
             })
             for (const res of data.data.result) {
                 let itemDatas: string[];
