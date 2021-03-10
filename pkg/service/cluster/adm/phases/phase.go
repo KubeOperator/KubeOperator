@@ -1,14 +1,18 @@
 package phases
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"io"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/spf13/viper"
-	"io"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"time"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -71,4 +75,40 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, writer 
 		return false, nil
 	})
 	return err
+}
+
+func WaitForDeployRunning(namespace string, deploymentName string, kubeClient *kubernetes.Clientset) error {
+	kubeClient.CoreV1()
+	err := wait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {
+		d, err := kubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if d.Status.ReadyReplicas > 0 {
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func WaitForStatefulSetsRunning(namespace string, statefulSetsName string, kubeClient *kubernetes.Clientset) error {
+	kubeClient.CoreV1()
+	err := wait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {
+		d, err := kubeClient.AppsV1().StatefulSets(namespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if d.Status.ReadyReplicas > 0 {
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

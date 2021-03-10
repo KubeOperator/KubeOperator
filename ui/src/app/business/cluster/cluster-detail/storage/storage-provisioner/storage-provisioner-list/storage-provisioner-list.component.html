@@ -26,10 +26,10 @@
             <span *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
                 <a href="javascript:void(0)" (click)="onShowLogger(item)">{{item.status|translate}}</a>
             </span>
-            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating' || item.status === 'Synchronizing'">
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating' || item.status === 'Waiting' || item.status === 'Synchronizing'">
                 Loading...
             </clr-spinner>
-            <span *ngIf="item.status === 'Running' || item.status === 'Synchronizing' ">
+            <span *ngIf="item.status === 'Running' || item.status === 'Synchronizing' || item.status === 'Waiting'">
                 {{item.status|translate}}
             </span>
             <span *ngIf="item.status === 'NotReady' || item.status === 'Failed'">
