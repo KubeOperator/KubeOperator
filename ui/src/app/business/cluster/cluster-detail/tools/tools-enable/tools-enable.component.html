@@ -31,6 +31,7 @@
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node"
                             [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
@@ -73,6 +74,7 @@
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node"
                             [(ngModel)]="item.vars['server.nodeSelector.kubernetes\\.io/hostname']">
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
@@ -201,6 +203,7 @@
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node"
                             [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
+                            <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
@@ -240,6 +243,7 @@
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node"
                             [(ngModel)]="item.vars['loki.nodeSelector.kubernetes\\.io/hostname']">
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
@@ -279,6 +283,7 @@
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node"
                             [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>
@@ -316,6 +321,7 @@
                 <clr-select-container *ngIf="item.vars['postgresql.persistence.enabled']">
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="masternode" [(ngModel)]="item.vars['nodeSelector']">
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                     <clr-control-helper>{{"APP_FILL_RULE"|translate}}</clr-control-helper>

@@ -328,7 +328,7 @@
   "APP_RETENTION": "Retention",
   "APP_EFK_CREATE_REPLICAS": "Make sure that the number of copies is less than or equal to the number of nodes!",
   "APP_TIPS": "Prompt information",
-  "APP_EFK_LOKI_CONDITION": "Elasticsearch and Loki do not support enabling at the same time!",
+  "APP_EFK_LOKI_CONDITION": "logging and loki do not support enabling at the same time!",
   "APP_GRAFANA_CONDITION": "Please enable Prometheus as the default data source first!",
   "APP_PREFIX": "Prefix",
   "APP_INDEX": "Index",
