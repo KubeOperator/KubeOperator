@@ -39,6 +39,7 @@ export class RegistryDeleteComponent implements OnInit {
       this.deleted.emit();
       this.opened = false;
       this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+      window.location.reload();
     }, error => {
       this.opened = false;
       this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
