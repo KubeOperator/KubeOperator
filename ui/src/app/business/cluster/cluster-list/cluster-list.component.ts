@@ -112,8 +112,10 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
         let amdRepo = false;
         let armRepo = false;
         this.systemService.getRegistry().subscribe(res => {
-            if (res === null) {
+            if (res.items === null) {
+                this.repoAlert = true;
                 this.alertMsg = this.translateService.instant('APP_REPO_HELP');
+                return;
             }
             for (const re of res.items) {
                 if (re.architecture === 'aarch64') {
