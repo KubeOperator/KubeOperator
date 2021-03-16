@@ -123,7 +123,7 @@ func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, err
 		user.Name = update.Email
 	}
 	if update.Language != "" {
-		user.Name = update.Language
+		user.Language = update.Language
 	}
 
 	if update.IsActive != "" {
