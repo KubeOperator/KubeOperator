@@ -12,6 +12,9 @@ DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"
 DELETE_FAILED_RESOURCE_ZONE: "删除失败！该秘钥下有关联可用区"
 DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "默认凭据不能删除！"
 NAME_CHECK_FAILED: "秘钥名称不能与用户名相同"
+PASSWORD_CAN_NOT_NULL: "密码不能为空！"
+PRIVATE_KEY_CAN_NOT_NULL: "秘钥不能为空！"
+
 
 #host
 HOST_ALREADY_EXISTS: "主机已存在"
