@@ -36,7 +36,7 @@ type UserService interface {
 	Create(creation dto.UserCreate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Update(update dto.UserUpdate) (*dto.User, error)
+	Update(name string, update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) error
 	UserAuth(name string, password string) (user *model.User, err error)
