@@ -19,7 +19,7 @@ type VmConfigCreate struct {
 }
 
 type VmConfigUpdate struct {
-	Name     string `json:"name" validate:"required"`
+	Name     string `json:"name"`
 	Provider string `json:"provider"`
 	Cpu      int    `json:"cpu" validate:"min=1,max=1000,required" en:"CPU" zh:"CPU"`
 	Memory   int    `json:"memory" validate:"min=1,max=1000,required" en:"Memory" zh:"内存"`

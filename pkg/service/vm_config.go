@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -21,7 +20,8 @@ type VmConfigService interface {
 	List() ([]dto.VmConfig, error)
 	Batch(op dto.VmConfigOp) error
 	Create(creation dto.VmConfigCreate) (*dto.VmConfig, error)
-	Update(creation dto.VmConfigUpdate) (*dto.VmConfig, error)
+	Update(name string, creation dto.VmConfigUpdate) (*dto.VmConfig, error)
+	Get(name string) (*dto.VmConfig, error)
 }
 
 type vmConfigService struct {
@@ -49,6 +49,16 @@ func (v vmConfigService) Page(num, size int) (page.Page, error) {
 	page.Total = total
 	page.Items = vmConfigDTOs
 	return page, err
+}
+
+func (v vmConfigService) Get(name string) (*dto.VmConfig, error) {
+	var vmConfigDTO dto.VmConfig
+	vmConfig, err := v.vmConfigRepo.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	vmConfigDTO.VmConfig = vmConfig
+	return &vmConfigDTO, nil
 }
 
 func (v vmConfigService) List() ([]dto.VmConfig, error) {
@@ -103,23 +113,23 @@ func (v vmConfigService) Create(creation dto.VmConfigCreate) (*dto.VmConfig, err
 	return &dto.VmConfig{VmConfig: vmConfig}, err
 }
 
-func (v vmConfigService) Update(creation dto.VmConfigUpdate) (*dto.VmConfig, error) {
-	old, err := v.vmConfigRepo.Get(creation.Name)
-	if err != nil {
-		return nil, err
-	}
+func (v vmConfigService) Update(name string, update dto.VmConfigUpdate) (*dto.VmConfig, error) {
 
-	vmConfig := model.VmConfig{
-		ID:       old.ID,
-		Name:     creation.Name,
-		Cpu:      creation.Cpu,
-		Memory:   creation.Memory,
-		Disk:     50,
-		Provider: creation.Provider,
-	}
-	err = v.vmConfigRepo.Save(&vmConfig)
+	vmConfig, err := v.Get(name)
 	if err != nil {
 		return nil, err
 	}
-	return &dto.VmConfig{VmConfig: vmConfig}, err
+	if update.Name != "" {
+		vmConfig.Name = update.Name
+	}
+	if update.Memory != 0 {
+		vmConfig.Memory = update.Memory
+	}
+	if update.Cpu != 0 {
+		vmConfig.Cpu = update.Cpu
+	}
+	if err := db.DB.Save(&vmConfig).Error; err != nil {
+		return nil, err
+	}
+	return vmConfig, err
 }

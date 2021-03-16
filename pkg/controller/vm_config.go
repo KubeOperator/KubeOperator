@@ -100,7 +100,7 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	if err != nil {
 		return nil, validator_error.Tr(v.Ctx, validate, err)
 	}
-	result, err := v.VmConfigService.Update(req)
+	result, err := v.VmConfigService.Update(name, req)
 	if err != nil {
 		return nil, err
 	}
