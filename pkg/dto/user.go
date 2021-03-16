@@ -20,10 +20,10 @@ type UserPage struct {
 
 type UserUpdate struct {
 	ID       string `json:"id"`
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email"`
 	IsActive bool   `json:"isActive"`
-	IsAdmin  bool   `json:"isAdmin" binding:"required"`
+	IsAdmin  bool   `json:"isAdmin"`
+	Language string `json:"language"`
 }
 
 type UserOp struct {

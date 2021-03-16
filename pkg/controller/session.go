@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -95,6 +96,25 @@ func (s *SessionController) Delete() error {
 	return nil
 }
 
+func (s *SessionController) Get() (*dto.Profile, error) {
+	session := constant.Sess.Start(s.Ctx)
+	user := session.Get(constant.SessionUserKey)
+	if user == nil {
+		return nil, errors.New("")
+	}
+	p, ok := user.(*dto.Profile)
+	if !ok {
+		return nil, errors.New("")
+	}
+	return p, nil
+}
+
+func (s *SessionController) GetStatus() (*dto.SessionStatus, error) {
+	session := constant.Sess.Start(s.Ctx)
+	user := session.Get(constant.SessionUserKey)
+	return &dto.SessionStatus{IsLogin: user != nil}, nil
+}
+
 func (s *SessionController) checkSessionLogin(username string, password string, jwt bool) (*dto.Profile, error) {
 	u, err := s.UserService.UserAuth(username, password)
 	if err != nil {
@@ -120,6 +140,12 @@ func toSessionUser(u model.User) dto.SessionUser {
 		Language: u.Language,
 		IsActive: u.IsActive,
 		IsAdmin:  u.IsAdmin,
+		Roles: func() []string {
+			if u.IsAdmin {
+				return []string{"admin"}
+			}
+			return []string{}
+		}(),
 	}
 }
 

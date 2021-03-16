@@ -113,28 +113,24 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	return &dto.User{User: user}, err
 }
 
-func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
-
-	old, err := u.Get(update.Name)
+func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, error) {
+	user, err := u.Get(name)
 	if err != nil {
 		return nil, err
 	}
-
-	user := model.User{
-		ID:       old.ID,
-		Name:     update.Name,
-		Email:    update.Email,
-		IsActive: update.IsActive,
-		IsAdmin:  update.IsAdmin,
-		Type:     constant.Local,
-		Password: old.Password,
-		Language: model.ZH,
+	if update.Email != "" {
+		user.Name = update.Email
 	}
-	err = u.userRepo.Save(&user)
+	if update.Language != "" {
+		user.Name = update.Language
+	}
+	user.IsAdmin = update.IsAdmin
+	user.IsActive = update.IsActive
+	err = u.userRepo.Save(&user.User)
 	if err != nil {
 		return nil, err
 	}
-	return &dto.User{User: user}, err
+	return &user, err
 }
 
 func (u userService) Page(num, size int) (page.Page, error) {

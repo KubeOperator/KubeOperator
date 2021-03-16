@@ -121,7 +121,7 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.UserService.Update(req)
+	user, err := u.UserService.Update(name, req)
 	if err != nil {
 		return nil, err
 	}
