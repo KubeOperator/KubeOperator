@@ -62,11 +62,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     }
 
     onNodeDetail(item: Cluster) {
-        if (item.status !== 'Running') {
-            this.commonAlert.showAlert('cluster is not ready', AlertLevels.SUCCESS);
-        } else {
-            this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name, 'nodes']).then();
-        }
+        this.checkRepo(item, 'node-detail');
     }
 
     onStatusDetail(cluster: Cluster) {
@@ -116,8 +112,10 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
         let amdRepo = false;
         let armRepo = false;
         this.systemService.getRegistry().subscribe(res => {
-            if (res === null) {
+            if (res.items === null) {
+                this.repoAlert = true;
                 this.alertMsg = this.translateService.instant('APP_REPO_HELP');
+                return;
             }
             for (const re of res.items) {
                 if (re.architecture === 'aarch64') {
@@ -168,6 +166,13 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
                     return;
                 }
                 this.upgradeEvent.emit(item);
+            }
+            if (!this.repoAlert && goto === 'node-detail') {
+                if (item.status !== 'Running') {
+                    this.commonAlert.showAlert('cluster is not ready', AlertLevels.SUCCESS);
+                } else {
+                    this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name, 'nodes']).then();
+                }
             }
         })
     }

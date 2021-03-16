@@ -61,7 +61,7 @@ export class StorageProvisionerListComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             let flag = false;
-            const needPolling = ['Initializing', 'Terminating', 'Synchronizing'];
+            const needPolling = ['Initializing', 'Terminating', 'Synchronizing', 'Waiting'];
             for (const item of this.items) {
                 if (needPolling.indexOf(item.status) !== -1) {
                     flag = true;

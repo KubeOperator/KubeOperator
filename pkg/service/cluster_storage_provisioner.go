@@ -15,9 +15,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -50,19 +51,8 @@ func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 
 func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error) {
 	clusterStorageProvisionerDTOS := []dto.ClusterStorageProvisioner{}
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return clusterStorageProvisionerDTOS, err
-	}
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
-		Token: secret.KubernetesToken,
-		Hosts: endpoints,
-	})
-	if err != nil {
-		return clusterStorageProvisionerDTOS, err
-	}
-	deploymentsList, err := client.AppsV1().Deployments("kube-system").List(context.Background(), metav1.ListOptions{})
+	// 获取 k8s client
+	client, err := c.getBaseParam(clusterName)
 	if err != nil {
 		return clusterStorageProvisionerDTOS, err
 	}
@@ -71,19 +61,18 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 		return clusterStorageProvisionerDTOS, err
 	}
 	for _, p := range ps {
-		for _, item := range deploymentsList.Items {
-			if p.Name == item.Name {
-				if item.Status.ReadyReplicas < item.Status.Replicas {
-					p.Status = "NotReady"
-					var message string
-					for _, condition := range item.Status.Conditions {
-						message = condition.Message + message
-					}
-					p.Message = message
-					db.DB.Save(&p)
-				}
+		if p.Status != constant.StatusWaiting && p.Status != constant.StatusInitializing {
+			var syncModel dto.ClusterStorageProvisionerSync
+			syncModel.Name = p.Name
+			syncModel.Status = p.Status
+			syncModel.Type = p.Type
+			if err := c.sync(client, syncModel); err != nil {
+				p.Status = constant.ClusterNotReady
+				p.Message = err.Error()
+				db.DB.Save(&p)
 			}
 		}
+
 		var vars map[string]interface{}
 		_ = json.Unmarshal([]byte(p.Vars), &vars)
 		clusterStorageProvisionerDTOS = append(clusterStorageProvisionerDTOS, dto.ClusterStorageProvisioner{
@@ -136,82 +125,96 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 }
 
 func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner) {
-	var (
-		manifest       model.ClusterManifest
-		storageVars    []model.VersionHelp
-		storageDic     model.StorageProvisionerDic
-		storageDicVars map[string]interface{}
-		commonVars     map[string]interface{}
-	)
-
 	admCluster := adm.NewCluster(cluster)
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
 		log.Error(err)
 	}
 
-	// 获取版本
-	if err := db.DB.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find manifest version: %s", err.Error()))
+	// 获取创建参数
+	if err := c.getVars(admCluster, cluster, provisioner); err != nil {
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
-	if err := json.Unmarshal([]byte(manifest.StorageVars), &storageVars); err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("unmarshal manifest.storageVars error %s", err.Error()))
-		return
-	}
-	// 获取存储字典
-	isExist := false
-	for _, storage := range storageVars {
-		if storage.Name == provisioner.Type {
-			isExist = true
-			if err := db.DB.Where("name = ? AND version = ?", storage.Name, storage.Version).First(&storageDic).Error; err != nil {
-				c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find storage provisioner dic : %s", err.Error()))
-				return
-			}
-			break
-		}
-	}
-	if !isExist {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("can't find storage provisioner dic: %s", provisioner.Type))
-		return
-	}
-	if err := json.Unmarshal([]byte(storageDic.Vars), &storageDicVars); err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("unmarshal storageDic.Vars error %s", err.Error()))
-		return
-	}
-	// 获取前端参数
-	if err := json.Unmarshal([]byte(provisioner.Vars), &commonVars); err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("unmarshal provisioner.Vars error %s", err.Error()))
-		return
+	// 获取 k8s client
+	client, err := c.getBaseParam(cluster.Name)
+	if err != nil {
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create kubernetes Clientset error %s", err.Error()))
 	}
 
-	for k, v := range storageDicVars {
-		if v != nil {
-			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
-		}
-	}
-	for k, v := range commonVars {
-		if v != nil {
-			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
-		}
-	}
 	switch provisioner.Type {
 	case "nfs":
 		admCluster.Kobe.SetVar("storage_nfs_provisioner_name", provisioner.Name)
-		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", writer)
+		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForDeployRunning("kube-system", provisioner.Name, client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
 	case "rook-ceph":
-		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", writer)
+		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForDeployRunning("rook-ceph", "rook-ceph-operator", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
 	case "vsphere":
-		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", writer)
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForStatefulSetsRunning("kube-system", "vsphere-csi-controller", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
 	case "external-ceph":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
-		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephStorage, "", writer)
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForDeployRunning("kube-system", "external-ceph", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
 	case "oceanstor":
-		err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer)
-	}
-	if err != nil {
-		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
-		return
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForDeployRunning("kube-system", "huawei-csi-controller", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
 	}
 	provisioner.Status = constant.ClusterRunning
 	_ = c.provisionerRepo.Save(cluster.Name, &provisioner)
@@ -241,7 +244,11 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			log.Infof("gather provisioner [%s] info", provisioner.Name)
-			if err := c.sync(clusterName, provisioner); err != nil {
+			client, err := c.getBaseParam(clusterName)
+			if err != nil {
+				log.Errorf("get kubernetes Clientset err, error: %s", err.Error())
+			}
+			if err := c.sync(client, provisioner); err != nil {
 				log.Errorf("gather provisioner info error: %s", err.Error())
 				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
 					Updates(map[string]interface{}{
@@ -261,19 +268,7 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 	return nil
 }
 
-func (c clusterStorageProvisionerService) sync(clusterName string, provisioner dto.ClusterStorageProvisionerSync) error {
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return err
-	}
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
-		Token: secret.KubernetesToken,
-		Hosts: endpoints,
-	})
-	if err != nil {
-		return err
-	}
+func (c clusterStorageProvisionerService) sync(client *kubernetes.Clientset, provisioner dto.ClusterStorageProvisionerSync) error {
 	switch provisioner.Type {
 	case "external-ceph":
 		ex, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "external-ceph", metav1.GetOptions{})
@@ -300,7 +295,7 @@ func (c clusterStorageProvisionerService) sync(clusterName string, provisioner d
 			return fmt.Errorf("not ready")
 		}
 	case "rook-ceph":
-		rook, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
+		rook, err := client.AppsV1().Deployments("rook-ceph").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
 		}
@@ -325,15 +320,7 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return err
-	}
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
-		Token: secret.KubernetesToken,
-		Hosts: endpoints,
-	})
+	client, err := c.getBaseParam(clusterName)
 	if err != nil {
 		return err
 	}
@@ -459,7 +446,6 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 }
 
 func checkError(err error) bool {
-
 	if e, ok := err.(*errors2.StatusError); ok {
 		if e.ErrStatus.Code == 404 {
 			return false
@@ -468,4 +454,72 @@ func checkError(err error) bool {
 		}
 	}
 	return true
+}
+
+func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kubernetes.Clientset, error) {
+	var client *kubernetes.Clientset
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return client, err
+	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	client, err = kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Token: secret.KubernetesToken,
+		Hosts: endpoints,
+	})
+	if err != nil {
+		return client, err
+	}
+	return client, nil
+}
+
+func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
+	var (
+		manifest       model.ClusterManifest
+		storageVars    []model.VersionHelp
+		storageDic     model.StorageProvisionerDic
+		storageDicVars map[string]interface{}
+		commonVars     map[string]interface{}
+	)
+
+	// 获取版本
+	if err := db.DB.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
+		return fmt.Errorf("can't find manifest version: %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.StorageVars), &storageVars); err != nil {
+		return fmt.Errorf("unmarshal manifest.storageVars error %s", err.Error())
+	}
+	// 获取存储字典
+	isExist := false
+	for _, storage := range storageVars {
+		if storage.Name == provisioner.Type {
+			isExist = true
+			if err := db.DB.Where("name = ? AND version = ?", storage.Name, storage.Version).First(&storageDic).Error; err != nil {
+				return fmt.Errorf("can't find storage provisioner dic : %s", err.Error())
+			}
+			break
+		}
+	}
+	if !isExist {
+		return fmt.Errorf("can't find storage provisioner dic: %s", provisioner.Type)
+	}
+	if err := json.Unmarshal([]byte(storageDic.Vars), &storageDicVars); err != nil {
+		return fmt.Errorf("unmarshal storageDic.Vars error %s", err.Error())
+	}
+	// 获取前端参数
+	if err := json.Unmarshal([]byte(provisioner.Vars), &commonVars); err != nil {
+		return fmt.Errorf("unmarshal provisioner.Vars error %s", err.Error())
+	}
+
+	for k, v := range storageDicVars {
+		if v != nil {
+			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
+		}
+	}
+	for k, v := range commonVars {
+		if v != nil {
+			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
+		}
+	}
+	return nil
 }
