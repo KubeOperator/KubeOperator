@@ -18,7 +18,7 @@
         <app-modal-alert></app-modal-alert>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-            <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
                     [disabled]="vmConfigEditForm.invalid">{{'APP_COMMIT'|translate}}
             </button>
         </div>
