@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"math/rand"
+	"strconv"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -124,13 +125,23 @@ func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, err
 	if update.Language != "" {
 		user.Name = update.Language
 	}
-	user.IsAdmin = update.IsAdmin
-	user.IsActive = update.IsActive
-	err = u.userRepo.Save(&user.User)
-	if err != nil {
+
+	if update.IsActive != "" {
+		user.IsActive, err = strconv.ParseBool(update.IsActive)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if update.IsAdmin != "" {
+		user.IsAdmin, err = strconv.ParseBool(update.IsAdmin)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if err := db.DB.Save(&user).Error; err != nil {
 		return nil, err
 	}
-	return &user, err
+	return &user, nil
 }
 
 func (u userService) Page(num, size int) (page.Page, error) {

@@ -21,8 +21,8 @@ type UserPage struct {
 type UserUpdate struct {
 	ID       string `json:"id"`
 	Email    string `json:"email"`
-	IsActive bool   `json:"isActive"`
-	IsAdmin  bool   `json:"isAdmin"`
+	IsActive string `json:"isActive"`
+	IsAdmin  string `json:"isAdmin"`
 	Language string `json:"language"`
 }
 
