@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
@@ -27,10 +28,16 @@ func NewSystemLogController() *SystemLogController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /logs/ [get]
-func (u SystemLogController) Get() (page.Page, error) {
+func (u SystemLogController) Post() (page.Page, error) {
 	num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
 	size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-	queryOption := u.Ctx.URLParam("option")
-	queryInfo := u.Ctx.URLParam("info")
-	return u.SystemLogService.Page(num, size, queryOption, queryInfo)
+
+	var page page.Page
+	var queryCondition dto.SystemLogQuery
+	err := u.Ctx.ReadJSON(&queryCondition)
+	if err != nil {
+		return page, err
+	}
+
+	return u.SystemLogService.Page(num, size, queryCondition)
 }
