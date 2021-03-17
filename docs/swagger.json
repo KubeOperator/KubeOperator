@@ -171,7 +171,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -179,9 +179,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -279,9 +279,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -315,9 +313,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -1922,6 +1918,7 @@
                     "type": "string"
                 },
                 "spec": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -1961,12 +1958,14 @@
             ],
             "properties": {
                 "backupAccount": {
+                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -2180,18 +2179,9 @@
         "dto.CredentialUpdate": {
             "type": "object",
             "required": [
-                "id",
-                "name",
-                "type",
-                "username"
+                "type"
             ],
             "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -2331,6 +2321,7 @@
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -2558,6 +2549,7 @@
                     "type": "string"
                 },
                 "user": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -2732,6 +2724,12 @@
                 "name": {
                     "type": "string"
                 },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "userId": {
                     "type": "string"
                 }
@@ -2797,11 +2795,6 @@
         },
         "dto.UserUpdate": {
             "type": "object",
-            "required": [
-                "email",
-                "isAdmin",
-                "name"
-            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -2810,12 +2803,12 @@
                     "type": "string"
                 },
                 "isActive": {
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "isAdmin": {
-                    "type": "boolean"
+                    "type": "string"
                 },
-                "name": {
+                "language": {
                     "type": "string"
                 }
             }
@@ -2894,6 +2887,7 @@
             "type": "object",
             "properties": {
                 "_": {
+                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "cloudVars": {
@@ -2909,6 +2903,7 @@
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {

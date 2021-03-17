@@ -129,7 +129,7 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 	operator := b.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.UPDATE_BACKUP_ACCOUNT, name)
 
-	return b.BackupAccountService.Update(req)
+	return b.BackupAccountService.Update(name, req)
 }
 
 // Delete BackupAccount

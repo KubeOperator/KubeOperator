@@ -31,7 +31,7 @@ type ZoneService interface {
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (*dto.Zone, error)
-	Update(creation dto.ZoneUpdate) (*dto.Zone, error)
+	Update(name string, creation dto.ZoneUpdate) (*dto.Zone, error)
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
@@ -204,7 +204,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	return &dto.Zone{Zone: zone}, err
 }
 
-func (z zoneService) Update(update dto.ZoneUpdate) (*dto.Zone, error) {
+func (z zoneService) Update(name string, update dto.ZoneUpdate) (*dto.Zone, error) {
 
 	param := update.CloudVars.(map[string]interface{})
 	ipPool, err := z.ipPoolService.Get(update.IpPoolName)
@@ -223,22 +223,14 @@ func (z zoneService) Update(update dto.ZoneUpdate) (*dto.Zone, error) {
 	param["dns2"] = ipPool.Ips[0].DNS2
 
 	vars, _ := json.Marshal(update.CloudVars)
-	old, err := z.zoneRepo.Get(update.Name)
+	zone, err := z.zoneRepo.Get(name)
 	if err != nil {
 		return nil, err
 	}
-	zone := model.Zone{
-		Name:         update.Name,
-		Vars:         string(vars),
-		RegionID:     update.RegionID,
-		ID:           old.ID,
-		IpPoolID:     ipPool.ID,
-		Status:       old.Status,
-		CredentialID: old.CredentialID,
-	}
-
-	err = z.zoneRepo.Save(&zone)
-	if err != nil {
+	zone.Vars = string(vars)
+	zone.RegionID = update.RegionID
+	zone.IpPoolID = ipPool.ID
+	if err := db.DB.Save(&zone).Error; err != nil {
 		return nil, err
 	}
 	return &dto.Zone{Zone: zone}, err

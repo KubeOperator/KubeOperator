@@ -138,11 +138,10 @@ func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegist
 	if err != nil {
 		return nil, err
 	}
-
 	operator := s.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_REGISTRY, req.Architecture)
+	go kolog.Save(operator, constant.UPDATE_REGISTRY, req.Hostname)
 
-	return s.SystemSettingService.UpdateRegistry(req)
+	return s.SystemSettingService.UpdateRegistry(arch, req)
 }
 
 func (s SystemSettingController) PostRegistryBatch() error {

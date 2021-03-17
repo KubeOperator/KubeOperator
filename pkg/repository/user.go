@@ -60,8 +60,10 @@ func (u userRepository) Save(item *model.User) error {
 }
 
 func (u userRepository) Delete(name string) error {
-	var user model.User
-	user.Name = name
+	user, err := u.Get(name)
+	if err != nil {
+		return err
+	}
 	return db.DB.Delete(&user).Error
 }
 

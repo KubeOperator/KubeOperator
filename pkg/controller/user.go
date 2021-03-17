@@ -58,7 +58,7 @@ func (u UserController) Get() (page.Page, error) {
 // @Success 200 {object} dto.User
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [get]
-func (u UserController) GetBy(name string) (dto.User, error) {
+func (u UserController) GetBy(name string) (*dto.User, error) {
 	return u.UserService.Get(name)
 }
 

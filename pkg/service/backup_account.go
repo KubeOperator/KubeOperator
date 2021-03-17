@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -23,7 +24,7 @@ type BackupAccountService interface {
 	List(projectName string) ([]dto.BackupAccount, error)
 	Page(num, size int) (page.Page, error)
 	Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
-	Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
+	Update(name string, creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
 	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
 	Delete(name string) error
@@ -74,7 +75,7 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 		backupDTO := new(dto.BackupAccount)
 		vars := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
-			 return page, err
+			return page, err
 		}
 		backupDTO.CredentialVars = vars
 		backupDTO.BackupAccount = mo
@@ -114,32 +115,26 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 	return &dto.BackupAccount{BackupAccount: backupAccount}, err
 }
 
-func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
+func (b backupAccountService) Update(name string, creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
 
 	err := b.CheckValid(creation)
 	if err != nil {
 		return nil, err
 	}
 	credential, _ := json.Marshal(creation.CredentialVars)
-	old, err := b.backupAccountRepo.Get(creation.Name)
+	backupAccount, err := b.Get(name)
 	if err != nil {
 		return nil, err
 	}
-	backupAccount := model.BackupAccount{
-		ID:         old.ID,
-		Name:       creation.Name,
-		Bucket:     creation.Bucket,
-		Type:       creation.Type,
-		Credential: string(credential),
-		Status:     constant.Valid,
-	}
+	backupAccount.Bucket = creation.Bucket
+	backupAccount.Credential = string(credential)
+	backupAccount.Status = constant.Valid
 
-	err = b.backupAccountRepo.Save(&backupAccount)
-	if err != nil {
+	if err := db.DB.Save(&backupAccount).Error; err != nil {
 		return nil, err
 	}
 
-	return &dto.BackupAccount{BackupAccount: backupAccount}, err
+	return backupAccount, err
 }
 
 func (b backupAccountService) Batch(op dto.BackupAccountOp) error {

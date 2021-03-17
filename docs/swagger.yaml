@@ -63,6 +63,7 @@ definitions:
         type: string
       spec:
         $ref: '#/definitions/model.ClusterSpec'
+        type: object
       status:
         type: string
       updatedAt:
@@ -86,10 +87,12 @@ definitions:
     properties:
       backupAccount:
         $ref: '#/definitions/model.BackupAccount'
+        type: object
       clusterName:
         type: string
       file:
         $ref: '#/definitions/model.ClusterBackupFile'
+        type: object
       name:
         type: string
     required:
@@ -233,10 +236,6 @@ definitions:
     type: object
   dto.CredentialUpdate:
     properties:
-      id:
-        type: string
-      name:
-        type: string
       password:
         type: string
       privateKey:
@@ -246,10 +245,7 @@ definitions:
       username:
         type: string
     required:
-    - id
-    - name
     - type
-    - username
     type: object
   dto.Host:
     properties:
@@ -336,6 +332,7 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/model.IpPool'
+        type: object
       ipPoolId:
         type: string
       status:
@@ -486,6 +483,7 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.SessionUser'
+        type: object
     type: object
   dto.Project:
     properties:
@@ -600,6 +598,10 @@ definitions:
         type: string
       name:
         type: string
+      roles:
+        items:
+          type: string
+        type: array
       userId:
         type: string
     type: object
@@ -649,15 +651,11 @@ definitions:
       id:
         type: string
       isActive:
-        type: boolean
-      isAdmin:
-        type: boolean
-      name:
         type: string
-    required:
-    - email
-    - isAdmin
-    - name
+      isAdmin:
+        type: string
+      language:
+        type: string
     type: object
   dto.VmConfig:
     properties:
@@ -710,6 +708,7 @@ definitions:
     properties:
       _:
         $ref: '#/definitions/model.IpPool'
+        type: object
       cloudVars:
         type: object
       createdAt:
@@ -720,6 +719,7 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/dto.IpPool'
+        type: object
       ipPoolId:
         type: string
       ipPoolName:
@@ -1058,14 +1058,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
@@ -1133,8 +1133,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Backup CLuster
@@ -1155,8 +1154,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Restore CLuster

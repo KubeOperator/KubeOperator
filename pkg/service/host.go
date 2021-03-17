@@ -83,24 +83,24 @@ func (h hostService) List(projectName string) ([]dto.Host, error) {
 
 func (h hostService) Page(num, size int) (page.Page, error) {
 	var (
-		page      page.Page
-		hostDTOs  []dto.Host
+		p         page.Page
 		hostIDs   []string
 		resources []model.ProjectResource
 		projects  []model.Project
 	)
+	hostDTOs := make([]dto.Host, 0)
 	total, mos, err := h.hostRepo.Page(num, size)
 	if err != nil {
-		return page, err
+		return p, err
 	}
 	for _, mo := range mos {
 		hostIDs = append(hostIDs, mo.ID)
 	}
 	if err := db.DB.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).Find(&resources).Error; err != nil {
-		return page, err
+		return p, err
 	}
 	if err := db.DB.Find(&projects).Error; err != nil {
-		return page, err
+		return p, err
 	}
 
 	for _, mo := range mos {
@@ -130,9 +130,9 @@ func (h hostService) Page(num, size int) (page.Page, error) {
 			})
 		}
 	}
-	page.Total = total
-	page.Items = hostDTOs
-	return page, err
+	p.Total = total
+	p.Items = hostDTOs
+	return p, err
 }
 
 func (h hostService) Delete(name string) error {
