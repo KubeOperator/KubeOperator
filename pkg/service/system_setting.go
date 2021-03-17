@@ -26,7 +26,7 @@ type SystemSettingService interface {
 	ListRegistry() ([]dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
-	UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
+	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	PageRegistry(num, size int) (page.Page, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
 }
@@ -210,10 +210,10 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
-func (s systemSettingService) UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
+func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
 	systemRegistry := model.SystemRegistry{
 		ID:           creation.ID,
-		Architecture: creation.Architecture,
+		Architecture: arch,
 		Protocol:     creation.Protocol,
 		Hostname:     creation.Hostname,
 	}
