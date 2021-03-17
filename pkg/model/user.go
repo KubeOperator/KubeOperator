@@ -23,14 +23,16 @@ const (
 
 type User struct {
 	common.BaseModel
-	ID       string `json:"id" gorm:"type:varchar(64)"`
-	Name     string `json:"name" gorm:"type:varchar(256);not null;unique"`
-	Password string `json:"password" gorm:"type:varchar(256)"`
-	Email    string `json:"email" gorm:"type:varchar(256);not null;unique"`
-	IsActive bool   `json:"isActive" gorm:"type:boolean;default:true"`
-	Language string `json:"language" gorm:"type:varchar(64)"`
-	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
-	Type     string `json:"type" gorm:"type:varchar(64)"`
+	ID               string  `json:"-" gorm:"type:varchar(64)"`
+	CurrentProjectID string  `json:"-" gorm:"type:varchar(64)"`
+	CurrentProject   Project `gorm:"save_associations:false"`
+	Name             string  `json:"name" gorm:"type:varchar(256);not null;unique"`
+	Password         string  `json:"password" gorm:"type:varchar(256)"`
+	Email            string  `json:"email" gorm:"type:varchar(256);not null;unique"`
+	Language         string  `json:"language" gorm:"type:varchar(64)"`
+	IsAdmin          bool    `json:"-" gorm:"type:boolean;default:false"`
+	IsActive         bool    `json:"-" gorm:"type:boolean;default:true"`
+	Type             string  `json:"type" gorm:"type:varchar(64)"`
 }
 
 type Token struct {

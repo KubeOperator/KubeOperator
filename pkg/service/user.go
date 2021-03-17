@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"math/rand"
-	"strconv"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -31,7 +31,7 @@ var (
 )
 
 type UserService interface {
-	Get(name string) (dto.User, error)
+	Get(name string) (*dto.User, error)
 	List() ([]dto.User, error)
 	Create(creation dto.UserCreate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
@@ -55,25 +55,23 @@ func NewUserService() UserService {
 	}
 }
 
-func (u userService) Get(name string) (dto.User, error) {
-	var userDTO dto.User
+func (u userService) Get(name string) (*dto.User, error) {
 	mo, err := u.userRepo.Get(name)
 	if err != nil {
-		return userDTO, err
+		return nil, err
 	}
-	userDTO.User = mo
-	return userDTO, err
+	d := toUserDTO(mo)
+	return &d, err
 }
 
 func (u userService) List() ([]dto.User, error) {
-
 	var userDTOS []dto.User
 	mos, err := u.userRepo.List()
 	if err != nil {
 		return userDTOS, err
 	}
 	for _, mo := range mos {
-		userDTOS = append(userDTOS, dto.User{User: mo})
+		userDTOS = append(userDTOS, toUserDTO(mo))
 	}
 	return userDTOS, err
 }
@@ -85,7 +83,7 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	}
 
 	old, _ := u.Get(creation.Name)
-	if old.ID != "" {
+	if old != nil {
 		return nil, UserNameExist
 	}
 
@@ -104,14 +102,15 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		Password: password,
 		IsActive: true,
 		Language: model.ZH,
-		IsAdmin:  creation.IsAdmin,
+		IsAdmin:  strings.ToLower(creation.Role) == constant.SystemRoleAdmin,
 		Type:     constant.Local,
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
 		return nil, err
 	}
-	return &dto.User{User: user}, err
+	d := toUserDTO(user)
+	return &d, err
 }
 
 func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, error) {
@@ -126,22 +125,14 @@ func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, err
 		user.Language = update.Language
 	}
 
-	if update.IsActive != "" {
-		user.IsActive, err = strconv.ParseBool(update.IsActive)
-		if err != nil {
-			return nil, err
-		}
+	if update.Role != "" {
+		user.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
 	}
-	if update.IsAdmin != "" {
-		user.IsAdmin, err = strconv.ParseBool(update.IsAdmin)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if err := db.DB.Save(&user).Error; err != nil {
+	if err := db.DB.Save(&user.User).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+	d := toUserDTO(user.User)
+	return &d, nil
 }
 
 func (u userService) Page(num, size int) (page.Page, error) {
@@ -153,7 +144,7 @@ func (u userService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		userDTOs = append(userDTOs, dto.User{User: mo})
+		userDTOs = append(userDTOs, toUserDTO(mo))
 	}
 	page.Total = total
 	page.Items = userDTOs
@@ -294,4 +285,21 @@ func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
 		return err
 	}
 	return nil
+}
+
+func toUserDTO(user model.User) dto.User {
+	u := dto.User{User: user}
+	u.Role = func() string {
+		if u.IsAdmin {
+			return constant.SystemRoleAdmin
+		}
+		return constant.SystemRoleUser
+	}()
+	u.Status = func() string {
+		if u.IsActive {
+			return constant.UserStatusActive
+		}
+		return constant.UserStatusPassive
+	}()
+	return u
 }

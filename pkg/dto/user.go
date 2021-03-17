@@ -4,13 +4,15 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type User struct {
 	model.User
+	Role   string `json:"role"`
+	Status string `json:"status"`
 }
 
 type UserCreate struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
-	IsAdmin  bool   `json:"isAdmin" binding:"required"`
+	Role     string `json:"role" binding:"required"`
 }
 
 type UserPage struct {
@@ -19,11 +21,11 @@ type UserPage struct {
 }
 
 type UserUpdate struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	IsActive string `json:"isActive"`
-	IsAdmin  string `json:"isAdmin"`
-	Language string `json:"language"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
+	Role           string `json:"role"`
+	Language       string `json:"language"`
+	CurrentProject string `json:"currentProject"`
 }
 
 type UserOp struct {
