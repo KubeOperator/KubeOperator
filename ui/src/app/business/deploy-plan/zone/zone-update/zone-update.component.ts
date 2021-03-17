@@ -27,6 +27,7 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     cloudZoneRequest: CloudZoneRequest = new CloudZoneRequest();
     newDatastores: string[] = [];
     cloudTemplates: CloudTemplate[] = [];
+    isSubmitGoing = false;
     @Output() updated = new EventEmitter();
     @ViewChild('editForm') editForm: NgForm;
 
@@ -68,7 +69,6 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     onConfirm() {
-
         if (this.item.provider === 'vSphere' || this.item.provider === 'FusionCompute') {
             if (this.item.cloudVars['datastore'] instanceof Array) {
                 this.item.cloudVars['datastore'] = this.item.cloudVars['datastore'].concat(this.newDatastores);
@@ -77,12 +77,14 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
                 this.item.cloudVars['datastore'] = this.newDatastores;
             }
         }
-
+        this.isSubmitGoing = true;
         this.zoneService.update(this.item.name, this.item).subscribe(res => {
+            this.isSubmitGoing = false;
             this.onCancel();
             this.updated.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.onCancel();
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

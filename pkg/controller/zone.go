@@ -124,7 +124,7 @@ func (z ZoneController) PatchBy(name string) (*dto.Zone, error) {
 	operator := z.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.UPDATE_ZONE, name)
 
-	return z.ZoneService.Update(req)
+	return z.ZoneService.Update(name, req)
 }
 
 func (z ZoneController) PostBatch() error {
