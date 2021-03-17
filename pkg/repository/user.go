@@ -64,7 +64,7 @@ func (u userRepository) Delete(name string) error {
 	if err != nil {
 		return err
 	}
-	return db.DB.Debug().Delete(&user).Error
+	return db.DB.Delete(&user).Error
 }
 
 func (u userRepository) Batch(operation string, items []model.User) error {
