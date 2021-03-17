@@ -17,6 +17,7 @@ export class VmConfigUpdateComponent extends BaseModelDirective<VmConfig> implem
 
     opened = false;
     item: VmConfig = new VmConfig();
+    isSubmitGoing = false;
     @Output() updated = new EventEmitter();
     @ViewChild('vmConfigEditForm', {static: true}) vmConfigEditForm: NgForm;
 
@@ -40,11 +41,14 @@ export class VmConfigUpdateComponent extends BaseModelDirective<VmConfig> implem
     }
 
     onSubmit() {
+        this.isSubmitGoing = true;
         this.vmConfigService.update(this.item.name, this.item).subscribe(data => {
+            this.isSubmitGoing = false;
             this.onCancel();
             this.updated.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

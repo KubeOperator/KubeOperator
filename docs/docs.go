@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -297,9 +297,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -333,9 +331,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -1940,6 +1936,7 @@ var doc = `{
                     "type": "string"
                 },
                 "spec": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -1979,12 +1976,14 @@ var doc = `{
             ],
             "properties": {
                 "backupAccount": {
+                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -2198,18 +2197,9 @@ var doc = `{
         "dto.CredentialUpdate": {
             "type": "object",
             "required": [
-                "id",
-                "name",
-                "type",
-                "username"
+                "type"
             ],
             "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -2349,6 +2339,7 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -2576,6 +2567,7 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -2750,6 +2742,12 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "userId": {
                     "type": "string"
                 }
@@ -2815,11 +2813,6 @@ var doc = `{
         },
         "dto.UserUpdate": {
             "type": "object",
-            "required": [
-                "email",
-                "isAdmin",
-                "name"
-            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -2828,12 +2821,12 @@ var doc = `{
                     "type": "string"
                 },
                 "isActive": {
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "isAdmin": {
-                    "type": "boolean"
+                    "type": "string"
                 },
-                "name": {
+                "language": {
                     "type": "string"
                 }
             }
@@ -2912,6 +2905,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "_": {
+                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "cloudVars": {
@@ -2927,6 +2921,7 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {

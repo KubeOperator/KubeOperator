@@ -2,6 +2,7 @@
 NAME_EXISTS: "Name already exists"
 IP_NOT_EXISTS: "Please fill in the registry IP on the system setting page"
 
+
 #cluster
 CLUSTER_DELETE_FAILED: "can not delete cluster in current state"
 CLUSTER_IS_NOT_RUNNING: "The cluster is not running"
@@ -12,7 +13,8 @@ DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under thi
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
 DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "Default credential cannot be deleted"
 NAME_CHECK_FAILED: "The credential name cannot be the same as the user name"
-
+PASSWORD_CAN_NOT_NULL: "password can not be blank！"
+PRIVATE_KEY_CAN_NOT_NULL: "The private key cannot be blank！"
 
 #host
 HOST_ALREADY_EXISTS: "Host already exists"

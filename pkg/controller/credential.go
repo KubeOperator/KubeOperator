@@ -106,22 +106,22 @@ func (c CredentialController) Delete(name string) error {
 // @Success 200 {object} dto.Credential
 // @Security ApiKeyAuth
 // @Router /backupAccounts/ [patch]
-func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
+func (c CredentialController) PatchBy(name string) (*dto.Credential, error) {
 	var req dto.CredentialUpdate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.UPDATE_CREDENTIALS, name)
 
-	return c.CredentialService.Update(req)
+	return c.CredentialService.Update(name, req)
 }
 
 func (c CredentialController) PostBatch() error {

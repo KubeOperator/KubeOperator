@@ -14,10 +14,9 @@ type SystemRegistryCreate struct {
 }
 
 type SystemRegistryUpdate struct {
-	ID           string `json:"id" validate:"required"`
-	Hostname     string `json:"hostname" validate:"required"`
-	Protocol     string `json:"protocol" validate:"required"`
-	Architecture string `json:"architecture" validate:"required"`
+	ID       string `json:"id" validate:"required"`
+	Hostname string `json:"hostname" validate:"required"`
+	Protocol string `json:"protocol" validate:"required"`
 }
 
 type SystemRegistryBatchOp struct {

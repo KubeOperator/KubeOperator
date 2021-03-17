@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -23,7 +25,7 @@ type CredentialService interface {
 	Delete(name string) error
 	Batch(op dto.CredentialBatchOp) error
 	GetById(id string) (dto.Credential, error)
-	Update(update dto.CredentialUpdate) (dto.Credential, error)
+	Update(name string, update dto.CredentialUpdate) (*dto.Credential, error)
 }
 
 type credentialService struct {
@@ -117,26 +119,39 @@ func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credentia
 	return &dto.Credential{Credential: credential}, nil
 }
 
-func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
+func (c credentialService) Update(name string, update dto.CredentialUpdate) (*dto.Credential, error) {
 
-	password, err := encrypt.StringEncrypt(update.Password)
+	credential, err := c.Get(name)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
-
-	credential := model.Credential{
-		ID:         update.ID,
-		Name:       update.Name,
-		Password:   password,
-		Username:   update.Username,
-		PrivateKey: update.PrivateKey,
-		Type:       update.Type,
+	if update.Username != "" {
+		credential.Username = update.Username
 	}
-	err = c.credentialRepo.Save(&credential)
-	if err != nil {
-		return dto.Credential{}, err
+	credential.Type = update.Type
+	if update.Type == constant.Password {
+		if update.Password == "" {
+			return nil, errors.New("PASSWORD_CAN_NOT_NULL")
+		} else {
+			credential.Password, err = encrypt.StringEncrypt(update.Password)
+			credential.PrivateKey = ""
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
-	return dto.Credential{Credential: credential}, nil
+	if update.Type == constant.PrivateKey {
+		if update.PrivateKey == "" {
+			return nil, errors.New("PRIVATE_KEY_CAN_NOT_NULL")
+		} else {
+			credential.PrivateKey = update.PrivateKey
+			credential.Password = ""
+		}
+	}
+	if err := db.DB.Save(&credential).Error; err != nil {
+		return nil, err
+	}
+	return &credential, nil
 }
 
 func (c credentialService) Delete(name string) error {

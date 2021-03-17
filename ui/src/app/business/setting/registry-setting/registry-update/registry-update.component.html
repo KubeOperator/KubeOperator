@@ -2,14 +2,10 @@
     <h3 class="modal-title">{{'APP_EDIT'|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #registryUpdateForm='ngForm'>
-            <clr-select-container>
-                <label>{{'APP_ARCHITECTURE'|translate}}</label>
-                <select clrSelect [(ngModel)]="item.architecture" name="architecture" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="x86_64">x86_64</option>
-                    <option value="aarch64">aarch64</option>
-                </select>
-            </clr-select-container>
+            <clr-input-container>
+            <label>{{'APP_ARCHITECTURE'|translate}}</label>
+            <input clrInput [size]="32" name="architecture" [(ngModel)]="item.architecture" readonly/>
+            </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_REGISTRY_PROTOCOL'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.protocol" name="protocol" required>

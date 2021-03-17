@@ -20,11 +20,9 @@ type CredentialCreate struct {
 }
 
 type CredentialUpdate struct {
-	ID         string `json:"id" validate:"required"`
-	Name       string `json:"name" validate:"required"`
-	Username   string `json:"username" validate:"required"`
-	Password   string
-	PrivateKey string
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	PrivateKey string `json:"privateKey"`
 	Type       string `json:"type" validate:"required"`
 }
 

@@ -75,7 +75,7 @@
             </form>
             <div class="modal-footer">
                 <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-                <button type="button" class="btn btn-primary" (click)="onConfirm()"
+                <button type="button" class="btn btn-primary" (click)="onConfirm()" [clrLoading]="isSubmitGoing"
                         [disabled]="editForm.invalid">
                     {{'APP_COMMIT'|translate}}
                 </button>
