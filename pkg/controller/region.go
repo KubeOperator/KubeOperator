@@ -98,7 +98,7 @@ func (r RegionController) Post() (*dto.Region, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /regions/{name}/ [delete]
-func (r RegionController) Delete(name string) error {
+func (r RegionController) DeleteBy(name string) error {
 	operator := r.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_REGION, name)
 

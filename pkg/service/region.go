@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -63,7 +64,14 @@ func (r regionService) List() ([]dto.Region, error) {
 		return regionDTOs, err
 	}
 	for _, mo := range mos {
-		regionDTOs = append(regionDTOs, dto.Region{Region: mo})
+		regionDTO := new(dto.Region)
+		m := make(map[string]interface{})
+		regionDTO.Region = mo
+		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+			log.Errorf("regionService Page json.Unmarshal failed, error: %s", err.Error())
+		}
+		regionDTO.RegionVars = m
+		regionDTOs = append(regionDTOs, *regionDTO)
 	}
 	return regionDTOs, err
 }
@@ -95,15 +103,14 @@ func (r regionService) Delete(name string) error {
 		return err
 	}
 
-	regions, err := r.zoneRepo.ListByRegionId(region.ID)
-	if err != nil {
+	var zones []model.Zone
+	if err := db.DB.Where("region_id = ?", region.ID).Find(&zones).Error; err != nil {
 		return err
 	}
-	if len(regions) > 0 {
+	if len(zones) > 0 {
 		return fmt.Errorf(DeleteRegionError)
 	}
-	err = r.regionRepo.Delete(name)
-	if err != nil {
+	if err := db.DB.Delete(&region).Error; err != nil {
 		return err
 	}
 	return nil
