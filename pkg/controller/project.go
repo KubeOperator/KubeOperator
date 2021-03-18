@@ -65,7 +65,7 @@ func (p ProjectController) Get() (page.Page, error) {
 // @Success 200 {object} dto.Project
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [get]
-func (p ProjectController) GetBy(name string) (dto.Project, error) {
+func (p ProjectController) GetBy(name string) (*dto.Project, error) {
 	return p.ProjectService.Get(name)
 }
 
@@ -122,7 +122,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	result, err := p.ProjectService.Update(req)
+	result, err := p.ProjectService.Update(name, req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.UPDATE_PROJECT_INFO, name)
 
-	return &result, nil
+	return result, nil
 }
 
 // Delete Project

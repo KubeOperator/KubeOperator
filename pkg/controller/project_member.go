@@ -30,17 +30,17 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Form projectName
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/members/ [get]
-func (p ProjectMemberController) Get() (page.Page, error) {
+// @Router /project/{project_name}/members/ [get]
+func (p ProjectMemberController) Get() (*page.Page, error) {
+	projectName := p.Ctx.Params().GetString("project")
 	pa, _ := p.Ctx.Values().GetBool("page")
-	projectName := p.Ctx.Values().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.ProjectMemberService.PageByProjectName(num, size, projectName)
+		return p.ProjectMemberService.Page(projectName, num, size)
 	} else {
 		var page page.Page
-		return page, nil
+		return &page, nil
 	}
 }
 

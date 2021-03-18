@@ -4,8 +4,9 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type ProjectMember struct {
 	model.ProjectMember
-	UserName string `json:"userName"`
-	Email    string `json:"email"`
+	Email      string `json:"email"`
+	UserStatus string `json:"userStatus"`
+	UserName   string `json:"userName"`
 }
 
 type ProjectMemberOP struct {

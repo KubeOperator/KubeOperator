@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -14,13 +15,13 @@ var (
 )
 
 type ProjectService interface {
-	Get(name string) (dto.Project, error)
+	Get(name string) (*dto.Project, error)
 	List() ([]dto.Project, error)
 	Page(num, size int, userId string) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
-	Update(creation dto.ProjectUpdate) (dto.Project, error)
+	Update(name string, update dto.ProjectUpdate) (*dto.Project, error)
 }
 
 type projectService struct {
@@ -37,17 +38,17 @@ func NewProjectService() ProjectService {
 	}
 }
 
-func (p projectService) Get(name string) (dto.Project, error) {
+func (p *projectService) Get(name string) (*dto.Project, error) {
 	var projectDTO dto.Project
 	mo, err := p.projectRepo.Get(name)
 	if err != nil {
-		return projectDTO, err
+		return nil, err
 	}
 	projectDTO.Project = mo
-	return projectDTO, err
+	return &projectDTO, err
 }
 
-func (p projectService) List() ([]dto.Project, error) {
+func (p *projectService) List() ([]dto.Project, error) {
 	var projectDTOs []dto.Project
 	mos, err := p.projectRepo.List()
 	if err != nil {
@@ -59,7 +60,7 @@ func (p projectService) List() ([]dto.Project, error) {
 	return projectDTOs, err
 }
 
-func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
+func (p *projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
 
 	old, _ := p.Get(creation.Name)
 	if old.ID != "" {
@@ -95,23 +96,24 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 	return &dto.Project{Project: project}, err
 }
 
-func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) {
+func (p *projectService) Update(name string, update dto.ProjectUpdate) (*dto.Project, error) {
 
-	project := model.Project{
-		BaseModel:   common.BaseModel{},
-		ID:          creation.ID,
-		Name:        creation.Name,
-		Description: creation.Description,
+	var mo model.Project
+	if err := db.DB.Where(model.Project{Name: name}).First(&mo).Error; err != nil {
+		return nil, err
+	}
+	if update.Description != "" {
+		mo.Description = update.Description
+	}
+	err := p.projectRepo.Save(&mo)
+	if err := db.DB.Save(&mo).Error; err != nil {
+		return nil, err
 	}
 
-	err := p.projectRepo.Save(&project)
-	if err != nil {
-		return dto.Project{}, err
-	}
-	return dto.Project{Project: project}, err
+	return &dto.Project{Project: mo}, err
 }
 
-func (p projectService) Page(num, size int, userId string) (page.Page, error) {
+func (p *projectService) Page(num, size int, userId string) (page.Page, error) {
 	var page page.Page
 	var projectDTOS []dto.Project
 	total, mos, err := p.projectRepo.Page(num, size, userId)
@@ -126,7 +128,7 @@ func (p projectService) Page(num, size int, userId string) (page.Page, error) {
 	return page, err
 }
 
-func (p projectService) Delete(name string) error {
+func (p *projectService) Delete(name string) error {
 	err := p.projectRepo.Delete(name)
 	if err != nil {
 		return err
@@ -134,7 +136,7 @@ func (p projectService) Delete(name string) error {
 	return nil
 }
 
-func (p projectService) Batch(op dto.ProjectOp) error {
+func (p *projectService) Batch(op dto.ProjectOp) error {
 	var deleteItems []model.Project
 	for _, item := range op.Items {
 		deleteItems = append(deleteItems, model.Project{

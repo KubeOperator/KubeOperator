@@ -12,8 +12,6 @@ type ProjectCreate struct {
 }
 
 type ProjectUpdate struct {
-	ID          string `json:"id"`
-	Name        string `json:"name" validate:"required"`
 	Description string `json:"description"`
 }
 type ProjectPage struct {

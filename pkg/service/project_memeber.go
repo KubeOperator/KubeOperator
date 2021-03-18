@@ -19,7 +19,7 @@ var (
 )
 
 type ProjectMemberService interface {
-	PageByProjectName(num, size int, projectName string) (page.Page, error)
+	Page(projectName string, num, size int) (*page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
 	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
@@ -40,27 +40,27 @@ func NewProjectMemberService() ProjectMemberService {
 	}
 }
 
-func (p projectMemberService) PageByProjectName(num, size int, projectName string) (page.Page, error) {
+func (p *projectMemberService) Page(projectName string, num, size int) (*page.Page, error) {
 	var page page.Page
 	project, err := p.projectRepo.Get(projectName)
 	if err != nil {
-		return page, err
+		return nil, err
 	}
 	total, mos, err := p.projectMemberRepo.PageByProjectId(num, size, project.ID)
 	if err != nil {
-		return page, err
+		return nil, err
 	}
 
 	var result []dto.ProjectMember
 	for _, mo := range mos {
-		result = append(result, dto.ProjectMember{ProjectMember: mo, UserName: mo.User.Name, Email: mo.User.Email})
+		result = append(result, toProjectMemberDTO(mo))
 	}
 	page.Items = result
 	page.Total = total
-	return page, err
+	return nil, err
 }
 
-func (p projectMemberService) Batch(op dto.ProjectMemberOP) error {
+func (p *projectMemberService) Batch(op dto.ProjectMemberOP) error {
 	var opItems []model.ProjectMember
 	for _, item := range op.Items {
 		id := ""
@@ -92,7 +92,7 @@ func (p projectMemberService) Batch(op dto.ProjectMemberOP) error {
 	return p.projectMemberRepo.Batch(op.Operation, opItems)
 }
 
-func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, error) {
+func (p *projectMemberService) GetUsers(name string) (dto.AddMemberResponse, error) {
 	var result dto.AddMemberResponse
 	var users []model.User
 	err := db.DB.Select("name").Where("is_admin = 0 AND name LIKE ?", "%"+name+"%").Find(&users).Error
@@ -107,8 +107,7 @@ func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, erro
 	return result, nil
 }
 
-func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error) {
-	var projectMember dto.ProjectMember
+func (p *projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error) {
 	user, err := p.userService.Get(request.Username)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
@@ -138,11 +137,11 @@ func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.Proj
 	if err != nil {
 		return nil, err
 	}
-	projectMember.ProjectMember = pm
-	return &projectMember, nil
+	d := toProjectMemberDTO(pm)
+	return &d, nil
 }
 
-func (p projectMemberService) Get(name string, projectName string) (*dto.ProjectMember, error) {
+func (p *projectMemberService) Get(name string, projectName string) (*dto.ProjectMember, error) {
 	u, err := p.userService.Get(name)
 	if err != nil {
 		return nil, err
@@ -160,4 +159,19 @@ func (p projectMemberService) Get(name string, projectName string) (*dto.Project
 	return &dto.ProjectMember{
 		ProjectMember: pm,
 	}, nil
+}
+
+func toProjectMemberDTO(mo model.ProjectMember) dto.ProjectMember {
+	d := dto.ProjectMember{
+		ProjectMember: mo,
+		UserName:      mo.User.Name,
+		UserStatus: func() string {
+			if mo.User.IsActive {
+				return constant.UserStatusActive
+			}
+			return constant.UserStatusPassive
+		}(),
+		Email: mo.User.Email,
+	}
+	return d
 }

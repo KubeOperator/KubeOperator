@@ -87,6 +87,9 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		return nil, UserNameExist
 	}
 
+	if creation.Email == "" {
+		return nil, EmailNotMatch
+	}
 	var userEmail model.User
 	db.DB.Where("email = ?", creation.Email).First(&userEmail)
 	if userEmail.ID != "" {
