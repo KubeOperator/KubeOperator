@@ -63,7 +63,14 @@ func (r regionService) List() ([]dto.Region, error) {
 		return regionDTOs, err
 	}
 	for _, mo := range mos {
-		regionDTOs = append(regionDTOs, dto.Region{Region: mo})
+		regionDTO := new(dto.Region)
+		m := make(map[string]interface{})
+		regionDTO.Region = mo
+		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+			log.Errorf("regionService Page json.Unmarshal failed, error: %s", err.Error())
+		}
+		regionDTO.RegionVars = m
+		regionDTOs = append(regionDTOs, *regionDTO)
 	}
 	return regionDTOs, err
 }
