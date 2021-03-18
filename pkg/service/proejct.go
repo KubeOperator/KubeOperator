@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -78,21 +77,21 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 		return nil, err
 	}
 
-	user, err := p.userService.Get(creation.UserName)
-	if err != nil {
-		return nil, err
-	}
-	if !user.IsAdmin {
-		projectMember := model.ProjectMember{
-			ProjectID: project.ID,
-			UserID:    user.ID,
-			Role:      constant.ProjectRoleProjectManager,
-		}
-		err := p.projectMemberRepo.Create(&projectMember)
-		if err != nil {
-			return nil, err
-		}
-	}
+	//user, err := p.userService.Get(creation.UserName)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//if !user.IsAdmin {
+	//	projectMember := model.ProjectMember{
+	//		ProjectID: project.ID,
+	//		UserID:    user.ID,
+	//		Role:      constant.ProjectRoleProjectManager,
+	//	}
+	//	err := p.projectMemberRepo.Create(&projectMember)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//}
 	return &dto.Project{Project: project}, err
 }
 

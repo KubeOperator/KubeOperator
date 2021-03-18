@@ -141,7 +141,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [delete]
-func (p ProjectController) Delete(name string) error {
+func (p ProjectController) DeleteBy(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_PROJECT, name)
 
