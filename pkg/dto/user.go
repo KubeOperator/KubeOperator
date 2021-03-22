@@ -4,8 +4,9 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type User struct {
 	model.User
-	Role   string `json:"role"`
-	Status string `json:"status"`
+	Role           string `json:"role"`
+	Status         string `json:"status"`
+	CurrentProject string `json:"currentProject"`
 }
 
 type UserCreate struct {

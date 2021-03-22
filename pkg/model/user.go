@@ -25,7 +25,7 @@ type User struct {
 	common.BaseModel
 	ID               string  `json:"-" gorm:"type:varchar(64)"`
 	CurrentProjectID string  `json:"-" gorm:"type:varchar(64)"`
-	CurrentProject   Project `gorm:"save_associations:false"`
+	CurrentProject   Project `json:"-" gorm:"save_associations:false"`
 	Name             string  `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Password         string  `json:"password" gorm:"type:varchar(256)"`
 	Email            string  `json:"email" gorm:"type:varchar(256);not null;unique"`

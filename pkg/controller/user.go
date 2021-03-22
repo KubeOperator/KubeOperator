@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,22 +31,46 @@ func NewUserController() *UserController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /users/ [get]
-func (u UserController) Get() (page.Page, error) {
+func (u *UserController) Get() (*page.Page, error) {
 
 	p, _ := u.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return u.UserService.Page(num, size)
+		return u.UserService.Page(num, size, condition.TODO())
 	} else {
-		var page page.Page
-		items, err := u.UserService.List()
+		var p page.Page
+		items, err := u.UserService.List(condition.TODO())
 		if err != nil {
-			return page, err
+			return &p, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
+}
+
+func (u *UserController) PostSearch() (*page.Page, error) {
+	var conditions condition.Conditions
+	if u.Ctx.GetContentLength() > 0 {
+		if err := u.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	p, _ := u.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return u.UserService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := u.UserService.List(conditions)
+		if err != nil {
+			return &p, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
@@ -58,7 +83,7 @@ func (u UserController) Get() (page.Page, error) {
 // @Success 200 {object} dto.User
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [get]
-func (u UserController) GetBy(name string) (*dto.User, error) {
+func (u *UserController) GetBy(name string) (*dto.User, error) {
 	return u.UserService.Get(name)
 }
 
@@ -72,7 +97,7 @@ func (u UserController) GetBy(name string) (*dto.User, error) {
 // @Success 200 {object} dto.Host
 // @Security ApiKeyAuth
 // @Router /users/ [post]
-func (u UserController) Post() (*dto.User, error) {
+func (u *UserController) Post() (*dto.User, error) {
 	var req dto.UserCreate
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -93,7 +118,7 @@ func (u UserController) Post() (*dto.User, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [delete]
-func (u UserController) DeleteBy(name string) error {
+func (u *UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
 	kolog.Save(operator, constant.DELETE_USER, name)
 
@@ -110,7 +135,7 @@ func (u UserController) DeleteBy(name string) error {
 // @Success 200 {object} dto.User
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [patch]
-func (u UserController) PatchBy(name string) (*dto.User, error) {
+func (u *UserController) PatchBy(name string) (*dto.User, error) {
 	var req dto.UserUpdate
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -132,7 +157,7 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	return user, err
 }
 
-func (u UserController) PostBatch() error {
+func (u *UserController) PostBatch() error {
 	var req dto.UserOp
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -158,7 +183,7 @@ func (u UserController) PostBatch() error {
 	return err
 }
 
-func (u UserController) PostChangePassword() error {
+func (u *UserController) PostChangePassword() error {
 	var req dto.UserChangePassword
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {

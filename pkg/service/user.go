@@ -2,19 +2,20 @@ package service
 
 import (
 	"errors"
-	"math/rand"
-	"strings"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/jinzhu/gorm"
+	"math/rand"
+	"strings"
 )
 
 var (
@@ -32,9 +33,9 @@ var (
 
 type UserService interface {
 	Get(name string) (*dto.User, error)
-	List() ([]dto.User, error)
+	List(conditions condition.Conditions) ([]dto.User, error)
 	Create(creation dto.UserCreate) (*dto.User, error)
-	Page(num, size int) (page.Page, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Update(name string, update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
@@ -55,28 +56,63 @@ func NewUserService() UserService {
 	}
 }
 
-func (u userService) Get(name string) (*dto.User, error) {
-	mo, err := u.userRepo.Get(name)
-	if err != nil {
+func (u *userService) Get(name string, ) (*dto.User, error) {
+	var mo model.User
+	if err := db.DB.Where(model.User{Name: name}).
+		Preload("CurrentProject").
+		First(&mo).Error; err != nil {
 		return nil, err
 	}
 	d := toUserDTO(mo)
-	return &d, err
+	return &d, nil
 }
 
-func (u userService) List() ([]dto.User, error) {
+func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) {
 	var userDTOS []dto.User
-	mos, err := u.userRepo.List()
+	var mos []model.User
+
+	db, err := dbUtil.WithConditions(model.User{}, conditions)
 	if err != nil {
-		return userDTOS, err
+		return nil, err
+	}
+	if err := db.Order("name").
+		Preload("CurrentProject").Find(&mos).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range mos {
 		userDTOS = append(userDTOS, toUserDTO(mo))
 	}
-	return userDTOS, err
+	return userDTOS, nil
 }
 
-func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
+func (u *userService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+	var (
+		p        page.Page
+		userDTOs []dto.User
+		mos      []model.User
+	)
+	db, err := dbUtil.WithConditions(model.User{}, conditions)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.
+		Count(&p.Total).
+		Order("name").
+		Offset((num - 1) * size).
+		Limit(size).
+		Preload("CurrentProject").
+		Find(&mos).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range mos {
+		userDTOs = append(userDTOs, toUserDTO(mo))
+	}
+	p.Items = userDTOs
+	return &p, nil
+}
+
+func (u *userService) Create(creation dto.UserCreate) (*dto.User, error) {
 
 	if creation.Name == creation.Password {
 		return nil, NamePwdFailed
@@ -117,48 +153,42 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 }
 
 func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, error) {
-	user, err := u.Get(name)
-	if err != nil {
+	var mo model.User
+	if err := db.DB.Where(model.User{Name: name}).First(&mo).Error; err != nil {
 		return nil, err
 	}
 	if update.Email != "" {
-		user.Name = update.Email
+		mo.Email = update.Email
 	}
 	if update.Language != "" {
-		user.Language = update.Language
+		mo.Language = update.Language
 	}
 
 	if update.Role != "" {
-		user.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
+		mo.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
 	}
-	if err := db.DB.Save(&user.User).Error; err != nil {
+
+	if update.CurrentProject != "" {
+		var p model.Project
+		if err := db.DB.Where(model.Project{Name: update.CurrentProject}).First(&p).Error; err != nil {
+			return nil, err
+		}
+		mo.CurrentProjectID = p.ID
+		mo.CurrentProject = p
+	}
+
+	if err := db.DB.Save(&mo).Error; err != nil {
 		return nil, err
 	}
-	d := toUserDTO(user.User)
+	d := toUserDTO(mo)
 	return &d, nil
 }
 
-func (u userService) Page(num, size int) (page.Page, error) {
-
-	var page page.Page
-	var userDTOs []dto.User
-	total, mos, err := u.userRepo.Page(num, size)
-	if err != nil {
-		return page, err
-	}
-	for _, mo := range mos {
-		userDTOs = append(userDTOs, toUserDTO(mo))
-	}
-	page.Total = total
-	page.Items = userDTOs
-	return page, err
-}
-
-func (u userService) Delete(name string) error {
+func (u *userService) Delete(name string) error {
 	return u.userRepo.Delete(name)
 }
 
-func (u userService) Batch(op dto.UserOp) error {
+func (u *userService) Batch(op dto.UserOp) error {
 	var deleteItems []model.User
 	for _, item := range op.Items {
 		deleteItems = append(deleteItems, model.User{
@@ -169,7 +199,7 @@ func (u userService) Batch(op dto.UserOp) error {
 	return u.userRepo.Batch(op.Operation, deleteItems)
 }
 
-func (u userService) ChangePassword(ch dto.UserChangePassword) error {
+func (u *userService) ChangePassword(ch dto.UserChangePassword) error {
 	user, err := u.userRepo.Get(ch.Name)
 	if err != nil {
 		return err
@@ -195,10 +225,10 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 	return err
 }
 
-func (u userService) UserAuth(name string, password string) (user *model.User, err error) {
+func (u *userService) UserAuth(name string, password string) (user *model.User, err error) {
 	var dbUser model.User
-	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
-		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {
+	if db.DB.Where("name = ?", name).Preload("CurrentProject").First(&dbUser).RecordNotFound() {
+		if db.DB.Where("email = ?", name).Preload("CurrentProject").First(&dbUser).RecordNotFound() {
 			return nil, NameOrPasswordErr
 		}
 	}
@@ -239,7 +269,7 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 	return &dbUser, nil
 }
 
-func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
+func (u *userService) ResetPassword(fp dto.UserForgotPassword) error {
 	user, err := u.userRepo.Get(fp.Username)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
@@ -304,5 +334,6 @@ func toUserDTO(user model.User) dto.User {
 		}
 		return constant.UserStatusPassive
 	}()
+	u.CurrentProject = user.CurrentProject.Name
 	return u
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -96,6 +97,8 @@ func (s *SessionController) Delete() error {
 	return nil
 }
 
+//TODO: 报错信息没有翻译
+
 func (s *SessionController) Get() (*dto.Profile, error) {
 	session := constant.Sess.Start(s.Ctx)
 	user := session.Get(constant.SessionUserKey)
@@ -106,6 +109,13 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 	if !ok {
 		return nil, errors.New("")
 	}
+	// 重新查询用户,被删除的用户要退出登陆
+	var mo model.User
+	if err := db.DB.Model(model.User{}).Where(&model.User{ID: p.User.UserId}).Preload("CurrentProject").First(&mo).Error; err != nil {
+		return nil, err
+	}
+	p.User = toSessionUser(mo)
+	session.Set(constant.SessionUserKey, p)
 	return p, nil
 }
 
@@ -146,6 +156,7 @@ func toSessionUser(u model.User) dto.SessionUser {
 			}
 			return []string{}
 		}(),
+		CurrentProject: u.CurrentProject.Name,
 	}
 }
 
