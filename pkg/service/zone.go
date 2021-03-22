@@ -113,9 +113,11 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 }
 
 func (z zoneService) Delete(name string) error {
-
-	err := z.zoneRepo.Delete(name)
+	zone, err := z.zoneRepo.Get(name)
 	if err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&zone).Error; err != nil {
 		return err
 	}
 	return nil
