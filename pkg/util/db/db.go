@@ -12,6 +12,15 @@ func WithConditions(p interface{}, conditions condition.Conditions) (*gorm.DB, e
 
 	db := dbConfig.DB.Model(p)
 	if !conditions.IsZero() {
+		val, ok := conditions["quick"]
+		if ok {
+			for _, f := range db.NewScope(p).GetStructFields() {
+				if !strings.Contains(f.DBName, "id") && f.IsNormal {
+					db = db.Or(fmt.Sprintf("%s LIKE ?", f.DBName), "%"+fmt.Sprintf("%v", val.Value)+"%")
+				}
+			}
+			return db, nil
+		}
 		for _, v := range conditions {
 			switch strings.ToLower(v.Operator) {
 			case "like":
