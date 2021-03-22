@@ -102,7 +102,7 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /zones/{name}/ [delete]
-func (z ZoneController) Delete(name string) error {
+func (z ZoneController) DeleteBy(name string) error {
 	operator := z.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_ZONE, name)
 
