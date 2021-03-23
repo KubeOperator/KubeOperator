@@ -70,13 +70,14 @@ func (u *userService) Get(name string, ) (*dto.User, error) {
 func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) {
 	var userDTOS []dto.User
 	var mos []model.User
+	d := db.DB.Model(model.User{})
+	if err := dbUtil.WithConditions(&d, conditions); err != nil {
 
-	db, err := dbUtil.WithConditions(model.User{}, conditions)
-	if err != nil {
 		return nil, err
 	}
-	if err := db.Order("name").
-		Preload("CurrentProject").Find(&mos).Error; err != nil {
+	if err := d.Order("name").
+		Preload("CurrentProject").
+		Find(&mos).Error; err != nil {
 		return nil, err
 	}
 	for _, mo := range mos {
@@ -91,12 +92,11 @@ func (u *userService) Page(num, size int, conditions condition.Conditions) (*pag
 		userDTOs []dto.User
 		mos      []model.User
 	)
-	db, err := dbUtil.WithConditions(model.User{}, conditions)
-	if err != nil {
+	d := db.DB.Model(model.User{})
+	if err := dbUtil.WithConditions(&d, conditions); err != nil {
 		return nil, err
 	}
-
-	if err := db.
+	if err := d.
 		Count(&p.Total).
 		Order("name").
 		Offset((num - 1) * size).

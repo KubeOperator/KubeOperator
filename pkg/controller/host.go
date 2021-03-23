@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"io/ioutil"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -9,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	sessionUtil "github.com/KubeOperator/KubeOperator/pkg/util/session"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -40,23 +42,25 @@ func NewHostController() *HostController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /hosts/ [get]
-func (h HostController) Get() (page.Page, error) {
-
+func (h *HostController) Get() (*page.Page, error) {
 	p, _ := h.Ctx.Values().GetBool("page")
+	profile, err := sessionUtil.GetUser(h.Ctx)
+	if err != nil {
+		return nil, err
+	}
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return h.HostService.Page(num, size)
+		return h.HostService.Page(num, size, profile.User.CurrentProject, condition.TODO())
 	} else {
-		var page page.Page
-		projectName := h.Ctx.URLParam("projectName")
-		items, err := h.HostService.List(projectName)
+		var p page.Page
+		items, err := h.HostService.List(profile.User.CurrentProject, condition.TODO())
 		if err != nil {
-			return page, err
+			return &p, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
@@ -69,13 +73,36 @@ func (h HostController) Get() (page.Page, error) {
 // @Success 200 {object} dto.Host
 // @Security ApiKeyAuth
 // @Router /hosts/{name}/ [get]
-func (h HostController) GetBy(name string) (*dto.Host, error) {
-	ho, err := h.HostService.Get(name)
+func (h *HostController) GetBy(name string) (*dto.Host, error) {
+	return h.HostService.Get(name)
+}
+
+func (h *HostController) PostSearch() (*page.Page, error) {
+	var conditions condition.Conditions
+	profile, err := sessionUtil.GetUser(h.Ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &ho, nil
-
+	if h.Ctx.GetContentLength() > 0 {
+		if err := h.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	p, _ := h.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return h.HostService.Page(num, size, profile.User.CurrentProject, conditions)
+	} else {
+		var p page.Page
+		items, err := h.HostService.List(profile.User.CurrentProject, conditions)
+		if err != nil {
+			return &p, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
 }
 
 // Create Host
@@ -88,7 +115,7 @@ func (h HostController) GetBy(name string) (*dto.Host, error) {
 // @Success 200 {object} dto.Host
 // @Security ApiKeyAuth
 // @Router /hosts/ [post]
-func (h HostController) Post() (*dto.Host, error) {
+func (h *HostController) Post() (*dto.Host, error) {
 	var req dto.HostCreate
 	err := h.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -122,7 +149,7 @@ func (h HostController) Post() (*dto.Host, error) {
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.CREATE_HOST, req.Name)
 
-	return &item, nil
+	return item, nil
 }
 
 // Delete Host
@@ -133,14 +160,14 @@ func (h HostController) Post() (*dto.Host, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/{name}/ [delete]
-func (h HostController) DeleteBy(name string) error {
+func (h *HostController) DeleteBy(name string) error {
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_HOST, name)
 
 	return h.HostService.Delete(name)
 }
 
-func (h HostController) PostSync() error {
+func (h *HostController) PostSync() error {
 	var req []dto.HostSync
 	err := h.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -157,7 +184,7 @@ func (h HostController) PostSync() error {
 	return h.HostService.SyncList(req)
 }
 
-func (h HostController) PostBatch() error {
+func (h *HostController) PostBatch() error {
 	var req dto.HostOp
 	err := h.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -191,7 +218,7 @@ func (h HostController) PostBatch() error {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/template/ [get]
-func (h HostController) GetTemplate() error {
+func (h *HostController) GetTemplate() error {
 	err := h.HostService.DownloadTemplateFile()
 	if err != nil {
 		return err
@@ -211,7 +238,7 @@ func (h HostController) GetTemplate() error {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/upload/ [post]
-func (h HostController) PostUpload() error {
+func (h *HostController) PostUpload() error {
 	f, _, err := h.Ctx.FormFile("file")
 	if err != nil {
 		return err
