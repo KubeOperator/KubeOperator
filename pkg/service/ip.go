@@ -21,6 +21,7 @@ type IpService interface {
 	Batch(op dto.IpOp) error
 	Update(update dto.IpUpdate) (*dto.Ip, error)
 	Sync(ipPoolName string) error
+	Delete(address string) error
 }
 
 type ipService struct {
@@ -158,6 +159,17 @@ func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 	}
 	tx.Commit()
 	return &dto.Ip{Ip: ip}, err
+}
+
+func (i ipService) Delete(address string) error {
+	ip, err := i.Get(address)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&ip).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i ipService) Sync(ipPoolName string) error {

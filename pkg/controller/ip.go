@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -115,4 +116,18 @@ func (i IpController) PostSync() error {
 		return err
 	}
 	return i.IpService.Sync(req.IpPoolName)
+}
+
+// Delete Ip
+// @Tags ips
+// @Summary Delete a Ip
+// @Description delete a ip by address
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /ippools/{name}/ips/{address} [delete]
+func (i IpController) DeleteBy(address string) error {
+	operator := i.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_IP, address)
+	return i.IpService.Delete(address)
 }
