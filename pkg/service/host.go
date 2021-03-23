@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -42,14 +43,16 @@ type HostService interface {
 }
 
 type hostService struct {
-	hostRepo       repository.HostRepository
-	credentialRepo repository.CredentialRepository
+	hostRepo          repository.HostRepository
+	credentialRepo    repository.CredentialRepository
+	credentialService CredentialService
 }
 
 func NewHostService() HostService {
 	return &hostService{
-		hostRepo:       repository.NewHostRepository(),
-		credentialRepo: repository.NewCredentialRepository(),
+		hostRepo:          repository.NewHostRepository(),
+		credentialRepo:    repository.NewCredentialRepository(),
+		credentialService: NewCredentialService(),
 	}
 }
 
@@ -83,7 +86,7 @@ func (h *hostService) List(projectName string, conditions condition.Conditions) 
 	)
 
 	d := db.DB.Model(model.Host{})
-	if err := dbUtil.WithConditions(&d, conditions); err != nil {
+	if err := dbUtil.WithConditions(&d, model.Host{}, conditions); err != nil {
 		return nil, err
 	}
 	if projectName != "" {
@@ -115,7 +118,7 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		mos      []model.Host
 	)
 	d := db.DB.Model(model.Host{})
-	if err := dbUtil.WithConditions(&d, conditions); err != nil {
+	if err := dbUtil.WithConditions(&d, model.Host{}, conditions); err != nil {
 		return nil, err
 	}
 	if projectName != "" {
@@ -123,7 +126,6 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 			return nil, err
 		}
 	}
-
 	if err := d.
 		Count(&p.Total).
 		Order("name").
@@ -145,35 +147,61 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 }
 
 func (h *hostService) Delete(name string) error {
-	err := h.hostRepo.Delete(name)
-	if err != nil {
+	var host model.Host
+	if err := db.DB.Where(model.Host{Name: name}).First(&host).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&host).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
-
-	credential, err := repository.NewCredentialRepository().GetById(creation.CredentialID)
-	if err != nil {
-		return &dto.Host{}, err
+	tx := db.DB.Begin()
+	var credential model.Credential
+	if creation.CredentialID != "" {
+		if err := db.DB.Where(model.Credential{ID: creation.CredentialID}).First(&credential).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		var password string
+		if creation.Credential.Password != "" {
+			p, err := encrypt.StringEncrypt(creation.Credential.Password)
+			if err != nil {
+				return nil, err
+			}
+			password = p
+		}
+		c := model.Credential{
+			Name:       creation.Credential.Name,
+			Password:   password,
+			Username:   creation.Credential.Username,
+			PrivateKey: creation.Credential.PrivateKey,
+			Type:       creation.Credential.Type,
+		}
+		if err := tx.Create(&c).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		credential = c
 	}
 	host := model.Host{
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
 		Ip:           creation.Ip,
 		Port:         creation.Port,
-		CredentialID: creation.CredentialID,
+		CredentialID: credential.ID,
 		Credential:   credential,
 		Status:       constant.ClusterInitializing,
 	}
 
-	err = h.hostRepo.Save(&host)
-	if err != nil {
-		return &dto.Host{}, err
+	if err := tx.Create(&host).Error; err != nil {
+		return nil, err
 	}
-	go h.RunGetHostConfig(&host)
-	return &dto.Host{Host: host}, err
+	tx.Commit()
+	//go h.RunGetHostConfig(&host)
+	return &dto.Host{Host: host}, nil
 }
 
 func (h *hostService) SyncList(hosts []dto.HostSync) error {

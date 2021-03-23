@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"io/ioutil"
 
@@ -127,21 +126,21 @@ func (h *HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	repos, err := h.SystemSettingService.GetLocalIPs()
-	isExit := false
-	for _, repo := range repos {
-		if repo.Hostname == req.Ip {
-			isExit = true
-		}
-	}
-	if isExit {
-		return nil, errors.New("IS_LOCAL_HOST")
-	}
-	item, _ := h.HostService.Get(req.Name)
-	if item.ID != "" {
-		return nil, errors.New(HostAlreadyExistsErr)
-	}
-	item, err = h.HostService.Create(req)
+	//repos, err := h.SystemSettingService.GetLocalIPs()
+	//isExit := false
+	//for _, repo := range repos {
+	//	if repo.Hostname == req.Ip {
+	//		isExit = true
+	//	}
+	//}
+	//if isExit {
+	//	return nil, errors.New("IS_LOCAL_HOST")
+	//}
+	//item, _ := h.HostService.Get(req.Name)
+	//if item.ID != "" {
+	//	return nil, errors.New(HostAlreadyExistsErr)
+	//}
+	item, err := h.HostService.Create(req)
 	if err != nil {
 		return nil, err
 	}

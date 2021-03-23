@@ -40,13 +40,13 @@ func WithProjectResource(db **gorm.DB, projectName string, resourceType string) 
 	return nil
 }
 
-func WithConditions(db **gorm.DB, conditions condition.Conditions) error {
+func WithConditions(db **gorm.DB, model interface{}, conditions condition.Conditions) error {
 	if !conditions.IsZero() {
 		val, ok := conditions["quick"]
 		if ok {
-			for _, f := range (*db).NewScope(*db).GetStructFields() {
-				if !strings.Contains(f.Name, "id") && f.IsNormal {
-					*db = (*db).Or(fmt.Sprintf("%s LIKE ?", f.Name), "%"+fmt.Sprintf("%v", val.Value)+"%")
+			for _, f := range (*db).NewScope(model).GetStructFields() {
+				if !strings.Contains(strings.ToLower(f.Name), "id") && f.IsNormal {
+					*db = (*db).Or(fmt.Sprintf("%s LIKE ?", f.DBName), "%"+fmt.Sprintf("%v", val.Value)+"%")
 				}
 			}
 			return nil

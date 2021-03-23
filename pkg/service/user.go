@@ -71,7 +71,7 @@ func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) 
 	var userDTOS []dto.User
 	var mos []model.User
 	d := db.DB.Model(model.User{})
-	if err := dbUtil.WithConditions(&d, conditions); err != nil {
+	if err := dbUtil.WithConditions(&d, model.User{}, conditions); err != nil {
 
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (u *userService) Page(num, size int, conditions condition.Conditions) (*pag
 		mos      []model.User
 	)
 	d := db.DB.Model(model.User{})
-	if err := dbUtil.WithConditions(&d, conditions); err != nil {
+	if err := dbUtil.WithConditions(&d, model.User{}, conditions); err != nil {
 		return nil, err
 	}
 	if err := d.
