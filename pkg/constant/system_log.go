@@ -68,6 +68,8 @@ const (
 	CREATE_VM_CONFIG = "添加虚拟机配置|Create virtual machine configuration"
 	UPDATE_VM_CONFIG = "修改虚拟机配置信息|Update virtual machine configuration information"
 	DELETE_VM_CONFIG = "删除虚拟机配置|Delete virtual machine configuration"
+	CREATE_IP_POOL   = "添加IP池|Create Ip Pool"
+	DELETE_IP_POOL   = "删除IP池|Delete IP Pool"
 
 	CREATE_USER          = "添加用户|Create user"
 	UPDATE_USER          = "修改用户信息|Update user information"

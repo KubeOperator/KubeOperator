@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -73,6 +74,9 @@ func (i IpPoolController) Post() (*dto.IpPool, error) {
 	if item.ID != "" {
 		return nil, errors.New("NAME_EXISTS")
 	}
+	operator := i.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_IP_POOL, "")
+
 	item, err = i.IpPoolService.Create(req)
 	if err != nil {
 		return nil, err
@@ -105,4 +109,11 @@ func (i IpPoolController) PostBatch() error {
 // @Router /ippools/{name} [get]
 func (i IpPoolController) GetBy(name string) (dto.IpPool, error) {
 	return i.IpPoolService.Get(name)
+}
+
+func (i IpPoolController) DeleteBy(name string) error {
+	operator := i.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_IP_POOL, name)
+
+	return i.IpPoolService.Delete(name)
 }

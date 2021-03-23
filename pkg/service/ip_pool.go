@@ -16,6 +16,7 @@ type IpPoolService interface {
 	Create(creation dto.IpPoolCreate) (dto.IpPool, error)
 	Batch(op dto.IpPoolOp) error
 	List() ([]dto.IpPool, error)
+	Delete(name string) error
 }
 
 type ipPoolService struct {
@@ -118,6 +119,17 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 	tx.Commit()
 	ipPoolDTO.IpPool = ipPool
 	return ipPoolDTO, err
+}
+
+func (i ipPoolService) Delete(name string) error {
+	ipPool, err := i.Get(name)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&ipPool).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i ipPoolService) Batch(op dto.IpPoolOp) error {

@@ -99,7 +99,7 @@ func (p PlanController) Post() (*dto.Plan, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /plans/{name}/ [delete]
-func (p PlanController) Delete(name string) error {
+func (p PlanController) DeleteBy(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_PLAN, name)
 
