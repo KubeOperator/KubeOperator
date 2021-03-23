@@ -22,6 +22,7 @@ type VmConfigService interface {
 	Create(creation dto.VmConfigCreate) (*dto.VmConfig, error)
 	Update(name string, creation dto.VmConfigUpdate) (*dto.VmConfig, error)
 	Get(name string) (*dto.VmConfig, error)
+	Delete(name string) error
 }
 
 type vmConfigService struct {
@@ -132,4 +133,15 @@ func (v vmConfigService) Update(name string, update dto.VmConfigUpdate) (*dto.Vm
 		return nil, err
 	}
 	return vmConfig, err
+}
+
+func (v vmConfigService) Delete(name string) error {
+	vmConfig, err := v.Get(name)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&vmConfig).Error; err != nil {
+		return err
+	}
+	return nil
 }

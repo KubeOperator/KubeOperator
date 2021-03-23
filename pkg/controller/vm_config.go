@@ -30,7 +30,7 @@ func NewVmConfigController() *VmConfigController {
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /vm/configs/ [get]
+// @Router /vmconfigs/ [get]
 func (v VmConfigController) Get() (page.Page, error) {
 	pa, _ := v.Ctx.Values().GetBool("page")
 	if pa {
@@ -58,7 +58,7 @@ func (v VmConfigController) Get() (page.Page, error) {
 // @Param request body dto.VmConfigCreate true "request"
 // @Success 200 {object} dto.VmConfig
 // @Security ApiKeyAuth
-// @Router /vm/config/ [post]
+// @Router /vmconfigs/ [post]
 func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	var req dto.VmConfigCreate
 	err := v.Ctx.ReadJSON(&req)
@@ -87,7 +87,7 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 // @Param request body dto.VmConfigUpdate true "request"
 // @Success 200 {object} dto.VmConfig
 // @Security ApiKeyAuth
-// @Router /vm/config/{name}/ [patch]
+// @Router /vmconfigs/{name}/ [patch]
 func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	var req dto.VmConfigUpdate
 	err := v.Ctx.ReadJSON(&req)
@@ -109,6 +109,20 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	go kolog.Save(operator, constant.UPDATE_VM_CONFIG, name)
 
 	return result, nil
+}
+
+// Delete VmConfig
+// @Tags vmConfigs
+// @Summary Delete a vmConfig
+// @Description delete a vmConfig by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /vmconfigs/{name}/ [delete]
+func (v VmConfigController) DeleteBy(name string) error {
+	operator := v.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_VM_CONFIG, name)
+	return v.VmConfigService.Delete(name)
 }
 
 func (v VmConfigController) PostBatch() error {
