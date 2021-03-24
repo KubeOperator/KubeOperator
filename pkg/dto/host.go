@@ -13,10 +13,11 @@ type Host struct {
 }
 
 type HostCreate struct {
-	Name         string `json:"name" validate:"required"`
-	Ip           string `json:"ip" validate:"required"`
-	Port         int    `json:"port" validate:"required"`
-	CredentialID string `json:"credentialId" validate:"required"`
+	Name         string           `json:"name" validate:"required"`
+	Ip           string           `json:"ip" validate:"required"`
+	Port         int              `json:"port" validate:"required"`
+	CredentialID string           `json:"credentialId"`
+	Credential   CredentialCreate `json:"credential"`
 }
 
 type HostPage struct {
