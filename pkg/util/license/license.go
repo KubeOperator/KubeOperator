@@ -10,13 +10,7 @@ import (
 	"strings"
 )
 
-type Response struct {
-	Status  string      `json:"status"`
-	License dto.License `json:"license"`
-	Message string      `json:"message"`
-}
-
-func Parse(content string) (*Response, error) {
+func Parse(content string) (*dto.License, error) {
 	fs, err := ioutil.ReadDir("/usr/local/bin")
 
 	if err != nil {
@@ -41,7 +35,7 @@ func Parse(content string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	var resp Response
+	var resp dto.License
 	err = json.Unmarshal(opBytes, &resp)
 	if err != nil {
 		return nil, err

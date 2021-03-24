@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/license"
 )
@@ -36,28 +38,32 @@ func (l *licenseService) Save(content string) (*dto.License, error) {
 	if resp.Status != "valid" {
 		return nil, verificationError
 	}
-	err = l.licenseRepo.Save(content)
-	if err != nil {
+	var lcs model.License
+	notFound := db.DB.First(&lcs).RecordNotFound()
+	if notFound {
+		lcs.Content = content
+		if err := db.DB.Create(&lcs).Error; err != nil {
+			return nil, err
+		}
+	}
+	lcs.Content = content
+	if err := db.DB.Save(&lcs).Error; err != nil {
 		return nil, err
 	}
-	return &resp.License, nil
+	return resp, nil
 }
 
 func (l *licenseService) Get() (*dto.License, error) {
 	var ls dto.License
 	lc, err := l.licenseRepo.Get()
 	if err != nil {
-		return nil, licenseNotFound
-	}
-	if lc.ID == "" {
+		ls.Status = "invalid"
+		ls.Message = licenseNotFound.Error()
 		return &ls, nil
 	}
 	resp, err := license.Parse(lc.Content)
 	if err != nil {
 		return nil, formatLicenseError
 	}
-	ls = resp.License
-	ls.Status = resp.Status
-	ls.Message = resp.Message
-	return &ls, err
+	return resp, err
 }
