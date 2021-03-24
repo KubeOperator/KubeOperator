@@ -104,7 +104,7 @@ func (i IpController) Patch() (*dto.Ip, error) {
 	return i.IpService.Update(req)
 }
 
-func (i IpController) PostSync() error {
+func (i IpController) PatchSync() error {
 	ipPoolName := i.Ctx.Params().Get("name")
 	return i.IpService.Sync(ipPoolName)
 }
