@@ -107,7 +107,6 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 		IpStart:    creation.IpStart,
 		IpEnd:      creation.IpEnd,
 		Gateway:    creation.Gateway,
-		Subnet:     creation.Subnet,
 		IpPoolName: ipPool.Name,
 		DNS1:       creation.DNS1,
 		DNS2:       creation.DNS2,

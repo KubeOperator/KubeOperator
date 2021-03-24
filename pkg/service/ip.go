@@ -51,7 +51,7 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	if err := tx.Where("name = ?", create.IpPoolName).First(&ipPool).Error; err != nil {
 		return err
 	}
-	cs := strings.Split(create.Subnet, "/")
+	cs := strings.Split(ipPool.Subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
 	startIp := strings.Replace(create.IpStart, " ", "", -1)
 	endIp := strings.Replace(create.IpEnd, " ", "", -1)
