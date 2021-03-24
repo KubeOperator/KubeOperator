@@ -25,7 +25,3 @@ type IpUpdate struct {
 	Address   string `json:"address"`
 	Operation string `json:"operation"`
 }
-
-type IpSync struct {
-	IpPoolName string `json:"ipPoolName"`
-}

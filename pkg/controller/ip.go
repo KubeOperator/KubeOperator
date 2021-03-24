@@ -105,17 +105,8 @@ func (i IpController) Patch() (*dto.Ip, error) {
 }
 
 func (i IpController) PostSync() error {
-	var req dto.IpSync
-	err := i.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
-		return err
-	}
-	return i.IpService.Sync(req.IpPoolName)
+	ipPoolName := i.Ctx.Params().Get("name")
+	return i.IpService.Sync(ipPoolName)
 }
 
 // Delete Ip
