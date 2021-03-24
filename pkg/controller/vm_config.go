@@ -49,6 +49,19 @@ func (v VmConfigController) Get() (page.Page, error) {
 	}
 }
 
+// Get VmConfig
+// @Tags vmConfigs
+// @Summary Get a vmConfig by name
+// @Description Get a vmConfig
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.VmConfig
+// @Security ApiKeyAuth
+// @Router /vmconfigs/{name}/ [get]
+func (v VmConfigController) GetBy(name string) (*dto.VmConfig, error) {
+	return v.VmConfigService.Get(name)
+}
+
 // Create VmConfig
 // @Tags vmConfigs
 // @Summary Create a VmConfig
