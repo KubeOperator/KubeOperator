@@ -10,7 +10,6 @@ type Ip struct {
 type IpCreate struct {
 	IpStart    string `json:"ipStart"`
 	IpEnd      string `json:"ipEnd"`
-	Subnet     string `json:"subnet"`
 	Gateway    string `json:"gateway"`
 	DNS1       string `json:"dns1"`
 	DNS2       string `json:"dns2"`
