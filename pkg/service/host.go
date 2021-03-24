@@ -200,7 +200,7 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		return nil, err
 	}
 	tx.Commit()
-	//go h.RunGetHostConfig(&host)
+	go h.RunGetHostConfig(&host)
 	return &dto.Host{Host: host}, nil
 }
 
