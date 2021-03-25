@@ -2,20 +2,22 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 )
 
 type IpPoolService interface {
 	Get(name string) (dto.IpPool, error)
-	Page(num, size int) (page.Page, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.IpPoolCreate) (dto.IpPool, error)
 	Batch(op dto.IpPoolOp) error
-	List() ([]dto.IpPool, error)
+	List(conditions condition.Conditions) ([]dto.IpPool, error)
 	Delete(name string) error
 }
 
@@ -41,14 +43,19 @@ func (i ipPoolService) Get(name string) (dto.IpPool, error) {
 	return ipPoolDTO, nil
 }
 
-func (i ipPoolService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var ipPoolDTOS []dto.IpPool
-	var total int
-	var ipPools []model.IpPool
-	err := db.DB.Model(&model.IpPool{}).Count(&total).Offset((num - 1) * size).Limit(size).Preload("Ips").Find(&ipPools).Error
-	if err != nil {
-		return page, err
+func (i ipPoolService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+	var (
+		p          page.Page
+		ipPoolDTOS []dto.IpPool
+		ipPools    []model.IpPool
+	)
+	d := db.DB.Model(model.IpPool{})
+	if err := dbUtil.WithConditions(&d, model.IpPool{}, conditions); err != nil {
+		return nil, err
+	}
+
+	if err := d.Count(&p.Total).Preload("Ips").Offset((num - 1) * size).Limit(size).Find(&ipPools).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range ipPools {
 		ipUsed := 0
@@ -62,15 +69,18 @@ func (i ipPoolService) Page(num, size int) (page.Page, error) {
 			IpUsed: ipUsed,
 		})
 	}
-	page.Total = total
-	page.Items = ipPoolDTOS
-	return page, err
+	p.Items = ipPoolDTOS
+	return &p, nil
 }
 
-func (i ipPoolService) List() ([]dto.IpPool, error) {
+func (i ipPoolService) List(conditions condition.Conditions) ([]dto.IpPool, error) {
 	var ipPoolDTOS []dto.IpPool
 	var ipPools []model.IpPool
-	err := db.DB.Preload("Ips").Find(&ipPools).Error
+	d := db.DB.Model(model.IpPool{})
+	if err := dbUtil.WithConditions(&d, model.IpPool{}, conditions); err != nil {
+		return nil, err
+	}
+	err := d.Preload("Ips").Find(&ipPools).Error
 	if err != nil {
 		return ipPoolDTOS, err
 	}

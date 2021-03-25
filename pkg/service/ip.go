@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"strconv"
 	"strings"
 
@@ -17,11 +19,12 @@ import (
 type IpService interface {
 	Get(ip string) (dto.Ip, error)
 	Create(create dto.IpCreate, tx *gorm.DB) error
-	Page(num, size int, ipPoolName string) (page.Page, error)
+	Page(num, size int, ipPoolName string, conditions condition.Conditions) (*page.Page, error)
 	Batch(op dto.IpOp) error
 	Update(update dto.IpUpdate) (*dto.Ip, error)
 	Sync(ipPoolName string) error
 	Delete(address string) error
+	List(ipPoolName string, conditions condition.Conditions) ([]dto.Ip, error)
 }
 
 type ipService struct {
@@ -41,6 +44,30 @@ func (i ipService) Get(ip string) (dto.Ip, error) {
 		Ip: ipM,
 	}
 	return ipDTO, nil
+}
+
+func (i ipService) List(ipPoolName string, conditions condition.Conditions) ([]dto.Ip, error) {
+	var ipDTOS []dto.Ip
+	var mos []model.Ip
+	var ipPool model.IpPool
+	err := db.DB.Where("name = ?", ipPoolName).First(&ipPool).Error
+	if err != nil {
+		return nil, err
+	}
+	d := db.DB.Model(model.Ip{})
+	if err := dbUtil.WithConditions(&d, model.Ip{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.Order("inet_aton(address)").
+		Find(&mos).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range mos {
+		ipDTOS = append(ipDTOS, dto.Ip{
+			Ip: mo,
+		})
+	}
+	return ipDTOS, nil
 }
 
 func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
@@ -88,30 +115,41 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	return nil
 }
 
-func (i ipService) Page(num, size int, ipPoolName string) (page.Page, error) {
+func (i ipService) Page(num, size int, ipPoolName string, conditions condition.Conditions) (*page.Page, error) {
 	var (
-		page   page.Page
+		p      page.Page
 		ipDTOS []dto.Ip
-		total  int
 		ips    []model.Ip
 		ipPool model.IpPool
 	)
+
 	err := db.DB.Where("name = ?", ipPoolName).First(&ipPool).Error
 	if err != nil {
-		return page, err
+		return nil, err
 	}
-	err = db.DB.Model(&model.Ip{}).Where("ip_pool_id = ?", ipPool.ID).Order("inet_aton(address)").Count(&total).Offset((num - 1) * size).Limit(size).Find(&ips).Error
-	if err != nil {
-		return page, err
+
+	d := db.DB.Model(model.Ip{})
+	if err := dbUtil.WithConditions(&d, model.Ip{}, conditions); err != nil {
+		return nil, err
 	}
+
+	if err := d.
+		Where("ip_pool_id = ?", ipPool.ID).
+		Count(&p.Total).
+		Order("inet_aton(address)").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&ips).Error; err != nil {
+		return nil, err
+	}
+
 	for _, mo := range ips {
 		ipDTOS = append(ipDTOS, dto.Ip{
 			Ip: mo,
 		})
 	}
-	page.Total = total
-	page.Items = ipDTOS
-	return page, nil
+	p.Items = ipDTOS
+	return &p, nil
 }
 
 func (i ipService) Batch(op dto.IpOp) error {
