@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -31,21 +32,45 @@ func NewIpPoolController() *IpPoolController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /ippools/ [get]
-func (i IpPoolController) Get() (page.Page, error) {
+func (i IpPoolController) Get() (*page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := i.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := i.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return i.IpPoolService.Page(num, size)
+		return i.IpPoolService.Page(num, size, condition.TODO())
 	} else {
 		var p page.Page
-		items, err := i.IpPoolService.List()
+		items, err := i.IpPoolService.List(condition.TODO())
 		if err != nil {
-			return page.Page{}, err
+			return nil, err
 		}
 		p.Items = items
 		p.Total = len(items)
-		return p, nil
+		return &p, nil
+	}
+}
+
+func (i IpPoolController) PostSearch() (*page.Page, error) {
+	p, _ := i.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if i.Ctx.GetContentLength() > 0 {
+		if err := i.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if p {
+		num, _ := i.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := i.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return i.IpPoolService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := i.IpPoolService.List(conditions)
+		if err != nil {
+			return nil, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
