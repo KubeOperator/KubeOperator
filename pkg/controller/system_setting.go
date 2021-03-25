@@ -167,3 +167,14 @@ func (s SystemSettingController) PostRegistryBatch() error {
 	go kolog.Save(operator, constant.DELETE_REGISTRY, delCres)
 	return err
 }
+
+func (s SystemSettingController) DeleteRegistryBy(arch string) error {
+	err := s.SystemSettingService.DeleteRegistry(arch)
+	if err != nil {
+		return err
+	}
+	operator := s.Ctx.Values().GetString("operator")
+
+	go kolog.Save(operator, constant.DELETE_REGISTRY, arch)
+	return err
+}
