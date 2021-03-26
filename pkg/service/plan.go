@@ -5,11 +5,14 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/mitchellh/mapstructure"
 	"sort"
 )
@@ -21,7 +24,7 @@ var (
 type PlanService interface {
 	Get(name string) (dto.Plan, error)
 	List(projectName string) ([]dto.Plan, error)
-	Page(num, size int) (page.Page, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.PlanCreate) (*dto.Plan, error)
 	Batch(op dto.PlanOp) error
@@ -68,32 +71,41 @@ func (p planService) List(projectName string) ([]dto.Plan, error) {
 	return planDTOs, err
 }
 
-func (p planService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var planDTOs []dto.Plan
-	total, mos, err := p.planRepo.Page(num, size)
-	if err != nil {
-		return page, err
+func (p planService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+
+	var (
+		page     page.Page
+		planDTOs []dto.Plan
+		plans    []model.Plan
+	)
+
+	d := db.DB.Model(model.Plan{})
+	if err := dbUtil.WithConditions(&d, model.Plan{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+	if err := d.Preload("Region").Preload("Zones").Count(&page.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
+		return nil, err
+	}
+	for _, p := range plans {
+
 		planDTO := new(dto.Plan)
 		r := make(map[string]interface{})
-		if err := json.Unmarshal([]byte(mo.Vars), &r); err != nil {
-			return page, err
+		if err := json.Unmarshal([]byte(p.Vars), &r); err != nil {
+			return nil, err
 		}
-		planDTO.PlanVars = r
-		planDTO.Plan = mo
-		planDTO.RegionName = mo.Region.Name
 		var zoneNames []string
-		for _, zone := range mo.Zones {
+		for _, zone := range p.Zones {
 			zoneNames = append(zoneNames, zone.Name)
 		}
+		planDTO.PlanVars = r
+		planDTO.Plan = p
+		planDTO.RegionName = p.Region.Name
 		planDTO.ZoneNames = zoneNames
 		planDTOs = append(planDTOs, *planDTO)
 	}
-	page.Total = total
+
 	page.Items = planDTOs
-	return page, err
+	return &page, nil
 }
 
 func (p planService) Delete(name string) error {

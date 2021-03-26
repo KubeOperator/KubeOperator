@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,23 +31,48 @@ func NewPlanController() *PlanController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /plans/ [get]
-func (p PlanController) Get() (page.Page, error) {
+func (p PlanController) Get() (*page.Page, error) {
 
 	pg, _ := p.Ctx.Values().GetBool("page")
 	if pg {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.PlanService.Page(num, size)
+		return p.PlanService.Page(num, size, condition.TODO())
 	} else {
 		var page page.Page
 		projectName := p.Ctx.URLParam("projectName")
 		items, err := p.PlanService.List(projectName)
 		if err != nil {
-			return page, err
+			return nil, err
 		}
 		page.Items = items
 		page.Total = len(items)
-		return page, nil
+		return &page, nil
+	}
+}
+
+func (p PlanController) PostSearch() (*page.Page, error) {
+	pg, _ := p.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if p.Ctx.GetContentLength() > 0 {
+		if err := p.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if pg {
+		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return p.PlanService.Page(num, size, conditions)
+	} else {
+		var page page.Page
+		projectName := p.Ctx.URLParam("projectName")
+		items, err := p.PlanService.List(projectName)
+		if err != nil {
+			return nil, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return &page, nil
 	}
 }
 
