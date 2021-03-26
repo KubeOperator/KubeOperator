@@ -1,0 +1,1 @@
+alter table ko_user add current_project_id varchar(64) null;

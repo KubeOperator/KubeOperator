@@ -19,6 +19,9 @@ type SystemRegistryUpdate struct {
 	Protocol string `json:"protocol" validate:"required"`
 }
 
+type SystemRegistryDelete struct {
+	Architecture string `json:"architecture" validate:"required"`
+}
 type SystemRegistryBatchOp struct {
 	Operation string           `json:"operation" validate:"required"`
 	Items     []SystemRegistry `json:"items" validate:"required"`

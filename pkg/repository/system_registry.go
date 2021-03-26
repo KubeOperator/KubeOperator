@@ -12,6 +12,7 @@ type SystemRegistryRepository interface {
 	Save(registry *model.SystemRegistry) error
 	Page(num, size int) (int, []model.SystemRegistry, error)
 	Batch(operation string, items []model.SystemRegistry) error
+	Delete(arch string) error
 }
 
 type systemRegistryRepository struct {
@@ -67,4 +68,12 @@ func (s systemRegistryRepository) Batch(operation string, items []model.SystemRe
 		return constant.NotSupportedBatchOperation
 	}
 	return nil
+}
+
+func (s systemRegistryRepository) Delete(arch string) error {
+	registryItem, err := s.Get(arch)
+	if err != nil {
+		return err
+	}
+	return db.DB.Delete(&registryItem).Error
 }

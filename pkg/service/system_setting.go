@@ -29,6 +29,7 @@ type SystemSettingService interface {
 	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	PageRegistry(num, size int) (page.Page, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
+	DeleteRegistry(arch string) error
 }
 
 type systemSettingService struct {
@@ -249,6 +250,14 @@ func (s systemSettingService) BatchRegistry(op dto.SystemRegistryBatchOp) error 
 		})
 	}
 	err := s.systemRegistryRepo.Batch(op.Operation, deleteItems)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s systemSettingService) DeleteRegistry(arch string) error {
+	err := s.systemRegistryRepo.Delete(arch)
 	if err != nil {
 		return err
 	}
