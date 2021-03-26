@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -31,21 +32,51 @@ func NewVmConfigController() *VmConfigController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /vmconfigs/ [get]
-func (v VmConfigController) Get() (page.Page, error) {
-	pa, _ := v.Ctx.Values().GetBool("page")
-	if pa {
+func (v VmConfigController) Get() (*page.Page, error) {
+	p, _ := v.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if v.Ctx.GetContentLength() > 0 {
+		if err := v.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if p {
 		num, _ := v.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := v.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return v.VmConfigService.Page(num, size)
+		return v.VmConfigService.Page(num, size, condition.TODO())
 	} else {
-		var page page.Page
-		items, err := v.VmConfigService.List()
+		var p page.Page
+		items, err := v.VmConfigService.List(condition.TODO())
 		if err != nil {
-			return page, err
+			return nil, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
+}
+
+func (v VmConfigController) PostSearch() (*page.Page, error) {
+	p, _ := v.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if v.Ctx.GetContentLength() > 0 {
+		if err := v.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if p {
+		num, _ := v.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := v.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return v.VmConfigService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := v.VmConfigService.List(conditions)
+		if err != nil {
+			return nil, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 

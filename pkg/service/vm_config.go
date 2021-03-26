@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,8 +18,8 @@ var (
 )
 
 type VmConfigService interface {
-	Page(num, size int) (page.Page, error)
-	List() ([]dto.VmConfig, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
+	List(conditions condition.Conditions) ([]dto.VmConfig, error)
 	Batch(op dto.VmConfigOp) error
 	Create(creation dto.VmConfigCreate) (*dto.VmConfig, error)
 	Update(name string, creation dto.VmConfigUpdate) (*dto.VmConfig, error)
@@ -35,21 +37,27 @@ func NewVmConfigService() VmConfigService {
 	}
 }
 
-func (v vmConfigService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var vmConfigDTOs []dto.VmConfig
-	total, mos, err := v.vmConfigRepo.Page(num, size)
-	if err != nil {
-		return page, err
+func (v vmConfigService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+
+	var (
+		p            page.Page
+		vmConfigDTOs []dto.VmConfig
+		vmConfigs    []model.VmConfig
+	)
+	d := db.DB.Model(model.VmConfig{})
+	if err := dbUtil.WithConditions(&d, model.VmConfig{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+	if err := d.Count(&p.Total).Order("cpu").Offset((num - 1) * size).Limit(size).Find(&vmConfigs).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range vmConfigs {
 		vmConfigDTO := new(dto.VmConfig)
 		vmConfigDTO.VmConfig = mo
 		vmConfigDTOs = append(vmConfigDTOs, *vmConfigDTO)
 	}
-	page.Total = total
-	page.Items = vmConfigDTOs
-	return page, err
+	p.Items = vmConfigDTOs
+	return &p, nil
 }
 
 func (v vmConfigService) Get(name string) (*dto.VmConfig, error) {
@@ -62,10 +70,14 @@ func (v vmConfigService) Get(name string) (*dto.VmConfig, error) {
 	return &vmConfigDTO, nil
 }
 
-func (v vmConfigService) List() ([]dto.VmConfig, error) {
+func (v vmConfigService) List(conditions condition.Conditions) ([]dto.VmConfig, error) {
 	var configDTOS []dto.VmConfig
-	configs, err := v.vmConfigRepo.List()
-	if err != nil {
+	var configs []model.VmConfig
+	d := db.DB.Model(model.VmConfig{})
+	if err := dbUtil.WithConditions(&d, model.VmConfig{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.Order("cpu").Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	for _, config := range configs {
@@ -73,7 +85,7 @@ func (v vmConfigService) List() ([]dto.VmConfig, error) {
 		configDTO.VmConfig = config
 		configDTOS = append(configDTOS, *configDTO)
 	}
-	return configDTOS, err
+	return configDTOS, nil
 }
 
 func (v vmConfigService) Batch(op dto.VmConfigOp) error {
