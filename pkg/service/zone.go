@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"io"
 	"net/http"
 	"os"
@@ -22,13 +24,12 @@ import (
 
 var (
 	ZoneNameExist = "NAME_EXISTS"
-	IpNotExist    = "IP_NOT_EXISTS"
 )
 
 type ZoneService interface {
 	Get(name string) (dto.Zone, error)
-	List() ([]dto.Zone, error)
-	Page(num, size int) (page.Page, error)
+	List(conditions condition.Conditions) ([]dto.Zone, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (*dto.Zone, error)
 	Update(name string, creation dto.ZoneUpdate) (*dto.Zone, error)
@@ -65,31 +66,54 @@ func (z zoneService) Get(name string) (dto.Zone, error) {
 	return zoneDTO, err
 }
 
-func (z zoneService) List() ([]dto.Zone, error) {
-	var zoneDTOs []dto.Zone
-	mos, err := z.zoneRepo.List()
+func (z zoneService) List(conditions condition.Conditions) ([]dto.Zone, error) {
+
+	var (
+		zoneDTOs []dto.Zone
+		zones    []model.Zone
+	)
+	d := db.DB.Model(model.Zone{})
+	if err := dbUtil.WithConditions(&d, model.Zone{}, conditions); err != nil {
+		return nil, err
+	}
+	err := d.Preload("IpPool").Find(&zones).Error
 	if err != nil {
 		return zoneDTOs, err
 	}
-	for _, mo := range mos {
+	for _, mo := range zones {
 		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo, RegionName: mo.Region.Name})
 	}
 	return zoneDTOs, err
 }
 
-func (z zoneService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var zoneDTOs []dto.Zone
-	total, mos, err := z.zoneRepo.Page(num, size)
-	if err != nil {
-		return page, err
+func (z zoneService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+
+	var (
+		p        page.Page
+		zoneDTOs []dto.Zone
+		zones    []model.Zone
+	)
+
+	d := db.DB.Model(model.Zone{})
+	if err := dbUtil.WithConditions(&d, model.Zone{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+	err := d.
+		Count(&p.Total).
+		Offset((num - 1) * size).
+		Limit(size).
+		Preload("Region").
+		Preload("IpPool").
+		Preload("IpPool.Ips").
+		Find(&zones).
+		Error
+
+	for _, mo := range zones {
 		zoneDTO := new(dto.Zone)
 		m := make(map[string]interface{})
 		zoneDTO.Zone = mo
 		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
-			return page, err
+			return nil, err
 		}
 		zoneDTO.CloudVars = m
 		zoneDTO.RegionName = mo.Region.Name
@@ -107,9 +131,8 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
-	page.Total = total
-	page.Items = zoneDTOs
-	return page, err
+	p.Items = zoneDTOs
+	return &p, err
 }
 
 func (z zoneService) Delete(name string) error {
