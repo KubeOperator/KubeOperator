@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -21,8 +23,8 @@ var (
 
 type RegionService interface {
 	Get(name string) (dto.Region, error)
-	List() ([]dto.Region, error)
-	Page(num, size int) (page.Page, error)
+	List(conditions condition.Conditions) ([]dto.Region, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.RegionCreate) (*dto.Region, error)
 	Batch(op dto.RegionOp) error
@@ -57,13 +59,20 @@ func (r regionService) Get(name string) (dto.Region, error) {
 	return regionDTO, err
 }
 
-func (r regionService) List() ([]dto.Region, error) {
-	var regionDTOs []dto.Region
-	mos, err := r.regionRepo.List()
-	if err != nil {
-		return regionDTOs, err
+func (r regionService) List(conditions condition.Conditions) ([]dto.Region, error) {
+	var (
+		regionDTOs []dto.Region
+		regions    []model.Region
+	)
+	d := db.DB.Model(model.Region{})
+	if err := dbUtil.WithConditions(&d, model.Region{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+	err := d.Find(&regions).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, mo := range regions {
 		regionDTO := new(dto.Region)
 		m := make(map[string]interface{})
 		regionDTO.Region = mo
@@ -75,14 +84,23 @@ func (r regionService) List() ([]dto.Region, error) {
 	}
 	return regionDTOs, err
 }
-func (r regionService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var regionDTOs []dto.Region
-	total, mos, err := r.regionRepo.Page(num, size)
-	if err != nil {
-		return page, err
+func (r regionService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+
+	var (
+		p          page.Page
+		regionDTOs []dto.Region
+		regions    []model.Region
+	)
+
+	d := db.DB.Model(model.Region{})
+	if err := dbUtil.WithConditions(&d, model.Region{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+
+	if err := d.Count(&p.Total).Offset((num - 1) * size).Limit(size).Find(&regions).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range regions {
 		regionDTO := new(dto.Region)
 		m := make(map[string]interface{})
 		regionDTO.Region = mo
@@ -92,9 +110,8 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 		regionDTO.RegionVars = m
 		regionDTOs = append(regionDTOs, *regionDTO)
 	}
-	page.Total = total
-	page.Items = regionDTOs
-	return page, err
+	p.Items = regionDTOs
+	return &p, nil
 }
 
 func (r regionService) Delete(name string) error {

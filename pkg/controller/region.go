@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,22 +31,53 @@ func NewRegionController() *RegionController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /regions/ [get]
-func (r RegionController) Get() (page.Page, error) {
+func (r RegionController) Get() (*page.Page, error) {
 
 	p, _ := r.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if r.Ctx.GetContentLength() > 0 {
+		if err := r.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
 	if p {
 		num, _ := r.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := r.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return r.RegionService.Page(num, size)
+		return r.RegionService.Page(num, size, conditions)
 	} else {
-		var page page.Page
-		items, err := r.RegionService.List()
+		var p page.Page
+		items, err := r.RegionService.List(condition.TODO())
 		if err != nil {
-			return page, err
+			return nil, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
+}
+
+func (r RegionController) PostSearch() (*page.Page, error) {
+
+	p, _ := r.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if r.Ctx.GetContentLength() > 0 {
+		if err := r.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if p {
+		num, _ := r.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := r.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return r.RegionService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := r.RegionService.List(condition.TODO())
+		if err != nil {
+			return nil, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
