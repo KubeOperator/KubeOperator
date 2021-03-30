@@ -19,6 +19,7 @@ import {
     V1SecretList,
     V1ServiceList,
     V1StatefulSetList,
+    V1Secret,
     V1StorageClass,
     V1StorageClassList
 } from '@kubernetes/client-node';
@@ -62,6 +63,7 @@ export class KubernetesService {
     namespaceConfigMapUrl = 'api/v1/namespaces/{namespace}/configmaps';
     secretUrl = 'api/v1/secrets';
     namespaceSecretUrl = 'api/v1/secrets';
+    secretCreateUrl = 'api/v1/namespaces/{namespace}/secrets';
     podUrl = 'api/v1/pods';
     namespacePodUrl = 'api/v1/namespaces/{namespace}/pods/';
     nodesUrl = 'api/v1/nodes';
@@ -255,6 +257,16 @@ export class KubernetesService {
         return this.client.get<V1ConfigMapList>(url);
     }
 
+    createSecret(clusterName: string,namespace: string, item: V1Secret): any {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.secretCreateUrl.replace('{namespace}', namespace));
+        return this.client.post<V1Secret>(url, item);
+    }
+
+    getSecretByName(clusterName: string, secretsName: string, namespace: string): any {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.secretCreateUrl.replace('{namespace}', namespace) + '/' + secretsName);
+        return this.client.get<V1Secret>(url);
+    }
+
     listSecret(clusterName: string, continueToken?: string, namespace?: string): Observable<V1SecretList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName);
         url += '?limit=' + this.limit;
@@ -267,6 +279,11 @@ export class KubernetesService {
             url = url.replace('{resource_url}', this.secretUrl);
         }
         return this.client.get<V1SecretList>(url);
+    }
+
+    deleteSecret(clusterName: string, namespace: string, secretsName: string): any {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.secretCreateUrl.replace('{namespace}', namespace) + '/' + secretsName);
+        return this.client.delete<V1Secret>(url);
     }
 
     listPod(clusterName: string, continueToken?: string, namespace?: string): Observable<V1PodList> {

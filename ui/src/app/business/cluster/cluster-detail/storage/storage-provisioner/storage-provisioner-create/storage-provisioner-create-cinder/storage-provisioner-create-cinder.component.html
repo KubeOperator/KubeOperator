@@ -1,0 +1,67 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
+    <div class="modal-body">
+        <form clrForm #nfsForm='ngForm'>
+            <clr-input-container>
+                <label>Identity</label>
+                <input clrInput [(ngModel)]="item.vars['cinder_auth_url']" placeholder="eg: http://128.110.154.166/identity" name="cinder_auth_url" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>UserName</label>
+                <input clrInput [(ngModel)]="item.vars['cinder_username']" placeholder="eg: admin" name="cinder_username" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>Password</label>
+                <input clrInput type="password" [(ngModel)]="item.vars['cinder_password']" name="cinder_password" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>Region</label>
+                <input clrInput [(ngModel)]="item.vars['cinder_region']" placeholder="eg: RegionOne" name="cinder_region" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>Tenant Name</label>
+                <input clrInput [(ngModel)]="item.vars['cinder_tenant_name']" placeholder="eg: admin" name="cinder_tenant_name" size="34" required>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>Domain Name</label>
+                <input clrInput [(ngModel)]="item.vars['cinder_domain_name']" placeholder="eg: Default" name="cinder_domain_name" size="34" required>
+            </clr-input-container>
+
+            <clr-select-container>
+                <label>{{'APP_ENABLE_BLOCK_STORAGE'|translate}}</label>
+                <select clrSelect (change)="changeBlockEnable()" [(ngModel)]="item.vars['enable_blockstorage']" name="enable_blockstorage"
+                        required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="enable">{{'APP_ENABLE'|translate}}</option>
+                    <option value="disable">{{'APP_DISABLE'|translate}}</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container *ngIf="item.vars['enable_blockstorage']==='enable'">
+                <label>Version</label>
+                <select clrSelect [(ngModel)]="item.vars['cinder_blockstorage_version']" name="cinder_blockstorage_version" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="V3">V3</option>
+                </select>
+                <clr-control-helper>{{'ONLY_SUPPORT_V3'|translate}}</clr-control-helper>
+            </clr-select-container>
+
+            <clr-input-container *ngIf="item.vars['enable_blockstorage']==='enable'">
+                <label>Attach Limit</label>
+                <input clrInput [(ngModel)]="item.vars['node_volume_attach_limit']" placeholder="eg: 256" name="node_volume_attach_limit" size="34" required>
+            </clr-input-container>
+
+            <app-modal-alert></app-modal-alert>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="nfsForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

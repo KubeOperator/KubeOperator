@@ -18,6 +18,7 @@ export class StorageClassDeleteComponent implements OnInit {
     opened = false;
     submitGoing = false;
     deleteName = '';
+    deleteClass: any;
     @Input() currentCluster: Cluster;
     @Output() deleted = new EventEmitter();
 
@@ -32,8 +33,9 @@ export class StorageClassDeleteComponent implements OnInit {
     }
 
 
-    open(name) {
-        this.deleteName = name;
+    open(item) {
+        this.deleteClass = item;
+        this.deleteName = item.metadata.name;
         this.opened = true;
     }
 
@@ -44,6 +46,22 @@ export class StorageClassDeleteComponent implements OnInit {
 
     onSubmit() {
         this.submitGoing = true;
+
+        if (this.deleteClass.provisioner === 'kubernetes.io/glusterfs') {
+            const namespace = this.deleteClass.parameters.secretNamespace;
+            const secretName = this.deleteClass.parameters.secretName;
+            this.kubernetesService.deleteSecret(this.currentCluster.name, namespace, secretName).subscribe(res => {
+                this.delete();
+            }, error => {
+                this.submitGoing = false;
+                this.modalAlertService.showAlert('', AlertLevels.ERROR);
+            });
+        } else {
+            this.delete();
+        }
+    }
+
+    delete() {
         this.kubernetesService.deleteStorageClass(this.currentCluster.name, this.deleteName).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;

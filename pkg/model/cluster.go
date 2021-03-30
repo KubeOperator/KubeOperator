@@ -343,6 +343,12 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
 	}
+	if c.Spec.EnableDnsCache != "" {
+		result[facts.EnableDnsCacheFactName] = c.Spec.EnableDnsCache
+	}
+	if c.Spec.DnsCacheVersion != "" {
+		result[facts.DnsCacheVersionFactName] = c.Spec.DnsCacheVersion
+	}
 	if c.Spec.FlannelBackend != "" {
 		result[facts.FlannelBackendFactName] = c.Spec.FlannelBackend
 	}

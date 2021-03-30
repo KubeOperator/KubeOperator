@@ -55,6 +55,8 @@ export class ClusterCreateRequest extends BaseModel {
     flannelBackend: string;
     calicoIpv4poolIpip: string;
     kubeProxyMode: string;
+    enableDnsCache: string;
+    dnsCacheVersion: string;
     kubernetesAudit: string;
     ingressControllerType: string;
     plan: string;

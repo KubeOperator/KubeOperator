@@ -11,6 +11,8 @@ import {StorageProvisionerCreateExternalCephComponent} from "./storage-provision
 import {StorageProvisionerCreateRookCephComponent} from "./storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component";
 import {StorageProvisionerCreateVsphereComponent} from "./storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component";
 import {StorageProvisionerCreateOceanStorComponent} from './storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
+import {StorageProvisionerCreateCinderComponent} from "./storage-provisioner-create/storage-provisioner-create-cinder/storage-provisioner-create-cinder.component";
+import {StorageProvisionerCreateGlusterfsComponent} from "./storage-provisioner-create/storage-provisioner-create-glusterfs/storage-provisioner-create-glusterfs.component";
 
 @Component({
     selector: 'app-storage-provisioner',
@@ -44,6 +46,10 @@ export class StorageProvisionerComponent implements OnInit {
     vsphere: StorageProvisionerCreateVsphereComponent;
     @ViewChild(StorageProvisionerCreateOceanStorComponent, {static: true})
     oceanStor: StorageProvisionerCreateOceanStorComponent;
+    @ViewChild(StorageProvisionerCreateCinderComponent, {static: true})
+    cinder: StorageProvisionerCreateCinderComponent;
+    @ViewChild(StorageProvisionerCreateGlusterfsComponent, {static: true})
+    glusterfs: StorageProvisionerCreateGlusterfsComponent;
 
     currentCluster: Cluster;
 
@@ -80,6 +86,12 @@ export class StorageProvisionerComponent implements OnInit {
                 break;
             case 'oceanstor':
                 this.oceanStor.open(item);
+                break;
+            case 'cinder':
+                this.cinder.open(item);
+                break;
+            case 'glusterfs':
+                this.glusterfs.open(item);
                 break;
         }
     }

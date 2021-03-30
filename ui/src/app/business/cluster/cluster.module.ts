@@ -58,6 +58,8 @@ import {WebkubectlComponent} from './cluster-detail/overview/webkubectl/webkubec
 import {StorageProvisionerCreateExternalCephComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
 import {StorageProvisionerCreateRookCephComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
 import {StorageProvisionerCreateVsphereComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
+import {StorageProvisionerCreateCinderComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-cinder/storage-provisioner-create-cinder.component';
+import {StorageProvisionerCreateGlusterfsComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-glusterfs/storage-provisioner-create-glusterfs.component';
 import {BackupComponent} from './cluster-detail/backup/backup.component';
 import {BackupModule} from './cluster-detail/backup/backup.module';
 import {ToolsDisableComponent} from './cluster-detail/tools/tools-disable/tools-disable.component';
@@ -116,6 +118,8 @@ import {PersistentVolumeDeleteComponent} from './cluster-detail/storage/persiste
         StorageProvisionerCreateExternalCephComponent,
         StorageProvisionerCreateRookCephComponent,
         StorageProvisionerCreateVsphereComponent,
+        StorageProvisionerCreateCinderComponent,
+        StorageProvisionerCreateGlusterfsComponent,
         BackupComponent,
         ToolsDisableComponent,
         PersistentVolumeCreateLocalStorageComponent,

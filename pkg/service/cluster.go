@@ -222,6 +222,8 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		FlannelBackend:        creation.FlannelBackend,
 		CalicoIpv4poolIpip:    creation.CalicoIpv4poolIpip,
 		KubeProxyMode:         creation.KubeProxyMode,
+		EnableDnsCache:        creation.EnableDnsCache,
+		DnsCacheVersion:       creation.DnsCacheVersion,
 		IngressControllerType: creation.IngressControllerType,
 		Architectures:         creation.Architectures,
 		KubernetesAudit:       creation.KubernetesAudit,

@@ -214,6 +214,15 @@
                 <clr-control-helper
                         *ngIf="item.calicoIpv4poolIpip == 'Always'">{{"APP_NETWORK_IPIP_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
+
+            <clr-select-container >
+                <label>{{"APP_DNS_CACHE"|translate}}</label>
+                <select clrSelect name="enableDnsCache" [(ngModel)]="item.enableDnsCache">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="enable">{{"APP_ENABLE"|translate}}</option>
+                    <option value="disable">{{"APP_DISABLE"|translate}}</option>
+                </select>
+            </clr-select-container>
         </form>
     </clr-wizard-page>
 

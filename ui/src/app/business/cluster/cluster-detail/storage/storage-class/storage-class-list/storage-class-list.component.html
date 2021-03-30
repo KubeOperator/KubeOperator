@@ -5,7 +5,7 @@
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete(selected[0].metadata.name)"
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete(selected[0])"
                     [disabled]="selected.length!==1">
                 <clr-icon shape="close" size="16"></clr-icon>
                 {{"APP_DELETE"|translate}}
