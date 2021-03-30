@@ -72,6 +72,10 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
 
+func (p ProjectResourceController) GetTree() ([]dto.ProjectResourceTree, error) {
+	return p.ProjectResourceService.GetResourceTree()
+}
+
 func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
 	resources := ""
 	typeStr := ""
