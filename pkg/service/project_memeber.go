@@ -41,23 +41,31 @@ func NewProjectMemberService() ProjectMemberService {
 }
 
 func (p *projectMemberService) Page(projectName string, num, size int) (*page.Page, error) {
-	var page page.Page
-	project, err := p.projectRepo.Get(projectName)
-	if err != nil {
-		return nil, err
-	}
-	total, mos, err := p.projectMemberRepo.PageByProjectId(num, size, project.ID)
-	if err != nil {
+
+	var (
+		pa                page.Page
+		projectMembers    []model.ProjectMember
+		project           model.Project
+		projectMemberDTOs []dto.ProjectMember
+	)
+
+	if err := db.DB.Where("name = ?", projectName).First(&project).Error; err != nil {
 		return nil, err
 	}
 
-	var result []dto.ProjectMember
-	for _, mo := range mos {
-		result = append(result, toProjectMemberDTO(mo))
+	err := db.DB.Model(&model.ProjectMember{}).
+		Where("project_id = ?", project.ID).
+		Preload("User").
+		Count(&pa.Total).
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&projectMembers).Error
+
+	for _, mo := range projectMembers {
+		projectMemberDTOs = append(projectMemberDTOs, toProjectMemberDTO(mo))
 	}
-	page.Items = result
-	page.Total = total
-	return nil, err
+	pa.Items = projectMemberDTOs
+	return &pa, err
 }
 
 func (p *projectMemberService) Batch(op dto.ProjectMemberOP) error {
