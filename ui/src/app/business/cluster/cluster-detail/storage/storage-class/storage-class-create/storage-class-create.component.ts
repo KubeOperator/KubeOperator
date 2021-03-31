@@ -90,6 +90,9 @@ export class StorageClassCreateComponent implements OnInit {
                     this.item.parameters['gidMax'] = '50000';
                     this.item.parameters['volumetype'] = 'replicate:3';
                     break;
+                case 'cinder':
+                    this.item.allowVolumeExpansion = true;
+                    break;
             }
         }
     }
@@ -98,7 +101,7 @@ export class StorageClassCreateComponent implements OnInit {
         if (this.isSubmitGoing) {
             return;
         }
-
+        console.log(this.item)
         if (this.provisioner.type === 'glusterfs') {
             const mySecret = this.NewV1Secrets();
             this.kubernetesService.createSecret(this.currentCluster.name, this.item.parameters['secretNamespace'], mySecret).subscribe(data => {
