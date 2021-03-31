@@ -101,7 +101,6 @@ export class StorageClassCreateComponent implements OnInit {
         if (this.isSubmitGoing) {
             return;
         }
-        console.log(this.item)
         if (this.provisioner.type === 'glusterfs') {
             const mySecret = this.NewV1Secrets();
             this.kubernetesService.createSecret(this.currentCluster.name, this.item.parameters['secretNamespace'], mySecret).subscribe(data => {
