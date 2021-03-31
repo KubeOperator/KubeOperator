@@ -59,20 +59,21 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 // @Success 200 {object} dto.ProjectMember
 // @Security ApiKeyAuth
 // @Router /project/members/ [post]
-func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
+func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
+	projectName := p.Ctx.Params().GetString("project")
 	var req dto.ProjectMemberCreate
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := p.ProjectMemberService.Create(req)
+	result, err := p.ProjectMemberService.Create(projectName, req)
 	if err != nil {
 		return nil, err
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.BIND_PROJECT_MEMBER, req.ProjectName+"-"+req.Username)
+	go kolog.Save(operator, constant.BIND_PROJECT_MEMBER, projectName)
 
 	return result, nil
 }
@@ -95,10 +96,10 @@ func (p ProjectMemberController) PostBatch() error {
 
 	operator := p.Ctx.Values().GetString("operator")
 	delMembers, delProject := "", ""
-	for _, item := range req.Items {
-		delMembers += (item.Username + ",")
-		delProject = item.ProjectName
-	}
+	//for _, item := range req.Items {
+	//	delMembers += (item.Username + ",")
+	//	delProject = item.ProjectName
+	//}
 	if req.Operation == "update" {
 		go kolog.Save(operator, constant.UPDATE_PROJECT_MEMBER_ROLE, delProject+"-"+delMembers)
 	} else {

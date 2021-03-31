@@ -61,7 +61,8 @@ IP_SHORT: "Ip 不足"
 GET_REGION_ERROR: "找不到区域"
 
 #projectMember
-USER_IS_ADD: "用户已经添加"
+USER_IS_ADD: "%s 用户已经添加"
+USER_IS_NOT_FOUND: "%s 用户未找到！"
 
 #project
 DEFAULT_PROJECT_CAN_NOT_DELETE: "默认项目不能删除！"

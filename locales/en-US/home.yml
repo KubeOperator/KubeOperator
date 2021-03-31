@@ -59,7 +59,8 @@ IP_SHORT: "Insufficient Ip"
 GET_REGION_ERROR: "No region found"
 
 #projectMember
-USER_IS_ADD: "User has been added"
+USER_IS_ADD: "%s User has been added"
+USER_IS_NOT_FOUND: "%s user is not found！"
 
 #project
 DEFAULT_PROJECT_CAN_NOT_DELETE: "Default project cannot be deleted"

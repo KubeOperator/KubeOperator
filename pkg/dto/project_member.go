@@ -15,9 +15,7 @@ type ProjectMemberOP struct {
 }
 
 type ProjectMemberCreate struct {
-	ProjectName string `json:"projectName" validate:"required"`
-	Role        string `json:"role" validate:"required"`
-	Username    string `json:"username" validate:"required"`
+	Usernames []string `json:"usernames" validate:"required"`
 }
 
 type AddMemberResponse struct {

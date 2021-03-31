@@ -1,15 +1,13 @@
 package service
 
 import (
-	"errors"
 	"fmt"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/jinzhu/gorm"
 )
@@ -22,7 +20,7 @@ type ProjectMemberService interface {
 	Page(projectName string, num, size int) (*page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
-	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
+	Create(projectName string, request dto.ProjectMemberCreate) ([]dto.ProjectMember, error)
 	Get(name string, projectName string) (*dto.ProjectMember, error)
 }
 
@@ -70,33 +68,33 @@ func (p *projectMemberService) Page(projectName string, num, size int) (*page.Pa
 
 func (p *projectMemberService) Batch(op dto.ProjectMemberOP) error {
 	var opItems []model.ProjectMember
-	for _, item := range op.Items {
-		id := ""
-		user, err := NewUserService().Get(item.Username)
-		if err != nil {
-			return err
-		}
-		project, err := NewProjectService().Get(item.ProjectName)
-		if err != nil {
-			return err
-		}
-		if op.Operation == constant.BatchOperationUpdate || op.Operation == constant.BatchOperationDelete {
-			var pm model.ProjectMember
-			err := db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).First(&pm).Error
-			if err != nil {
-				return err
-			}
-			id = pm.ID
-		}
-
-		opItems = append(opItems, model.ProjectMember{
-			BaseModel: common.BaseModel{},
-			ID:        id,
-			UserID:    user.ID,
-			ProjectID: project.ID,
-			Role:      item.Role,
-		})
-	}
+	//for _, item := range op.Items {
+	//	id := ""
+	//	user, err := NewUserService().Get(item.Username)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	project, err := NewProjectService().Get(item.ProjectName)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	if op.Operation == constant.BatchOperationUpdate || op.Operation == constant.BatchOperationDelete {
+	//		var pm model.ProjectMember
+	//		err := db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).First(&pm).Error
+	//		if err != nil {
+	//			return err
+	//		}
+	//		id = pm.ID
+	//	}
+	//
+	//	opItems = append(opItems, model.ProjectMember{
+	//		BaseModel: common.BaseModel{},
+	//		ID:        id,
+	//		UserID:    user.ID,
+	//		ProjectID: project.ID,
+	//		Role:      item.Role,
+	//	})
+	//}
 	return p.projectMemberRepo.Batch(op.Operation, opItems)
 }
 
@@ -115,38 +113,49 @@ func (p *projectMemberService) GetUsers(name string) (dto.AddMemberResponse, err
 	return result, nil
 }
 
-func (p *projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error) {
-	user, err := p.userService.Get(request.Username)
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, UserNotFound
+func (p *projectMemberService) Create(projectName string, request dto.ProjectMemberCreate) ([]dto.ProjectMember, error) {
+
+	var (
+		project model.Project
+		errs    errorf.CErrFs
+		result  []dto.ProjectMember
+	)
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
+		return nil, err
+	}
+
+	for _, name := range request.Usernames {
+		var user model.User
+		if err := db.DB.Model(model.User{}).Where("name = ?", name).First(&user).Error; err != nil {
+			errs = errs.Add(errorf.New("USER_IS_NOT_FOUND", name))
+			continue
 		} else {
-			return nil, err
+			var oldPm dto.ProjectMember
+			if err := db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).Find(&oldPm).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+				errs = errs.Add(errorf.New(err.Error()))
+				continue
+			}
+			if oldPm.ID != "" {
+				errs = errs.Add(errorf.New(UserIsAdd, name))
+				continue
+			}
+			pm := model.ProjectMember{
+				UserID:    user.ID,
+				Role:      constant.ProjectRoleProjectManager,
+				ProjectID: project.ID,
+			}
+			if err := db.DB.Create(&pm).Error; err != nil {
+				errs = errs.Add(errorf.New(err.Error()))
+			}
+			d := toProjectMemberDTO(pm)
+			result = append(result, d)
 		}
 	}
-	project, err := NewProjectService().Get(request.ProjectName)
-	if err != nil {
-		return nil, err
+	if len(errs) > 0 {
+		return result, errs
+	} else {
+		return result, nil
 	}
-	var oldPm dto.ProjectMember
-	err = db.DB.Where("user_id = ? AND project_id = ?", user.ID, project.ID).Find(&oldPm).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return nil, err
-	}
-	if oldPm.ID != "" {
-		return nil, errors.New(UserIsAdd)
-	}
-	pm := model.ProjectMember{
-		UserID:    user.ID,
-		Role:      request.Role,
-		ProjectID: project.ID,
-	}
-	err = p.projectMemberRepo.Create(&pm)
-	if err != nil {
-		return nil, err
-	}
-	d := toProjectMemberDTO(pm)
-	return &d, nil
 }
 
 func (p *projectMemberService) Get(name string, projectName string) (*dto.ProjectMember, error) {
