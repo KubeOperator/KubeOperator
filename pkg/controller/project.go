@@ -173,3 +173,7 @@ func (p ProjectController) PostBatch() error {
 
 	return err
 }
+
+func (p ProjectController) GetTree() ([]dto.ProjectResourceTree, error) {
+	return p.ProjectService.GetResourceTree()
+}
