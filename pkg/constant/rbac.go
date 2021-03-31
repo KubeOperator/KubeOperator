@@ -125,6 +125,7 @@ var SystemRules = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/project/{**}",
 			"/api/v1/project/{**}/{**}",
+			"/api/v1/project/{**}/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -138,6 +139,7 @@ var ProjectRules = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/project/{**}/{**}",
+			"/api/v1/project/{**}/{**}/{**}",
 		},
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -149,6 +151,7 @@ var ProjectRules = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/project/{**}/{**}",
+			"/api/v1/project/{**}/{**}/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{

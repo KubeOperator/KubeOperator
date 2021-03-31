@@ -50,7 +50,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/ippools/{name}/ips")).HandleError(ErrorHandler).Handle(controller.NewIpController())
 	projectScope := AuthScope.Party("/")
 	projectScope.Use(middleware.ProjectMiddleware)
-	mvc.New(projectScope.Party("/project/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())
+	mvc.New(projectScope.Party("/project/{project}/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())
 	mvc.New(projectScope.Party("/project/{project}/members")).HandleError(ErrorHandler).Handle(controller.NewProjectMemberController())
 	WhiteScope = v1.Party("/")
 	WhiteScope.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)

@@ -30,11 +30,11 @@ func NewProjectResourceController() *ProjectResourceController {
 // @Form projectName string , resourceType string
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/resource/ [get]
+// @Router /project/{project}/resources/ [get]
 func (p ProjectResourceController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.Values().GetString("project")
+	projectName := p.Ctx.Params().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -70,10 +70,6 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
 	projectName := p.Ctx.Values().GetString("project")
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
-}
-
-func (p ProjectResourceController) GetTree() ([]dto.ProjectResourceTree, error) {
-	return p.ProjectResourceService.GetResourceTree()
 }
 
 func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {

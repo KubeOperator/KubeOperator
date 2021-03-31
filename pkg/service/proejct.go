@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -22,6 +23,7 @@ type ProjectService interface {
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
 	Update(name string, update dto.ProjectUpdate) (*dto.Project, error)
+	GetResourceTree() ([]dto.ProjectResourceTree, error)
 }
 
 type projectService struct {
@@ -150,4 +152,53 @@ func (p *projectService) Batch(op dto.ProjectOp) error {
 		return err
 	}
 	return nil
+}
+
+func (p projectService) GetResourceTree() ([]dto.ProjectResourceTree, error) {
+	var (
+		projects []model.Project
+		tree     []dto.ProjectResourceTree
+	)
+
+	if err := db.DB.Model(model.Project{}).Order("name").Find(&projects).Error; err != nil {
+		return nil, err
+	}
+	id := 0
+	for _, p := range projects {
+		id++
+		tree = append(tree, dto.ProjectResourceTree{
+			ID:    id,
+			Label: p.Name,
+			Type:  constant.ResourceProject,
+		})
+	}
+	for i, t := range tree {
+		var project model.Project
+		if err := db.DB.Where("name = ?", t.Label).First(&project).Error; err != nil {
+			return nil, err
+		}
+		var projectResources []model.ProjectResource
+		if err := db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourceCluster).Find(&projectResources).Error; err != nil {
+			return nil, err
+		}
+		var resourceIds []string
+		for _, pr := range projectResources {
+			resourceIds = append(resourceIds, pr.ResourceID)
+		}
+		var clusters []model.Cluster
+		if err := db.DB.Model(&model.Cluster{}).
+			Where("id in (?)", resourceIds).
+			Find(&clusters).Error; err != nil {
+			return nil, err
+		}
+		for _, c := range clusters {
+			id++
+			tree[i].Children = append(tree[i].Children, dto.ProjectResourceTree{
+				ID:    id,
+				Label: c.Name,
+				Type:  constant.ResourceCluster,
+			})
+		}
+	}
+	return tree, nil
 }
