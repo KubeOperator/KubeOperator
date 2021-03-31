@@ -12,7 +12,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
     styleUrls: ['./license.component.css']
 })
 export class LicenseComponent implements OnInit {
-    license: License = new License();
+    licenseInfo: License = new License();
     licenseStatus = '';
     constructor(private licenseService: LicenseService,
                 private commonAlertService: CommonAlertService,
@@ -44,11 +44,12 @@ export class LicenseComponent implements OnInit {
 
     refresh() {
         this.licenseService.get().subscribe(data => {
-            this.license = data;
-            if ( this.license.status !== '') {
-                this.licenseStatus = this.license.status;
+            this.licenseInfo.license = data.license;
+            console.log(data);
+            if ( data.status !== '') {
+                this.licenseStatus = data.status;
             }
-            if (this.licDate.isDuringDate(data.expired)) {
+            if (this.licDate.isDuringDate(data.license.expired)) {
                 this.commonAlertService.showAlert(this.translateService.instant('APP_LICENSE_EXPIRED_MSG'), AlertLevels.ERROR);
             }
         });
