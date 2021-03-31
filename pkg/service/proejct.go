@@ -9,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -64,7 +65,10 @@ func (p *projectService) List() ([]dto.Project, error) {
 
 func (p *projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
 
-	old, _ := p.Get(creation.Name)
+	var old model.Project
+	if err := db.DB.Where("name = ?", creation.Name).First(&old).Error; !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(ProjectNameExist)
 	}
@@ -74,28 +78,10 @@ func (p *projectService) Create(creation dto.ProjectCreate) (*dto.Project, error
 		Name:        creation.Name,
 		Description: creation.Description,
 	}
-
-	err := p.projectRepo.Save(&project)
-	if err != nil {
+	if err := db.DB.Create(&project).Error; err != nil {
 		return nil, err
 	}
-
-	//user, err := p.userService.Get(creation.UserName)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if !user.IsAdmin {
-	//	projectMember := model.ProjectMember{
-	//		ProjectID: project.ID,
-	//		UserID:    user.ID,
-	//		Role:      constant.ProjectRoleProjectManager,
-	//	}
-	//	err := p.projectMemberRepo.Create(&projectMember)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//}
-	return &dto.Project{Project: project}, err
+	return &dto.Project{Project: project}, nil
 }
 
 func (p *projectService) Update(name string, update dto.ProjectUpdate) (*dto.Project, error) {
