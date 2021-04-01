@@ -168,3 +168,4 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [ ] 持久化存储支持 Cinder；
  - [ ] 持久化存储支持 GlusterFS；
  - [ ] 集群支持开启 NodeLocal DNS Cache；
+ - [ ] 集群节点支持驱散、激活；
