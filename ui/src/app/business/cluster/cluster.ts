@@ -18,6 +18,7 @@ export class Spec {
     upgradeVersion: string;
     kubeProxyMode: string;
     networkType: string;
+    ciliumTunnelMode: string;
     flannelBackend: string;
     calicoIpv4PoolIpip: string;
     architectures: string;
