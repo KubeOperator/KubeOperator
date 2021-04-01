@@ -11,7 +11,7 @@
                     <option value="rook-ceph" *ngIf="currentCluster.spec.architectures === 'amd64'">rook-ceph</option>
                     <option value="cinder" *ngIf="currentCluster.spec.architectures === 'amd64'">cinder</option>
                     <option value="vsphere" *ngIf="currentCluster.spec.architectures === 'amd64'">vsphere</option>
-                    <option value="glusterfs" *ngIf="currentCluster.spec.architectures === 'amd64'">glusterfs</option>
+                    <option value="glusterfs">glusterfs</option>
                     <option value="oceanstor" *ngIf="currentCluster.spec.architectures === 'amd64'">oceanstor</option>
                 </select>
             </clr-select-container>

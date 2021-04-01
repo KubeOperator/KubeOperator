@@ -49,6 +49,9 @@ export class ClusterCreateRequest extends BaseModel {
     provider: string;
     architectures: string;
     networkType: string;
+    ciliumVersion: string;
+    ciliumTunnelMode: string;
+    ciliumNativeRoutingCidr: string;
     runtimeType: string;
     dockerStorageDir: string;
     containerdStorageDir: string;

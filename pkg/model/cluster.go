@@ -343,6 +343,15 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
 	}
+	if c.Spec.CiliumNativeRoutingCidr != "" {
+		result[facts.CiliumNativeRoutingCidrFactName] = c.Spec.CiliumNativeRoutingCidr
+	}
+	if c.Spec.CiliumTunnelMode != "" {
+		result[facts.CiliumTunnelModeFactName] = c.Spec.CiliumTunnelMode
+	}
+	if c.Spec.CiliumVersion != "" {
+		result[facts.CiliumVersionFactName] = c.Spec.CiliumVersion
+	}
 	if c.Spec.EnableDnsCache != "" {
 		result[facts.EnableDnsCacheFactName] = c.Spec.EnableDnsCache
 	}

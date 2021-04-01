@@ -132,6 +132,16 @@
                     <option value="ipvs">ipvs</option>
                 </select>
             </clr-select-container>
+
+            <clr-select-container >
+                <label>{{"APP_DNS_CACHE"|translate}}</label>
+                <select clrSelect name="enableDnsCache" [(ngModel)]="item.enableDnsCache">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="enable">{{"APP_ENABLE"|translate}}</option>
+                    <option value="disable">{{"APP_DISABLE"|translate}}</option>
+                </select>
+            </clr-select-container>
+
             <clr-select-container>
                 <label>Kubernetes {{"APP_AUDIT"|translate}}</label>
                 <select clrSelect name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
@@ -184,11 +194,13 @@
             </clr-input-container>
             <clr-select-container>
                 <label>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</label>
-                <select clrSelect name="network" [(ngModel)]="item.networkType" required>
+                <select clrSelect (change)="getDefaultFlannelBackend()" name="network" [(ngModel)]="item.networkType" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="flannel">flannel</option>
                     <option value="calico">calico</option>
+                    <option *ngIf="item.architectures === 'amd64'" value="cilium">cilium</option>
                 </select>
+                <clr-control-helper style="font-weight:bold; color: black;" *ngIf="item.networkType === 'cilium'">{{"APP_CILIUM_HELPER"|translate}}</clr-control-helper>
             </clr-select-container>
             <clr-select-container *ngIf="item.networkType === 'flannel'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
@@ -215,14 +227,32 @@
                         *ngIf="item.calicoIpv4poolIpip == 'Always'">{{"APP_NETWORK_IPIP_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
 
-            <clr-select-container >
-                <label>{{"APP_DNS_CACHE"|translate}}</label>
-                <select clrSelect name="enableDnsCache" [(ngModel)]="item.enableDnsCache">
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="enable">{{"APP_ENABLE"|translate}}</option>
-                    <option value="disable">{{"APP_DISABLE"|translate}}</option>
-                </select>
-            </clr-select-container>
+            <div *ngIf="item.networkType === 'cilium'">
+                <clr-select-container >
+                    <label>{{"APP_NETWORK_MODE"|translate}}</label>
+                    <select (change)="getDefaultTunnelMode()" clrSelect name="cilium_type" [(ngModel)]="item.flannelBackend" required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option value="Overlay">Overlay</option>
+                        <option value="Native Routing">Native Routing</option>
+                    </select>
+                    <clr-control-helper *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_USE_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_USE_HELPER"|translate}}</clr-control-helper>
+                </clr-select-container>
+                <clr-select-container *ngIf="item.flannelBackend === 'Overlay'">
+                    <label>Tunnel Name</label>
+                    <select clrSelect name="cilium_tunnel_mode" [(ngModel)]="item.ciliumTunnelMode" required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option value="vxlan">vxlan</option>
+                        <option value="geneve">geneve</option>
+                    </select>
+                </clr-select-container>
+                <clr-input-container *ngIf="item.flannelBackend === 'Native Routing'" required>
+                    <label>Native Routing Cidr</label>
+                    <input clrInput [size]="32" name="cilium_native_routing_cidr" [(ngModel)]="item.ciliumNativeRoutingCidr"/>
+                </clr-input-container>
+            </div>
         </form>
     </clr-wizard-page>
 
