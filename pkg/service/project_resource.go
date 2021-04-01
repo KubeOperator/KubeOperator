@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -17,6 +18,7 @@ type ProjectResourceService interface {
 	Batch(op dto.ProjectResourceOp) error
 	Page(num, size int, projectName string, resourceType string) (*page.Page, error)
 	GetResources(resourceType, projectName string) (interface{}, error)
+	Create(projectName string, request dto.ProjectResourceCreate) ([]dto.ProjectResource, error)
 }
 
 type projectResourceService struct {
@@ -87,6 +89,74 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 	}
 
 	return &page, err
+}
+
+func (p projectResourceService) Create(projectName string, request dto.ProjectResourceCreate) ([]dto.ProjectResource, error) {
+	var (
+		project model.Project
+		errs    errorf.CErrFs
+		result  []dto.ProjectResource
+	)
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
+		return nil, err
+	}
+
+	for _, name := range request.Names {
+		var resourceId string
+		if request.ResourceType == constant.ResourceHost {
+			var host model.Host
+			if err := db.DB.Model(model.Host{}).Where("name = ?", name).Find(&host).Error; err != nil {
+				errs = errs.Add(errorf.New("HOST_IS_NOT_FOUND", name))
+				continue
+			} else {
+				resourceId = host.ID
+			}
+		} else if request.ResourceType == constant.ResourcePlan {
+			var plan model.Plan
+			if err := db.DB.Model(model.Plan{}).Where("name = ?", name).Find(&plan).Error; err != nil {
+				errs = errs.Add(errorf.New("PLAN_IS_NOT_FOUND", name))
+				continue
+			} else {
+				resourceId = plan.ID
+			}
+		} else if request.ResourceType == constant.ResourceBackupAccount {
+			var backupAccount model.BackupAccount
+			if err := db.DB.Model(model.BackupAccount{}).Where("name = ?", name).Find(&backupAccount).Error; err != nil {
+				errs = errs.Add(errorf.New("BACKUP_ACCOUNT_IS_NOT_FOUND", name))
+				continue
+			} else {
+				resourceId = backupAccount.ID
+			}
+		}
+		if resourceId != "" {
+			var oldPr model.ProjectResource
+			if err := db.DB.Model(model.ProjectResource{}).Where("resource_id = ? AND project_id = ?", resourceId, project.ID).Find(&oldPr).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+				errs = errs.Add(errorf.New(err.Error()))
+				continue
+			}
+			if oldPr.ID != "" {
+				errs = errs.Add(errorf.New("RESOURCE_IS_ADDED", name))
+				continue
+			}
+			pr := model.ProjectResource{
+				ResourceID:   resourceId,
+				ProjectID:    project.ID,
+				ResourceType: request.ResourceType,
+			}
+			if err := db.DB.Create(&pr).Error; err != nil {
+				errs = errs.Add(errorf.New(err.Error()))
+			}
+			result = append(result, dto.ProjectResource{
+				ProjectResource: pr,
+				ResourceName:    name,
+			})
+		}
+	}
+	if len(errs) > 0 {
+		return result, errs
+	} else {
+		return result, nil
+	}
 }
 
 func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {

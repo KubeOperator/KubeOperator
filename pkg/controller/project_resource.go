@@ -44,6 +44,22 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 	}
 }
 
+func (p ProjectResourceController) Post() ([]dto.ProjectResource, error) {
+	projectName := p.Ctx.Values().GetString("project")
+
+	var req dto.ProjectResourceCreate
+	err := p.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return p.ProjectResourceService.Create(projectName, req)
+}
+
 func (p ProjectResourceController) PostBatch() error {
 	var req dto.ProjectResourceOp
 	err := p.Ctx.ReadJSON(&req)

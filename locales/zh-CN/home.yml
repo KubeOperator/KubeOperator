@@ -88,6 +88,10 @@ CLUSTER_IS_RESTORE: "集群正在恢复中！"
 #projectResource
 DELETE_FAILED_BY_BACKUP_FILE: "请先删除备份文件！"
 DELETE_HOST_FAILED_BY_CLUSTER: "主机已经属于集群！不能进行此操作！"
+HOST_IS_NOT_FOUND: "%s 主机不存在"
+RESOURCE_IS_ADDED: "%s 资源已添加"
+PLAN_IS_NOT_FOUND: "%s 部署计划不存在"
+BACKUP_ACCOUNT_IS_NOT_FOUND: "%s 备份账号不存在"
 
 #ldap
 LDAP_USER_IS_NULL: "同步到的用户为0"

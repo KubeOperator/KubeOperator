@@ -86,6 +86,10 @@ CLUSTER_IS_RESTORE: "The cluster is restoring！"
 #projectResource
 DELETE_FAILED_BY_BACKUP_FILE: "Please delete the backup file first！"
 DELETE_HOST_FAILED_BY_CLUSTER: "The host already belongs to the cluster! This operation cannot be performed!"
+HOST_IS_NOT_FOUND: "%s Host is not found"
+RESOURCE_IS_ADDED: "%s Resource is added"
+PLAN_IS_NOT_FOUND: "%s Plan is not found"
+BACKUP_ACCOUNT_IS_NOT_FOUND: "%s BackupAccount is not found"
 
 #ldap
 LDAP_USER_IS_NULL: "Synchronized users are 0"

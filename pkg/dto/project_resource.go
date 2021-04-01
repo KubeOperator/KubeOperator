@@ -18,3 +18,8 @@ type ProjectResourceTree struct {
 	Type     string                `json:"type"`
 	Children []ProjectResourceTree `json:"children"`
 }
+
+type ProjectResourceCreate struct {
+	ResourceType string   `json:"resourceType" validate:"required"`
+	Names        []string `json:"names" validate:"required"`
+}
