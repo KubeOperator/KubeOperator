@@ -78,6 +78,11 @@ func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 	return result, nil
 }
 
+func (p ProjectMemberController) DeleteBy(name string) error {
+	projectName := p.Ctx.Params().GetString("project")
+	return p.ProjectMemberService.Delete(name, projectName)
+}
+
 func (p ProjectMemberController) PostBatch() error {
 	var req dto.ProjectMemberOP
 	err := p.Ctx.ReadJSON(&req)

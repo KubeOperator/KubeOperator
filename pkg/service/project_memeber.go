@@ -12,16 +12,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var (
-	UserIsAdd = "USER_IS_ADD"
-)
-
 type ProjectMemberService interface {
 	Page(projectName string, num, size int) (*page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
 	Create(projectName string, request dto.ProjectMemberCreate) ([]dto.ProjectMember, error)
 	Get(name string, projectName string) (*dto.ProjectMember, error)
+	Delete(name, projectName string) error
 }
 
 type projectMemberService struct {
@@ -136,7 +133,7 @@ func (p *projectMemberService) Create(projectName string, request dto.ProjectMem
 				continue
 			}
 			if oldPm.ID != "" {
-				errs = errs.Add(errorf.New(UserIsAdd, name))
+				errs = errs.Add(errorf.New("USER_IS_ADD", name))
 				continue
 			}
 			pm := model.ProjectMember{
@@ -176,6 +173,28 @@ func (p *projectMemberService) Get(name string, projectName string) (*dto.Projec
 	return &dto.ProjectMember{
 		ProjectMember: pm,
 	}, nil
+}
+
+func (p *projectMemberService) Delete(name, projectName string) error {
+
+	var (
+		project model.Project
+		pm      model.ProjectMember
+	)
+	user, err := p.userService.Get(name)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(model.ProjectMember{}).Where("project_id = ? AND user_id = ?", project.ID, user.ID).Find(&pm).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&pm).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func toProjectMemberDTO(mo model.ProjectMember) dto.ProjectMember {
