@@ -88,6 +88,12 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
 
+func (p ProjectResourceController) DeleteBy(name string) error {
+	resourceType := p.Ctx.URLParam("resourceType")
+	projectName := p.Ctx.Values().GetString("project")
+	return p.ProjectResourceService.Delete(name, resourceType, projectName)
+}
+
 func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
 	resources := ""
 	typeStr := ""

@@ -19,6 +19,7 @@ type ProjectResourceService interface {
 	Page(num, size int, projectName string, resourceType string) (*page.Page, error)
 	GetResources(resourceType, projectName string) (interface{}, error)
 	Create(projectName string, request dto.ProjectResourceCreate) ([]dto.ProjectResource, error)
+	Delete(name, resourceType, projectName string) error
 }
 
 type projectResourceService struct {
@@ -157,6 +158,48 @@ func (p projectResourceService) Create(projectName string, request dto.ProjectRe
 	} else {
 		return result, nil
 	}
+}
+
+func (p projectResourceService) Delete(name, resourceType, projectName string) error {
+
+	var (
+		project    model.Project
+		pr         model.ProjectResource
+		resourceId string
+	)
+	if resourceType == constant.ResourceHost {
+		var host model.Host
+		if err := db.DB.Model(model.Host{}).Where("name = ?", name).Find(&host).Error; err != nil {
+			return err
+		} else {
+			resourceId = host.ID
+		}
+	} else if resourceType == constant.ResourcePlan {
+		var plan model.Plan
+		if err := db.DB.Model(model.Plan{}).Where("name = ?", name).Find(&plan).Error; err != nil {
+			return err
+		} else {
+			resourceId = plan.ID
+		}
+	} else if resourceType == constant.ResourceBackupAccount {
+		var backupAccount model.BackupAccount
+		if err := db.DB.Model(model.BackupAccount{}).Where("name = ?", name).Find(&backupAccount).Error; err != nil {
+			return err
+		} else {
+			resourceId = backupAccount.ID
+		}
+	}
+
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(model.ProjectResource{}).Where("project_id = ? AND resource_id = ?", project.ID, resourceId).Find(&pr).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&pr).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
