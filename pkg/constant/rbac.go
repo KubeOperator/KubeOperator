@@ -126,6 +126,8 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/project/{**}",
 			"/api/v1/project/{**}/{**}",
 			"/api/v1/project/{**}/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -140,6 +142,8 @@ var ProjectRules = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/project/{**}/{**}",
 			"/api/v1/project/{**}/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}/{**}",
 		},
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -152,6 +156,8 @@ var ProjectRules = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/project/{**}/{**}",
 			"/api/v1/project/{**}/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}",
+			"/api/v1/cluster/{**}/{**}/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
