@@ -40,7 +40,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
             if (data.items !== null) {
                 this.createEvent.emit();
             } else {
-                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.SUCCESS);
+                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.ERROR);
             }
         })
     }
@@ -98,7 +98,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
             if (data.items !== null) {
                 this.importEvent.emit();
             } else {
-                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.SUCCESS);
+                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.ERROR);
             }
         })
     }
