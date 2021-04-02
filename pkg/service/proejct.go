@@ -3,12 +3,14 @@ package service
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/jinzhu/gorm"
 )
 
@@ -19,7 +21,7 @@ var (
 type ProjectService interface {
 	Get(name string) (*dto.Project, error)
 	List() ([]dto.Project, error)
-	Page(num, size int, userId string) (page.Page, error)
+	Page(num, size int, userId string, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
@@ -101,19 +103,44 @@ func (p *projectService) Update(name string, update dto.ProjectUpdate) (*dto.Pro
 	return &dto.Project{Project: mo}, err
 }
 
-func (p *projectService) Page(num, size int, userId string) (page.Page, error) {
-	var page page.Page
-	var projectDTOS []dto.Project
-	total, mos, err := p.projectRepo.Page(num, size, userId)
-	if err != nil {
-		return page, err
+func (p *projectService) Page(num, size int, userId string, conditions condition.Conditions) (*page.Page, error) {
+
+	var (
+		pa          page.Page
+		projectDTOS []dto.Project
+		projects    []model.Project
+	)
+
+	d := db.DB.Model(model.Project{})
+	if err := dbUtil.WithConditions(&d, model.Project{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+
+	if userId == "" {
+		if err := d.Count(&pa.Total).Order("created_at").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		var projectResources []model.ProjectMember
+		err := db.DB.Where("user_id = ?", userId).Find(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
+		var projectIds []string
+		for _, pm := range projectResources {
+			projectIds = append(projectIds, pm.ProjectID)
+		}
+		err = d.Count(&pa.Total).Order("created_at").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, mo := range projects {
 		projectDTOS = append(projectDTOS, dto.Project{Project: mo})
 	}
-	page.Total = total
-	page.Items = projectDTOS
-	return page, err
+	pa.Items = projectDTOS
+	return &pa, nil
 }
 
 func (p *projectService) Delete(name string) error {

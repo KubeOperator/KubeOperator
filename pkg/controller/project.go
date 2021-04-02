@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,7 +31,7 @@ func NewProjectController() *ProjectController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /projects/ [get]
-func (p ProjectController) Get() (page.Page, error) {
+func (p ProjectController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
@@ -43,16 +44,48 @@ func (p ProjectController) Get() (page.Page, error) {
 		} else {
 			userId = ""
 		}
-		return p.ProjectService.Page(num, size, userId)
+		return p.ProjectService.Page(num, size, userId, condition.TODO())
 	} else {
 		var page page.Page
 		items, err := p.ProjectService.List()
 		if err != nil {
-			return page, err
+			return &page, err
 		}
 		page.Items = items
 		page.Total = len(items)
-		return page, nil
+		return &page, nil
+	}
+}
+
+func (p ProjectController) PostSearch() (*page.Page, error) {
+	pa, _ := p.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	if p.Ctx.GetContentLength() > 0 {
+		if err := p.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if pa {
+		sessionUser := p.Ctx.Values().Get("user")
+		var userId string
+		user, ok := sessionUser.(dto.SessionUser)
+		if ok && !user.IsAdmin {
+			userId = user.UserId
+		} else {
+			userId = ""
+		}
+		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return p.ProjectService.Page(num, size, userId, conditions)
+	} else {
+		var page page.Page
+		items, err := p.ProjectService.List()
+		if err != nil {
+			return &page, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return &page, nil
 	}
 }
 
