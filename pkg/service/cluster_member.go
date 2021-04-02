@@ -14,13 +14,17 @@ type ClusterMemberService interface {
 	Page(clusterName string, num, size int) (*page.Page, error)
 	GetUsers(name string) (dto.UsersResponse, error)
 	Create(clusterName string, request dto.ClusterMemberCreate) ([]dto.ClusterMember, error)
+	Delete(name, clusterName string) error
 }
 
 type clusterMemberService struct {
+	userService UserService
 }
 
 func NewClusterMemberService() ClusterMemberService {
-	return &clusterMemberService{}
+	return &clusterMemberService{
+		userService: NewUserService(),
+	}
 }
 
 func (c *clusterMemberService) Page(clusterName string, num, size int) (*page.Page, error) {
@@ -107,6 +111,28 @@ func (c *clusterMemberService) Create(clusterName string, request dto.ClusterMem
 	} else {
 		return result, nil
 	}
+}
+
+func (c *clusterMemberService) Delete(name, clusterName string) error {
+	var (
+		cluster model.Cluster
+		cm      model.ClusterMember
+	)
+	user, err := c.userService.Get(name)
+	if err != nil {
+		return err
+	}
+
+	if err := db.DB.Model(model.Project{}).Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(model.ProjectMember{}).Where("cluster_id = ? AND user_id = ?", cluster.ID, user.ID).Find(&cm).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&cm).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func toClusterMemberDTO(mo model.ClusterMember, clusterName string) dto.ClusterMember {

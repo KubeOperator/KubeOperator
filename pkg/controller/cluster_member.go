@@ -50,3 +50,8 @@ func (c ClusterMemberController) GetUsers() (dto.UsersResponse, error) {
 	name := c.Ctx.URLParam("name")
 	return c.ClusterMemberService.GetUsers(name)
 }
+
+func (c ClusterMemberController) DeleteBy(name string) error {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	return c.ClusterMemberService.Delete(name, clusterName)
+}
