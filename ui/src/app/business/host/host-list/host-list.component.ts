@@ -2,6 +2,10 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core'
 import {HostService} from '../host.service';
 import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Host} from '../host';
+import {SystemService} from '../../setting/system.service';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {AlertLevels} from '../../../layout/common-alert/alert';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-host-list',
@@ -10,6 +14,7 @@ import {Host} from '../host';
 })
 export class HostListComponent extends BaseModelDirective<Host> implements OnInit, OnDestroy {
 
+    @Output() createEvent = new EventEmitter();
     @Output() detailEvent = new EventEmitter<Host>();
     @Output() statusDetailEvent = new EventEmitter<Host>();
     @Output() importEvent = new EventEmitter<Host>();
@@ -17,7 +22,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
     @Output() syncEvent = new EventEmitter<Host[]>();
     timer;
 
-    constructor(private hostService: HostService) {
+    constructor(private hostService: HostService, private settingService: SystemService, private commonAlert: CommonAlertService, private translateService: TranslateService) {
         super(hostService);
     }
 
@@ -28,6 +33,16 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
 
     onDetail(item) {
         this.detailEvent.emit(item);
+    }
+
+    onCreate() {
+        this.settingService.getRegistry().subscribe(data => {
+            if (data.items !== null) {
+                this.createEvent.emit();
+            } else {
+                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.SUCCESS);
+            }
+        })
     }
 
     onStatusDetail(item: Host) {
@@ -79,7 +94,13 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
     }
 
     openImport() {
-        this.importEvent.emit();
+        this.settingService.getRegistry().subscribe(data => {
+            if (data.items !== null) {
+                this.importEvent.emit();
+            } else {
+                this.commonAlert.showAlert(this.translateService.instant('APP_REPO_HELP'), AlertLevels.SUCCESS);
+            }
+        })
     }
 
     openGrant() {
