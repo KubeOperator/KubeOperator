@@ -200,7 +200,7 @@ func (p *projectMemberService) Delete(name, projectName string) error {
 func toProjectMemberDTO(mo model.ProjectMember) dto.ProjectMember {
 	d := dto.ProjectMember{
 		ProjectMember: mo,
-		UserName:      mo.User.Name,
+		Username:      mo.User.Name,
 		UserStatus: func() string {
 			if mo.User.IsActive {
 				return constant.UserStatusActive

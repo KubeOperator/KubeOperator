@@ -6,7 +6,7 @@ type ProjectMember struct {
 	model.ProjectMember
 	Email      string `json:"email"`
 	UserStatus string `json:"userStatus"`
-	UserName   string `json:"userName"`
+	Username   string `json:"username"`
 }
 
 type ProjectMemberOP struct {
