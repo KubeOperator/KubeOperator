@@ -117,7 +117,7 @@ func (p *projectService) Page(num, size int, userId string, conditions condition
 	}
 
 	if userId == "" {
-		if err := d.Count(&pa.Total).Order("created_at").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
+		if err := d.Count(&pa.Total).Order("created_at ASC").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
@@ -130,7 +130,7 @@ func (p *projectService) Page(num, size int, userId string, conditions condition
 		for _, pm := range projectResources {
 			projectIds = append(projectIds, pm.ProjectID)
 		}
-		err = d.Count(&pa.Total).Order("created_at").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+		err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
 		if err != nil {
 			return nil, err
 		}
@@ -173,7 +173,7 @@ func (p projectService) GetResourceTree() ([]dto.ProjectResourceTree, error) {
 		tree     []dto.ProjectResourceTree
 	)
 
-	if err := db.DB.Model(model.Project{}).Order("name").Find(&projects).Error; err != nil {
+	if err := db.DB.Model(model.Project{}).Order("created_at ASC").Find(&projects).Error; err != nil {
 		return nil, err
 	}
 	id := 0
@@ -186,24 +186,13 @@ func (p projectService) GetResourceTree() ([]dto.ProjectResourceTree, error) {
 		})
 	}
 	for i, t := range tree {
-		var project model.Project
-		if err := db.DB.Where("name = ?", t.Label).First(&project).Error; err != nil {
-			return nil, err
-		}
-		var projectResources []model.ProjectResource
-		if err := db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourceCluster).Find(&projectResources).Error; err != nil {
-			return nil, err
-		}
-		var resourceIds []string
-		for _, pr := range projectResources {
-			resourceIds = append(resourceIds, pr.ResourceID)
-		}
 		var clusters []model.Cluster
-		if err := db.DB.Model(&model.Cluster{}).
-			Where("id in (?)", resourceIds).
-			Find(&clusters).Error; err != nil {
+		err := db.DB.Raw("SELECT * FROM ko_cluster WHERE id IN (SELECT resource_id FROM ko_project_resource WHERE project_id"+
+			" = ( select distinct ID FROM ko_project WHERE name  = ?) And resource_type = 'CLUSTER')", t.Label).Scan(&clusters).Error
+		if err != nil {
 			return nil, err
 		}
+
 		for _, c := range clusters {
 			id++
 			tree[i].Children = append(tree[i].Children, dto.ProjectResourceTree{
