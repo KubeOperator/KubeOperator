@@ -45,3 +45,9 @@ func (c ClusterResourceController) Post() ([]dto.ClusterResource, error) {
 	}
 	return c.ClusterResourceService.Create(clusterName, req)
 }
+
+func (c ClusterResourceController) DeleteBy(name string) error {
+	resourceType := c.Ctx.URLParam("resourceType")
+	clusterName := c.Ctx.Params().GetString("cluster")
+	return c.ClusterResourceService.Delete(name, resourceType, clusterName)
+}

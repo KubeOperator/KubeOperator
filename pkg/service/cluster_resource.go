@@ -14,12 +14,13 @@ import (
 type ClusterResourceService interface {
 	Page(num, size int, clusterName, resourceType string) (*page.Page, error)
 	Create(clusterName string, request dto.ClusterResourceCreate) ([]dto.ClusterResource, error)
+	Delete(name, resourceType, clusterName string) error
 }
 
 type clusterResourceService struct {
 }
 
-func NewClusterResourceService() ClusterResourceService {
+func NewClusterResourceService() *clusterResourceService {
 	return &clusterResourceService{}
 }
 
@@ -150,6 +151,44 @@ func (c clusterResourceService) Create(clusterName string, request dto.ClusterRe
 	}
 }
 
+func (c clusterResourceService) Delete(name, resourceType, clusterName string) error {
+
+	if err := deleteCheck(name, resourceType, clusterName); err != nil {
+		return err
+	}
+
+	var (
+		cluster    model.Cluster
+		cr         model.ClusterResource
+		resourceId string
+	)
+	if resourceType == constant.ResourceHost {
+		var host model.Host
+		if err := db.DB.Model(model.Host{}).Where("name = ?", name).Find(&host).Error; err != nil {
+			return err
+		} else {
+			resourceId = host.ID
+		}
+	} else if resourceType == constant.ResourceBackupAccount {
+		var backupAccount model.BackupAccount
+		if err := db.DB.Model(model.BackupAccount{}).Where("name = ?", name).Find(&backupAccount).Error; err != nil {
+			return err
+		} else {
+			resourceId = backupAccount.ID
+		}
+	}
+	if err := db.DB.Model(model.Cluster{}).Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(model.ProjectResource{}).Where("cluster_id = ? AND resource_id = ?", cluster.ID, resourceId).Find(&cr).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&cr).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func createCheck(clusterName string, request dto.ClusterResourceCreate) error {
 
 	resourceTypes := []string{constant.ResourceHost, constant.ResourceBackupAccount}
@@ -171,6 +210,46 @@ func createCheck(clusterName string, request dto.ClusterResourceCreate) error {
 	}
 	if cluster.Spec.Provider == constant.ClusterProviderPlan && request.ResourceType == constant.ResourceHost {
 		return errors.New("CLUSTER_PROVIDER_ERROR")
+	}
+
+	return nil
+}
+
+func deleteCheck(resourceName, resourceType, clusterName string) error {
+
+	resourceTypes := []string{constant.ResourceHost, constant.ResourceBackupAccount}
+	result := false
+	for _, resourceType := range resourceTypes {
+		if resourceType == resourceType {
+			result = true
+			break
+		}
+	}
+	if !result {
+		return errors.New("RESOURCE_TYPE_ERROR")
+	}
+
+	var cluster model.Cluster
+	if err := db.DB.Model(&model.Cluster{}).Preload("Spec").
+		Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return err
+	}
+	if cluster.Spec.Provider == constant.ClusterProviderPlan && resourceType == constant.ResourceHost {
+		return errors.New("CLUSTER_PROVIDER_ERROR")
+	}
+
+	if resourceType == constant.ResourceBackupAccount {
+		var backupAccount model.BackupAccount
+		if err := db.DB.Model(&model.BackupAccount{}).Where("name = ?", resourceName).Find(&backupAccount).Error; err != nil {
+			return err
+		}
+		var backupStrategy model.ClusterBackupStrategy
+		if err := db.DB.Model(&model.ClusterBackupStrategy{}).Where("cluster_id = ? AND backup_account_id = ?", cluster.ID, backupAccount.ID).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+			return err
+		}
+		if backupStrategy.ID != "" {
+			return errors.New("DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER")
+		}
 	}
 
 	return nil

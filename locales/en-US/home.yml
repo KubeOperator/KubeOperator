@@ -114,5 +114,7 @@ IP_POOL_DELETE_FAILED: "The IP pool has been associated with the available zone 
 REGISTRY_ALREADY_EXISTS: "The registry of this architecture type already exists"
 
 #clusterResource
-CLUSTER_PROVIDER_ERROR: "cluster created in automatic mode cannot add hosts manually"
+CLUSTER_PROVIDER_ERROR: "The cluster created in automatic mode cannot manually modify host resources"
 RESOURCE_TYPE_ERROR: "The added type is not supported! Only supports HOST, BACKUP_ACCOUNT"
+DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "failed to delete! The backup strategy associated with this backup account is being activated!"
+
