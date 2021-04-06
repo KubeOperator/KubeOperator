@@ -115,3 +115,7 @@ IP_POOL_DELETE_FAILED: "Ip 池已经关联可用区，无法删除"
 #registry
 REGISTRY_ALREADY_EXISTS: "该架构类型的仓库已经存在"
 
+#clusterResource
+CLUSTER_PROVIDER_ERROR: "自动模式创建的集群不能手动添加主机"
+RESOURCE_TYPE_ERROR: "不支持添加的类型！仅支持 HOST,BACKUP_ACCOUNT"
+
