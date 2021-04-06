@@ -35,6 +35,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/flock v0.8.0
 	github.com/golang-migrate/migrate/v4 v4.12.1
+	github.com/google/uuid v1.1.1
 	github.com/gophercloud/gophercloud v0.12.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
