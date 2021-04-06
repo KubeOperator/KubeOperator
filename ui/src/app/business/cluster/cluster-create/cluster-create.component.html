@@ -204,7 +204,7 @@
             </clr-select-container>
             <clr-select-container *ngIf="item.networkType === 'flannel'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend">
+                <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="host-gw">host-gw</option>
                     <option value="vxlan">vxlan</option>
@@ -214,9 +214,9 @@
                 <clr-control-helper
                         *ngIf="item.flannelBackend === 'host-gw' ">{{"APP_NETWORK_HOSTGW_MSG"|translate}}</clr-control-helper>
             </clr-select-container>
-            <clr-select-container *ngIf="item.networkType === 'calico'">
+            <clr-select-container *ngIf="item.networkType === 'calico'" required>
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip">
+                <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="off">bgp</option>
                     <option value="Always">ipip</option>
@@ -250,7 +250,7 @@
                 </clr-select-container>
                 <clr-input-container *ngIf="item.flannelBackend === 'Native Routing'" required>
                     <label>Native Routing Cidr</label>
-                    <input clrInput [size]="32" name="cilium_native_routing_cidr" [(ngModel)]="item.ciliumNativeRoutingCidr"/>
+                    <input clrInput [size]="32" name="cilium_native_routing_cidr" [(ngModel)]="item.ciliumNativeRoutingCidr" required/>
                 </clr-input-container>
             </div>
         </form>
