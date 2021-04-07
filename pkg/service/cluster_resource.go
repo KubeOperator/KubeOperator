@@ -14,6 +14,7 @@ import (
 type ClusterResourceService interface {
 	Page(num, size int, clusterName, resourceType string) (*page.Page, error)
 	Create(clusterName string, request dto.ClusterResourceCreate) ([]dto.ClusterResource, error)
+	GetResources(resourceType, projectName, clusterName string) (interface{}, error)
 	Delete(name, resourceType, clusterName string) error
 }
 
@@ -44,38 +45,41 @@ func (c clusterResourceService) Page(num, size int, clusterName, resourceType st
 	for _, mo := range clusterResources {
 		resourceIds = append(resourceIds, mo.ResourceID)
 	}
-	if len(resourceIds) > 0 {
-		switch resourceType {
-		case constant.ResourceHost:
-			var hosts []model.Host
-			if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error; err != nil {
-				return nil, err
-			}
-			var result []dto.Host
-			for _, mo := range hosts {
-				hostDTO := dto.Host{
-					Host:        mo,
-					ClusterName: mo.Cluster.Name,
-					ZoneName:    mo.Zone.Name,
-				}
-				result = append(result, hostDTO)
-			}
-			p.Items = result
-		case constant.ResourcePlan:
-			var result []model.Plan
-			if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
-				return nil, err
-			}
-			p.Items = result
-		case constant.ResourceBackupAccount:
-			var result []model.BackupAccount
-			if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
-				return nil, err
-			}
-			p.Items = result
-		default:
-			return nil, nil
+
+	if len(resourceIds) == 0 {
+		resourceIds = append(resourceIds, "1")
+	}
+
+	switch resourceType {
+	case constant.ResourceHost:
+		var hosts []model.Host
+		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error; err != nil {
+			return nil, err
 		}
+		var result []dto.Host
+		for _, mo := range hosts {
+			hostDTO := dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			}
+			result = append(result, hostDTO)
+		}
+		p.Items = result
+	case constant.ResourcePlan:
+		var result []model.Plan
+		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+			return nil, err
+		}
+		p.Items = result
+	case constant.ResourceBackupAccount:
+		var result []model.BackupAccount
+		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+			return nil, err
+		}
+		p.Items = result
+	default:
+		return nil, nil
 	}
 	return &p, nil
 }
@@ -187,6 +191,39 @@ func (c clusterResourceService) Delete(name, resourceType, clusterName string) e
 		return err
 	}
 	return nil
+}
+
+func (c clusterResourceService) GetResources(resourceType, projectName, clusterName string) (interface{}, error) {
+	var (
+		result  interface{}
+		project model.Project
+		cluster model.Cluster
+	)
+
+	if err := db.DB.Model(&model.Project{}).Where("name = ?", projectName).Find(&project).Error; err != nil {
+		return nil, err
+	}
+	if err := db.DB.Model(&model.Cluster{}).Where("name = ?", clusterName).Find(&cluster).Error; err != nil {
+		return nil, err
+	}
+
+	if resourceType == constant.ResourceHost {
+		var hosts []model.Host
+		if err := db.DB.Raw("SELECT * FROM ko_host WHERE cluster_id='' AND id IN (SELECT resource_id FROM ko_project_resource WHERE resource_type='HOST' AND project_id= ? AND resource_id NOT IN (SELECT resource_id FROM ko_cluster_resource WHERE resource_type='HOST'))", project.ID).Scan(&hosts).Error; err != nil {
+			return nil, err
+		}
+		result = hosts
+	}
+
+	if resourceType == constant.ResourceBackupAccount {
+		var backupAccounts []model.BackupAccount
+		if err := db.DB.Raw("SELECT * FROM ko_backup_account WHERE id in (SELECT resource_id FROM ko_project_resource WHERE resource_type='BACKUP_ACCOUNT' AND project_id= ? AND resource_id NOT IN (SELECT resource_id FROM ko_cluster_resource WHERE resource_type='BACKUP_ACCOUNT' AND cluster_id  =?) )", project.ID, cluster.ID).Scan(&backupAccounts).Error; err != nil {
+			return nil, err
+		}
+		result = backupAccounts
+	}
+
+	return result, nil
 }
 
 func createCheck(clusterName string, request dto.ClusterResourceCreate) error {
