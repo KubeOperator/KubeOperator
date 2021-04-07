@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/jinzhu/gorm"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -114,7 +115,13 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 	if err := db.DB.Model(model.User{}).Where(&model.User{ID: p.User.UserId}).Preload("CurrentProject").First(&mo).Error; err != nil {
 		return nil, err
 	}
+
+	roles, err := getUserRole(&mo)
+	if err != nil {
+		return nil, err
+	}
 	p.User = toSessionUser(mo)
+	p.User.Roles = roles
 	session.Set(constant.SessionUserKey, p)
 	return p, nil
 }
@@ -131,7 +138,12 @@ func (s *SessionController) checkSessionLogin(username string, password string, 
 		return nil, err
 	}
 	resp := &dto.Profile{}
+	roles, err := getUserRole(u)
+	if err != nil {
+		return nil, err
+	}
 	resp.User = toSessionUser(*u)
+	resp.User.Roles = roles
 	if jwt {
 		token, err := createToken(toSessionUser(*u))
 		if err != nil {
@@ -144,18 +156,12 @@ func (s *SessionController) checkSessionLogin(username string, password string, 
 
 func toSessionUser(u model.User) dto.SessionUser {
 	return dto.SessionUser{
-		UserId:   u.ID,
-		Name:     u.Name,
-		Email:    u.Email,
-		Language: u.Language,
-		IsActive: u.IsActive,
-		IsAdmin:  u.IsAdmin,
-		Roles: func() []string {
-			if u.IsAdmin {
-				return []string{"admin"}
-			}
-			return []string{}
-		}(),
+		UserId:         u.ID,
+		Name:           u.Name,
+		Email:          u.Email,
+		Language:       u.Language,
+		IsActive:       u.IsActive,
+		IsAdmin:        u.IsAdmin,
 		CurrentProject: u.CurrentProject.Name,
 	}
 }
@@ -178,4 +184,46 @@ func createToken(user dto.SessionUser) (string, error) {
 		return "", err
 	}
 	return tokenString, err
+}
+
+func getUserRole(user *model.User) ([]string, error) {
+
+	if user.IsAdmin {
+		return []string{constant.Admin}, nil
+	}
+	if user.CurrentProject.Name == "" {
+		var projectMember model.ProjectMember
+		err := db.DB.Model(&model.ProjectMember{}).Where("user_id = ?", user.ID).Preload("Project").First(&projectMember).Error
+		if err != nil && gorm.IsRecordNotFoundError(err) {
+			return nil, err
+		}
+		if gorm.IsRecordNotFoundError(err) {
+			var clusterMember model.ClusterMember
+			err := db.DB.Model(&model.ClusterMember{}).Where("user_id = ?", user.ID).First(&clusterMember).Error
+			if err != nil && gorm.IsRecordNotFoundError(err) {
+				return nil, err
+			}
+			if gorm.IsRecordNotFoundError(err) {
+				return nil, errors.New("no resource")
+			}
+			err = db.DB.Model(&model.ProjectMember{}).Where("cluster_id = ?", clusterMember.ClusterID).Preload("Project").First(&projectMember).Error
+			if err != nil {
+				return nil, err
+			}
+			if projectMember.Project.Name != "" {
+				user.CurrentProject = projectMember.Project
+				user.CurrentProjectID = projectMember.Project.ID
+				db.DB.Save(user)
+			}
+			return []string{constant.ClusterManager}, nil
+		}
+		if projectMember.Project.Name != "" {
+			user.CurrentProject = projectMember.Project
+			user.CurrentProjectID = projectMember.Project.ID
+			db.DB.Save(user)
+		}
+		return []string{constant.ProjectManager}, nil
+	} else {
+		return []string{constant.ProjectManager}, nil
+	}
 }

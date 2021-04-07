@@ -7,11 +7,12 @@ import (
 
 type ProjectMember struct {
 	common.BaseModel
-	ID        string `json:"-" gorm:"type:varchar(64)"`
-	ProjectID string `json:"-" gorm:"type:varchar(64)"`
-	UserID    string `json:"-" gorm:"type:varchar(64)"`
-	Role      string `json:"role" gorm:"type:varchar(64)"`
-	User      User   `json:"-" gorm:"save_associations:false"`
+	ID        string  `json:"-" gorm:"type:varchar(64)"`
+	ProjectID string  `json:"-" gorm:"type:varchar(64)"`
+	UserID    string  `json:"-" gorm:"type:varchar(64)"`
+	Role      string  `json:"role" gorm:"type:varchar(64)"`
+	User      User    `json:"-" gorm:"save_associations:false"`
+	Project   Project `json:"-" gorm:"save_associations:false"`
 }
 
 func (p *ProjectMember) BeforeCreate() (err error) {
