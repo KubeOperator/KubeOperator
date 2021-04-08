@@ -10,7 +10,7 @@ import (
 )
 
 func RBACMiddleware() iris.Handler {
-	r, err := grbac.New(grbac.WithAdvancedRules(constant.SystemRules))
+	r, err := grbac.New(grbac.WithAdvancedRules(constant.Roles))
 	if err != nil {
 		panic(err)
 	}
@@ -33,12 +33,6 @@ func RBACMiddleware() iris.Handler {
 
 func querySystemRoles(ctx context.Context) []string {
 	u := ctx.Values().Get("user").(dto.SessionUser)
-	var roles []string
-	if u.IsAdmin {
-		roles = append(roles, constant.SystemRoleAdmin)
-	} else {
-		roles = append(roles, constant.SystemRoleUser)
-	}
-	ctx.Values().Set("roles", roles)
-	return roles
+	ctx.Values().Set("roles", u.Roles)
+	return u.Roles
 }
