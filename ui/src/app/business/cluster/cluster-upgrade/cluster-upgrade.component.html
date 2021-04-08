@@ -8,6 +8,7 @@
                         required>
                     <option *ngFor="let re of upgradeVersions" [value]="re">{{re}}</option>
                 </select>
+                <clr-control-helper *ngIf="upgradeVersions.length === 0">{{'APP_CLUSTER_UPGRADE_HELPER'|translate}}</clr-control-helper>
             </clr-select-container>
         </form>
         <div *ngIf="newManifest&&oldManifest">

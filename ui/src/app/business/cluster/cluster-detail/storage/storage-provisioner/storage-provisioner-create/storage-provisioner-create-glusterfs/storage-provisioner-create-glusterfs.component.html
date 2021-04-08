@@ -1,0 +1,20 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
+    <div class="modal-body">
+        <form clrForm #nfsForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_NAME"|translate}}</label>
+                <input clrInput [(ngModel)]="item.name" name="name"
+                       pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" size="34" disabled
+                       required>
+                <clr-control-helper>{{'APP_STORAGE_NAME_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
+            <app-modal-alert></app-modal-alert>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="nfsForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

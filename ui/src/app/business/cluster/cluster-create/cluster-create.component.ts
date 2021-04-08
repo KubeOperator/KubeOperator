@@ -176,10 +176,14 @@ export class ClusterCreateComponent implements OnInit {
     setDefaultValue() {
         this.item.provider = 'bareMetal';
         this.item.networkType = 'flannel';
+        this.item.ciliumVersion = 'v1.9.5';
+        this.item.ciliumNativeRoutingCidr = '10.244.0.0/18';
         this.item.runtimeType = 'docker';
         this.item.dockerStorageDir = '/var/lib/docker';
         this.item.containerdStorageDir = '/var/lib/containerd';
         this.item.flannelBackend = 'vxlan';
+        this.item.enableDnsCache = 'enable';
+        this.item.dnsCacheVersion = '1.17.0';
         this.item.calicoIpv4poolIpip = 'Always';
         this.item.dockerSubnet = '172.17.0.1/16';
         this.item.kubernetesAudit = 'no';
@@ -282,6 +286,23 @@ export class ClusterCreateComponent implements OnInit {
         });
     }
 
+    getDefaultTunnelMode() {
+        if (this.item.flannelBackend === 'Overlay') {
+            this.item.ciliumTunnelMode = 'vxlan'
+        } else {
+            this.item.ciliumTunnelMode = 'disabled'
+        }
+    }
+
+    getDefaultFlannelBackend() {
+        if (this.item.networkType === 'cilium') {
+            this.item.flannelBackend = 'Overlay'
+            this.item.ciliumTunnelMode = 'vxlan'
+        } else {
+            this.item.flannelBackend = 'vxlan'
+        }
+    }
+
     loadVersion() {
         this.manifestService.listActive().subscribe(data => {
             for (const m of data) {
@@ -308,6 +329,9 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.item.ciliumTunnelMode === 'flannelBackend') {
+            this.item.ciliumTunnelMode = 'disable'
+        }
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();

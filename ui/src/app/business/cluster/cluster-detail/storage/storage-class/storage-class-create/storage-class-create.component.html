@@ -20,6 +20,9 @@
                     </option>
                 </select>
             </clr-select-container>
+
+            <app-modal-alert></app-modal-alert>
+
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='nfs'">
                 <tbody>
                 <tr>
@@ -183,6 +186,72 @@
                 </tbody>
             </table>
 
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='glusterfs'">
+                <tbody>
+                    <tr>
+                        <th>{{'APP_PROVISIONER_NAME'|translate}}</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner" disabled>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>REST URL</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="resturl" placeholder="eg: 172.0.0.1:8081" [(ngModel)]="item.parameters['resturl']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>REST USER</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="restuser" placeholder="eg: admin" [(ngModel)]="item.parameters['restuser']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>REST PASSWORD</th>
+                        <td>
+                            <input [size]="34" type="password" class="clr-input" name="restuserkey" [(ngModel)]="item.parameters['restuserkey']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Namespace</th>
+                        <td>
+                            <input (change)="checkSecrets()" [size]="34" class="clr-input" name="secretNamespace" placeholder="eg: kube-system" [(ngModel)]="item.parameters['secretNamespace']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Secret Name</th>
+                        <td>
+                            <input (change)="checkSecrets()" [size]="34" class="clr-input" name="secretName" placeholder="eg: heketi-secret" [(ngModel)]="item.parameters['secretName']" required>
+                            <clr-control-helper *ngIf="isSecretsExit" style="color: red;">{{'SECRET_NAME_IS_EXIST'|translate}}</clr-control-helper>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>CLUSTER ID</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="clusterid" placeholder="eg: 8a4ff57af81910e8324368a23afe3bdc" [(ngModel)]="item.parameters['clusterid']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>GID MIN</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="gidMin" placeholder="eg: 40000" [(ngModel)]="item.parameters['gidMin']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>GID MAX</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="gidMax" placeholder="eg: 50000" [(ngModel)]="item.parameters['gidMax']" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>VOLUME TYPE</th>
+                        <td>
+                            <input [size]="34" class="clr-input" name="volumetype" placeholder="eg: replicate:3" [(ngModel)]="item.parameters['volumetype']" required>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='oceanstor'">
                 <tbody>
                 <tr>
@@ -270,12 +339,11 @@
                 </tbody>
             </table>
         </form>
-        <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()"
                 [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
-                [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
+                [disabled]="itemForm.invalid || isSecretsExit">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

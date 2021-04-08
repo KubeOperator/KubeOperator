@@ -1,0 +1,8 @@
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.14.1\"}, {\"name\":\"flanneld\",\"version\":\"v0.12.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.4-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.14.1\"}, {\"name\":\"flanneld\",\"version\":\"v0.12.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.6-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.14.1\"}, {\"name\":\"flanneld\",\"version\":\"v0.12.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.8-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.14.1\"}, {\"name\":\"flanneld\",\"version\":\"v0.12.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.10-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.16.5\"}, {\"name\":\"flanneld\",\"version\":\"v0.13.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.12-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.16.5\"}, {\"name\":\"flanneld\",\"version\":\"v0.13.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.14-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.16.5\"}, {\"name\":\"flanneld\",\"version\":\"v0.13.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.15-ko1';
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.16.5\"}, {\"name\":\"flanneld\",\"version\":\"v0.13.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.20.4-ko1';

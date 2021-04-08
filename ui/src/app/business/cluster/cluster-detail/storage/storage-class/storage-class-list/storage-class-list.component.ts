@@ -19,7 +19,7 @@ export class StorageClassListComponent implements OnInit {
     previousToken = '';
     continueToken = '';
     @Output() createEvent = new EventEmitter();
-    @Output() deleteEvent = new EventEmitter<string>();
+    @Output() deleteEvent = new EventEmitter<V1StorageClass>();
 
     constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
@@ -35,8 +35,8 @@ export class StorageClassListComponent implements OnInit {
         this.createEvent.emit();
     }
 
-    onDelete(name) {
-        this.deleteEvent.emit(name);
+    onDelete(item) {
+        this.deleteEvent.emit(item);
     }
 
     list() {

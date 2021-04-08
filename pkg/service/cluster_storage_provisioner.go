@@ -27,6 +27,8 @@ const (
 	NfsStorage          = "10-plugin-cluster-storage-nfs.yml"
 	rookCephStorage     = "10-plugin-cluster-storage-rook-ceph.yml"
 	vsphereStorage      = "10-plugin-cluster-storage-vsphere.yml"
+	cinderStorage       = "10-plugin-cluster-storage-cinder.yml"
+	glusterfsStorage    = "10-plugin-cluster-storage-glusterfs.yml"
 )
 
 type ClusterStorageProvisionerService interface {
@@ -215,6 +217,32 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
+	case "cinder":
+		admCluster.Kobe.SetVar("cinder_csi_version", "v1.20.0")
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, cinderStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForStatefulSetsRunning("kube-system", "csi-cinder-controllerplugin", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
+	case "glusterfs":
+		admCluster.Kobe.SetVar("type", provisioner.Type)
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, glusterfsStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
 	}
 	provisioner.Status = constant.ClusterRunning
 	_ = c.provisionerRepo.Save(cluster.Name, &provisioner)
@@ -304,6 +332,14 @@ func (c clusterStorageProvisionerService) sync(client *kubernetes.Clientset, pro
 		}
 	case "oceanstor":
 		oc, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "huawei-csi-controller", metav1.GetOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		if oc.Status.ReadyReplicas < 1 {
+			return fmt.Errorf("not ready")
+		}
+	case "cinder":
+		oc, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "csi-cinder-controllerplugin", metav1.GetOptions{})
 		if err != nil && checkError(err) {
 			return err
 		}
@@ -441,6 +477,33 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 		if err != nil && checkError(err) {
 			return err
 		}
+	case "cinder":
+		contextTo := context.TODO()
+		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-controller-service", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-controller-sa", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-node-sa", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+
+		err = client.AppsV1().StatefulSets("kube-system").Delete(contextTo, "csi-cinder-controllerplugin", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.StorageV1().CSIDrivers().Delete(contextTo, "cinder.csi.openstack.org", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
+		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "csi-cinder-nodeplugin", metav1.DeleteOptions{})
+		if err != nil && checkError(err) {
+			return err
+		}
 	}
 	return nil
 }
@@ -474,6 +537,9 @@ func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kub
 }
 
 func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
+	if provisioner.Type == "glusterfs" {
+		return nil
+	}
 	var (
 		manifest       model.ClusterManifest
 		storageVars    []model.VersionHelp

@@ -29,6 +29,14 @@
                                     <div *ngIf="currentCluster.spec.networkType === 'flannel'">
                                         <span>{{currentCluster.spec.flannelBackend}}</span> <br>
                                     </div>
+                                    <div *ngIf="currentCluster.spec.networkType === 'cilium'">
+                                        <div *ngIf="currentCluster.spec.flannelBackend === 'Overlay'">
+                                            <span>{{currentCluster.spec.flannelBackend}} - {{currentCluster.spec.ciliumTunnelMode}}</span> <br>
+                                        </div>
+                                        <div *ngIf="currentCluster.spec.flannelBackend === 'Native Routing'">
+                                            <span>{{currentCluster.spec.flannelBackend}}</span> <br>
+                                        </div>
+                                    </div>
                                     <div *ngIf="currentCluster.spec.networkType === 'calico' && currentCluster.spec.calicoIpv4PoolIpip === 'off'">
                                             <span>bgp</span><br>
                                     </div>

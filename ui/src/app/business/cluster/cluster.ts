@@ -18,6 +18,7 @@ export class Spec {
     upgradeVersion: string;
     kubeProxyMode: string;
     networkType: string;
+    ciliumTunnelMode: string;
     flannelBackend: string;
     calicoIpv4PoolIpip: string;
     architectures: string;
@@ -49,12 +50,17 @@ export class ClusterCreateRequest extends BaseModel {
     provider: string;
     architectures: string;
     networkType: string;
+    ciliumVersion: string;
+    ciliumTunnelMode: string;
+    ciliumNativeRoutingCidr: string;
     runtimeType: string;
     dockerStorageDir: string;
     containerdStorageDir: string;
     flannelBackend: string;
     calicoIpv4poolIpip: string;
     kubeProxyMode: string;
+    enableDnsCache: string;
+    dnsCacheVersion: string;
     kubernetesAudit: string;
     ingressControllerType: string;
     plan: string;

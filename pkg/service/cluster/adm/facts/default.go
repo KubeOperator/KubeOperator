@@ -14,7 +14,12 @@ const (
 	KubeMaxPodsFactName                  = "kube_max_pods"
 	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
 	KubeProxyModeFactName                = "kube_proxy_mode"
+	EnableDnsCacheFactName               = "enable_dns_cache"
+	DnsCacheVersionFactName              = "dns_cache_version"
 	NetworkPluginFactName                = "network_plugin"
+	CiliumVersionFactName                = "cilium_version"
+	CiliumTunnelModeFactName             = "cilium_tunnel_mode"
+	CiliumNativeRoutingCidrFactName      = "cilium_native_routing_cidr"
 	KubeImageRepositoryFactName          = "kube_image_repository"
 	PodInfraContainerImageFactName       = "pod_infra_container_image"
 	CertsExpiredFactName                 = "certs_expired"
@@ -73,7 +78,12 @@ var DefaultFacts = map[string]string{
 	KubeNetworkNodePrefixFactName:        "24",
 	KubeMaxPodsFactName:                  "110",
 	KubeProxyModeFactName:                "iptables",
+	EnableDnsCacheFactName:               "enable",
+	DnsCacheVersionFactName:              "1.17.0",
 	NetworkPluginFactName:                "calico",
+	CiliumVersionFactName:                "v1.9.5",
+	CiliumTunnelModeFactName:             "vxlan",
+	CiliumNativeRoutingCidrFactName:      "10.244.0.0/18",
 	KubeServiceNodePortRangeFactName:     "30000-32767",
 	KubeletRootDirFactName:               "/var/lib/kubelet",
 	DockerStorageDirFactName:             "/var/lib/docker",
