@@ -189,7 +189,7 @@ func createToken(user dto.SessionUser) (string, error) {
 func getUserRole(user *model.User) ([]string, error) {
 
 	if user.IsAdmin {
-		return []string{constant.Admin}, nil
+		return []string{constant.RoleAdmin}, nil
 	}
 	if user.CurrentProject.Name == "" {
 		var projectMember model.ProjectMember
@@ -215,15 +215,15 @@ func getUserRole(user *model.User) ([]string, error) {
 				user.CurrentProjectID = projectMember.Project.ID
 				db.DB.Save(user)
 			}
-			return []string{constant.ClusterManager}, nil
+			return []string{constant.RoleClusterManager}, nil
 		}
 		if projectMember.Project.Name != "" {
 			user.CurrentProject = projectMember.Project
 			user.CurrentProjectID = projectMember.Project.ID
 			db.DB.Save(user)
 		}
-		return []string{constant.ProjectManager}, nil
+		return []string{constant.RoleProjectManager}, nil
 	} else {
-		return []string{constant.ProjectManager}, nil
+		return []string{constant.RoleProjectManager}, nil
 	}
 }
