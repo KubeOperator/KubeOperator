@@ -26,7 +26,7 @@ type ProjectService interface {
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
 	Update(name string, update dto.ProjectUpdate) (*dto.Project, error)
-	GetResourceTree() ([]dto.ProjectResourceTree, error)
+	GetResourceTree(user dto.SessionUser) ([]dto.ProjectResourceTree, error)
 }
 
 type projectService struct {
@@ -183,14 +183,20 @@ func (p *projectService) Batch(op dto.ProjectOp) error {
 	return nil
 }
 
-func (p projectService) GetResourceTree() ([]dto.ProjectResourceTree, error) {
+func (p projectService) GetResourceTree(user dto.SessionUser) ([]dto.ProjectResourceTree, error) {
 	var (
 		projects []model.Project
 		tree     []dto.ProjectResourceTree
 	)
 
-	if err := db.DB.Model(model.Project{}).Order("created_at ASC").Find(&projects).Error; err != nil {
-		return nil, err
+	if user.IsAdmin {
+		if err := db.DB.Model(model.Project{}).Order("created_at ASC").Find(&projects).Error; err != nil {
+			return nil, err
+		}
+	} else if user.IsRole(constant.RoleProjectManager) {
+		if err := db.DB.Model(model.Project{}).Where("name = ?", user.CurrentProject).Order("created_at ASC").Find(&projects).Error; err != nil {
+			return nil, err
+		}
 	}
 	id := 0
 	for _, p := range projects {

@@ -188,7 +188,7 @@ func (p ProjectController) PostBatch() error {
 	operator := p.Ctx.Values().GetString("operator")
 	delProjects := ""
 	for _, item := range req.Items {
-		delProjects += (item.Name + ",")
+		delProjects += item.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_PROJECT, delProjects)
 
@@ -196,5 +196,7 @@ func (p ProjectController) PostBatch() error {
 }
 
 func (p ProjectController) GetTree() ([]dto.ProjectResourceTree, error) {
-	return p.ProjectService.GetResourceTree()
+	sessionUser := p.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+	return p.ProjectService.GetResourceTree(user)
 }
