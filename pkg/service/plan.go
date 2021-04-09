@@ -24,7 +24,7 @@ var (
 type PlanService interface {
 	Get(name string) (dto.Plan, error)
 	List(projectName string) ([]dto.Plan, error)
-	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
+	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.PlanCreate) (*dto.Plan, error)
 	Batch(op dto.PlanOp) error
@@ -71,10 +71,10 @@ func (p planService) List(projectName string) ([]dto.Plan, error) {
 	return planDTOs, err
 }
 
-func (p planService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+func (p planService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error) {
 
 	var (
-		page     page.Page
+		pa       page.Page
 		planDTOs []dto.Plan
 		plans    []model.Plan
 	)
@@ -83,9 +83,29 @@ func (p planService) Page(num, size int, conditions condition.Conditions) (*page
 	if err := dbUtil.WithConditions(&d, model.Plan{}, conditions); err != nil {
 		return nil, err
 	}
-	if err := d.Preload("Region").Preload("Zones").Count(&page.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
-		return nil, err
+
+	if user.IsAdmin {
+		if err := d.Preload("Region").Preload("Zones").Count(&pa.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
+			return nil, err
+		}
+	} else if user.IsRole(constant.RoleProjectManager) {
+		var project model.Project
+		if err := db.DB.Model(&model.Project{}).Where("name = ?", user.CurrentProject).Find(&project).Error; err != nil {
+			return nil, err
+		}
+		var projectResources []model.ProjectResource
+		if err := db.DB.Model(&model.ProjectResource{}).Where("project_id = ?", project.ID).Find(&projectResources).Error; err != nil {
+			return nil, err
+		}
+		var resourceIds []string
+		for _, p := range projectResources {
+			resourceIds = append(resourceIds, p.ResourceID)
+		}
+		if err := d.Debug().Where("id in (?) ", resourceIds).Preload("Region").Preload("Zones").Count(&pa.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
+			return nil, err
+		}
 	}
+
 	for _, p := range plans {
 
 		planDTO := new(dto.Plan)
@@ -104,8 +124,8 @@ func (p planService) Page(num, size int, conditions condition.Conditions) (*page
 		planDTOs = append(planDTOs, *planDTO)
 	}
 
-	page.Items = planDTOs
-	return &page, nil
+	pa.Items = planDTOs
+	return &pa, nil
 }
 
 func (p planService) Delete(name string) error {

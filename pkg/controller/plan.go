@@ -37,7 +37,9 @@ func (p PlanController) Get() (*page.Page, error) {
 	if pg {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.PlanService.Page(num, size, condition.TODO())
+		sessionUser := p.Ctx.Values().Get("user")
+		user, _ := sessionUser.(dto.SessionUser)
+		return p.PlanService.Page(num, size, user, condition.TODO())
 	} else {
 		var page page.Page
 		projectName := p.Ctx.URLParam("projectName")
@@ -60,9 +62,11 @@ func (p PlanController) PostSearch() (*page.Page, error) {
 		}
 	}
 	if pg {
+		sessionUser := p.Ctx.Values().Get("user")
+		user, _ := sessionUser.(dto.SessionUser)
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.PlanService.Page(num, size, conditions)
+		return p.PlanService.Page(num, size, user, conditions)
 	} else {
 		var page page.Page
 		projectName := p.Ctx.URLParam("projectName")
@@ -151,7 +155,7 @@ func (p PlanController) PostBatch() error {
 	operator := p.Ctx.Values().GetString("operator")
 	delPlans := ""
 	for _, item := range req.Items {
-		delPlans += (item.Name + ",")
+		delPlans += item.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_PLAN, delPlans)
 
