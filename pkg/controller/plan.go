@@ -39,7 +39,7 @@ func (p PlanController) Get() (*page.Page, error) {
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		sessionUser := p.Ctx.Values().Get("user")
 		user, _ := sessionUser.(dto.SessionUser)
-		return p.PlanService.Page(num, size, user, condition.TODO())
+		return p.PlanService.Page(num, size, user.CurrentProject, condition.TODO())
 	} else {
 		var page page.Page
 		projectName := p.Ctx.URLParam("projectName")
@@ -66,7 +66,7 @@ func (p PlanController) PostSearch() (*page.Page, error) {
 		user, _ := sessionUser.(dto.SessionUser)
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.PlanService.Page(num, size, user, conditions)
+		return p.PlanService.Page(num, size, user.CurrentProject, conditions)
 	} else {
 		var page page.Page
 		projectName := p.Ctx.URLParam("projectName")

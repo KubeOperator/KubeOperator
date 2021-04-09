@@ -26,16 +26,14 @@ func WithProjectResource(db **gorm.DB, projectName string, resourceType string) 
 		}).Find(&res).Error; err != nil {
 			return err
 		}
-		if len(res) > 0 {
-			resIds := func() []string {
-				var r []string
-				for i := range res {
-					r = append(r, res[i].ResourceID)
-				}
-				return r
-			}()
-			*db = (*db).Where("id IN (?)", resIds)
-		}
+		resIds := func() []string {
+			var r []string
+			for i := range res {
+				r = append(r, res[i].ResourceID)
+			}
+			return r
+		}()
+		*db = (*db).Where("id IN (?)", resIds)
 	}
 	return nil
 }

@@ -122,6 +122,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 		}
 	} else {
 		if user.IsRole(constant.RoleProjectManager) {
+
 			var projectResources []model.ProjectMember
 			err := db.DB.Where("user_id = ?", user.UserId).Find(&projectResources).Error
 			if err != nil {
