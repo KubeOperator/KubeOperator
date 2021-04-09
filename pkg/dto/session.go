@@ -33,3 +33,14 @@ type Captcha struct {
 type SessionStatus struct {
 	IsLogin bool `json:"isLogin"`
 }
+
+func (s SessionUser) IsRole(userRole string) bool {
+	var result = false
+	for _, role := range s.Roles {
+		if userRole == role {
+			result = true
+			break
+		}
+	}
+	return result
+}

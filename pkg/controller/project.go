@@ -37,14 +37,8 @@ func (p ProjectController) Get() (*page.Page, error) {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		sessionUser := p.Ctx.Values().Get("user")
-		var userId string
-		user, ok := sessionUser.(dto.SessionUser)
-		if ok && !user.IsAdmin {
-			userId = user.UserId
-		} else {
-			userId = ""
-		}
-		return p.ProjectService.Page(num, size, userId, condition.TODO())
+		user, _ := sessionUser.(dto.SessionUser)
+		return p.ProjectService.Page(num, size, user, condition.TODO())
 	} else {
 		var page page.Page
 		items, err := p.ProjectService.List()
@@ -67,16 +61,10 @@ func (p ProjectController) PostSearch() (*page.Page, error) {
 	}
 	if pa {
 		sessionUser := p.Ctx.Values().Get("user")
-		var userId string
-		user, ok := sessionUser.(dto.SessionUser)
-		if ok && !user.IsAdmin {
-			userId = user.UserId
-		} else {
-			userId = ""
-		}
+		user, _ := sessionUser.(dto.SessionUser)
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.ProjectService.Page(num, size, userId, conditions)
+		return p.ProjectService.Page(num, size, user, conditions)
 	} else {
 		var page page.Page
 		items, err := p.ProjectService.List()

@@ -21,7 +21,7 @@ var (
 type ProjectService interface {
 	Get(name string) (*dto.Project, error)
 	List() ([]dto.Project, error)
-	Page(num, size int, userId string, conditions condition.Conditions) (*page.Page, error)
+	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
@@ -103,7 +103,7 @@ func (p *projectService) Update(name string, update dto.ProjectUpdate) (*dto.Pro
 	return &dto.Project{Project: mo}, err
 }
 
-func (p *projectService) Page(num, size int, userId string, conditions condition.Conditions) (*page.Page, error) {
+func (p *projectService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error) {
 
 	var (
 		pa          page.Page
@@ -116,23 +116,39 @@ func (p *projectService) Page(num, size int, userId string, conditions condition
 		return nil, err
 	}
 
-	if userId == "" {
+	if user.IsAdmin {
 		if err := d.Count(&pa.Total).Order("created_at ASC").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
-		var projectResources []model.ProjectMember
-		err := db.DB.Where("user_id = ?", userId).Find(&projectResources).Error
-		if err != nil {
-			return nil, err
-		}
-		var projectIds []string
-		for _, pm := range projectResources {
-			projectIds = append(projectIds, pm.ProjectID)
-		}
-		err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
-		if err != nil {
-			return nil, err
+		if user.IsRole(constant.RoleProjectManager) {
+			var projectResources []model.ProjectMember
+			err := db.DB.Where("user_id = ?", user.UserId).Find(&projectResources).Error
+			if err != nil {
+				return nil, err
+			}
+			var projectIds []string
+			for _, pm := range projectResources {
+				projectIds = append(projectIds, pm.ProjectID)
+			}
+			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			var projectResources []model.ProjectResource
+			err := db.DB.Raw("SELECT DISTINCT project_id  FROM ko_project_resource WHERE resource_type = 'CLUSTER' AND resource_id in (SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE user_id = ?)", user.UserId).Scan(&projectResources).Error
+			if err != nil {
+				return nil, err
+			}
+			var projectIds []string
+			for _, pm := range projectResources {
+				projectIds = append(projectIds, pm.ProjectID)
+			}
+			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
