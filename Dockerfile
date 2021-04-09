@@ -37,7 +37,7 @@ RUN setcap cap_net_raw=+ep /bin/ping
 
 ARG GOARCH
 
-RUN apt-get update && apt -y upgrade  && apt-get -y install wget curl git
+RUN apt-get update && apt -y upgrade  && apt-get -y install wget git
 
 WORKDIR /usr/local/bin
 
