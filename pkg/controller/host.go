@@ -14,11 +14,6 @@ import (
 	"github.com/kataras/iris/v12/context"
 )
 
-var (
-	HostAlreadyExistsErr     = "HOST_ALREADY_EXISTS"
-	SystemRegistryIpNotFound = "SYSTEM_REGISTRY_IP_NOT_FOUND"
-)
-
 type HostController struct {
 	Ctx                  context.Context
 	HostService          service.HostService
@@ -43,17 +38,17 @@ func NewHostController() *HostController {
 // @Router /hosts/ [get]
 func (h *HostController) Get() (*page.Page, error) {
 	p, _ := h.Ctx.Values().GetBool("page")
-	profile, err := sessionUtil.GetUser(h.Ctx)
+	projectName, err := sessionUtil.GetProjectName(h.Ctx)
 	if err != nil {
 		return nil, err
 	}
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return h.HostService.Page(num, size, profile.User.CurrentProject, condition.TODO())
+		return h.HostService.Page(num, size, projectName, condition.TODO())
 	} else {
 		var p page.Page
-		items, err := h.HostService.List(profile.User.CurrentProject, condition.TODO())
+		items, err := h.HostService.List(projectName, condition.TODO())
 		if err != nil {
 			return &p, err
 		}
@@ -78,7 +73,7 @@ func (h *HostController) GetBy(name string) (*dto.Host, error) {
 
 func (h *HostController) PostSearch() (*page.Page, error) {
 	var conditions condition.Conditions
-	profile, err := sessionUtil.GetUser(h.Ctx)
+	projectName, err := sessionUtil.GetProjectName(h.Ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +86,10 @@ func (h *HostController) PostSearch() (*page.Page, error) {
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return h.HostService.Page(num, size, profile.User.CurrentProject, conditions)
+		return h.HostService.Page(num, size, projectName, conditions)
 	} else {
 		var p page.Page
-		items, err := h.HostService.List(profile.User.CurrentProject, conditions)
+		items, err := h.HostService.List(projectName, conditions)
 		if err != nil {
 			return &p, err
 		}
