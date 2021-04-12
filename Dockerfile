@@ -35,7 +35,7 @@ FROM ubuntu:20.04
 ARG GOARCH
 
 RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-ping
-RUN apt remove less
+RUN apt remove less -y
 RUN setcap cap_net_raw=+ep /bin/ping
 
 WORKDIR /usr/local/bin
