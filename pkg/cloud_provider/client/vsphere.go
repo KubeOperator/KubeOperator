@@ -290,7 +290,12 @@ func (v *vSphereClient) UploadImage() error {
 	if err != nil {
 		return err
 	}
-	datastore, err := f.Datastore(ctx, v.Vars["datastore"].(string))
+	var datastoreName string
+	for _, name := range v.Vars["datastore"].([]interface{}) {
+		datastoreName = name.(string)
+		break
+	}
+	datastore, err := f.Datastore(ctx, datastoreName)
 	if err != nil {
 		return err
 	}
