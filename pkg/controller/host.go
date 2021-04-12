@@ -121,20 +121,6 @@ func (h *HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	//repos, err := h.SystemSettingService.GetLocalIPs()
-	//isExit := false
-	//for _, repo := range repos {
-	//	if repo.Hostname == req.Ip {
-	//		isExit = true
-	//	}
-	//}
-	//if isExit {
-	//	return nil, errors.New("IS_LOCAL_HOST")
-	//}
-	//item, _ := h.HostService.Get(req.Name)
-	//if item.ID != "" {
-	//	return nil, errors.New(HostAlreadyExistsErr)
-	//}
 	item, err := h.HostService.Create(req)
 	if err != nil {
 		return nil, err
@@ -157,7 +143,6 @@ func (h *HostController) Post() (*dto.Host, error) {
 func (h *HostController) DeleteBy(name string) error {
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_HOST, name)
-
 	return h.HostService.Delete(name)
 }
 
@@ -170,11 +155,10 @@ func (h *HostController) PostSync() error {
 
 	var hostStr string
 	for _, host := range req {
-		hostStr += (host.HostName + ",")
+		hostStr += host.HostName + ","
 	}
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.SYNC_HOST_LIST, hostStr)
-
 	return h.HostService.SyncList(req)
 }
 
@@ -197,7 +181,7 @@ func (h *HostController) PostBatch() error {
 	operator := h.Ctx.Values().GetString("operator")
 	delHost := ""
 	for _, item := range req.Items {
-		delHost += (item.Name + ",")
+		delHost += item.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_HOST, delHost)
 
