@@ -84,3 +84,12 @@ func Ping(host string) error {
 		return errors.New("request timeout")
 	}
 }
+
+func CheckIP(ip string) bool {
+	address := net.ParseIP(ip)
+	if address == nil {
+		return false
+	} else {
+		return true
+	}
+}

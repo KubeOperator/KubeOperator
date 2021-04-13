@@ -106,6 +106,9 @@ VM_CONFIG_DELETE_FAILED: "The configuration already belongs to the deployment pl
 #ip
 IP_EXISTS: "The entered IP segment conflicts with the existing IP segment, please fill in again"
 IP_NOT_AVAILABLE: "IP %s is occupied and cannot be released"
+IP_INVALID: "Ip is invalid！"
+IP_NULL: "The number of generated IP addresses is 0. Please check the starting address and subnet!"
+
 
 #ip-pool
 IP_POOL_DELETE_FAILED: "The IP pool has been associated with the available zone and cannot be deleted"
