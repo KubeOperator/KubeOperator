@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	sessionUtil "github.com/KubeOperator/KubeOperator/pkg/util/session"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -32,17 +33,17 @@ func NewPlanController() *PlanController {
 // @Security ApiKeyAuth
 // @Router /plans/ [get]
 func (p PlanController) Get() (*page.Page, error) {
-
+	projectName, err := sessionUtil.GetProjectName(p.Ctx)
+	if err != nil {
+		return nil, err
+	}
 	pg, _ := p.Ctx.Values().GetBool("page")
 	if pg {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		sessionUser := p.Ctx.Values().Get("user")
-		user, _ := sessionUser.(dto.SessionUser)
-		return p.PlanService.Page(num, size, user.CurrentProject, condition.TODO())
+		return p.PlanService.Page(num, size, projectName, condition.TODO())
 	} else {
 		var page page.Page
-		projectName := p.Ctx.URLParam("projectName")
 		items, err := p.PlanService.List(projectName)
 		if err != nil {
 			return nil, err
@@ -61,15 +62,16 @@ func (p PlanController) PostSearch() (*page.Page, error) {
 			return nil, err
 		}
 	}
+	projectName, err := sessionUtil.GetProjectName(p.Ctx)
+	if err != nil {
+		return nil, err
+	}
 	if pg {
-		sessionUser := p.Ctx.Values().Get("user")
-		user, _ := sessionUser.(dto.SessionUser)
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.PlanService.Page(num, size, user.CurrentProject, conditions)
+		return p.PlanService.Page(num, size, projectName, conditions)
 	} else {
 		var page page.Page
-		projectName := p.Ctx.URLParam("projectName")
 		items, err := p.PlanService.List(projectName)
 		if err != nil {
 			return nil, err

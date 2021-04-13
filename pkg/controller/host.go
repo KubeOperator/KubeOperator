@@ -14,11 +14,6 @@ import (
 	"github.com/kataras/iris/v12/context"
 )
 
-var (
-	HostAlreadyExistsErr     = "HOST_ALREADY_EXISTS"
-	SystemRegistryIpNotFound = "SYSTEM_REGISTRY_IP_NOT_FOUND"
-)
-
 type HostController struct {
 	Ctx                  context.Context
 	HostService          service.HostService
@@ -43,17 +38,17 @@ func NewHostController() *HostController {
 // @Router /hosts/ [get]
 func (h *HostController) Get() (*page.Page, error) {
 	p, _ := h.Ctx.Values().GetBool("page")
-	profile, err := sessionUtil.GetUser(h.Ctx)
+	projectName, err := sessionUtil.GetProjectName(h.Ctx)
 	if err != nil {
 		return nil, err
 	}
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return h.HostService.Page(num, size, profile.User.CurrentProject, condition.TODO())
+		return h.HostService.Page(num, size, projectName, condition.TODO())
 	} else {
 		var p page.Page
-		items, err := h.HostService.List(profile.User.CurrentProject, condition.TODO())
+		items, err := h.HostService.List(projectName, condition.TODO())
 		if err != nil {
 			return &p, err
 		}
@@ -78,7 +73,7 @@ func (h *HostController) GetBy(name string) (*dto.Host, error) {
 
 func (h *HostController) PostSearch() (*page.Page, error) {
 	var conditions condition.Conditions
-	profile, err := sessionUtil.GetUser(h.Ctx)
+	projectName, err := sessionUtil.GetProjectName(h.Ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +86,10 @@ func (h *HostController) PostSearch() (*page.Page, error) {
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return h.HostService.Page(num, size, profile.User.CurrentProject, conditions)
+		return h.HostService.Page(num, size, projectName, conditions)
 	} else {
 		var p page.Page
-		items, err := h.HostService.List(profile.User.CurrentProject, conditions)
+		items, err := h.HostService.List(projectName, conditions)
 		if err != nil {
 			return &p, err
 		}
@@ -126,20 +121,6 @@ func (h *HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	//repos, err := h.SystemSettingService.GetLocalIPs()
-	//isExit := false
-	//for _, repo := range repos {
-	//	if repo.Hostname == req.Ip {
-	//		isExit = true
-	//	}
-	//}
-	//if isExit {
-	//	return nil, errors.New("IS_LOCAL_HOST")
-	//}
-	//item, _ := h.HostService.Get(req.Name)
-	//if item.ID != "" {
-	//	return nil, errors.New(HostAlreadyExistsErr)
-	//}
 	item, err := h.HostService.Create(req)
 	if err != nil {
 		return nil, err
@@ -162,7 +143,6 @@ func (h *HostController) Post() (*dto.Host, error) {
 func (h *HostController) DeleteBy(name string) error {
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_HOST, name)
-
 	return h.HostService.Delete(name)
 }
 
@@ -175,11 +155,10 @@ func (h *HostController) PostSync() error {
 
 	var hostStr string
 	for _, host := range req {
-		hostStr += (host.HostName + ",")
+		hostStr += host.HostName + ","
 	}
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.SYNC_HOST_LIST, hostStr)
-
 	return h.HostService.SyncList(req)
 }
 
@@ -202,7 +181,7 @@ func (h *HostController) PostBatch() error {
 	operator := h.Ctx.Values().GetString("operator")
 	delHost := ""
 	for _, item := range req.Items {
-		delHost += (item.Name + ",")
+		delHost += item.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_HOST, delHost)
 

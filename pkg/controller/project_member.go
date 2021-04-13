@@ -114,9 +114,10 @@ func (p ProjectMemberController) PostBatch() error {
 	return err
 }
 
-func (p ProjectMemberController) GetUsers() (dto.AddMemberResponse, error) {
+func (p ProjectMemberController) GetUsers() (*dto.AddMemberResponse, error) {
 	name := p.Ctx.URLParam("name")
-	return p.ProjectMemberService.GetUsers(name)
+	projectName := p.Ctx.Params().GetString("project")
+	return p.ProjectMemberService.GetUsers(name, projectName)
 }
 
 func (p ProjectMemberController) GetRoles() ([]string, error) {

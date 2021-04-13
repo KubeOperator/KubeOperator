@@ -15,7 +15,7 @@ import (
 type ProjectMemberService interface {
 	Page(projectName string, num, size int) (*page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
-	GetUsers(name string) (dto.AddMemberResponse, error)
+	GetUsers(name string, projectName string) (*dto.AddMemberResponse, error)
 	Create(projectName string, request dto.ProjectMemberCreate) ([]dto.ProjectMember, error)
 	Get(name string, projectName string) (*dto.ProjectMember, error)
 	Delete(name, projectName string) error
@@ -95,19 +95,26 @@ func (p *projectMemberService) Batch(op dto.ProjectMemberOP) error {
 	return p.projectMemberRepo.Batch(op.Operation, opItems)
 }
 
-func (p *projectMemberService) GetUsers(name string) (dto.AddMemberResponse, error) {
-	var result dto.AddMemberResponse
-	var users []model.User
-	err := db.DB.Select("name").Where("is_admin = 0 AND name LIKE ?", "%"+name+"%").Find(&users).Error
-	if err != nil {
-		return result, err
+func (p *projectMemberService) GetUsers(name, projectName string) (*dto.AddMemberResponse, error) {
+
+	var (
+		result   dto.AddMemberResponse
+		users    []model.User
+		addUsers []string
+		project  model.Project
+	)
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
+		return nil, err
 	}
-	var addUsers []string
+	err := db.DB.Select("name").Where("is_admin = 0 AND name LIKE ?  AND id  NOT IN (SELECT user_id FROM ko_project_member WHERE project_id = ? AND role = 'PROJECT_MANAGER' ) ", "%"+name+"%", project.ID).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
 	for _, user := range users {
 		addUsers = append(addUsers, user.Name)
 	}
 	result.Items = addUsers
-	return result, nil
+	return &result, nil
 }
 
 func (p *projectMemberService) Create(projectName string, request dto.ProjectMemberCreate) ([]dto.ProjectMember, error) {

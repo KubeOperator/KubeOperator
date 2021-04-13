@@ -82,7 +82,13 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	mask, _ := strconv.Atoi(cs[1])
 	startIp := strings.Replace(create.IpStart, " ", "", -1)
 	endIp := strings.Replace(create.IpEnd, " ", "", -1)
+	if !(ipaddr.CheckIP(startIp) && ipaddr.CheckIP(endIp)) {
+		return errors.New("IP_INVALID")
+	}
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
+	if len(ips) == 0 {
+		return errors.New("IP_NULL")
+	}
 	for _, ip := range ips {
 		var old model.Ip
 		tx.Where("address = ?", ip).First(&old)

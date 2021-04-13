@@ -19,3 +19,17 @@ func GetUser(ctx context.Context) (*dto.Profile, error) {
 	}
 	return p, nil
 }
+
+func GetProjectName(ctx context.Context) (string, error) {
+	session := constant.Sess.Start(ctx)
+	sessionUser := session.Get(constant.SessionUserKey)
+	if sessionUser == nil {
+		return "", errors.New("user is not login")
+	}
+	projectName := ""
+	user, _ := sessionUser.(dto.SessionUser)
+	if !user.IsAdmin {
+		projectName = user.CurrentProject
+	}
+	return projectName, nil
+}
