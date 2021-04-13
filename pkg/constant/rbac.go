@@ -107,6 +107,9 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/hosts/{**}",
 			"/api/v1/manifests",
 			"/api/v1/manifests/{active,group}",
+			"/api/v1/backupaccounts",
+			"/api/v1/backupaccounts/{**}",
+			"/api/v1/backupaccounts/{**}/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -174,6 +177,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/hosts/{sync,upload}",
 			"/api/v1/plans",
 			"/api/v1/vmconfigs",
+			"/api/v1/backupaccounts",
+			"/api/v1/backupaccounts/{**}",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{
@@ -188,6 +193,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/hosts/{**}",
 			"/api/v1/plans/{**}",
 			"/api/v1/vmconfigs/{**}",
+			"/api/v1/backupaccounts/{**}",
 		},
 		Method: []string{"DELETE"},
 		Permission: &grbac.Permission{
@@ -200,6 +206,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/vmconfigs/{**}",
 			"/api/v1/manifests/{**}",
+			"/api/v1/backupaccounts/{**}",
 		},
 		Method: []string{"PATCH"},
 		Permission: &grbac.Permission{
