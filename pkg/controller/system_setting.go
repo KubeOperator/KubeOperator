@@ -168,13 +168,22 @@ func (s SystemSettingController) PostRegistryBatch() error {
 	return err
 }
 
-func (s SystemSettingController) DeleteRegistryBy(arch string) error {
-	err := s.SystemSettingService.DeleteRegistry(arch)
-	if err != nil {
-		return err
-	}
-	operator := s.Ctx.Values().GetString("operator")
+// Delete Registry
+// @Tags Registry
+// @Summary Delete a Registry
+// @Description delete a  Registry by arch
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /settings/registry/{arch}/ [delete]
 
-	go kolog.Save(operator, constant.DELETE_REGISTRY, arch)
-	return err
+func (s SystemSettingController) DeleteRegistryBy(arch string) error {
+	//err := s.SystemSettingService.DeleteRegistry(arch)
+	//if err != nil {
+	//	return err
+	//}
+	//operator := s.Ctx.Values().GetString("operator")
+
+	go kolog.Save("Delete", constant.DELETE_REGISTRY, arch)
+	return s.SystemSettingService.DeleteRegistry(arch)
 }
