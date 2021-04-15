@@ -122,6 +122,22 @@ func (r RegionController) Post() (*dto.Region, error) {
 	return r.RegionService.Create(req)
 }
 
+func (r RegionController) PatchBy(name string) (*dto.Region, error) {
+	var req dto.RegionUpdate
+	err := r.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	operator := r.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_REGION, name)
+	return r.RegionService.Update(name, req)
+}
+
 // Delete Region
 // @Tags regions
 // @Summary Delete a region

@@ -29,6 +29,7 @@ type RegionService interface {
 	Create(creation dto.RegionCreate) (*dto.Region, error)
 	Batch(op dto.RegionOp) error
 	ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error)
+	Update(name string, update dto.RegionUpdate) (*dto.Region, error)
 }
 
 type regionService struct {
@@ -154,6 +155,18 @@ func (r regionService) Create(creation dto.RegionCreate) (*dto.Region, error) {
 		return nil, err
 	}
 	return &dto.Region{Region: region}, err
+}
+
+func (r regionService) Update(name string, update dto.RegionUpdate) (*dto.Region, error) {
+	var region model.Region
+	if err := db.DB.Where("name = ?", name).First(&region).Error; err != nil {
+		return nil, err
+	}
+	vars, _ := json.Marshal(update.RegionVars)
+	region.Vars = string(vars)
+	region.Datacenter = update.Datacenter
+	db.DB.Save(&region)
+	return &dto.Region{Region: region}, nil
 }
 
 func (r regionService) Batch(op dto.RegionOp) error {
