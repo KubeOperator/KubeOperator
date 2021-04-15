@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -23,11 +25,11 @@ type SystemSettingService interface {
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
 	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
-	ListRegistry() ([]dto.SystemRegistry, error)
+	ListRegistry(conditions condition.Conditions) ([]dto.SystemRegistry, error)
+	PageRegistry(num, size int, conditions condition.Conditions) (*page.Page, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
 	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
-	PageRegistry(num, size int) (page.Page, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
 	DeleteRegistry(arch string) error
 }
@@ -167,11 +169,16 @@ func (s systemSettingService) CheckSettingByType(tabName string, creation dto.Sy
 	return nil
 }
 
-func (s systemSettingService) ListRegistry() ([]dto.SystemRegistry, error) {
+func (s systemSettingService) ListRegistry(conditions condition.Conditions) ([]dto.SystemRegistry, error) {
 	var systemRegistryDto []dto.SystemRegistry
-	mos, err := s.systemRegistryRepo.List()
-	if err != nil {
-		return systemRegistryDto, err
+	var mos []model.SystemRegistry
+	d := db.DB.Model(model.SystemRegistry{})
+	if err := dbUtil.WithConditions(&d, model.User{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.Order("architecture").
+		Find(&mos).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range mos {
 		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{
@@ -195,6 +202,32 @@ func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry
 		},
 	}
 	return systemRegistryDto, nil
+}
+
+func (s systemSettingService) PageRegistry(num, size int, conditions condition.Conditions) (*page.Page, error) {
+	var (
+		p                 page.Page
+		systemRegistryDto []dto.SystemRegistry
+		mos               []model.SystemRegistry
+	)
+
+	d := db.DB.Model(model.SystemRegistry{})
+	if err := dbUtil.WithConditions(&d, model.SystemRegistry{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.
+		Count(&p.Total).
+		Order("architecture").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&mos).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range mos {
+		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{SystemRegistry: mo})
+	}
+	p.Items = systemRegistryDto
+	return &p, nil
 }
 
 func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
@@ -223,21 +256,6 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 		return nil, err
 	}
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
-}
-
-func (s systemSettingService) PageRegistry(num, size int) (page.Page, error) {
-	var page page.Page
-	var systemRegistryDto []dto.SystemRegistry
-	total, mos, err := s.systemRegistryRepo.Page(num, size)
-	if err != nil {
-		return page, err
-	}
-	for _, mo := range mos {
-		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{SystemRegistry: mo})
-	}
-	page.Total = total
-	page.Items = systemRegistryDto
-	return page, err
 }
 
 func (s systemSettingService) BatchRegistry(op dto.SystemRegistryBatchOp) error {

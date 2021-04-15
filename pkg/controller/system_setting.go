@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -83,21 +84,21 @@ func (s SystemSettingController) PostCheckBy(typeName string) error {
 	return nil
 }
 
-func (s SystemSettingController) GetRegistry() (page.Page, error) {
+func (s SystemSettingController) GetRegistry() (*page.Page, error) {
 	p, _ := s.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := s.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := s.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return s.SystemSettingService.PageRegistry(num, size)
+		return s.SystemSettingService.PageRegistry(num, size, condition.TODO())
 	} else {
 		var page page.Page
-		items, err := s.SystemSettingService.ListRegistry()
+		items, err := s.SystemSettingService.ListRegistry(condition.TODO())
 		if err != nil {
-			return page, err
+			return &page, err
 		}
 		page.Items = items
 		page.Total = len(items)
-		return page, nil
+		return &page, nil
 	}
 
 }
@@ -125,6 +126,30 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	go kolog.Save(operator, constant.CREATE_REGISTRY, req.Architecture)
 
 	return s.SystemSettingService.CreateRegistry(req)
+}
+
+func (s SystemSettingController) PostRegistrySearch() (*page.Page, error) {
+	var conditions condition.Conditions
+	if s.Ctx.GetContentLength() > 0 {
+		if err := s.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	p, _ := s.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := s.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := s.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return s.SystemSettingService.PageRegistry(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := s.SystemSettingService.ListRegistry(conditions)
+		if err != nil {
+			return &p, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
 }
 
 func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegistry, error) {
@@ -178,12 +203,6 @@ func (s SystemSettingController) PostRegistryBatch() error {
 // @Router /settings/registry/{arch}/ [delete]
 
 func (s SystemSettingController) DeleteRegistryBy(arch string) error {
-	//err := s.SystemSettingService.DeleteRegistry(arch)
-	//if err != nil {
-	//	return err
-	//}
-	//operator := s.Ctx.Values().GetString("operator")
-
 	go kolog.Save("Delete", constant.DELETE_REGISTRY, arch)
 	return s.SystemSettingService.DeleteRegistry(arch)
 }
