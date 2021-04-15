@@ -45,7 +45,7 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 }
 
 func (p ProjectResourceController) Post() ([]dto.ProjectResource, error) {
-	projectName := p.Ctx.Values().GetString("project")
+	projectName := p.Ctx.Params().GetString("project")
 
 	var req dto.ProjectResourceCreate
 	err := p.Ctx.ReadJSON(&req)
@@ -76,7 +76,7 @@ func (p ProjectResourceController) PostBatch() error {
 		return err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
+	operator := p.Ctx.Params().GetString("operator")
 	go saveResourceBindLogs(operator, req)
 
 	return err
@@ -84,13 +84,13 @@ func (p ProjectResourceController) PostBatch() error {
 
 func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.Values().GetString("project")
+	projectName := p.Ctx.Params().GetString("project")
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
 
 func (p ProjectResourceController) DeleteBy(name string) error {
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.Values().GetString("project")
+	projectName := p.Ctx.Params().GetString("project")
 	return p.ProjectResourceService.Delete(name, resourceType, projectName)
 }
 
