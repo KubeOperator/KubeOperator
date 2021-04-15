@@ -25,3 +25,10 @@ type RegionOp struct {
 type CloudRegionResponse struct {
 	Result interface{} `json:"result"`
 }
+
+type RegionUpdate struct {
+	Name       string      `json:"name" validate:"required"`
+	Provider   string      `json:"provider" validate:"required"`
+	RegionVars interface{} `json:"regionVars" validate:"required"`
+	Datacenter string      `json:"datacenter" validate:"required"`
+}

@@ -147,7 +147,11 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
-	var repo model.SystemRegistry
+	var (
+		credential dto.Credential
+		repo       model.SystemRegistry
+		region     dto.Region
+	)
 	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
 		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
 	}
@@ -174,11 +178,16 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 			param["imageName"] = constant.VSphereImageName
 		}
 		credentialService := NewCredentialService()
-		credential, err := credentialService.Get(constant.ImageCredentialName)
+		credential, err = credentialService.Get(constant.ImageCredentialName)
 		if err != nil {
 			return nil, err
 		}
-		creation.CredentialId = credential.ID
+	} else {
+		credentialService := NewCredentialService()
+		credential, err = credentialService.Get(creation.CredentialName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if region.Provider == constant.VSphere {
@@ -210,8 +219,8 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
 		Vars:         string(vars),
-		RegionID:     creation.RegionID,
-		CredentialID: creation.CredentialId,
+		RegionID:     region.ID,
+		CredentialID: credential.ID,
 		IpPoolID:     ipPool.ID,
 		Status:       constant.Ready,
 	}

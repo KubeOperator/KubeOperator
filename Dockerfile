@@ -31,7 +31,7 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM ubuntu:20.04
+FROM ubuntu:20.10
 ARG GOARCH
 
 RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-ping
