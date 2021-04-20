@@ -27,6 +27,7 @@ type UserUpdate struct {
 	Role           string `json:"role"`
 	Language       string `json:"language"`
 	CurrentProject string `json:"currentProject"`
+	Status         string `json:"status"`
 }
 
 type UserOp struct {
