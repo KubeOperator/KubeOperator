@@ -286,6 +286,15 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			tx.Rollback()
 			return nil, err
 		}
+		clusterResource := model.ClusterResource{
+			ResourceID:   plan.ID,
+			ClusterID:    cluster.ID,
+			ResourceType: constant.ResourcePlan,
+		}
+		if err := tx.Create(&clusterResource).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not create cluster  %s resource reason %s", cluster.Name, err.Error())
+		}
 	case constant.ClusterProviderBareMetal:
 		workerNo := 1
 		masterNo := 1

@@ -611,6 +611,15 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 			tx.Rollback()
 			return nil, fmt.Errorf("can not create peroject resource host %s ", newHosts[i].Name)
 		}
+		clusterResource := model.ClusterResource{
+			ResourceType: constant.ResourceHost,
+			ResourceID:   newHosts[i].ID,
+			ClusterID:    cluster.ID,
+		}
+		if err := tx.Create(&clusterResource).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not create cluster resource host %s ", newHosts[i].Name)
+		}
 	}
 	tx.Commit()
 

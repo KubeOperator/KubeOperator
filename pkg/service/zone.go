@@ -171,12 +171,13 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		credential dto.Credential
 		repo       model.SystemRegistry
 		region     dto.Region
+		old        model.Zone
 	)
 	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
 		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
 	}
 
-	old, _ := z.Get(creation.Name)
+	db.DB.Model(model.Zone{}).Where("name = ?", creation.Name).Find(&old)
 	if old.ID != "" {
 		return nil, errors.New(ZoneNameExist)
 	}

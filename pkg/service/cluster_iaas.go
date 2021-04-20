@@ -90,6 +90,14 @@ func (c clusterIaasService) Init(name string) error {
 			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
 		})
+		clusterResource := model.ClusterResource{
+			ClusterID:    cluster.ID,
+			ResourceID:   host.ID,
+			ResourceType: constant.ResourceHost,
+		}
+		if err := db.DB.Create(&clusterResource).Error; err != nil {
+			return err
+		}
 	}
 	err = c.projectResourceRepo.Batch(constant.BatchOperationCreate, projectResources)
 	if err != nil {
