@@ -25,6 +25,7 @@ type ClusterController struct {
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
+	BackupAccountService             service.BackupAccountService
 }
 
 func NewClusterController() *ClusterController {
@@ -39,6 +40,7 @@ func NewClusterController() *ClusterController {
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
+		BackupAccountService:             service.NewBackupAccountService(),
 	}
 }
 
@@ -499,4 +501,8 @@ func (c *ClusterController) GetHealthBy(clusterName string) (*dto.ClusterHealth,
 
 func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterRecoverItem, error) {
 	return c.ClusterHealthService.Recover(clusterName)
+}
+
+func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {
+	return c.BackupAccountService.ListByClusterName(name)
 }

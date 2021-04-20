@@ -54,7 +54,7 @@ func (c ClusterResourceController) DeleteBy(name string) error {
 
 func (c ClusterResourceController) GetList() (interface{}, error) {
 	resourceType := c.Ctx.URLParam("resourceType")
-	projectName := c.Ctx.Values().GetString("project")
+	projectName := c.Ctx.Params().GetString("project")
 	clusterName := c.Ctx.Params().GetString("cluster")
 	return c.ClusterResourceService.GetResources(resourceType, projectName, clusterName)
 }
