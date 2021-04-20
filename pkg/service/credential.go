@@ -3,12 +3,14 @@ package service
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
@@ -19,8 +21,8 @@ var (
 
 type CredentialService interface {
 	Get(name string) (dto.Credential, error)
-	List() ([]dto.Credential, error)
-	Page(num, size int) (page.Page, error)
+	List(conditions condition.Conditions) ([]dto.Credential, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.CredentialCreate) (*dto.Credential, error)
 	Delete(name string) error
 	Batch(op dto.CredentialBatchOp) error
@@ -60,37 +62,53 @@ func (c credentialService) GetById(id string) (dto.Credential, error) {
 	return credentialDTO, err
 }
 
-func (c credentialService) List() ([]dto.Credential, error) {
-	var credentialDTOS []dto.Credential
-	mos, err := c.credentialRepo.List()
-	if err != nil {
-		return credentialDTOS, err
+func (c credentialService) List(conditions condition.Conditions) ([]dto.Credential, error) {
+	var (
+		credentialDTOS []dto.Credential
+		mos            []model.Credential
+	)
+	d := db.DB.Model(model.Credential{})
+	if err := dbUtil.WithConditions(&d, model.Credential{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.Order("name").
+		Find(&mos).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range mos {
 		var credentialDTO dto.Credential
 		credentialDTO.Credential = mo
 		credentialDTOS = append(credentialDTOS, credentialDTO)
 	}
-	return credentialDTOS, err
+	return credentialDTOS, nil
 }
 
-func (c credentialService) Page(num, size int) (page.Page, error) {
+func (c credentialService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+	var (
+		p              page.Page
+		credentialDTOS []dto.Credential
+		mos            []model.Credential
+	)
 
-	var page page.Page
-	var total int
-	var credentialDTOS []dto.Credential
-	total, mos, err := c.credentialRepo.Page(num, size)
-	if err != nil {
-		return page, err
+	d := db.DB.Model(model.Credential{})
+	if err := dbUtil.WithConditions(&d, model.Credential{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.
+		Count(&p.Total).
+		Order("name").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&mos).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range mos {
 		var credentailDTO dto.Credential
 		credentailDTO.Credential = mo
 		credentialDTOS = append(credentialDTOS, credentailDTO)
 	}
-	page.Total = total
-	page.Items = credentialDTOS
-	return page, err
+	p.Items = credentialDTOS
+	return &p, nil
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {

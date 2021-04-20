@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,27 +31,61 @@ func NewCredentialController() *CredentialController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /credentials/ [get]
-func (c CredentialController) Get() (page.Page, error) {
-
+func (c CredentialController) Get() (*page.Page, error) {
 	p, _ := c.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return c.CredentialService.Page(num, size)
+		return c.CredentialService.Page(num, size, condition.TODO())
 	} else {
-		var page page.Page
-		items, err := c.CredentialService.List()
+		var p page.Page
+		items, err := c.CredentialService.List(condition.TODO())
 		if err != nil {
-			return page, err
+			return &p, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
 func (c CredentialController) GetBy(name string) (dto.Credential, error) {
 	return c.CredentialService.Get(name)
+}
+
+// Search Credential
+// @Tags credentials
+// @Summary Search credential
+// @Description Search  credential
+// @Accept  json
+// @Produce  json
+// @Param request body dto.CredentialCreate true "request"
+// @Success 200 {object} dto.Credential
+// @Security ApiKeyAuth
+// @Router /credentials/search [post]
+func (c CredentialController) PostSearch() (*page.Page, error) {
+
+	var conditions condition.Conditions
+	if c.Ctx.GetContentLength() > 0 {
+		if err := c.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	p, _ := c.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return c.CredentialService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		items, err := c.CredentialService.List(conditions)
+		if err != nil {
+			return &p, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
+	}
 }
 
 // Create Credential
@@ -89,10 +124,9 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [delete]
-func (c CredentialController) Delete(name string) error {
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_CREDENTIALS, name)
-
+func (c CredentialController) DeleteBy(name string) error {
+	//operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save("Delete", constant.DELETE_CREDENTIALS, name)
 	return c.CredentialService.Delete(name)
 }
 

@@ -145,7 +145,7 @@ func (s *SessionController) checkSessionLogin(username string, password string, 
 	resp.User = toSessionUser(*u)
 	resp.User.Roles = roles
 	if jwt {
-		token, err := createToken(toSessionUser(*u))
+		token, err := createToken(resp.User)
 		if err != nil {
 			return nil, err
 		}
@@ -170,14 +170,16 @@ func createToken(user dto.SessionUser) (string, error) {
 	exp := viper.GetInt("jwt.exp")
 	secretKey := []byte(viper.GetString("jwt.secret"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name":     user.Name,
-		"email":    user.Email,
-		"userId":   user.UserId,
-		"isActive": user.IsActive,
-		"language": user.Language,
-		"isAdmin":  user.IsAdmin,
-		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(time.Minute * time.Duration(exp)).Unix(),
+		"name":           user.Name,
+		"email":          user.Email,
+		"userId":         user.UserId,
+		"isActive":       user.IsActive,
+		"language":       user.Language,
+		"isAdmin":        user.IsAdmin,
+		"currentProject": user.CurrentProject,
+		"roles":          user.Roles,
+		"iat":            time.Now().Unix(),
+		"exp":            time.Now().Add(time.Minute * time.Duration(exp)).Unix(),
 	})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
