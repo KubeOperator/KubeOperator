@@ -84,7 +84,7 @@ func (z ZoneController) PostSearch() (*page.Page, error) {
 // @Success 200 {object} dto.Zone
 // @Security ApiKeyAuth
 // @Router /zones/{name}/ [get]
-func (z ZoneController) GetBy(name string) (dto.Zone, error) {
+func (z ZoneController) GetBy(name string) (*dto.Zone, error) {
 	return z.ZoneService.Get(name)
 }
 

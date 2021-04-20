@@ -27,7 +27,7 @@ var (
 )
 
 type ZoneService interface {
-	Get(name string) (dto.Zone, error)
+	Get(name string) (*dto.Zone, error)
 	List(conditions condition.Conditions) ([]dto.Zone, error)
 	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
@@ -56,14 +56,34 @@ func NewZoneService() ZoneService {
 	}
 }
 
-func (z zoneService) Get(name string) (dto.Zone, error) {
-	var zoneDTO dto.Zone
-	mo, err := z.zoneRepo.Get(name)
-	if err != nil {
-		return zoneDTO, err
+func (z zoneService) Get(name string) (*dto.Zone, error) {
+	var (
+		zoneDTO dto.Zone
+		zone    model.Zone
+	)
+	if err := db.DB.Model(model.Zone{}).Where("name = ?", name).Preload("Region").Preload("IpPool").Preload("IpPool.Ips").Find(&zone).Error; err != nil {
+		return nil, err
 	}
-	zoneDTO.Zone = mo
-	return zoneDTO, err
+	zoneDTO.Zone = zone
+	m := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(zone.Vars), &m); err != nil {
+		return nil, err
+	}
+	zoneDTO.CloudVars = m
+	zoneDTO.RegionName = zone.Region.Name
+	zoneDTO.Provider = zone.Region.Provider
+	ipUsed := 0
+	for _, ip := range zone.IpPool.Ips {
+		if ip.Status != constant.IpAvailable {
+			ipUsed++
+		}
+	}
+	zoneDTO.IpPool = dto.IpPool{
+		IpUsed: ipUsed,
+		IpPool: zone.IpPool,
+	}
+	zoneDTO.IpPoolName = zone.IpPool.Name
+	return &zoneDTO, nil
 }
 
 func (z zoneService) List(conditions condition.Conditions) ([]dto.Zone, error) {
