@@ -25,12 +25,12 @@ func NewZoneController() *ZoneController {
 // List Zone
 // @Tags zones
 // @Summary Show all zones
-// @Description Show zones
+// @Description 获取可用区列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /zones/ [get]
+// @Router /zones [get]
 func (z ZoneController) Get() (*page.Page, error) {
 
 	p, _ := z.Ctx.Values().GetBool("page")
@@ -50,6 +50,16 @@ func (z ZoneController) Get() (*page.Page, error) {
 	}
 }
 
+// Search Zone
+// @Tags zones
+// @Summary Search zones
+// @Description 过滤部署计划
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /zones/search [post]
 func (z ZoneController) PostSearch() (*page.Page, error) {
 	p, _ := z.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -78,16 +88,27 @@ func (z ZoneController) PostSearch() (*page.Page, error) {
 // Get Zone
 // @Tags zones
 // @Summary Show a zone
-// @Description show a zone by name
+// @Description 获取单个可用区
 // @Accept  json
 // @Produce  json
+// @Param name path string true "可用区名称"
 // @Success 200 {object} dto.Zone
 // @Security ApiKeyAuth
-// @Router /zones/{name}/ [get]
+// @Router /zones/{name} [get]
 func (z ZoneController) GetBy(name string) (*dto.Zone, error) {
 	return z.ZoneService.Get(name)
 }
 
+// Get Zones By Region
+// @Tags zones
+// @Summary Get Zones By Region
+// @Description 获取跟区域关联的可用区
+// @Accept  json
+// @Produce  json
+// @Param region path string true "区域名称"
+// @Success 200 {Array} []dto.Zone
+// @Security ApiKeyAuth
+// @Router /zones/list/{region} [get]
 func (z ZoneController) GetListBy(regionName string) ([]dto.Zone, error) {
 	return z.ZoneService.ListByRegionName(regionName)
 }
@@ -95,13 +116,13 @@ func (z ZoneController) GetListBy(regionName string) ([]dto.Zone, error) {
 // Create Zone
 // @Tags zones
 // @Summary Create a zone
-// @Description create a zone
+// @Description 创建区域
 // @Accept  json
 // @Produce  json
 // @Param request body dto.ZoneCreate true "request"
 // @Success 200 {object} dto.Zone
 // @Security ApiKeyAuth
-// @Router /zones/ [post]
+// @Router /zones [post]
 func (z ZoneController) Post() (*dto.Zone, error) {
 	var req dto.ZoneCreate
 	err := z.Ctx.ReadJSON(&req)
@@ -123,11 +144,12 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 // Delete Zone
 // @Tags zones
 // @Summary Delete a zone
-// @Description delete a zone by name
+// @Description  删除区域
 // @Accept  json
 // @Produce  json
+// @Param name path string true "可用区名称"
 // @Security ApiKeyAuth
-// @Router /zones/{name}/ [delete]
+// @Router /zones/{name} [delete]
 func (z ZoneController) DeleteBy(name string) error {
 	operator := z.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_ZONE, name)
@@ -135,6 +157,17 @@ func (z ZoneController) DeleteBy(name string) error {
 	return z.ZoneService.Delete(name)
 }
 
+// Update Zone
+// @Tags zones
+// @Summary Update a Zone
+// @Description 更新区域
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ZoneUpdate true "request"
+// @Param name path string true "区域名称"
+// @Success 200 {object} dto.Zone
+// @Security ApiKeyAuth
+// @Router /zones/{name} [patch]
 func (z ZoneController) PatchBy(name string) (*dto.Zone, error) {
 	var req dto.ZoneUpdate
 	err := z.Ctx.ReadJSON(&req)
