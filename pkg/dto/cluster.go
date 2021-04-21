@@ -90,6 +90,10 @@ type WebkubectlToken struct {
 	Token string `json:"token"`
 }
 
+type IsClusterNameExist struct {
+	IsExist bool `json:"isExist"`
+}
+
 type ClusterLog struct {
 	model.ClusterLog
 }
