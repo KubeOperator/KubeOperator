@@ -177,7 +177,7 @@ func (p PlanController) PostBatch() error {
 
 // Get Config
 // @Tags plans
-// @Summary Get Vm Configs
+// @Summary Get vmConfigs
 // @Description 获取虚拟机配置
 // @Accept  json
 // @Produce  json

@@ -55,7 +55,7 @@ func (c ClusterResourceController) Get() (*page.Page, error) {
 // @Param cluster path string true "集群名称"
 // @Success 200 {Array} []dto.ClusterResource
 // @Security ApiKeyAuth
-// @Router /projects/{project}/clusters/{cluster}/members [post]
+// @Router /projects/{project}/clusters/{cluster}/resources [post]
 func (c ClusterResourceController) Post() ([]dto.ClusterResource, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	var req dto.ClusterResourceCreate
@@ -71,7 +71,7 @@ func (c ClusterResourceController) Post() ([]dto.ClusterResource, error) {
 
 // Delete ClusterResource
 // @Tags clusterResources
-// @Summary Delete ClusterResource
+// @Summary Delete clusterResource
 // @Description 取消集群资源授权
 // @Accept  json
 // @Produce  json

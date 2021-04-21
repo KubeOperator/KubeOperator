@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -590,7 +590,7 @@ var doc = `{
                 "tags": [
                     "plans"
                 ],
-                "summary": "Get Vm Configs",
+                "summary": "Get vmConfigs",
                 "parameters": [
                     {
                         "type": "string",
@@ -1420,123 +1420,6 @@ var doc = `{
                 "summary": "Delete a plan"
             }
         },
-        "/project/{project}/members": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取项目成员列表",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Show projectMembers by projectName",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "授权成员到项目",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Create a projectMember",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMemberCreate"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMember"
-                        }
-                    }
-                }
-            }
-        },
-        "/project/{project}/members/{name}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "取消项目人员授权",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Delete Project Member",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "人员名称",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ]
-            }
-        },
         "/projects": {
             "get": {
                 "security": [
@@ -1762,7 +1645,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "授权资源到集群",
+                "description": "授权成员到集群",
                 "consumes": [
                     "application/json"
                 ],
@@ -1770,9 +1653,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "clusterResources"
+                    "clusterMembers"
                 ],
-                "summary": "Create a clusterResource",
+                "summary": "Create a cLusterMember",
                 "parameters": [
                     {
                         "description": "request",
@@ -1780,7 +1663,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ClusterResourceCreate"
+                            "$ref": "#/definitions/dto.ClusterMemberCreate"
                         }
                     },
                     {
@@ -1825,7 +1708,7 @@ var doc = `{
                 "tags": [
                     "clusterMembers"
                 ],
-                "summary": "Delete CLusterMember",
+                "summary": "Delete cLusterMember",
                 "parameters": [
                     {
                         "type": "string",
@@ -1893,6 +1776,57 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权资源到集群",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterResources"
+                ],
+                "summary": "Create a clusterResource",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterResourceCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "Array"
+                        }
+                    }
+                }
             }
         },
         "/projects/{project}/clusters/{cluster}/resources/{name}": {
@@ -1912,7 +1846,7 @@ var doc = `{
                 "tags": [
                     "clusterResources"
                 ],
-                "summary": "Delete ClusterResource",
+                "summary": "Delete clusterResource",
                 "parameters": [
                     {
                         "type": "string",
@@ -1938,6 +1872,119 @@ var doc = `{
                     {
                         "type": "string",
                         "description": "资源名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/projects/{project}/members": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取项目成员列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Show projectMembers by projectName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权成员到项目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMemberCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMember"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/members/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消项目人员授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Delete projectMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "人员名称",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -2004,7 +2051,7 @@ var doc = `{
                 "tags": [
                     "projectResources"
                 ],
-                "summary": "Create a ProjectResource",
+                "summary": "Create a projectResource",
                 "parameters": [
                     {
                         "description": "request",
@@ -2050,7 +2097,7 @@ var doc = `{
                 "tags": [
                     "projectResources"
                 ],
-                "summary": "Get Project Resources",
+                "summary": "Get projectResources",
                 "parameters": [
                     {
                         "type": "string",
@@ -2087,7 +2134,7 @@ var doc = `{
                 "tags": [
                     "projectResources"
                 ],
-                "summary": "Delete Project Resource",
+                "summary": "Delete projectResource",
                 "parameters": [
                     {
                         "type": "string",
@@ -2266,7 +2313,7 @@ var doc = `{
                 "tags": [
                     "regions"
                 ],
-                "summary": "Show a Region",
+                "summary": "Show a region",
                 "parameters": [
                     {
                         "type": "string",
@@ -2328,7 +2375,7 @@ var doc = `{
                 "tags": [
                     "regions"
                 ],
-                "summary": "Update a Region",
+                "summary": "Update a region",
                 "parameters": [
                     {
                         "description": "request",
@@ -2642,7 +2689,7 @@ var doc = `{
                 "tags": [
                     "vmConfigs"
                 ],
-                "summary": "Create a VmConfig",
+                "summary": "Create a vmConfig",
                 "parameters": [
                     {
                         "description": "request",
@@ -2893,7 +2940,7 @@ var doc = `{
                 "tags": [
                     "zones"
                 ],
-                "summary": "Get Zones By Region",
+                "summary": "Get zones by region",
                 "parameters": [
                     {
                         "type": "string",
@@ -3031,7 +3078,7 @@ var doc = `{
                 "tags": [
                     "zones"
                 ],
-                "summary": "Update a Zone",
+                "summary": "Update a zone",
                 "parameters": [
                     {
                         "description": "request",

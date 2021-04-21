@@ -30,7 +30,7 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Param project path string true "项目名称"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/{project}/members [get]
+// @Router /projects/{project}/members [get]
 func (p ProjectMemberController) Get() (*page.Page, error) {
 	projectName := p.Ctx.Params().GetString("project")
 	pa, _ := p.Ctx.Values().GetBool("page")
@@ -51,7 +51,8 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 
 // Create ProjectMember
 // @Tags projectMembers
-// @Summary Create a projectMember
+// @Summary Create a
+
 // @Description 授权成员到项目
 // @Accept  json
 // @Produce  json
@@ -59,7 +60,7 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 // @Param project path string true "项目名称"
 // @Success 200 {object} dto.ProjectMember
 // @Security ApiKeyAuth
-// @Router /project/{project}/members [post]
+// @Router /projects/{project}/members [post]
 func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 	projectName := p.Ctx.Params().GetString("project")
 	var req dto.ProjectMemberCreate
@@ -81,14 +82,14 @@ func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 
 // Delete Project Member
 // @Tags projectMembers
-// @Summary Delete Project Member
+// @Summary Delete projectMember
 // @Description 取消项目人员授权
 // @Accept  json
 // @Produce  json
 // @Param project path string true "项目名称"
 // @Param name path string true "人员名称"
 // @Security ApiKeyAuth
-// @Router /project/{project}/members/{name} [delete]
+// @Router /projects/{project}/members/{name} [delete]
 func (p ProjectMemberController) DeleteBy(name string) error {
 	projectName := p.Ctx.Params().GetString("project")
 	return p.ProjectMemberService.Delete(name, projectName)

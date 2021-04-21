@@ -101,7 +101,7 @@ func (z ZoneController) GetBy(name string) (*dto.Zone, error) {
 
 // Get Zones By Region
 // @Tags zones
-// @Summary Get Zones By Region
+// @Summary Get zones by region
 // @Description 获取跟区域关联的可用区
 // @Accept  json
 // @Produce  json
@@ -159,7 +159,7 @@ func (z ZoneController) DeleteBy(name string) error {
 
 // Update Zone
 // @Tags zones
-// @Summary Update a Zone
+// @Summary Update a zone
 // @Description 更新区域
 // @Accept  json
 // @Produce  json

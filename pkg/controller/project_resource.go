@@ -47,7 +47,7 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 
 // Create ProjectResource
 // @Tags projectResources
-// @Summary Create a ProjectResource
+// @Summary Create a projectResource
 // @Description 授权资源到项目
 // @Accept  json
 // @Produce  json
@@ -96,7 +96,7 @@ func (p ProjectResourceController) PostBatch() error {
 
 // Get Project Resources
 // @Tags projectResources
-// @Summary Get Project Resources
+// @Summary Get projectResources
 // @Description 获取能添加到项目的资源
 // @Accept  json
 // @Produce  json
@@ -112,7 +112,7 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 
 // Delete Project Resource
 // @Tags projectResources
-// @Summary Delete Project Resource
+// @Summary Delete projectResource
 // @Description 取消项目资源授权
 // @Accept  json
 // @Produce  json

@@ -93,7 +93,7 @@ func (r RegionController) PostSearch() (*page.Page, error) {
 
 // Get Region
 // @Tags regions
-// @Summary Show a Region
+// @Summary Show a region
 // @Description 获取单个区域
 // @Accept  json
 // @Produce  json
@@ -135,7 +135,7 @@ func (r RegionController) Post() (*dto.Region, error) {
 
 // Update Region
 // @Tags regions
-// @Summary Update a Region
+// @Summary Update a region
 // @Description 更新区域
 // @Accept  json
 // @Produce  json

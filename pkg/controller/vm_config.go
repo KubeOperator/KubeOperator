@@ -106,7 +106,7 @@ func (v VmConfigController) GetBy(name string) (*dto.VmConfig, error) {
 
 // Create VmConfig
 // @Tags vmConfigs
-// @Summary Create a VmConfig
+// @Summary Create a vmConfig
 // @Description 创建虚拟机配置
 // @Accept  json
 // @Produce  json

@@ -1188,14 +1188,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -1443,7 +1443,7 @@ paths:
             type: Array
       security:
       - ApiKeyAuth: []
-      summary: Get Vm Configs
+      summary: Get vmConfigs
       tags:
       - plans
   /credentials/:
@@ -1947,80 +1947,6 @@ paths:
       summary: Search  plans
       tags:
       - plans
-  /project/{project}/members:
-    get:
-      consumes:
-      - application/json
-      description: 获取项目成员列表
-      parameters:
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show projectMembers by projectName
-      tags:
-      - projectMembers
-    post:
-      consumes:
-      - application/json
-      description: 授权成员到项目
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ProjectMemberCreate'
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ProjectMember'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a projectMember
-      tags:
-      - projectMembers
-  /project/{project}/members/{name}:
-    delete:
-      consumes:
-      - application/json
-      description: 取消项目人员授权
-      parameters:
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      - description: 人员名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete Project Member
-      tags:
-      - projectMembers
   /projects:
     get:
       consumes:
@@ -2162,14 +2088,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: 授权资源到集群
+      description: 授权成员到集群
       parameters:
       - description: request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ClusterResourceCreate'
+          $ref: '#/definitions/dto.ClusterMemberCreate'
       - description: 项目名称
         in: path
         name: project
@@ -2189,9 +2115,9 @@ paths:
             type: Array
       security:
       - ApiKeyAuth: []
-      summary: Create a clusterResource
+      summary: Create a cLusterMember
       tags:
-      - clusterResources
+      - clusterMembers
   /projects/{project}/clusters/{cluster}/members/{name}:
     delete:
       consumes:
@@ -2217,7 +2143,7 @@ paths:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete CLusterMember
+      summary: Delete cLusterMember
       tags:
       - clusterMembers
   /projects/{project}/clusters/{cluster}/resources:
@@ -2246,6 +2172,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show all clusterResources
+      tags:
+      - clusterResources
+    post:
+      consumes:
+      - application/json
+      description: 授权资源到集群
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterResourceCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: Array
+      security:
+      - ApiKeyAuth: []
+      summary: Create a clusterResource
       tags:
       - clusterResources
   /projects/{project}/clusters/{cluster}/resources/{name}:
@@ -2278,9 +2237,80 @@ paths:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete ClusterResource
+      summary: Delete clusterResource
       tags:
       - clusterResources
+  /projects/{project}/members:
+    get:
+      consumes:
+      - application/json
+      description: 获取项目成员列表
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show projectMembers by projectName
+      tags:
+      - projectMembers
+    post:
+      consumes:
+      - application/json
+      description: 授权成员到项目
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProjectMemberCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectMember'
+      security:
+      - ApiKeyAuth: []
+  /projects/{project}/members/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消项目人员授权
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 人员名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete projectMember
+      tags:
+      - projectMembers
   /projects/{project}/resources:
     get:
       consumes:
@@ -2334,7 +2364,7 @@ paths:
             $ref: '#/definitions/dto.ProjectResource'
       security:
       - ApiKeyAuth: []
-      summary: Create a ProjectResource
+      summary: Create a projectResource
       tags:
       - projectResources
   /projects/{project}/resources/{name}:
@@ -2357,7 +2387,7 @@ paths:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete Project Resource
+      summary: Delete projectResource
       tags:
       - projectResources
   /projects/{project}/resources/list:
@@ -2380,7 +2410,7 @@ paths:
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Get Project Resources
+      summary: Get projectResources
       tags:
       - projectResources
   /regions:
@@ -2460,7 +2490,7 @@ paths:
             $ref: '#/definitions/dto.Region'
       security:
       - ApiKeyAuth: []
-      summary: Show a Region
+      summary: Show a region
       tags:
       - regions
     patch:
@@ -2488,7 +2518,7 @@ paths:
             $ref: '#/definitions/dto.Region'
       security:
       - ApiKeyAuth: []
-      summary: Update a Region
+      summary: Update a region
       tags:
       - regions
   /regions/datacenter:
@@ -2726,7 +2756,7 @@ paths:
             $ref: '#/definitions/dto.VmConfig'
       security:
       - ApiKeyAuth: []
-      summary: Create a VmConfig
+      summary: Create a vmConfig
       tags:
       - vmConfigs
   /vmconfigs/{name}:
@@ -2926,7 +2956,7 @@ paths:
             $ref: '#/definitions/dto.Zone'
       security:
       - ApiKeyAuth: []
-      summary: Update a Zone
+      summary: Update a zone
       tags:
       - zones
   /zones/list/{region}:
@@ -2949,7 +2979,7 @@ paths:
             type: Array
       security:
       - ApiKeyAuth: []
-      summary: Get Zones By Region
+      summary: Get zones by region
       tags:
       - zones
   /zones/search:

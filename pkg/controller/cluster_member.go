@@ -45,7 +45,7 @@ func (c ClusterMemberController) Get() (*page.Page, error) {
 
 // Create CLusterMember
 // @Tags clusterMembers
-// @Summary Create a CLusterMember
+// @Summary Create a cLusterMember
 // @Description 授权成员到集群
 // @Accept  json
 // @Produce  json
@@ -76,7 +76,7 @@ func (c ClusterMemberController) GetUsers() (dto.UsersResponse, error) {
 
 // Delete CLusterMember
 // @Tags clusterMembers
-// @Summary Delete CLusterMember
+// @Summary Delete cLusterMember
 // @Description 取消集群人员授权
 // @Accept  json
 // @Produce  json
