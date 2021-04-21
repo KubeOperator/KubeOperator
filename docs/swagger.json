@@ -572,7 +572,7 @@
                 "tags": [
                     "plans"
                 ],
-                "summary": "Get Vm Configs",
+                "summary": "Get vmConfigs",
                 "parameters": [
                     {
                         "type": "string",
@@ -1402,123 +1402,6 @@
                 "summary": "Delete a plan"
             }
         },
-        "/project/{project}/members": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取项目成员列表",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Show projectMembers by projectName",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "授权成员到项目",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Create a projectMember",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMemberCreate"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMember"
-                        }
-                    }
-                }
-            }
-        },
-        "/project/{project}/members/{name}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "取消项目人员授权",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Delete projectMember",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "项目名称",
-                        "name": "project",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "人员名称",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ]
-            }
-        },
         "/projects": {
             "get": {
                 "security": [
@@ -1971,6 +1854,119 @@
                     {
                         "type": "string",
                         "description": "资源名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/projects/{project}/members": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取项目成员列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Show projectMembers by projectName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权成员到项目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMemberCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMember"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/members/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消项目人员授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Delete projectMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "人员名称",
                         "name": "name",
                         "in": "path",
                         "required": true

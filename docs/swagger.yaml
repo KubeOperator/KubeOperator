@@ -1443,7 +1443,7 @@ paths:
             type: Array
       security:
       - ApiKeyAuth: []
-      summary: Get Vm Configs
+      summary: Get vmConfigs
       tags:
       - plans
   /credentials/:
@@ -1947,80 +1947,6 @@ paths:
       summary: Search  plans
       tags:
       - plans
-  /project/{project}/members:
-    get:
-      consumes:
-      - application/json
-      description: 获取项目成员列表
-      parameters:
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show projectMembers by projectName
-      tags:
-      - projectMembers
-    post:
-      consumes:
-      - application/json
-      description: 授权成员到项目
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ProjectMemberCreate'
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ProjectMember'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a projectMember
-      tags:
-      - projectMembers
-  /project/{project}/members/{name}:
-    delete:
-      consumes:
-      - application/json
-      description: 取消项目人员授权
-      parameters:
-      - description: 项目名称
-        in: path
-        name: project
-        required: true
-        type: string
-      - description: 人员名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete projectMember
-      tags:
-      - projectMembers
   /projects:
     get:
       consumes:
@@ -2314,6 +2240,77 @@ paths:
       summary: Delete clusterResource
       tags:
       - clusterResources
+  /projects/{project}/members:
+    get:
+      consumes:
+      - application/json
+      description: 获取项目成员列表
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show projectMembers by projectName
+      tags:
+      - projectMembers
+    post:
+      consumes:
+      - application/json
+      description: 授权成员到项目
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProjectMemberCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectMember'
+      security:
+      - ApiKeyAuth: []
+  /projects/{project}/members/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消项目人员授权
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 人员名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete projectMember
+      tags:
+      - projectMembers
   /projects/{project}/resources:
     get:
       consumes:
