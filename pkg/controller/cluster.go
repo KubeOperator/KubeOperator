@@ -93,6 +93,11 @@ func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
 	return &cl, nil
 }
 
+func (c ClusterController) GetExistenceBy(name string) *dto.IsClusterNameExist {
+	isExit := c.ClusterService.CheckExistence(name)
+	return &dto.IsClusterNameExist{IsExist: isExit}
+}
+
 func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) {
 	cs, err := c.ClusterService.GetStatus(name)
 	if err != nil {

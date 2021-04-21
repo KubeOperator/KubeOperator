@@ -29,6 +29,7 @@ import (
 
 type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
+	CheckExistence(name string) bool
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
@@ -94,6 +95,12 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	}
 
 	return clusterDTO, nil
+}
+
+func (c clusterService) CheckExistence(name string) bool {
+	count := 1
+	_ = db.DB.Model(&model.Cluster{}).Where("name = ?", name).Count(&count)
+	return count == 1
 }
 
 func (c clusterService) List() ([]dto.Cluster, error) {
