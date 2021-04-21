@@ -43,7 +43,6 @@ type ClusterService interface {
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Delete(name string, force bool) error
-	Batch(batch dto.ClusterBatch, force bool) error
 }
 
 func NewClusterService() ClusterService {
@@ -636,19 +635,6 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	}
 
 	return token, nil
-}
-
-func (c clusterService) Batch(batch dto.ClusterBatch, force bool) error {
-	switch batch.Operation {
-	case constant.BatchOperationDelete:
-		for _, item := range batch.Items {
-			err := c.Delete(item.Name, force)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func (c clusterService) GetKubeconfig(name string) (string, error) {

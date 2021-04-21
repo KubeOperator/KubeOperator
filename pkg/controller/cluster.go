@@ -285,7 +285,7 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /clusters/{name}/ [delete]
-func (c ClusterController) Delete(name string) error {
+func (c ClusterController) DeleteBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	force, _ := c.Ctx.Values().GetBool("force")
 
@@ -312,25 +312,6 @@ func (c ClusterController) PostImport() error {
 	go kolog.Save(operator, constant.IMPORT_CLUSTER, req.Name)
 
 	return c.ClusterImportService.Import(req)
-}
-
-func (c ClusterController) PostBatch() error {
-	var batch dto.ClusterBatch
-	if err := c.Ctx.ReadJSON(&batch); err != nil {
-		return err
-	}
-	force, _ := c.Ctx.Values().GetBool("force")
-	if err := c.ClusterService.Batch(batch, force); err != nil {
-		return err
-	}
-	operator := c.Ctx.Values().GetString("operator")
-	clusters := ""
-	for _, item := range batch.Items {
-		clusters += item.Name + ","
-	}
-	go kolog.Save(operator, constant.DELETE_CLUSTER, clusters)
-
-	return nil
 }
 
 // Get Cluster Nodes
@@ -364,22 +345,28 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
-func (c ClusterController) PostNodeBatchBy(clusterName string) error {
-	var req dto.NodeBatch
+func (c ClusterController) PostNodeBy(clusterName string) error {
+	var req dto.NodeCreation
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return err
 	}
-	err = c.ClusterNodeService.Batch(clusterName, req)
+	err = c.ClusterNodeService.Create(clusterName, req)
 	if err != nil {
 		return err
 	}
 	operator := c.Ctx.Values().GetString("operator")
-	if req.Operation == "delete" {
-		go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
-	} else {
-		go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
+	go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
+
+	return nil
+}
+
+func (c ClusterController) DeleteNodeBy(clusterName string, nodeName string) error {
+	if err := c.ClusterNodeService.Delete(clusterName, nodeName); err != nil {
+		return err
 	}
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
 
 	return nil
 }
