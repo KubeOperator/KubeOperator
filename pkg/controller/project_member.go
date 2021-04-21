@@ -81,7 +81,7 @@ func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 
 // Delete Project Member
 // @Tags projectMembers
-// @Summary Delete Project Member
+// @Summary Delete projectMember
 // @Description 取消项目人员授权
 // @Accept  json
 // @Produce  json
