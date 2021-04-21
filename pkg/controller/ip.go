@@ -25,12 +25,13 @@ func NewIpController() *IpController {
 // List IP
 // @Tags ips
 // @Summary Show ips by ipPoolName
-// @Description Show ips by ipPoolName
+// @Description 获取IP池下的IP列表
 // @Accept  json
 // @Produce  json
+// @Param name path string true "IP池名称"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /ippools/{name}/ips/ [get]
+// @Router /ippools/{name}/ips [get]
 func (i IpController) Get() (*page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	ipPoolName := i.Ctx.Params().GetString("name")
@@ -50,6 +51,17 @@ func (i IpController) Get() (*page.Page, error) {
 	}
 }
 
+// Search Ip
+// @Tags ips
+// @Summary Search Ip
+// @Description 过滤IP
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Param name path string true "IP池名称"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /ippools/{name}/search [post]
 func (i IpController) PostSearch() (*page.Page, error) {
 	ipPoolName := i.Ctx.Params().GetString("name")
 	var conditions condition.Conditions
@@ -78,10 +90,11 @@ func (i IpController) PostSearch() (*page.Page, error) {
 // Create Ip
 // @Tags ips
 // @Summary Create a Ip
-// @Description create a Ip
+// @Description 新增 Ip
 // @Accept  json
 // @Produce  json
 // @Param request body dto.IpCreate true "request"
+// @Param name path string true "IP池名称"
 // @Success 200 {object} dto.Ip
 // @Security ApiKeyAuth
 // @Router /ippools/{name}/ips [post]
@@ -116,10 +129,11 @@ func (i IpController) PostBatch() error {
 // Update Ip
 // @Tags ips
 // @Summary Update a Ip
-// @Description Update a Ip
+// @Description 更新 Ip
 // @Accept  json
 // @Produce  json
 // @Param request body dto.IpUpdate true "request"
+// @Param name path string true "IP池名称"
 // @Success 200 {object} dto.Ip
 // @Security ApiKeyAuth
 // @Router /ippools/{name}/ips  [patch]
@@ -145,9 +159,10 @@ func (i IpController) PatchSync() error {
 // Delete Ip
 // @Tags ips
 // @Summary Delete a Ip
-// @Description delete a ip by address
+// @Description 删除IP
 // @Accept  json
 // @Produce  json
+// @Param name path string true "IP池名称"
 // @Security ApiKeyAuth
 // @Router /ippools/{name}/ips/{address} [delete]
 func (i IpController) DeleteBy(address string) error {

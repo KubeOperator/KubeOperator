@@ -24,13 +24,13 @@ func NewUserController() *UserController {
 
 // List User
 // @Tags users
-// @Summary Show all users
-// @Description Show users
+// @Summary Show users
+// @Description 获取用户列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /users/ [get]
+// @Router /users [get]
 func (u *UserController) Get() (*page.Page, error) {
 
 	p, _ := u.Ctx.Values().GetBool("page")
@@ -50,6 +50,16 @@ func (u *UserController) Get() (*page.Page, error) {
 	}
 }
 
+// Search User
+// @Tags users
+// @Summary Search user
+// @Description 过滤用户
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /users/search [post]
 func (u *UserController) PostSearch() (*page.Page, error) {
 	var conditions condition.Conditions
 	if u.Ctx.GetContentLength() > 0 {
@@ -77,12 +87,12 @@ func (u *UserController) PostSearch() (*page.Page, error) {
 // Get User
 // @Tags users
 // @Summary Show a user
-// @Description show a user by name
+// @Description 获取单个用户
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} dto.User
 // @Security ApiKeyAuth
-// @Router /users/{name}/ [get]
+// @Router /users/{name} [get]
 func (u *UserController) GetBy(name string) (*dto.User, error) {
 	return u.UserService.Get(name)
 }
@@ -90,13 +100,13 @@ func (u *UserController) GetBy(name string) (*dto.User, error) {
 // Create User
 // @Tags users
 // @Summary Create a user
-// @Description create a user
+// @Description 创建用户
 // @Accept  json
 // @Produce  json
 // @Param request body dto.UserCreate true "request"
-// @Success 200 {object} dto.Host
+// @Success 200 {object} dto.User
 // @Security ApiKeyAuth
-// @Router /users/ [post]
+// @Router /users [post]
 func (u *UserController) Post() (*dto.User, error) {
 	var req dto.UserCreate
 	err := u.Ctx.ReadJSON(&req)
@@ -113,11 +123,12 @@ func (u *UserController) Post() (*dto.User, error) {
 // Delete User
 // @Tags users
 // @Summary Delete a user
-// @Description delete a user by name
+// @Description 删除用户
 // @Accept  json
 // @Produce  json
+// @Param name path string true "用户名"
 // @Security ApiKeyAuth
-// @Router /users/{name}/ [delete]
+// @Router /users/{name} [delete]
 func (u *UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
 	kolog.Save(operator, constant.DELETE_USER, name)
@@ -128,13 +139,14 @@ func (u *UserController) DeleteBy(name string) error {
 // Update User
 // @Tags users
 // @Summary Update a user
-// @Description Update a user
+// @Description 更新用户
 // @Accept  json
 // @Produce  json
 // @Param request body dto.UserUpdate true "request"
+// @Param name path string true "用户名"
 // @Success 200 {object} dto.User
 // @Security ApiKeyAuth
-// @Router /users/{name}/ [patch]
+// @Router /users/{name} [patch]
 func (u *UserController) PatchBy(name string) (*dto.User, error) {
 	var req dto.UserUpdate
 	err := u.Ctx.ReadJSON(&req)
@@ -176,13 +188,23 @@ func (u *UserController) PostBatch() error {
 	operator := u.Ctx.Values().GetString("operator")
 	delUser := ""
 	for _, userItem := range req.Items {
-		delUser += (userItem.Name + ",")
+		delUser += userItem.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_USER, delUser)
 
 	return err
 }
 
+// Change User Password
+// @Tags users
+// @Summary Change user password
+// @Description 更新用户密码
+// @Accept  json
+// @Produce  json
+// @Param request body dto.UserChangePassword true "request"
+// @Success 200 {object} dto.User
+// @Security ApiKeyAuth
+// @Router /users/change/password [post]
 func (u *UserController) PostChangePassword() error {
 	var req dto.UserChangePassword
 	err := u.Ctx.ReadJSON(&req)

@@ -26,12 +26,12 @@ func NewPlanController() *PlanController {
 // List Plan
 // @Tags plans
 // @Summary Show all plans
-// @Description Show plans
+// @Description 获取部署计划列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /plans/ [get]
+// @Router /plans [get]
 func (p PlanController) Get() (*page.Page, error) {
 	projectName, err := sessionUtil.GetProjectName(p.Ctx)
 	if err != nil {
@@ -54,6 +54,16 @@ func (p PlanController) Get() (*page.Page, error) {
 	}
 }
 
+// Search Plan
+// @Tags plans
+// @Summary Search  plans
+// @Description 过滤部署计划
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /plans/search [post]
 func (p PlanController) PostSearch() (*page.Page, error) {
 	pg, _ := p.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -85,12 +95,13 @@ func (p PlanController) PostSearch() (*page.Page, error) {
 // Get Plan
 // @Tags plans
 // @Summary Show a Plan
-// @Description show a plan by name
+// @Description 获取单个部署计划
 // @Accept  json
 // @Produce  json
+// @Param name path string true "部署计划名称"
 // @Success 200 {object} dto.Plan
 // @Security ApiKeyAuth
-// @Router /plans/{name}/ [get]
+// @Router /plans/{name} [get]
 func (p PlanController) GetBy(name string) (dto.Plan, error) {
 	return p.PlanService.Get(name)
 }
@@ -98,13 +109,13 @@ func (p PlanController) GetBy(name string) (dto.Plan, error) {
 // Create Plan
 // @Tags plans
 // @Summary Create a plan
-// @Description create a plan
+// @Description  创建部署计划
 // @Accept  json
 // @Produce  json
 // @Param request body dto.PlanCreate true "request"
 // @Success 200 {object} dto.Plan
 // @Security ApiKeyAuth
-// @Router /plans/ [post]
+// @Router /plans [post]
 func (p PlanController) Post() (*dto.Plan, error) {
 	var req dto.PlanCreate
 	err := p.Ctx.ReadJSON(&req)
@@ -126,11 +137,11 @@ func (p PlanController) Post() (*dto.Plan, error) {
 // Delete Plan
 // @Tags plans
 // @Summary Delete a plan
-// @Description delete a plan by name
+// @Description 删除部署计划
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-// @Router /plans/{name}/ [delete]
+// @Router /plans/{name} [delete]
 func (p PlanController) DeleteBy(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_PLAN, name)
@@ -164,7 +175,16 @@ func (p PlanController) PostBatch() error {
 	return err
 }
 
+// Get Config
+// @Tags plans
+// @Summary Get Vm Configs
+// @Description 获取虚拟机配置
+// @Accept  json
+// @Produce  json
+// @Param name path string true "区域名称"
+// @Success 200 {Array} []dto.PlanVmConfig
+// @Security ApiKeyAuth
+// @Router /configs/{regionName} [get]
 func (p PlanController) GetConfigsBy(regionName string) ([]dto.PlanVmConfig, error) {
-
 	return p.PlanService.GetConfigs(regionName)
 }

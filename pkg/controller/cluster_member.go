@@ -19,6 +19,17 @@ func NewClusterMemberController() *ClusterMemberController {
 	}
 }
 
+// List clusterMember
+// @Tags clusterMembers
+// @Summary Show all clusterMembers
+// @Description 获取集群成员列表
+// @Accept  json
+// @Produce  json
+// @Param project path string true "项目名称"
+// @Param cluster path string true "集群名称"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /projects/{project}/clusters/{cluster}/members [get]
 func (c ClusterMemberController) Get() (*page.Page, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	p, _ := c.Ctx.Values().GetBool("page")
@@ -32,6 +43,18 @@ func (c ClusterMemberController) Get() (*page.Page, error) {
 	}
 }
 
+// Create CLusterMember
+// @Tags clusterMembers
+// @Summary Create a CLusterMember
+// @Description 授权成员到集群
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ClusterMemberCreate true "request"
+// @Param project path string true "项目名称"
+// @Param cluster path string true "集群名称"
+// @Success 200 {Array} []dto.CLusterMember
+// @Security ApiKeyAuth
+// @Router /projects/{project}/clusters/{cluster}/members [post]
 func (c ClusterMemberController) Post() ([]dto.ClusterMember, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	var req dto.ClusterMemberCreate
@@ -51,6 +74,17 @@ func (c ClusterMemberController) GetUsers() (dto.UsersResponse, error) {
 	return c.ClusterMemberService.GetUsers(name)
 }
 
+// Delete CLusterMember
+// @Tags clusterMembers
+// @Summary Delete CLusterMember
+// @Description 取消集群人员授权
+// @Accept  json
+// @Produce  json
+// @Param project path string true "项目名称"
+// @Param cluster path string true "集群名称"
+// @Param name path string true "人员名称"
+// @Security ApiKeyAuth
+// @Router /projects/{project}/clusters/{cluster}/members/{name} [delete]
 func (c ClusterMemberController) DeleteBy(name string) error {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	return c.ClusterMemberService.Delete(name, clusterName)
