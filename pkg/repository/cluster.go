@@ -63,29 +63,43 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 		clusters []model.Cluster
 		project  model.Project
 	)
-	if err := db.DB.Where("name = ?", projectName).First(&project).Error; err != nil {
-		return 0, nil, err
-	}
-	var projectResources []model.ProjectResource
-	if err := db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourceCluster).Find(&projectResources).Error; err != nil {
-		return 0, nil, err
-	}
-	var resourceIds []string
-	for _, pr := range projectResources {
-		resourceIds = append(resourceIds, pr.ResourceID)
-	}
+	if projectName != "" {
+		if err := db.DB.Where("name = ?", projectName).First(&project).Error; err != nil {
+			return 0, nil, err
+		}
+		var projectResources []model.ProjectResource
+		if err := db.DB.Where("project_id = ? AND resource_type = ?", project.ID, constant.ResourceCluster).Find(&projectResources).Error; err != nil {
+			return 0, nil, err
+		}
+		var resourceIds []string
+		for _, pr := range projectResources {
+			resourceIds = append(resourceIds, pr.ResourceID)
+		}
 
-	if err := db.DB.Model(&model.Cluster{}).
-		Where("id in (?)", resourceIds).
-		Count(&total).
-		Offset((num - 1) * size).
-		Limit(size).
-		Preload("Status").
-		Preload("Spec").
-		Preload("Nodes").
-		Preload("MultiClusterRepositories").
-		Find(&clusters).Error; err != nil {
-		return total, clusters, err
+		if err := db.DB.Model(&model.Cluster{}).
+			Where("id in (?)", resourceIds).
+			Count(&total).
+			Offset((num - 1) * size).
+			Limit(size).
+			Preload("Status").
+			Preload("Spec").
+			Preload("Nodes").
+			Preload("MultiClusterRepositories").
+			Find(&clusters).Error; err != nil {
+			return total, clusters, err
+		}
+	} else {
+		if err := db.DB.Model(&model.Cluster{}).
+			Count(&total).
+			Offset((num - 1) * size).
+			Limit(size).
+			Preload("Status").
+			Preload("Spec").
+			Preload("Nodes").
+			Preload("MultiClusterRepositories").
+			Find(&clusters).Error; err != nil {
+			return total, clusters, err
+		}
 	}
 	return total, clusters, nil
 }
