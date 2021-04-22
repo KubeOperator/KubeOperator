@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -30,23 +31,58 @@ func NewBackupAccountController() *BackupAccountController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /backupAccounts/ [get]
-func (b BackupAccountController) Get() (page.Page, error) {
+func (b BackupAccountController) Get() (*page.Page, error) {
 
 	pg, _ := b.Ctx.Values().GetBool("page")
 	if pg {
 		num, _ := b.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := b.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return b.BackupAccountService.Page(num, size)
+		return b.BackupAccountService.Page(num, size, condition.TODO())
 	} else {
 		var page page.Page
 		projectName := b.Ctx.URLParam("projectName")
-		items, err := b.BackupAccountService.List(projectName)
+		items, err := b.BackupAccountService.List(projectName, condition.TODO())
 		if err != nil {
-			return page, err
+			return &page, err
 		}
 		page.Items = items
 		page.Total = len(items)
-		return page, nil
+		return &page, nil
+	}
+}
+
+// Search BackupAccount
+// @Tags backupAccounts
+// @Summary Search backupAccount
+// @Description Search backupAccount
+// @Accept  json
+// @Produce  json
+// @Param request body dto.BackupAccountRequest true "request"
+// @Success 200 {object} dto.BackupAccount
+// @Security ApiKeyAuth
+// @Router /backupAccounts/search [post]
+func (b BackupAccountController) PostSearch() (*page.Page, error) {
+	var conditions condition.Conditions
+	if b.Ctx.GetContentLength() > 0 {
+		if err := b.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	p, _ := b.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := b.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := b.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return b.BackupAccountService.Page(num, size, conditions)
+	} else {
+		var p page.Page
+		projectName := b.Ctx.URLParam("projectName")
+		items, err := b.BackupAccountService.List(projectName, condition.TODO())
+		if err != nil {
+			return &p, err
+		}
+		p.Items = items
+		p.Total = len(items)
+		return &p, nil
 	}
 }
 
