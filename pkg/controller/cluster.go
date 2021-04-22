@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	sessionUtil "github.com/KubeOperator/KubeOperator/pkg/util/session"
 	"io"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -56,7 +57,10 @@ func NewClusterController() *ClusterController {
 func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
 	if page {
-		projectName := c.Ctx.URLParam("projectName")
+		projectName, err := sessionUtil.GetProjectName(c.Ctx)
+		if err != nil {
+			return nil, err
+		}
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		pageItem, err := c.ClusterService.Page(num, size, projectName)

@@ -27,7 +27,11 @@ func GetProjectName(ctx context.Context) (string, error) {
 		return "", errors.New("user is not login")
 	}
 	projectName := ""
-	user, _ := sessionUser.(dto.SessionUser)
+	profile, ok := sessionUser.(*dto.Profile)
+	if !ok {
+		return "", errors.New("can not parse to user profile")
+	}
+	user := profile.User
 	if !user.IsAdmin {
 		projectName = user.CurrentProject
 	}
