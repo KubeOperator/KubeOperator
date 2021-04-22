@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"io"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -55,15 +56,46 @@ func NewClusterController() *ClusterController {
 // @Router /clusters/ [get]
 func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
+	sessionUser := c.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
 	if page {
-		projectName := c.Ctx.Params().GetString("project")
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		pageItem, err := c.ClusterService.Page(num, size, projectName)
+		pageItem, err := c.ClusterService.Page(num, size, user, condition.TODO())
 		if err != nil {
 			return nil, err
 		}
+		return pageItem, nil
+	} else {
+		var pageItem dto.ClusterPage
+		items, err := c.ClusterService.List()
+		if err != nil {
+			return nil, err
+		}
+		pageItem.Items = items
+		pageItem.Total = len(items)
 		return &pageItem, nil
+	}
+}
+
+func (c ClusterController) PostSearch() (*dto.ClusterPage, error) {
+	page, _ := c.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
+	sessionUser := c.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+	if c.Ctx.GetContentLength() > 0 {
+		if err := c.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
+	if page {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		pageItem, err := c.ClusterService.Page(num, size, user, conditions)
+		if err != nil {
+			return nil, err
+		}
+		return pageItem, nil
 	} else {
 		var pageItem dto.ClusterPage
 		items, err := c.ClusterService.List()

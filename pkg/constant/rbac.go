@@ -26,6 +26,7 @@ var Roles = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/license",
+			"/api/v1/projects",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -77,7 +78,6 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
-			"/api/v1/projects",
 			"/api/v1/projects/{**}",
 			"/api/v1/projects/{**}/{**}",
 			"/api/v1/projects/{**}/{**}/{**}",
@@ -170,6 +170,7 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/projects",
 			"/api/v1/users",
 			"/api/v1/users/{**}",
 			"/api/v1/license",

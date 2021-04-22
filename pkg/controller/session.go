@@ -196,13 +196,13 @@ func getUserRole(user *model.User) ([]string, error) {
 	if user.CurrentProject.Name == "" {
 		var projectMember model.ProjectMember
 		err := db.DB.Model(&model.ProjectMember{}).Where("user_id = ?", user.ID).Preload("Project").First(&projectMember).Error
-		if err != nil && gorm.IsRecordNotFoundError(err) {
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
 		if gorm.IsRecordNotFoundError(err) {
 			var clusterMember model.ClusterMember
 			err := db.DB.Model(&model.ClusterMember{}).Where("user_id = ?", user.ID).First(&clusterMember).Error
-			if err != nil && gorm.IsRecordNotFoundError(err) {
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}
 			if gorm.IsRecordNotFoundError(err) {
@@ -226,6 +226,32 @@ func getUserRole(user *model.User) ([]string, error) {
 		}
 		return []string{constant.RoleProjectManager}, nil
 	} else {
+		var project model.Project
+		err := db.DB.Model(model.Project{}).Where("name = ?", user.CurrentProject.Name).Find(&project).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return nil, err
+		}
+		if gorm.IsRecordNotFoundError(err) {
+			user.CurrentProjectID = ""
+			db.DB.Save(user)
+			return nil, errors.New("project is not found")
+		}
+		var projectMember model.ProjectMember
+		err = db.DB.Model(&model.ProjectMember{}).Where("user_id = ? AND project_id = ?", user.ID, project.ID).First(&projectMember).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return nil, err
+		}
+		if gorm.IsRecordNotFoundError(err) {
+			var clusterMember model.ClusterMember
+			err := db.DB.Model(&model.ClusterMember{}).Where("user_id = ?", user.ID).First(&clusterMember).Error
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
+				return nil, err
+			}
+			if gorm.IsRecordNotFoundError(err) {
+				return nil, errors.New("no resource")
+			}
+			return []string{constant.RoleClusterManager}, nil
+		}
 		return []string{constant.RoleProjectManager}, nil
 	}
 }

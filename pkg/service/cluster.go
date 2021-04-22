@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"math"
 	"net"
 	"time"
@@ -41,7 +43,7 @@ type ClusterService interface {
 	GetKubeconfig(name string) (string, error)
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
-	Page(num, size int, projectName string) (dto.ClusterPage, error)
+	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
 	Delete(name string, force bool) error
 }
 
@@ -125,13 +127,70 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	return clusterDTOS, err
 }
 
-func (c clusterService) Page(num, size int, projectName string) (dto.ClusterPage, error) {
-	var page dto.ClusterPage
-	total, mos, err := c.clusterRepo.Page(num, size, projectName)
-	if err != nil {
-		return page, nil
+func (c clusterService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error) {
+	var (
+		page     dto.ClusterPage
+		clusters []model.Cluster
+	)
+	d := db.DB.Model(model.Cluster{})
+	if err := dbUtil.WithConditions(&d, model.Cluster{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
+
+	if user.IsAdmin {
+		if err := d.Count(&page.Total).Order("created_at ASC").
+			Preload("Status").
+			Preload("Spec").
+			Preload("Nodes").
+			Preload("MultiClusterRepositories").
+			Offset((num - 1) * size).Limit(size).Find(&clusters).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		var (
+			project          model.Project
+			clusterIds       []string
+			projectResources []model.ProjectResource
+		)
+		if err := db.DB.Where("name =?", user.CurrentProject).Find(&project).Error; err != nil {
+			return nil, err
+		}
+		if err := db.DB.Where("project_id = ? AND resource_type = 'CLUSTER'", project.ID).Find(&projectResources).Error; err != nil {
+			return nil, err
+		}
+		if user.IsRole(constant.RoleProjectManager) {
+			for _, pm := range projectResources {
+				clusterIds = append(clusterIds, pm.ResourceID)
+			}
+		} else {
+			var resourceIds []string
+			for _, pm := range projectResources {
+				resourceIds = append(resourceIds, pm.ResourceID)
+			}
+			var clusterMembers []model.ClusterMember
+			if err := db.DB.Raw("SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE cluster_id in (?) AND user_id = ?", resourceIds, user.UserId).Scan(&clusterMembers).Error; err != nil {
+				return nil, err
+			}
+			for _, pm := range clusterMembers {
+				clusterIds = append(clusterIds, pm.ClusterID)
+			}
+		}
+		if err := db.DB.Model(&model.Cluster{}).
+			Where("id in (?)", clusterIds).
+			Count(&page.Total).
+			Offset((num - 1) * size).
+			Limit(size).
+			Order("created_at ASC").
+			Preload("Status").
+			Preload("Spec").
+			Preload("Nodes").
+			Preload("MultiClusterRepositories").
+			Find(&clusters).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	for _, mo := range clusters {
 		clusterDTO := dto.Cluster{
 			Cluster:       mo,
 			NodeSize:      len(mo.Nodes),
@@ -145,8 +204,7 @@ func (c clusterService) Page(num, size int, projectName string) (dto.ClusterPage
 		}
 		page.Items = append(page.Items, clusterDTO)
 	}
-	page.Total = total
-	return page, err
+	return &page, nil
 }
 
 func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {

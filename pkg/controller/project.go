@@ -33,15 +33,15 @@ func NewProjectController() *ProjectController {
 // @Router /projects [get]
 func (p ProjectController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
+	sessionUser := p.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		sessionUser := p.Ctx.Values().Get("user")
-		user, _ := sessionUser.(dto.SessionUser)
 		return p.ProjectService.Page(num, size, user, condition.TODO())
 	} else {
 		var page page.Page
-		items, err := p.ProjectService.List()
+		items, err := p.ProjectService.List(user, condition.TODO())
 		if err != nil {
 			return &page, err
 		}
@@ -54,20 +54,20 @@ func (p ProjectController) Get() (*page.Page, error) {
 func (p ProjectController) PostSearch() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
+	sessionUser := p.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
 	if p.Ctx.GetContentLength() > 0 {
 		if err := p.Ctx.ReadJSON(&conditions); err != nil {
 			return nil, err
 		}
 	}
 	if pa {
-		sessionUser := p.Ctx.Values().Get("user")
-		user, _ := sessionUser.(dto.SessionUser)
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return p.ProjectService.Page(num, size, user, conditions)
 	} else {
 		var page page.Page
-		items, err := p.ProjectService.List()
+		items, err := p.ProjectService.List(user, condition.TODO())
 		if err != nil {
 			return &page, err
 		}
