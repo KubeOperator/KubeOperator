@@ -41,13 +41,14 @@ func WithProjectResource(db **gorm.DB, projectName string, resourceType string) 
 func WithConditions(db **gorm.DB, model interface{}, conditions condition.Conditions) error {
 	if !conditions.IsZero() {
 		val, ok := conditions["quick"]
-		var keys []string
-		var values []interface{}
-
+		var (
+			keys   []string
+			values []interface{}
+		)
 		if ok {
 			for _, f := range (*db).NewScope(model).GetStructFields() {
 				if !strings.Contains(strings.ToLower(f.Name), "id") && f.IsNormal {
-					keys = append(keys, fmt.Sprintf("%s LIKE ?", f.DBName))
+					keys = append(keys, fmt.Sprintf("%s LIKE ?", dealReservedWord(f.DBName)))
 					values = append(values, "%"+fmt.Sprintf("%v", val.Value)+"%")
 				}
 			}
@@ -106,4 +107,14 @@ func WithConditions(db **gorm.DB, model interface{}, conditions condition.Condit
 		}
 	}
 	return nil
+}
+
+func dealReservedWord(name string) string {
+	reservedWord := []string{"memory"}
+	for _, word := range reservedWord {
+		if name == word {
+			return "`" + name + "`"
+		}
+	}
+	return name
 }
