@@ -15,7 +15,7 @@ func WithProjectResource(db **gorm.DB, projectName string, resourceType string) 
 			res []model.ProjectResource
 		)
 		if err := (*db).
-			Where(model.Project{Name: projectName}).
+			Where("name = ?", projectName).
 			First(&p).Error; err != nil {
 			return err
 		}
