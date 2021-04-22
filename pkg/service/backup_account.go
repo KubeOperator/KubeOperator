@@ -30,6 +30,7 @@ type BackupAccountService interface {
 	Batch(op dto.BackupAccountOp) error
 	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
 	Delete(name string) error
+	ListByClusterName(clusterName string) ([]dto.BackupAccount, error)
 }
 
 type backupAccountService struct {
@@ -90,6 +91,21 @@ func (b backupAccountService) List(projectName string, conditions condition.Cond
 		})
 	}
 	return backupAccountDTO, nil
+}
+
+func (b backupAccountService) ListByClusterName(clusterName string) ([]dto.BackupAccount, error) {
+	var (
+		backupAccountDTOs []dto.BackupAccount
+		backupAccounts    []model.BackupAccount
+	)
+	err := db.DB.Raw("SELECT * FROM ko_backup_account WHERE id IN (SELECT resource_id FROM ko_cluster_resource WHERE  resource_type = 'BACKUP_ACCOUNT' AND cluster_id = (SELECT DISTINCT id FROM ko_cluster WHERE `name` = ?) )", clusterName).Scan(&backupAccounts).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, mo := range backupAccounts {
+		backupAccountDTOs = append(backupAccountDTOs, dto.BackupAccount{BackupAccount: mo})
+	}
+	return backupAccountDTOs, nil
 }
 
 func (b backupAccountService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {

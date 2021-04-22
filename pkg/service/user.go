@@ -56,7 +56,7 @@ func NewUserService() UserService {
 	}
 }
 
-func (u *userService) Get(name string, ) (*dto.User, error) {
+func (u *userService) Get(name string) (*dto.User, error) {
 	var mo model.User
 	if err := db.DB.Where(model.User{Name: name}).
 		Preload("CurrentProject").
@@ -166,6 +166,10 @@ func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, err
 
 	if update.Role != "" {
 		mo.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
+	}
+
+	if update.Status != "" {
+		mo.IsActive = strings.ToLower(update.Status) == constant.UserStatusActive
 	}
 
 	if update.CurrentProject != "" {

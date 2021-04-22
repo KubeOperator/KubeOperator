@@ -20,7 +20,7 @@ var (
 
 type ProjectService interface {
 	Get(name string) (*dto.Project, error)
-	List() ([]dto.Project, error)
+	List(user dto.SessionUser, conditions condition.Conditions) ([]dto.Project, error)
 	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
@@ -53,16 +53,60 @@ func (p *projectService) Get(name string) (*dto.Project, error) {
 	return &projectDTO, err
 }
 
-func (p *projectService) List() ([]dto.Project, error) {
-	var projectDTOs []dto.Project
-	mos, err := p.projectRepo.List()
-	if err != nil {
-		return projectDTOs, err
+func (p *projectService) List(user dto.SessionUser, conditions condition.Conditions) ([]dto.Project, error) {
+
+	var (
+		pa          page.Page
+		projectDTOS []dto.Project
+		projects    []model.Project
+	)
+
+	d := db.DB.Model(model.Project{})
+	if err := dbUtil.WithConditions(&d, model.Project{}, conditions); err != nil {
+		return nil, err
 	}
-	for _, mo := range mos {
-		projectDTOs = append(projectDTOs, dto.Project{Project: mo})
+
+	if user.IsAdmin {
+		if err := d.Count(&pa.Total).Order("created_at ASC").Find(&projects).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if user.IsRole(constant.RoleProjectManager) {
+			var projectResources []model.ProjectMember
+			err := db.DB.Where("user_id = ?", user.UserId).Find(&projectResources).Error
+			if err != nil {
+				return nil, err
+			}
+			var projectIds []string
+			for _, pm := range projectResources {
+				projectIds = append(projectIds, pm.ProjectID)
+			}
+			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			var projectResources []model.ProjectResource
+			err := db.DB.Raw("SELECT DISTINCT project_id  FROM ko_project_resource WHERE resource_type = 'CLUSTER' AND resource_id in (SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE user_id = ?)", user.UserId).Scan(&projectResources).Error
+			if err != nil {
+				return nil, err
+			}
+			var projectIds []string
+			for _, pm := range projectResources {
+				projectIds = append(projectIds, pm.ProjectID)
+			}
+			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
-	return projectDTOs, err
+
+	for _, mo := range projects {
+		projectDTOS = append(projectDTOS, dto.Project{Project: mo})
+	}
+
+	return projectDTOS, nil
 }
 
 func (p *projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {

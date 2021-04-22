@@ -11,11 +11,10 @@ type Node struct {
 	Ip   string  `json:"ip"`
 }
 
-type NodeBatch struct {
-	Hosts     []string `json:"hosts"`
-	Nodes     []string `json:"nodes"`
-	Increase  int      `json:"increase"`
-	Operation string   `json:"operation"`
+type NodeCreation struct {
+	Hosts    []string `json:"hosts"`
+	Nodes    []string `json:"nodes"`
+	Increase int      `json:"increase"`
 }
 
 type NodePage struct {

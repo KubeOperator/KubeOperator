@@ -25,13 +25,13 @@ func NewIpPoolController() *IpPoolController {
 
 // List IpPool
 // @Tags ippools
-// @Summary Show all hosts
-// @Description Show hosts
+// @Summary Show all ippools
+// @Description 获取IP池列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /ippools/ [get]
+// @Router /ippools [get]
 func (i IpPoolController) Get() (*page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	if p {
@@ -50,6 +50,16 @@ func (i IpPoolController) Get() (*page.Page, error) {
 	}
 }
 
+// Search IpPool
+// @Tags ippools
+// @Summary Search IpPool
+// @Description 过滤IP池
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /ippools/search [post]
 func (i IpPoolController) PostSearch() (*page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -77,13 +87,13 @@ func (i IpPoolController) PostSearch() (*page.Page, error) {
 // Create IpPool
 // @Tags ippools
 // @Summary Create a IpPool
-// @Description create a IpPool
+// @Description 创建IP池
 // @Accept  json
 // @Produce  json
 // @Param request body dto.IpPoolCreate true "request"
 // @Success 200 {object} dto.IpPool
 // @Security ApiKeyAuth
-// @Router /ippools/ [post]
+// @Router /ippools [post]
 func (i IpPoolController) Post() (*dto.IpPool, error) {
 	var req dto.IpPoolCreate
 	err := i.Ctx.ReadJSON(&req)
@@ -126,9 +136,10 @@ func (i IpPoolController) PostBatch() error {
 // Get IpPool
 // @Tags ippools
 // @Summary Get IpPool
-// @Description get a IpPool
+// @Description 获取单个IP池
 // @Accept  json
 // @Produce  json
+// @Param name path string true "IP池名称"
 // @Success 200 {object} dto.IpPool
 // @Security ApiKeyAuth
 // @Router /ippools/{name} [get]
@@ -136,6 +147,15 @@ func (i IpPoolController) GetBy(name string) (dto.IpPool, error) {
 	return i.IpPoolService.Get(name)
 }
 
+// Delete IpPool
+// @Tags ippools
+// @Summary Delete a IpPool
+// @Description  删除IP池
+// @Accept  json
+// @Produce  json
+// @Param name path string true "IP池名称"
+// @Security ApiKeyAuth
+// @Router /ippools/{name} [delete]
 func (i IpPoolController) DeleteBy(name string) error {
 	operator := i.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_IP_POOL, name)

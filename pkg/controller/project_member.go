@@ -24,13 +24,13 @@ func NewProjectMemberController() *ProjectMemberController {
 // List ProjectMember By ProjectName
 // @Tags projectMembers
 // @Summary Show projectMembers by projectName
-// @Description Show projectMembers by projectName
+// @Description 获取项目成员列表
 // @Accept  json
 // @Produce  json
-// @Form projectName
+// @Param project path string true "项目名称"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/{project_name}/members/ [get]
+// @Router /projects/{project}/members [get]
 func (p ProjectMemberController) Get() (*page.Page, error) {
 	projectName := p.Ctx.Params().GetString("project")
 	pa, _ := p.Ctx.Values().GetBool("page")
@@ -51,14 +51,16 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 
 // Create ProjectMember
 // @Tags projectMembers
-// @Summary Create a projectMember
-// @Description create a projectMember
+// @Summary Create a
+
+// @Description 授权成员到项目
 // @Accept  json
 // @Produce  json
 // @Param request body dto.ProjectMemberCreate true "request"
+// @Param project path string true "项目名称"
 // @Success 200 {object} dto.ProjectMember
 // @Security ApiKeyAuth
-// @Router /project/members/ [post]
+// @Router /projects/{project}/members [post]
 func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 	projectName := p.Ctx.Params().GetString("project")
 	var req dto.ProjectMemberCreate
@@ -78,6 +80,16 @@ func (p ProjectMemberController) Post() ([]dto.ProjectMember, error) {
 	return result, nil
 }
 
+// Delete Project Member
+// @Tags projectMembers
+// @Summary Delete projectMember
+// @Description 取消项目人员授权
+// @Accept  json
+// @Produce  json
+// @Param project path string true "项目名称"
+// @Param name path string true "人员名称"
+// @Security ApiKeyAuth
+// @Router /projects/{project}/members/{name} [delete]
 func (p ProjectMemberController) DeleteBy(name string) error {
 	projectName := p.Ctx.Params().GetString("project")
 	return p.ProjectMemberService.Delete(name, projectName)
@@ -118,11 +130,4 @@ func (p ProjectMemberController) GetUsers() (*dto.AddMemberResponse, error) {
 	name := p.Ctx.URLParam("name")
 	projectName := p.Ctx.Params().GetString("project")
 	return p.ProjectMemberService.GetUsers(name, projectName)
-}
-
-func (p ProjectMemberController) GetRoles() ([]string, error) {
-	var result []string
-	result = append(result, constant.ProjectRoleProjectManager)
-	result = append(result, constant.ProjectRoleClusterManager)
-	return result, nil
 }

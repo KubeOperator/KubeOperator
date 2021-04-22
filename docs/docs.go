@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -573,6 +573,43 @@ var doc = `{
                 "summary": "Delete a cluster"
             }
         },
+        "/configs/{regionName}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取虚拟机配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Get vmConfigs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "Array"
+                        }
+                    }
+                }
+            }
+        },
         "/credentials/": {
             "get": {
                 "security": [
@@ -617,6 +654,45 @@ var doc = `{
                     "credentials"
                 ],
                 "summary": "Create a credential",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CredentialCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Credential"
+                        }
+                    }
+                }
+            }
+        },
+        "/credentials/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Search  credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "credentials"
+                ],
+                "summary": "Search credential",
                 "parameters": [
                     {
                         "description": "request",
@@ -789,14 +865,14 @@ var doc = `{
                 "summary": "Delete a host"
             }
         },
-        "/ippools/": {
+        "/ippools": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show hosts",
+                "description": "获取IP池列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -806,7 +882,7 @@ var doc = `{
                 "tags": [
                     "ippools"
                 ],
-                "summary": "Show all hosts",
+                "summary": "Show all ippools",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -822,7 +898,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a IpPool",
+                "description": "创建IP池",
                 "consumes": [
                     "application/json"
                 ],
@@ -854,6 +930,45 @@ var doc = `{
                 }
             }
         },
+        "/ippools/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤IP池",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ippools"
+                ],
+                "summary": "Search IpPool",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
         "/ippools/{name}": {
             "get": {
                 "security": [
@@ -861,7 +976,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "get a IpPool",
+                "description": "获取单个IP池",
                 "consumes": [
                     "application/json"
                 ],
@@ -872,6 +987,15 @@ var doc = `{
                     "ippools"
                 ],
                 "summary": "Get IpPool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -880,16 +1004,78 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除IP池",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ippools"
+                ],
+                "summary": "Delete a IpPool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
             }
         },
         "/ippools/{name}/ips": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取IP池下的IP列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Show ips by ipPoolName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a Ip",
+                "description": "新增 Ip",
                 "consumes": [
                     "application/json"
                 ],
@@ -909,6 +1095,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.IpCreate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -926,7 +1119,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update a Ip",
+                "description": "更新 Ip",
                 "consumes": [
                     "application/json"
                 ],
@@ -946,6 +1139,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.IpUpdate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -958,14 +1158,14 @@ var doc = `{
                 }
             }
         },
-        "/ippools/{name}/ips/": {
-            "get": {
+        "/ippools/{name}/ips/{address}": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show ips by ipPoolName",
+                "description": "删除IP",
                 "consumes": [
                     "application/json"
                 ],
@@ -975,7 +1175,54 @@ var doc = `{
                 "tags": [
                     "ips"
                 ],
-                "summary": "Show ips by ipPoolName",
+                "summary": "Delete a Ip",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/ippools/{name}/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤IP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Search Ip",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1014,14 +1261,14 @@ var doc = `{
                 }
             }
         },
-        "/plans/": {
+        "/plans": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show plans",
+                "description": "获取部署计划列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1047,7 +1294,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a plan",
+                "description": "创建部署计划",
                 "consumes": [
                     "application/json"
                 ],
@@ -1079,14 +1326,53 @@ var doc = `{
                 }
             }
         },
-        "/plans/{name}/": {
+        "/plans/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤部署计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Search  plans",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/plans/{name}": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "show a plan by name",
+                "description": "获取单个部署计划",
                 "consumes": [
                     "application/json"
                 ],
@@ -1097,6 +1383,15 @@ var doc = `{
                     "plans"
                 ],
                 "summary": "Show a Plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部署计划名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1112,7 +1407,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a plan by name",
+                "description": "删除部署计划",
                 "consumes": [
                     "application/json"
                 ],
@@ -1125,107 +1420,14 @@ var doc = `{
                 "summary": "Delete a plan"
             }
         },
-        "/project/members/": {
+        "/projects": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show projectMembers by projectName",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Show projectMembers by projectName",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "create a projectMember",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectMembers"
-                ],
-                "summary": "Create a projectMember",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMemberCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ProjectMember"
-                        }
-                    }
-                }
-            }
-        },
-        "/project/resource/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Show projectResources by projectName and resourceType",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projectResources"
-                ],
-                "summary": "Show projectResources by projectName and resourceType",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            }
-        },
-        "/projects/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Show projects",
+                "description": "获取项目列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1251,7 +1453,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a project",
+                "description": "创建项目",
                 "consumes": [
                     "application/json"
                 ],
@@ -1283,14 +1485,14 @@ var doc = `{
                 }
             }
         },
-        "/projects/{name}/": {
+        "/projects/{name}": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "show a project by name",
+                "description": "获取单个项目",
                 "consumes": [
                     "application/json"
                 ],
@@ -1301,6 +1503,15 @@ var doc = `{
                     "projects"
                 ],
                 "summary": "Show a project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1316,7 +1527,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  project by name",
+                "description": "删除项目",
                 "consumes": [
                     "application/json"
                 ],
@@ -1326,7 +1537,19 @@ var doc = `{
                 "tags": [
                     "projects"
                 ],
-                "summary": "Delete a project"
+                "summary": "Delete a project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
             },
             "patch": {
                 "security": [
@@ -1334,7 +1557,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update a project",
+                "description": "更新项目",
                 "consumes": [
                     "application/json"
                 ],
@@ -1354,6 +1577,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.ProjectUpdate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1366,14 +1596,571 @@ var doc = `{
                 }
             }
         },
-        "/regions/": {
+        "/projects/{project}/clusters/{cluster}/members": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show regions",
+                "description": "获取集群成员列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterMembers"
+                ],
+                "summary": "Show all clusterMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权成员到集群",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterMembers"
+                ],
+                "summary": "Create a cLusterMember",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterMemberCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "Array"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/clusters/{cluster}/members/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消集群人员授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterMembers"
+                ],
+                "summary": "Delete cLusterMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "人员名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/projects/{project}/clusters/{cluster}/resources": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取集群资源列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterResources"
+                ],
+                "summary": "Show all clusterResources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权资源到集群",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterResources"
+                ],
+                "summary": "Create a clusterResource",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterResourceCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "Array"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/clusters/{cluster}/resources/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消集群资源授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusterResources"
+                ],
+                "summary": "Delete clusterResource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "资源类型（HOST,PLAN,BACKUP_ACCOUNT）",
+                        "name": "resourceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "集群名称",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "资源名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/projects/{project}/members": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取项目成员列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Show projectMembers by projectName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权成员到项目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMemberCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectMember"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/members/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消项目人员授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectMembers"
+                ],
+                "summary": "Delete projectMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "人员名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/projects/{project}/resources": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页获取项目资源列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectResources"
+                ],
+                "summary": "Show projectResources by resourceType",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "资源类型（HOST,PLAN,BACKUP_ACCOUNT）",
+                        "name": "resourceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "授权资源到项目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectResources"
+                ],
+                "summary": "Create a projectResource",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectResourceCreate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectResource"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/resources/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取能添加到项目的资源",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectResources"
+                ],
+                "summary": "Get projectResources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{project}/resources/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消项目资源授权",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projectResources"
+                ],
+                "summary": "Delete projectResource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "project",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "资源名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/regions": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取区域列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1399,7 +2186,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a region",
+                "description": "创建区域",
                 "consumes": [
                     "application/json"
                 ],
@@ -1431,14 +2218,14 @@ var doc = `{
                 }
             }
         },
-        "/regions/{name}/": {
-            "get": {
+        "/regions/datacenter": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "show a region by name",
+                "description": "获取数据中心",
                 "consumes": [
                     "application/json"
                 ],
@@ -1448,7 +2235,94 @@ var doc = `{
                 "tags": [
                     "regions"
                 ],
-                "summary": "Show a Region",
+                "summary": "Get datacenter list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegionDatacenterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CloudRegionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/regions/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤部署计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "regions"
+                ],
+                "summary": "Search regions",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/regions/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取单个区域",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "regions"
+                ],
+                "summary": "Show a region",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1464,7 +2338,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a region by name",
+                "description": "删除区域",
                 "consumes": [
                     "application/json"
                 ],
@@ -1474,17 +2348,70 @@ var doc = `{
                 "tags": [
                     "regions"
                 ],
-                "summary": "Delete a region"
+                "summary": "Delete a region",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新区域",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "regions"
+                ],
+                "summary": "Update a region",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegionUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Region"
+                        }
+                    }
+                }
             }
         },
-        "/users/": {
+        "/users": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show users",
+                "description": "获取用户列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1494,7 +2421,7 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Show all users",
+                "summary": "Show users",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1510,7 +2437,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a user",
+                "description": "创建用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -1536,20 +2463,98 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.Host"
+                            "$ref": "#/definitions/dto.User"
                         }
                     }
                 }
             }
         },
-        "/users/{name}/": {
+        "/users/change/password": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserChangePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Search user",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{name}": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "show a user by name",
+                "description": "获取单个用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -1575,7 +2580,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a user by name",
+                "description": "删除用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -1585,7 +2590,16 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete a user"
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
             },
             "patch": {
                 "security": [
@@ -1593,7 +2607,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update a user",
+                "description": "更新用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -1613,6 +2627,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.UserUpdate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1625,14 +2646,14 @@ var doc = `{
                 }
             }
         },
-        "/vm/config/": {
-            "post": {
+        "/vmconfigs": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a VmConfig",
+                "description": "获取虚拟机配置列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1642,7 +2663,33 @@ var doc = `{
                 "tags": [
                     "vmConfigs"
                 ],
-                "summary": "Create a VmConfig",
+                "summary": "Show all vmConfigs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建虚拟机配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vmConfigs"
+                ],
+                "summary": "Create a vmConfig",
                 "parameters": [
                     {
                         "description": "request",
@@ -1664,14 +2711,115 @@ var doc = `{
                 }
             }
         },
-        "/vm/config/{name}/": {
+        "/vmconfigs/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤虚拟机配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vmConfigs"
+                ],
+                "summary": "Search vmConfigs",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/vmconfigs/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取单个虚拟机配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vmConfigs"
+                ],
+                "summary": "Get a vmConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "虚拟机配置名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VmConfig"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除虚拟机配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vmConfigs"
+                ],
+                "summary": "Delete a vmConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "虚拟机配置名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            },
             "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update a vmConfig",
+                "description": "更新虚拟机配置",
                 "consumes": [
                     "application/json"
                 ],
@@ -1691,6 +2839,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.VmConfigUpdate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "虚拟机配置名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1703,42 +2858,14 @@ var doc = `{
                 }
             }
         },
-        "/vm/configs/": {
+        "/zones": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show vmConfigs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vmConfigs"
-                ],
-                "summary": "Show all vmConfigs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            }
-        },
-        "/zones/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Show zones",
+                "description": "获取可用区列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -1764,7 +2891,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "create a zone",
+                "description": "创建区域",
                 "consumes": [
                     "application/json"
                 ],
@@ -1796,14 +2923,90 @@ var doc = `{
                 }
             }
         },
-        "/zones/{name}/": {
+        "/zones/list/{region}": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "show a zone by name",
+                "description": "获取跟区域关联的可用区",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zones"
+                ],
+                "summary": "Get zones by region",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "Array"
+                        }
+                    }
+                }
+            }
+        },
+        "/zones/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤部署计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zones"
+                ],
+                "summary": "Search zones",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/zones/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取单个可用区",
                 "consumes": [
                     "application/json"
                 ],
@@ -1814,6 +3017,15 @@ var doc = `{
                     "zones"
                 ],
                 "summary": "Show a zone",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "可用区名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1829,7 +3041,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a zone by name",
+                "description": "删除区域",
                 "consumes": [
                     "application/json"
                 ],
@@ -1839,11 +3051,84 @@ var doc = `{
                 "tags": [
                     "zones"
                 ],
-                "summary": "Delete a zone"
+                "summary": "Delete a zone",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "可用区名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新区域",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zones"
+                ],
+                "summary": "Update a zone",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ZoneUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "区域名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Zone"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
+        "condition.Condition": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "object"
+                }
+            }
+        },
+        "condition.Conditions": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/condition.Condition"
+            }
+        },
         "dto.BackupAccount": {
             "type": "object",
             "properties": {
@@ -1893,6 +3178,14 @@ var doc = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.CloudRegionResponse": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "type": "object"
                 }
             }
         },
@@ -2066,16 +3359,31 @@ var doc = `{
                 "calicoIpv4PoolIpip": {
                     "type": "string"
                 },
+                "ciliumNativeRoutingCidr": {
+                    "type": "string"
+                },
+                "ciliumTunnelMode": {
+                    "type": "string"
+                },
+                "ciliumVersion": {
+                    "type": "string"
+                },
                 "clusterCidr": {
                     "type": "string"
                 },
                 "containerdStorageDIr": {
                     "type": "string"
                 },
+                "dnsCacheVersion": {
+                    "type": "string"
+                },
                 "dockerStorageDIr": {
                     "type": "string"
                 },
                 "dockerSubnet": {
+                    "type": "string"
+                },
+                "enableDnsCache": {
                     "type": "string"
                 },
                 "flannelBackend": {
@@ -2136,6 +3444,38 @@ var doc = `{
                     "type": "integer"
                 },
                 "yumOperate": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterMemberCreate": {
+            "type": "object",
+            "required": [
+                "usernames"
+            ],
+            "properties": {
+                "usernames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.ClusterResourceCreate": {
+            "type": "object",
+            "required": [
+                "names",
+                "resourceType"
+            ],
+            "properties": {
+                "names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resourceType": {
                     "type": "string"
                 }
             }
@@ -2294,12 +3634,15 @@ var doc = `{
         "dto.HostCreate": {
             "type": "object",
             "required": [
-                "credentialId",
                 "ip",
                 "name",
                 "port"
             ],
             "properties": {
+                "credential": {
+                    "type": "object",
+                    "$ref": "#/definitions/dto.CredentialCreate"
+                },
                 "credentialId": {
                     "type": "string"
                 },
@@ -2372,9 +3715,6 @@ var doc = `{
                     "type": "string"
                 },
                 "ipStart": {
-                    "type": "string"
-                },
-                "subnet": {
                     "type": "string"
                 }
             }
@@ -2595,17 +3935,13 @@ var doc = `{
         "dto.ProjectCreate": {
             "type": "object",
             "required": [
-                "name",
-                "userName"
+                "name"
             ],
             "properties": {
                 "description": {
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "userName": {
                     "type": "string"
                 }
             }
@@ -2619,35 +3955,13 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
-                "projectId": {
-                    "type": "string"
-                },
                 "role": {
                     "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
                 },
-                "userId": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ProjectMemberCreate": {
-            "type": "object",
-            "required": [
-                "projectName",
-                "role",
-                "username"
-            ],
-            "properties": {
-                "projectName": {
-                    "type": "string"
-                },
-                "role": {
+                "userStatus": {
                     "type": "string"
                 },
                 "username": {
@@ -2655,19 +3969,73 @@ var doc = `{
                 }
             }
         },
-        "dto.ProjectUpdate": {
+        "dto.ProjectMemberCreate": {
             "type": "object",
             "required": [
-                "name"
+                "usernames"
             ],
             "properties": {
-                "description": {
+                "usernames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.ProjectResource": {
+            "type": "object",
+            "required": [
+                "projectId",
+                "resourceId",
+                "resourceType"
+            ],
+            "properties": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "projectId": {
+                    "type": "string"
+                },
+                "resourceId": {
+                    "type": "string"
+                },
+                "resourceName": {
+                    "type": "string"
+                },
+                "resourceType": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ProjectResourceCreate": {
+            "type": "object",
+            "required": [
+                "names",
+                "resourceType"
+            ],
+            "properties": {
+                "names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resourceType": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ProjectUpdate": {
+            "type": "object",
+            "properties": {
+                "description": {
                     "type": "string"
                 }
             }
@@ -2724,9 +4092,46 @@ var doc = `{
                 }
             }
         },
+        "dto.RegionDatacenterRequest": {
+            "type": "object",
+            "required": [
+                "regionVars"
+            ],
+            "properties": {
+                "regionVars": {
+                    "type": "object"
+                }
+            }
+        },
+        "dto.RegionUpdate": {
+            "type": "object",
+            "required": [
+                "datacenter",
+                "name",
+                "provider",
+                "regionVars"
+            ],
+            "properties": {
+                "datacenter": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "regionVars": {
+                    "type": "object"
+                }
+            }
+        },
         "dto.SessionUser": {
             "type": "object",
             "properties": {
+                "currentProject": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -2759,17 +4164,11 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "currentProject": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "isAdmin": {
-                    "type": "boolean"
                 },
                 "language": {
                     "type": "string"
@@ -2778,6 +4177,12 @@ var doc = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "type": {
@@ -2788,22 +4193,16 @@ var doc = `{
                 }
             }
         },
-        "dto.UserCreate": {
+        "dto.UserChangePassword": {
             "type": "object",
-            "required": [
-                "email",
-                "isAdmin",
-                "name",
-                "password"
-            ],
             "properties": {
-                "email": {
+                "id": {
                     "type": "string"
                 },
-                "isAdmin": {
-                    "type": "boolean"
-                },
                 "name": {
+                    "type": "string"
+                },
+                "original": {
                     "type": "string"
                 },
                 "password": {
@@ -2811,22 +4210,48 @@ var doc = `{
                 }
             }
         },
-        "dto.UserUpdate": {
+        "dto.UserCreate": {
             "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "role"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "id": {
+                "name": {
                     "type": "string"
                 },
-                "isActive": {
+                "password": {
                     "type": "string"
                 },
-                "isAdmin": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserUpdate": {
+            "type": "object",
+            "properties": {
+                "currentProject": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "language": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -2883,8 +4308,7 @@ var doc = `{
             "type": "object",
             "required": [
                 "cpu",
-                "memory",
-                "name"
+                "memory"
             ],
             "properties": {
                 "cpu": {
@@ -2958,14 +4382,40 @@ var doc = `{
             "required": [
                 "cloudVars",
                 "name",
-                "regionID",
                 "regionName"
             ],
             "properties": {
                 "cloudVars": {
                     "type": "object"
                 },
-                "credentialId": {
+                "credentialName": {
+                    "type": "string"
+                },
+                "ipPoolName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "regionName": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ZoneUpdate": {
+            "type": "object",
+            "required": [
+                "cloudVars",
+                "id",
+                "ipPoolName",
+                "name",
+                "regionID"
+            ],
+            "properties": {
+                "cloudVars": {
+                    "type": "object"
+                },
+                "id": {
                     "type": "string"
                 },
                 "ipPoolName": {
@@ -2975,9 +4425,6 @@ var doc = `{
                     "type": "string"
                 },
                 "regionID": {
-                    "type": "string"
-                },
-                "regionName": {
                     "type": "string"
                 }
             }
@@ -3043,16 +4490,31 @@ var doc = `{
                 "calicoIpv4PoolIpip": {
                     "type": "string"
                 },
+                "ciliumNativeRoutingCidr": {
+                    "type": "string"
+                },
+                "ciliumTunnelMode": {
+                    "type": "string"
+                },
+                "ciliumVersion": {
+                    "type": "string"
+                },
                 "containerdStorageDir": {
                     "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
                 },
+                "dnsCacheVersion": {
+                    "type": "string"
+                },
                 "dockerStorageDir": {
                     "type": "string"
                 },
                 "docker_subnet": {
+                    "type": "string"
+                },
+                "enableDnsCache": {
                     "type": "string"
                 },
                 "flannelBackend": {

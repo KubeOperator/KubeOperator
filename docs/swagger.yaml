@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  condition.Condition:
+    properties:
+      field:
+        type: string
+      operator:
+        type: string
+      value:
+        type: object
+    type: object
+  condition.Conditions:
+    additionalProperties:
+      $ref: '#/definitions/condition.Condition'
+    type: object
   dto.BackupAccount:
     properties:
       bucket:
@@ -34,6 +47,11 @@ definitions:
     - credentialVars
     - name
     - type
+    type: object
+  dto.CloudRegionResponse:
+    properties:
+      result:
+        type: object
     type: object
   dto.Cluster:
     properties:
@@ -146,13 +164,23 @@ definitions:
         type: string
       calicoIpv4PoolIpip:
         type: string
+      ciliumNativeRoutingCidr:
+        type: string
+      ciliumTunnelMode:
+        type: string
+      ciliumVersion:
+        type: string
       clusterCidr:
         type: string
       containerdStorageDIr:
         type: string
+      dnsCacheVersion:
+        type: string
       dockerStorageDIr:
         type: string
       dockerSubnet:
+        type: string
+      enableDnsCache:
         type: string
       flannelBackend:
         type: string
@@ -197,6 +225,27 @@ definitions:
     required:
     - name
     - version
+    type: object
+  dto.ClusterMemberCreate:
+    properties:
+      usernames:
+        items:
+          type: string
+        type: array
+    required:
+    - usernames
+    type: object
+  dto.ClusterResourceCreate:
+    properties:
+      names:
+        items:
+          type: string
+        type: array
+      resourceType:
+        type: string
+    required:
+    - names
+    - resourceType
     type: object
   dto.Credential:
     properties:
@@ -300,6 +349,9 @@ definitions:
     type: object
   dto.HostCreate:
     properties:
+      credential:
+        $ref: '#/definitions/dto.CredentialCreate'
+        type: object
       credentialId:
         type: string
       ip:
@@ -309,7 +361,6 @@ definitions:
       port:
         type: integer
     required:
-    - credentialId
     - ip
     - name
     - port
@@ -353,8 +404,6 @@ definitions:
       ipPoolName:
         type: string
       ipStart:
-        type: string
-      subnet:
         type: string
     type: object
   dto.IpPool:
@@ -504,11 +553,8 @@ definitions:
         type: string
       name:
         type: string
-      userName:
-        type: string
     required:
     - name
-    - userName
     type: object
   dto.ProjectMember:
     properties:
@@ -516,40 +562,61 @@ definitions:
         type: string
       email:
         type: string
-      projectId:
-        type: string
       role:
         type: string
       updatedAt:
         type: string
-      userId:
+      userStatus:
         type: string
-      userName:
+      username:
         type: string
     type: object
   dto.ProjectMemberCreate:
     properties:
-      projectName:
+      usernames:
+        items:
+          type: string
+        type: array
+    required:
+    - usernames
+    type: object
+  dto.ProjectResource:
+    properties:
+      createdAt:
         type: string
-      role:
+      id:
         type: string
-      username:
+      projectId:
+        type: string
+      resourceId:
+        type: string
+      resourceName:
+        type: string
+      resourceType:
+        type: string
+      updatedAt:
         type: string
     required:
-    - projectName
-    - role
-    - username
+    - projectId
+    - resourceId
+    - resourceType
+    type: object
+  dto.ProjectResourceCreate:
+    properties:
+      names:
+        items:
+          type: string
+        type: array
+      resourceType:
+        type: string
+    required:
+    - names
+    - resourceType
     type: object
   dto.ProjectUpdate:
     properties:
       description:
         type: string
-      id:
-        type: string
-      name:
-        type: string
-    required:
-    - name
     type: object
   dto.Region:
     properties:
@@ -586,8 +653,33 @@ definitions:
     - provider
     - regionVars
     type: object
+  dto.RegionDatacenterRequest:
+    properties:
+      regionVars:
+        type: object
+    required:
+    - regionVars
+    type: object
+  dto.RegionUpdate:
+    properties:
+      datacenter:
+        type: string
+      name:
+        type: string
+      provider:
+        type: string
+      regionVars:
+        type: object
+    required:
+    - datacenter
+    - name
+    - provider
+    - regionVars
+    type: object
   dto.SessionUser:
     properties:
+      currentProject:
+        type: string
       email:
         type: string
       isActive:
@@ -609,52 +701,65 @@ definitions:
     properties:
       createdAt:
         type: string
+      currentProject:
+        type: string
       email:
         type: string
-      id:
-        type: string
-      isActive:
-        type: boolean
-      isAdmin:
-        type: boolean
       language:
         type: string
       name:
         type: string
       password:
+        type: string
+      role:
+        type: string
+      status:
         type: string
       type:
         type: string
       updatedAt:
         type: string
     type: object
+  dto.UserChangePassword:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      original:
+        type: string
+      password:
+        type: string
+    type: object
   dto.UserCreate:
     properties:
       email:
         type: string
-      isAdmin:
-        type: boolean
       name:
         type: string
       password:
         type: string
+      role:
+        type: string
     required:
     - email
-    - isAdmin
     - name
     - password
+    - role
     type: object
   dto.UserUpdate:
     properties:
+      currentProject:
+        type: string
       email:
         type: string
-      id:
-        type: string
-      isActive:
-        type: string
-      isAdmin:
-        type: string
       language:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      status:
         type: string
     type: object
   dto.VmConfig:
@@ -702,7 +807,6 @@ definitions:
     required:
     - cpu
     - memory
-    - name
     type: object
   dto.Zone:
     properties:
@@ -743,7 +847,24 @@ definitions:
     properties:
       cloudVars:
         type: object
-      credentialId:
+      credentialName:
+        type: string
+      ipPoolName:
+        type: string
+      name:
+        type: string
+      regionName:
+        type: string
+    required:
+    - cloudVars
+    - name
+    - regionName
+    type: object
+  dto.ZoneUpdate:
+    properties:
+      cloudVars:
+        type: object
+      id:
         type: string
       ipPoolName:
         type: string
@@ -751,13 +872,12 @@ definitions:
         type: string
       regionID:
         type: string
-      regionName:
-        type: string
     required:
     - cloudVars
+    - id
+    - ipPoolName
     - name
     - regionID
-    - regionName
     type: object
   model.BackupAccount:
     properties:
@@ -799,13 +919,23 @@ definitions:
         type: string
       calicoIpv4PoolIpip:
         type: string
+      ciliumNativeRoutingCidr:
+        type: string
+      ciliumTunnelMode:
+        type: string
+      ciliumVersion:
+        type: string
       containerdStorageDir:
         type: string
       createdAt:
         type: string
+      dnsCacheVersion:
+        type: string
       docker_subnet:
         type: string
       dockerStorageDir:
+        type: string
+      enableDnsCache:
         type: string
       flannelBackend:
         type: string
@@ -1058,14 +1188,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -1293,6 +1423,29 @@ paths:
       summary: Get cluster nodes
       tags:
       - clusters
+  /configs/{regionName}:
+    get:
+      consumes:
+      - application/json
+      description: 获取虚拟机配置
+      parameters:
+      - description: 区域名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: Array
+      security:
+      - ApiKeyAuth: []
+      summary: Get vmConfigs
+      tags:
+      - plans
   /credentials/:
     get:
       consumes:
@@ -1331,6 +1484,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create a credential
+      tags:
+      - credentials
+  /credentials/search:
+    post:
+      consumes:
+      - application/json
+      description: Search  credential
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CredentialCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Credential'
+      security:
+      - ApiKeyAuth: []
+      summary: Search credential
       tags:
       - credentials
   /hosts/:
@@ -1425,11 +1602,11 @@ paths:
       summary: Upload File for import
       tags:
       - hosts
-  /ippools/:
+  /ippools:
     get:
       consumes:
       - application/json
-      description: Show hosts
+      description: 获取IP池列表
       produces:
       - application/json
       responses:
@@ -1439,13 +1616,13 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show all hosts
+      summary: Show all ippools
       tags:
       - ippools
     post:
       consumes:
       - application/json
-      description: create a IpPool
+      description: 创建IP池
       parameters:
       - description: request
         in: body
@@ -1466,10 +1643,33 @@ paths:
       tags:
       - ippools
   /ippools/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除IP池
+      parameters:
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a IpPool
+      tags:
+      - ippools
     get:
       consumes:
       - application/json
-      description: get a IpPool
+      description: 获取单个IP池
+      parameters:
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1483,10 +1683,32 @@ paths:
       tags:
       - ippools
   /ippools/{name}/ips:
+    get:
+      consumes:
+      - application/json
+      description: 获取IP池下的IP列表
+      parameters:
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show ips by ipPoolName
+      tags:
+      - ips
     patch:
       consumes:
       - application/json
-      description: Update a Ip
+      description: 更新 Ip
       parameters:
       - description: request
         in: body
@@ -1494,6 +1716,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.IpUpdate'
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1509,7 +1736,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a Ip
+      description: 新增 Ip
       parameters:
       - description: request
         in: body
@@ -1517,6 +1744,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.IpCreate'
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1529,11 +1761,41 @@ paths:
       summary: Create a Ip
       tags:
       - ips
-  /ippools/{name}/ips/:
-    get:
+  /ippools/{name}/ips/{address}:
+    delete:
       consumes:
       - application/json
-      description: Show ips by ipPoolName
+      description: 删除IP
+      parameters:
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a Ip
+      tags:
+      - ips
+  /ippools/{name}/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤IP
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1543,9 +1805,33 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show ips by ipPoolName
+      summary: Search Ip
       tags:
       - ips
+  /ippools/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤IP池
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Search IpPool
+      tags:
+      - ippools
   /logs/:
     get:
       consumes:
@@ -1563,11 +1849,11 @@ paths:
       summary: Show all system_logs
       tags:
       - system_logs
-  /plans/:
+  /plans:
     get:
       consumes:
       - application/json
-      description: Show plans
+      description: 获取部署计划列表
       produces:
       - application/json
       responses:
@@ -1583,7 +1869,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a plan
+      description: 创建部署计划
       parameters:
       - description: request
         in: body
@@ -1603,11 +1889,11 @@ paths:
       summary: Create a plan
       tags:
       - plans
-  /plans/{name}/:
+  /plans/{name}:
     delete:
       consumes:
       - application/json
-      description: delete a plan by name
+      description: 删除部署计划
       produces:
       - application/json
       security:
@@ -1618,7 +1904,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: show a plan by name
+      description: 获取单个部署计划
+      parameters:
+      - description: 部署计划名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1631,51 +1923,18 @@ paths:
       summary: Show a Plan
       tags:
       - plans
-  /project/members/:
-    get:
-      consumes:
-      - application/json
-      description: Show projectMembers by projectName
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show projectMembers by projectName
-      tags:
-      - projectMembers
+  /plans/search:
     post:
       consumes:
       - application/json
-      description: create a projectMember
+      description: 过滤部署计划
       parameters:
-      - description: request
+      - description: conditions
         in: body
-        name: request
+        name: conditions
         required: true
         schema:
-          $ref: '#/definitions/dto.ProjectMemberCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ProjectMember'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a projectMember
-      tags:
-      - projectMembers
-  /project/resource/:
-    get:
-      consumes:
-      - application/json
-      description: Show projectResources by projectName and resourceType
+          $ref: '#/definitions/condition.Conditions'
       produces:
       - application/json
       responses:
@@ -1685,14 +1944,14 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show projectResources by projectName and resourceType
+      summary: Search  plans
       tags:
-      - projectResources
-  /projects/:
+      - plans
+  /projects:
     get:
       consumes:
       - application/json
-      description: Show projects
+      description: 获取项目列表
       produces:
       - application/json
       responses:
@@ -1708,7 +1967,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a project
+      description: 创建项目
       parameters:
       - description: request
         in: body
@@ -1728,13 +1987,21 @@ paths:
       summary: Create a project
       tags:
       - projects
-  /projects/{name}/:
+  /projects/{name}:
     delete:
       consumes:
       - application/json
-      description: delete a  project by name
+      description: 删除项目
+      parameters:
+      - description: 项目名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
+      responses:
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Delete a project
@@ -1743,7 +2010,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: show a project by name
+      description: 获取单个项目
+      parameters:
+      - description: 项目名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1759,7 +2032,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update a project
+      description: 更新项目
       parameters:
       - description: request
         in: body
@@ -1767,6 +2040,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.ProjectUpdate'
+      - description: 项目名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1779,11 +2057,367 @@ paths:
       summary: Update a project
       tags:
       - projects
-  /regions/:
+  /projects/{project}/clusters/{cluster}/members:
     get:
       consumes:
       - application/json
-      description: Show regions
+      description: 获取集群成员列表
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all clusterMembers
+      tags:
+      - clusterMembers
+    post:
+      consumes:
+      - application/json
+      description: 授权成员到集群
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterMemberCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: Array
+      security:
+      - ApiKeyAuth: []
+      summary: Create a cLusterMember
+      tags:
+      - clusterMembers
+  /projects/{project}/clusters/{cluster}/members/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消集群人员授权
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      - description: 人员名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete cLusterMember
+      tags:
+      - clusterMembers
+  /projects/{project}/clusters/{cluster}/resources:
+    get:
+      consumes:
+      - application/json
+      description: 获取集群资源列表
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all clusterResources
+      tags:
+      - clusterResources
+    post:
+      consumes:
+      - application/json
+      description: 授权资源到集群
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterResourceCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: Array
+      security:
+      - ApiKeyAuth: []
+      summary: Create a clusterResource
+      tags:
+      - clusterResources
+  /projects/{project}/clusters/{cluster}/resources/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消集群资源授权
+      parameters:
+      - description: 资源类型（HOST,PLAN,BACKUP_ACCOUNT）
+        in: query
+        name: resourceType
+        required: true
+        type: string
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 集群名称
+        in: path
+        name: cluster
+        required: true
+        type: string
+      - description: 资源名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete clusterResource
+      tags:
+      - clusterResources
+  /projects/{project}/members:
+    get:
+      consumes:
+      - application/json
+      description: 获取项目成员列表
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show projectMembers by projectName
+      tags:
+      - projectMembers
+    post:
+      consumes:
+      - application/json
+      description: 授权成员到项目
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProjectMemberCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectMember'
+      security:
+      - ApiKeyAuth: []
+  /projects/{project}/members/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消项目人员授权
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 人员名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete projectMember
+      tags:
+      - projectMembers
+  /projects/{project}/resources:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取项目资源列表
+      parameters:
+      - description: 资源类型（HOST,PLAN,BACKUP_ACCOUNT）
+        in: query
+        name: resourceType
+        required: true
+        type: string
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show projectResources by resourceType
+      tags:
+      - projectResources
+    post:
+      consumes:
+      - application/json
+      description: 授权资源到项目
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProjectResourceCreate'
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectResource'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a projectResource
+      tags:
+      - projectResources
+  /projects/{project}/resources/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 取消项目资源授权
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      - description: 资源名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete projectResource
+      tags:
+      - projectResources
+  /projects/{project}/resources/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取能添加到项目的资源
+      parameters:
+      - description: 项目名称
+        in: path
+        name: project
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get projectResources
+      tags:
+      - projectResources
+  /regions:
+    get:
+      consumes:
+      - application/json
+      description: 获取区域列表
       produces:
       - application/json
       responses:
@@ -1799,7 +2433,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a region
+      description: 创建区域
       parameters:
       - description: request
         in: body
@@ -1819,11 +2453,17 @@ paths:
       summary: Create a region
       tags:
       - regions
-  /regions/{name}/:
+  /regions/{name}:
     delete:
       consumes:
       - application/json
-      description: delete a region by name
+      description: 删除区域
+      parameters:
+      - description: 区域名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       security:
@@ -1834,7 +2474,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: show a region by name
+      description: 获取单个区域
+      parameters:
+      - description: 区域名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1844,14 +2490,73 @@ paths:
             $ref: '#/definitions/dto.Region'
       security:
       - ApiKeyAuth: []
-      summary: Show a Region
+      summary: Show a region
       tags:
       - regions
-  /users/:
-    get:
+    patch:
       consumes:
       - application/json
-      description: Show users
+      description: 更新区域
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegionUpdate'
+      - description: 区域名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Region'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a region
+      tags:
+      - regions
+  /regions/datacenter:
+    post:
+      consumes:
+      - application/json
+      description: 获取数据中心
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegionDatacenterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CloudRegionResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get datacenter list
+      tags:
+      - regions
+  /regions/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤部署计划
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
       produces:
       - application/json
       responses:
@@ -1861,13 +2566,30 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show all users
+      summary: Search regions
+      tags:
+      - regions
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show users
       tags:
       - users
     post:
       consumes:
       - application/json
-      description: create a user
+      description: 创建用户
       parameters:
       - description: request
         in: body
@@ -1881,17 +2603,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Host'
+            $ref: '#/definitions/dto.User'
       security:
       - ApiKeyAuth: []
       summary: Create a user
       tags:
       - users
-  /users/{name}/:
+  /users/{name}:
     delete:
       consumes:
       - application/json
-      description: delete a user by name
+      description: 删除用户
+      parameters:
+      - description: 用户名
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       security:
@@ -1902,7 +2630,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: show a user by name
+      description: 获取单个用户
       produces:
       - application/json
       responses:
@@ -1918,7 +2646,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update a user
+      description: 更新用户
       parameters:
       - description: request
         in: body
@@ -1926,6 +2654,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.UserUpdate'
+      - description: 用户名
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1938,11 +2671,75 @@ paths:
       summary: Update a user
       tags:
       - users
-  /vm/config/:
+  /users/change/password:
     post:
       consumes:
       - application/json
-      description: create a VmConfig
+      description: 更新用户密码
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.User'
+      security:
+      - ApiKeyAuth: []
+      summary: Change user password
+      tags:
+      - users
+  /users/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤用户
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Search user
+      tags:
+      - users
+  /vmconfigs:
+    get:
+      consumes:
+      - application/json
+      description: 获取虚拟机配置列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all vmConfigs
+      tags:
+      - vmConfigs
+    post:
+      consumes:
+      - application/json
+      description: 创建虚拟机配置
       parameters:
       - description: request
         in: body
@@ -1959,14 +2756,53 @@ paths:
             $ref: '#/definitions/dto.VmConfig'
       security:
       - ApiKeyAuth: []
-      summary: Create a VmConfig
+      summary: Create a vmConfig
       tags:
       - vmConfigs
-  /vm/config/{name}/:
+  /vmconfigs/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除虚拟机配置
+      parameters:
+      - description: 虚拟机配置名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a vmConfig
+      tags:
+      - vmConfigs
+    get:
+      consumes:
+      - application/json
+      description: 获取单个虚拟机配置
+      parameters:
+      - description: 虚拟机配置名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VmConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a vmConfig
+      tags:
+      - vmConfigs
     patch:
       consumes:
       - application/json
-      description: Update a vmConfig
+      description: 更新虚拟机配置
       parameters:
       - description: request
         in: body
@@ -1974,6 +2810,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.VmConfigUpdate'
+      - description: 虚拟机配置名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1986,11 +2827,18 @@ paths:
       summary: Update a vmConfig
       tags:
       - vmConfigs
-  /vm/configs/:
-    get:
+  /vmconfigs/search:
+    post:
       consumes:
       - application/json
-      description: Show vmConfigs
+      description: 过滤虚拟机配置
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
       produces:
       - application/json
       responses:
@@ -2000,14 +2848,14 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show all vmConfigs
+      summary: Search vmConfigs
       tags:
       - vmConfigs
-  /zones/:
+  /zones:
     get:
       consumes:
       - application/json
-      description: Show zones
+      description: 获取可用区列表
       produces:
       - application/json
       responses:
@@ -2023,7 +2871,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a zone
+      description: 创建区域
       parameters:
       - description: request
         in: body
@@ -2043,11 +2891,17 @@ paths:
       summary: Create a zone
       tags:
       - zones
-  /zones/{name}/:
+  /zones/{name}:
     delete:
       consumes:
       - application/json
-      description: delete a zone by name
+      description: 删除区域
+      parameters:
+      - description: 可用区名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       security:
@@ -2058,7 +2912,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: show a zone by name
+      description: 获取单个可用区
+      parameters:
+      - description: 可用区名称
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2069,6 +2929,81 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show a zone
+      tags:
+      - zones
+    patch:
+      consumes:
+      - application/json
+      description: 更新区域
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ZoneUpdate'
+      - description: 区域名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Zone'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a zone
+      tags:
+      - zones
+  /zones/list/{region}:
+    get:
+      consumes:
+      - application/json
+      description: 获取跟区域关联的可用区
+      parameters:
+      - description: 区域名称
+        in: path
+        name: region
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: Array
+      security:
+      - ApiKeyAuth: []
+      summary: Get zones by region
+      tags:
+      - zones
+  /zones/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤部署计划
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Search zones
       tags:
       - zones
 securityDefinitions:

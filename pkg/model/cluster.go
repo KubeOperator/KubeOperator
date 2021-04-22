@@ -216,6 +216,10 @@ func (c Cluster) BeforeDelete() error {
 			}
 		}
 	}
+	if err := tx.Where("cluster_id = ?", cluster.ID).
+		Delete(&ClusterResource{}).Error; err != nil {
+		return err
+	}
 	tx.Commit()
 	return nil
 }

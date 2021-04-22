@@ -26,12 +26,12 @@ func NewVmConfigController() *VmConfigController {
 // List VmConfigs
 // @Tags vmConfigs
 // @Summary Show all vmConfigs
-// @Description Show vmConfigs
+// @Description 获取虚拟机配置列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /vmconfigs/ [get]
+// @Router /vmconfigs [get]
 func (v VmConfigController) Get() (*page.Page, error) {
 	p, _ := v.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -56,6 +56,16 @@ func (v VmConfigController) Get() (*page.Page, error) {
 	}
 }
 
+// Search VmConfigs
+// @Tags vmConfigs
+// @Summary Search vmConfigs
+// @Description 过滤虚拟机配置
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /vmconfigs/search [post]
 func (v VmConfigController) PostSearch() (*page.Page, error) {
 	p, _ := v.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -82,27 +92,28 @@ func (v VmConfigController) PostSearch() (*page.Page, error) {
 
 // Get VmConfig
 // @Tags vmConfigs
-// @Summary Get a vmConfig by name
-// @Description Get a vmConfig
+// @Summary Get a vmConfig
+// @Description 获取单个虚拟机配置
 // @Accept  json
 // @Produce  json
+// @Param name path string true "虚拟机配置名称"
 // @Success 200 {object} dto.VmConfig
 // @Security ApiKeyAuth
-// @Router /vmconfigs/{name}/ [get]
+// @Router /vmconfigs/{name} [get]
 func (v VmConfigController) GetBy(name string) (*dto.VmConfig, error) {
 	return v.VmConfigService.Get(name)
 }
 
 // Create VmConfig
 // @Tags vmConfigs
-// @Summary Create a VmConfig
-// @Description create a VmConfig
+// @Summary Create a vmConfig
+// @Description 创建虚拟机配置
 // @Accept  json
 // @Produce  json
 // @Param request body dto.VmConfigCreate true "request"
 // @Success 200 {object} dto.VmConfig
 // @Security ApiKeyAuth
-// @Router /vmconfigs/ [post]
+// @Router /vmconfigs [post]
 func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	var req dto.VmConfigCreate
 	err := v.Ctx.ReadJSON(&req)
@@ -125,13 +136,14 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 // Update VmConfig
 // @Tags vmConfigs
 // @Summary Update a vmConfig
-// @Description Update a vmConfig
+// @Description 更新虚拟机配置
 // @Accept  json
 // @Produce  json
 // @Param request body dto.VmConfigUpdate true "request"
+// @Param name path string true "虚拟机配置名称"
 // @Success 200 {object} dto.VmConfig
 // @Security ApiKeyAuth
-// @Router /vmconfigs/{name}/ [patch]
+// @Router /vmconfigs/{name} [patch]
 func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	var req dto.VmConfigUpdate
 	err := v.Ctx.ReadJSON(&req)
@@ -158,11 +170,12 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 // Delete VmConfig
 // @Tags vmConfigs
 // @Summary Delete a vmConfig
-// @Description delete a vmConfig by name
+// @Description 删除虚拟机配置
 // @Accept  json
 // @Produce  json
+// @Param name path string true "虚拟机配置名称"
 // @Security ApiKeyAuth
-// @Router /vmconfigs/{name}/ [delete]
+// @Router /vmconfigs/{name} [delete]
 func (v VmConfigController) DeleteBy(name string) error {
 	operator := v.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_VM_CONFIG, name)
@@ -188,7 +201,7 @@ func (v VmConfigController) PostBatch() error {
 	operator := v.Ctx.Values().GetString("operator")
 	delConfs := ""
 	for _, item := range req.Items {
-		delConfs += (item.Name + ",")
+		delConfs += item.Name + ","
 	}
 	go kolog.Save(operator, constant.DELETE_VM_CONFIG, delConfs)
 

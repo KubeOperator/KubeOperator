@@ -29,6 +29,7 @@ import (
 
 type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
+	CheckExistence(name string) bool
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
@@ -42,7 +43,6 @@ type ClusterService interface {
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Delete(name string, force bool) error
-	Batch(batch dto.ClusterBatch, force bool) error
 }
 
 func NewClusterService() ClusterService {
@@ -94,6 +94,12 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	}
 
 	return clusterDTO, nil
+}
+
+func (c clusterService) CheckExistence(name string) bool {
+	count := 1
+	_ = db.DB.Model(&model.Cluster{}).Where("name = ?", name).Count(&count)
+	return count == 1
 }
 
 func (c clusterService) List() ([]dto.Cluster, error) {
@@ -285,6 +291,15 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		if err := tx.Save(&cluster).Error; err != nil {
 			tx.Rollback()
 			return nil, err
+		}
+		clusterResource := model.ClusterResource{
+			ResourceID:   plan.ID,
+			ClusterID:    cluster.ID,
+			ResourceType: constant.ResourcePlan,
+		}
+		if err := tx.Create(&clusterResource).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not create cluster  %s resource reason %s", cluster.Name, err.Error())
 		}
 	case constant.ClusterProviderBareMetal:
 		workerNo := 1
@@ -620,19 +635,6 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	}
 
 	return token, nil
-}
-
-func (c clusterService) Batch(batch dto.ClusterBatch, force bool) error {
-	switch batch.Operation {
-	case constant.BatchOperationDelete:
-		for _, item := range batch.Items {
-			err := c.Delete(item.Name, force)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func (c clusterService) GetKubeconfig(name string) (string, error) {

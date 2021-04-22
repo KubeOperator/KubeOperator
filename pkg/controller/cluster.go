@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	sessionUtil "github.com/KubeOperator/KubeOperator/pkg/util/session"
 	"io"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -25,6 +26,7 @@ type ClusterController struct {
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
+	BackupAccountService             service.BackupAccountService
 }
 
 func NewClusterController() *ClusterController {
@@ -39,6 +41,7 @@ func NewClusterController() *ClusterController {
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
+		BackupAccountService:             service.NewBackupAccountService(),
 	}
 }
 
@@ -54,7 +57,10 @@ func NewClusterController() *ClusterController {
 func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
 	if page {
-		projectName := c.Ctx.URLParam("projectName")
+		projectName, err := sessionUtil.GetProjectName(c.Ctx)
+		if err != nil {
+			return nil, err
+		}
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		pageItem, err := c.ClusterService.Page(num, size, projectName)
@@ -89,6 +95,11 @@ func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
 		return nil, err
 	}
 	return &cl, nil
+}
+
+func (c ClusterController) GetExistenceBy(name string) *dto.IsClusterNameExist {
+	isExit := c.ClusterService.CheckExistence(name)
+	return &dto.IsClusterNameExist{IsExist: isExit}
 }
 
 func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) {
@@ -278,7 +289,7 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /clusters/{name}/ [delete]
-func (c ClusterController) Delete(name string) error {
+func (c ClusterController) DeleteBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	force, _ := c.Ctx.Values().GetBool("force")
 
@@ -305,25 +316,6 @@ func (c ClusterController) PostImport() error {
 	go kolog.Save(operator, constant.IMPORT_CLUSTER, req.Name)
 
 	return c.ClusterImportService.Import(req)
-}
-
-func (c ClusterController) PostBatch() error {
-	var batch dto.ClusterBatch
-	if err := c.Ctx.ReadJSON(&batch); err != nil {
-		return err
-	}
-	force, _ := c.Ctx.Values().GetBool("force")
-	if err := c.ClusterService.Batch(batch, force); err != nil {
-		return err
-	}
-	operator := c.Ctx.Values().GetString("operator")
-	clusters := ""
-	for _, item := range batch.Items {
-		clusters += item.Name + ","
-	}
-	go kolog.Save(operator, constant.DELETE_CLUSTER, clusters)
-
-	return nil
 }
 
 // Get Cluster Nodes
@@ -357,22 +349,28 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
-func (c ClusterController) PostNodeBatchBy(clusterName string) error {
-	var req dto.NodeBatch
+func (c ClusterController) PostNodeBy(clusterName string) error {
+	var req dto.NodeCreation
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return err
 	}
-	err = c.ClusterNodeService.Batch(clusterName, req)
+	err = c.ClusterNodeService.Create(clusterName, req)
 	if err != nil {
 		return err
 	}
 	operator := c.Ctx.Values().GetString("operator")
-	if req.Operation == "delete" {
-		go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
-	} else {
-		go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
+	go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
+
+	return nil
+}
+
+func (c ClusterController) DeleteNodeBy(clusterName string, nodeName string) error {
+	if err := c.ClusterNodeService.Delete(clusterName, nodeName); err != nil {
+		return err
 	}
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
 
 	return nil
 }
@@ -499,4 +497,8 @@ func (c *ClusterController) GetHealthBy(clusterName string) (*dto.ClusterHealth,
 
 func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterRecoverItem, error) {
 	return c.ClusterHealthService.Recover(clusterName)
+}
+
+func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {
+	return c.BackupAccountService.ListByClusterName(name)
 }
