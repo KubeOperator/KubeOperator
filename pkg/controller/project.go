@@ -62,7 +62,6 @@ func (p ProjectController) PostSearch() (*page.Page, error) {
 		}
 	}
 	if pa {
-
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return p.ProjectService.Page(num, size, user, conditions)
