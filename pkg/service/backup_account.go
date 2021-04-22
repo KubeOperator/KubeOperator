@@ -5,12 +5,14 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"os"
 )
 
@@ -21,8 +23,8 @@ var (
 
 type BackupAccountService interface {
 	Get(name string) (*dto.BackupAccount, error)
-	List(projectName string) ([]dto.BackupAccount, error)
-	Page(num, size int) (page.Page, error)
+	List(projectName string, conditions condition.Conditions) ([]dto.BackupAccount, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
 	Update(name string, creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
@@ -31,7 +33,8 @@ type BackupAccountService interface {
 }
 
 type backupAccountService struct {
-	backupAccountRepo repository.BackupAccountRepository
+	projectResourceRepository repository.ProjectResourceRepository
+	backupAccountRepo         repository.BackupAccountRepository
 }
 
 func NewBackupAccountService() BackupAccountService {
@@ -52,39 +55,74 @@ func (b backupAccountService) Get(name string) (*dto.BackupAccount, error) {
 	return &backupAccountDTO, nil
 }
 
-func (b backupAccountService) List(projectName string) ([]dto.BackupAccount, error) {
-	var backupAccountDTOs []dto.BackupAccount
-	mos, err := b.backupAccountRepo.List(projectName)
-	if err != nil {
+func (b backupAccountService) List(projectName string, conditions condition.Conditions) ([]dto.BackupAccount, error) {
+	var (
+		backupAccountDTO []dto.BackupAccount
+		mos              []model.BackupAccount
+	)
+	d := db.DB.Model(model.BackupAccount{})
+	if err := dbUtil.WithConditions(&d, model.BackupAccount{}, conditions); err != nil {
 		return nil, err
 	}
-	for _, mo := range mos {
-		backupAccountDTOs = append(backupAccountDTOs, dto.BackupAccount{BackupAccount: mo})
+	if projectName == "" {
+		if err := d.Order("name").
+			Find(mos).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		projectResources, err := b.projectResourceRepository.ListByProjectNameAndType(projectName, constant.ResourceBackupAccount)
+		if err != nil {
+			return nil, err
+		}
+		var resourceIds []string
+		for _, pr := range projectResources {
+			resourceIds = append(resourceIds, pr.ResourceID)
+		}
+		if err := d.Order("name").
+			Where("id in (?)", resourceIds).
+			Find(mos).Error; err != nil {
+			return nil, err
+		}
 	}
-	return backupAccountDTOs, nil
+	for _, mo := range mos {
+		backupAccountDTO = append(backupAccountDTO, dto.BackupAccount{
+			BackupAccount: mo,
+		})
+	}
+	return backupAccountDTO, nil
 }
 
-func (b backupAccountService) Page(num, size int) (page.Page, error) {
-	var page page.Page
-	var backupAccountDTOs []dto.BackupAccount
-	total, mos, err := b.backupAccountRepo.Page(num, size)
-	if err != nil {
-		return page, err
+func (b backupAccountService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+	var (
+		p                 page.Page
+		backupAccountDTOs []dto.BackupAccount
+		mos               []model.BackupAccount
+	)
+	d := db.DB.Model(model.BackupAccount{})
+	if err := dbUtil.WithConditions(&d, model.BackupAccount{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := d.
+		Count(&p.Total).
+		Order("name").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&mos).Error; err != nil {
+		return nil, err
 	}
 	for _, mo := range mos {
 		backupDTO := new(dto.BackupAccount)
 		vars := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
-			return page, err
+			return &p, err
 		}
 		backupDTO.CredentialVars = vars
 		backupDTO.BackupAccount = mo
 
 		backupAccountDTOs = append(backupAccountDTOs, *backupDTO)
 	}
-	page.Total = total
-	page.Items = backupAccountDTOs
-	return page, err
+	p.Items = backupAccountDTOs
+	return &p, nil
 }
 
 func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
