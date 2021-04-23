@@ -1,18 +1,17 @@
 package service
 
 import (
-	"strings"
-
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/util/typeparse"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 )
 
 type SystemLogService interface {
 	Create(creation dto.SystemLogCreate) error
-	Page(num, size int, queryCondition dto.SystemLogQuery) (page.Page, error)
+	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 }
 
 type systemLogService struct{}
@@ -35,47 +34,28 @@ func (s systemLogService) Create(creation dto.SystemLogCreate) error {
 	}
 }
 
-func (u systemLogService) Page(num, size int, queryCondition dto.SystemLogQuery) (page.Page, error) {
+func (u systemLogService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
 	var (
-		page      page.Page
-		querySQl  string
-		logsOfDB  []model.SystemLog
-		logsOfDTO []dto.SystemLog
-		total     int
-		err       error
+		p         page.Page
+		logOfDTOs []dto.SystemLog
+		mos       []model.SystemLog
 	)
-
-	if queryCondition.Name.Field != "" {
-		nameCondition := typeparse.ParseConditionToSql(queryCondition.Name)
-		querySQl += nameCondition + " AND "
+	d := db.DB.Model(model.SystemLog{})
+	if err := dbUtil.WithConditions(&d, model.SystemLog{}, conditions); err != nil {
+		return nil, err
 	}
-	if queryCondition.Operation.Field != "" {
-		operationCondition := typeparse.ParseConditionToSql(queryCondition.Operation)
-		querySQl += operationCondition + " AND "
-	}
-	if queryCondition.OperationInfo.Field != "" {
-		operationInfoCondition := typeparse.ParseConditionToSql(queryCondition.OperationInfo)
-		querySQl += operationInfoCondition + " AND "
-	}
-	if queryCondition.Quick.Field != "" {
-		quickCondition := typeparse.ParseConditionQuickToSql(queryCondition.Quick, "name", "operation", "operation_info")
-		querySQl += ("(" + quickCondition + ") AND ")
-	}
-	if strings.Contains(querySQl, " AND ") {
-		querySQl = querySQl[0 : len(querySQl)-5]
+	if err := d.
+		Count(&p.Total).
+		Order("created_at").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&mos).Error; err != nil {
+		return nil, err
 	}
 
-	if err = db.DB.Model(&model.SystemLog{}).Where(querySQl).Order("updated_at DESC").
-		Count(&total).
-		Offset((num - 1) * size).Limit(size).
-		Find(&logsOfDB).Error; err != nil {
-		return page, err
+	for _, mo := range mos {
+		logOfDTOs = append(logOfDTOs, dto.SystemLog{SystemLog: mo})
 	}
-
-	for _, mo := range logsOfDB {
-		logsOfDTO = append(logsOfDTO, dto.SystemLog{SystemLog: mo})
-	}
-	page.Total = total
-	page.Items = logsOfDTO
-	return page, err
+	p.Items = logOfDTOs
+	return &p, nil
 }

@@ -45,7 +45,7 @@ func (i *InitDBPhase) Init() error {
 	db.DB().SetMaxOpenConns(i.MaxOpenConns)
 	db.DB().SetMaxIdleConns(i.MaxIdleConns)
 	DB = db
-	DB.LogMode(true)
+	DB.LogMode(false)
 	return nil
 }
 
