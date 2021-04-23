@@ -151,7 +151,7 @@ func (b BackupAccountController) PostBatch() error {
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [patch]
 func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error) {
-	var req dto.BackupAccountRequest
+	var req dto.BackupAccountUpdate
 	err := b.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err

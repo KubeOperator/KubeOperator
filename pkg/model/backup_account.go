@@ -14,7 +14,7 @@ var (
 
 type BackupAccount struct {
 	common.BaseModel
-	ID         string `json:"-"`
+	ID         string `json:"id" gorm:"type:varchar(64)"`
 	Name       string `json:"name" gorm:"type:varchar(256)"`
 	Bucket     string `json:"bucket" gorm:"type:varchar(256)"`
 	Credential string `json:"credential" gorm:"type:text(65535)"`
