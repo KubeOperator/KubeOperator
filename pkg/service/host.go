@@ -3,15 +3,16 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
-	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -131,6 +132,9 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		Order("name").
 		Offset((num - 1) * size).
 		Limit(size).
+		Preload("Volumes").
+		Preload("Cluster").
+		Preload("Zone").
 		Find(&mos).Error; err != nil {
 		return nil, err
 	}
@@ -143,7 +147,6 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 	}
 	p.Items = hostDTOs
 	return &p, nil
-
 }
 
 func (h *hostService) Delete(name string) error {
