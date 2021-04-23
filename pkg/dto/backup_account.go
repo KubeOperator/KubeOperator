@@ -19,6 +19,14 @@ type BackupAccountRequest struct {
 	Type           string      `json:"type" validate:"required"`
 }
 
+type BackupAccountUpdate struct {
+	ID             string      `json:"id" validate:"required"`
+	Name           string      `json:"name" validate:"required"`
+	CredentialVars interface{} `json:"credentialVars" validate:"required"`
+	Bucket         string      `json:"bucket" validate:"required"`
+	Type           string      `json:"type" validate:"required"`
+}
+
 type CloudStorageRequest struct {
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Type           string      `json:"type" validate:"required"`

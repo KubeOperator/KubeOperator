@@ -26,7 +26,7 @@ type BackupAccountService interface {
 	List(projectName string, conditions condition.Conditions) ([]dto.BackupAccount, error)
 	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
-	Update(name string, creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
+	Update(name string, creation dto.BackupAccountUpdate) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
 	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
 	Delete(name string) error
@@ -127,15 +127,15 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 		return nil, err
 	}
 	for _, mo := range mos {
-		backupDTO := new(dto.BackupAccount)
 		vars := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
 			return &p, err
 		}
-		backupDTO.CredentialVars = vars
-		backupDTO.BackupAccount = mo
-
-		backupAccountDTOs = append(backupAccountDTOs, *backupDTO)
+		backupDTO := dto.BackupAccount{
+			CredentialVars: vars,
+			BackupAccount:  mo,
+		}
+		backupAccountDTOs = append(backupAccountDTOs, backupDTO)
 	}
 	p.Items = backupAccountDTOs
 	return &p, nil
@@ -169,26 +169,30 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 	return &dto.BackupAccount{BackupAccount: backupAccount}, err
 }
 
-func (b backupAccountService) Update(name string, creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
+func (b backupAccountService) Update(name string, creation dto.BackupAccountUpdate) (*dto.BackupAccount, error) {
 
-	err := b.CheckValid(creation)
+	err := b.CheckValid(dto.BackupAccountRequest{
+		Name:           creation.Name,
+		Type:           creation.Type,
+		CredentialVars: creation.CredentialVars,
+		Bucket:         creation.Bucket,
+	})
 	if err != nil {
 		return nil, err
 	}
 	credential, _ := json.Marshal(creation.CredentialVars)
-	backupAccount, err := b.Get(name)
-	if err != nil {
-		return nil, err
+	backupAccount := model.BackupAccount{
+		ID:         creation.ID,
+		Name:       name,
+		Bucket:     creation.Bucket,
+		Type:       creation.Type,
+		Credential: string(credential),
+		Status:     constant.Valid,
 	}
-	backupAccount.Bucket = creation.Bucket
-	backupAccount.Credential = string(credential)
-	backupAccount.Status = constant.Valid
-
 	if err := db.DB.Save(&backupAccount).Error; err != nil {
 		return nil, err
 	}
-
-	return backupAccount, err
+	return &dto.BackupAccount{BackupAccount: backupAccount}, err
 }
 
 func (b backupAccountService) Batch(op dto.BackupAccountOp) error {
