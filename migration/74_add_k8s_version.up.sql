@@ -1,5 +1,4 @@
 update ko_cluster_manifest set is_active=0 where is_active='1';
-update ko_cluster_manifest set is_active=0 where is_active='1';
 
 insert into `ko`.`ko_cluster_manifest`(
     `id`,
