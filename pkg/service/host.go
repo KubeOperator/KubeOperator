@@ -82,51 +82,94 @@ func (h *hostService) Get(name string) (*dto.Host, error) {
 
 func (h *hostService) List(projectName string, conditions condition.Conditions) ([]dto.Host, error) {
 	var (
-		mos      []model.Host
-		hostDTOs []dto.Host
+		mos       []model.Host
+		hostDTOs  []dto.Host
+		projects  []model.Project
+		resources []model.ProjectResource
 	)
 
 	d := db.DB.Model(model.Host{})
 	if err := dbUtil.WithConditions(&d, model.Host{}, conditions); err != nil {
-		return nil, err
+		return hostDTOs, nil
 	}
-	if projectName != "" {
-		if err := dbUtil.WithProjectResource(&d, projectName, constant.ResourceHost); err != nil {
-			return nil, err
+
+	if len(projectName) != 0 {
+		res, err := dbUtil.WithProjectResource(&d, projectName, constant.ResourceHost)
+		if err != nil {
+			return hostDTOs, nil
+		}
+		resources = res[:]
+	} else {
+		if err := db.DB.Where(model.ProjectResource{ResourceType: constant.ResourceHost}).Find(&resources).Error; err != nil {
+			return hostDTOs, nil
 		}
 	}
+
 	if err := d.
 		Preload("Volumes").
 		Preload("Cluster").
 		Preload("Zone").
 		Find(&mos).Error; err != nil {
-		return nil, err
+		return hostDTOs, nil
 	}
+	if err := db.DB.Find(&projects).Error; err != nil {
+		return hostDTOs, nil
+	}
+
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{
-			Host:        mo,
-			ClusterName: mo.Cluster.Name,
-			ZoneName:    mo.Zone.Name,
-		})
+		isExist := false
+		for _, res := range resources {
+			if mo.ID == res.ResourceID {
+				isExist = true
+				for _, pro := range projects {
+					if pro.ID == res.ProjectID {
+						hostDTOs = append(hostDTOs, dto.Host{
+							Host:        mo,
+							ProjectName: pro.Name,
+							ClusterName: mo.Cluster.Name,
+							ZoneName:    mo.Zone.Name,
+						})
+						break
+					}
+				}
+				break
+			}
+		}
+		if !isExist {
+			hostDTOs = append(hostDTOs, dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			})
+		}
 	}
 	return hostDTOs, nil
 }
 
 func (h *hostService) Page(num, size int, projectName string, conditions condition.Conditions) (*page.Page, error) {
 	var (
-		p        page.Page
-		hostDTOs []dto.Host
-		mos      []model.Host
+		p         page.Page
+		hostDTOs  []dto.Host
+		mos       []model.Host
+		projects  []model.Project
+		resources []model.ProjectResource
 	)
 	d := db.DB.Model(model.Host{})
 	if err := dbUtil.WithConditions(&d, model.Host{}, conditions); err != nil {
-		return nil, err
+		return &p, err
 	}
-	if projectName != "" {
-		if err := dbUtil.WithProjectResource(&d, projectName, constant.ResourceHost); err != nil {
+	if len(projectName) != 0 {
+		res, err := dbUtil.WithProjectResource(&d, projectName, constant.ResourceHost)
+		if err != nil {
 			return nil, err
 		}
+		resources = res[:]
+	} else {
+		if err := db.DB.Where(model.ProjectResource{ResourceType: constant.ResourceHost}).Find(&resources).Error; err != nil {
+			return &p, err
+		}
 	}
+
 	if err := d.
 		Count(&p.Total).
 		Order("name").
@@ -136,14 +179,39 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		Preload("Cluster").
 		Preload("Zone").
 		Find(&mos).Error; err != nil {
-		return nil, err
+		return &p, err
 	}
+
+	if err := db.DB.Find(&projects).Error; err != nil {
+		return &p, err
+	}
+
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{
-			Host:        mo,
-			ClusterName: mo.Cluster.Name,
-			ZoneName:    mo.Zone.Name,
-		})
+		isExist := false
+		for _, res := range resources {
+			if mo.ID == res.ResourceID {
+				isExist = true
+				for _, pro := range projects {
+					if pro.ID == res.ProjectID {
+						hostDTOs = append(hostDTOs, dto.Host{
+							Host:        mo,
+							ProjectName: pro.Name,
+							ClusterName: mo.Cluster.Name,
+							ZoneName:    mo.Zone.Name,
+						})
+						break
+					}
+				}
+				break
+			}
+		}
+		if !isExist {
+			hostDTOs = append(hostDTOs, dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			})
+		}
 	}
 	p.Items = hostDTOs
 	return &p, nil
