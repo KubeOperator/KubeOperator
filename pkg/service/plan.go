@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"sort"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -14,7 +16,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/mitchellh/mapstructure"
-	"sort"
 )
 
 var (
@@ -84,8 +85,8 @@ func (p planService) Page(num, size int, projectName string, conditions conditio
 		return nil, err
 	}
 
-	if projectName != "" {
-		if err := dbUtil.WithProjectResource(&d, projectName, constant.ResourcePlan); err != nil {
+	if len(projectName) != 0 {
+		if _, err := dbUtil.WithProjectResource(&d, projectName, constant.ResourcePlan); err != nil {
 			return nil, err
 		}
 	}

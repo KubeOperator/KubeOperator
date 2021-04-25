@@ -2,40 +2,36 @@ package db
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/jinzhu/gorm"
-	"strings"
 )
 
-func WithProjectResource(db **gorm.DB, projectName string, resourceType string) error {
-	if projectName != "" {
-		var (
-			p   model.Project
-			res []model.ProjectResource
-		)
-		if err := (*db).
-			Where("name = ?", projectName).
-			First(&p).Error; err != nil {
-			return err
-		}
-
-		if err := (*db).Where(model.ProjectResource{
-			ResourceType: resourceType,
-			ProjectID:    p.ID,
-		}).Find(&res).Error; err != nil {
-			return err
-		}
-		resIds := func() []string {
-			var r []string
-			for i := range res {
-				r = append(r, res[i].ResourceID)
-			}
-			return r
-		}()
-		*db = (*db).Where("id IN (?)", resIds)
+func WithProjectResource(db **gorm.DB, projectName string, resourceType string) ([]model.ProjectResource, error) {
+	var (
+		p      model.Project
+		res    []model.ProjectResource
+		resIds []string
+	)
+	if err := (*db).
+		Where("name = ?", projectName).
+		First(&p).Error; err != nil {
+		return res, err
 	}
-	return nil
+
+	if err := (*db).Where(model.ProjectResource{
+		ResourceType: resourceType,
+		ProjectID:    p.ID,
+	}).Find(&res).Error; err != nil {
+		return res, err
+	}
+	for i := range res {
+		resIds = append(resIds, res[i].ResourceID)
+	}
+	*db = (*db).Where("id IN (?)", resIds)
+	return res, nil
 }
 
 func WithConditions(db **gorm.DB, model interface{}, conditions condition.Conditions) error {
