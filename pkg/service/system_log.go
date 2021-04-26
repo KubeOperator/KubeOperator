@@ -46,7 +46,7 @@ func (u systemLogService) Page(num, size int, conditions condition.Conditions) (
 	}
 	if err := d.
 		Count(&p.Total).
-		Order("created_at").
+		Order("created_at DESC").
 		Offset((num - 1) * size).
 		Limit(size).
 		Find(&mos).Error; err != nil {
