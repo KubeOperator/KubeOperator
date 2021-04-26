@@ -38,6 +38,17 @@ RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-pin
 RUN apt remove less -y
 RUN setcap cap_net_raw=+ep /bin/ping
 
+RUN if [ "$GOARCH" = "amd64" ] ; then \
+        cd /usr/lib/x86_64-linux-gnu \
+        && rm -rf libcurl-gnutls.so.4.6.0 libzstd.so.1.4.5 libsasl2.so.2.0.25 \
+        && rm -rf /usr/sbin/rmt-tar; \
+    fi; \
+    if [ "$GOARCH" = "arm64" ] ; then \
+        cd /usr/lib/aarch64-linux-gnu \
+        && rm -rf libcurl-gnutls.so.4.6.0 libzstd.so.1.4.5 libsasl2.so.2.0.25 \
+        && rm -rf /usr/sbin/rmt-tar; \
+    fi;
+
 WORKDIR /usr/local/bin
 
 RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
