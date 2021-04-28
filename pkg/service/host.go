@@ -230,6 +230,13 @@ func (h *hostService) Delete(name string) error {
 
 func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 	tx := db.DB.Begin()
+	var num int
+	if err := db.DB.Model(model.SystemRegistry{}).Where("hostname = ?", creation.Ip).Count(&num).Error; err != nil {
+		return nil, err
+	}
+	if num != 0 {
+		return nil, errors.New("IS_LOCAL_HOST")
+	}
 	var credential model.Credential
 	if creation.CredentialID != "" {
 		if err := db.DB.Where(model.Credential{ID: creation.CredentialID}).First(&credential).Error; err != nil {
