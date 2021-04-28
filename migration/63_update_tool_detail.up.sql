@@ -1,4 +1,4 @@
-DELETE FROM ko_cluster_tool_detail r WHERE r.name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND r.architecture='amd64';
+DELETE FROM ko_cluster_tool_detail WHERE name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND architecture='amd64';
 UPDATE ko_cluster_tool_detail SET architecture='all' WHERE name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND architecture='arm64';
 
 
