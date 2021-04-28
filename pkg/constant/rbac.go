@@ -79,8 +79,7 @@ var Roles = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/projects/{**}",
-			"/api/v1/projects/{**}/{**}",
-			"/api/v1/projects/{**}/{**}/{**}",
+			"/api/v1/projects/{**}/{resources,members}/{**}",
 			"/api/v1/projects/{**}/clusters/{**}/{**}",
 			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
 			"/api/v1/multicluster/repositories",
@@ -109,7 +108,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/manifests/{active,group}",
 			"/api/v1/backupaccounts",
 			"/api/v1/backupaccounts/{**}",
-			"/api/v1/backupaccounts/{**}/{**}",
+			"/api/v1/projects/{**}/{resources,members}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -123,6 +122,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans/search",
 			"/api/v1/vmconfigs/search",
 			"/api/v1/hosts/search",
+			"/api/v1/backupaccounts/search",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{
@@ -179,7 +179,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans",
 			"/api/v1/vmconfigs",
 			"/api/v1/backupaccounts",
-			"/api/v1/backupaccounts/{**}",
+			"/api/v1/backupaccounts/buckets",
+			"/api/v1/projects/{**}/{resources,members}",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{
@@ -195,6 +196,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans/{**}",
 			"/api/v1/vmconfigs/{**}",
 			"/api/v1/backupaccounts/{**}",
+			"/api/v1/projects/{**}/{resources,members}/{**}",
 		},
 		Method: []string{"DELETE"},
 		Permission: &grbac.Permission{
