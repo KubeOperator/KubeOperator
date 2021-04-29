@@ -67,6 +67,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/users/change/password",
 			"/api/v1/logs",
 			"/api/v1/message/{**}",
+			"/api/v1/message/{**}/check/{**}",
 			"/api/v1/message/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
