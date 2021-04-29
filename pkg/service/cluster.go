@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
-	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"math"
 	"net"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/pkg/errors"
@@ -129,11 +130,19 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 
 func (c clusterService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error) {
 	var (
-		page     dto.ClusterPage
-		clusters []model.Cluster
+		page             dto.ClusterPage
+		clusters         []model.Cluster
+		clusterResources []model.ProjectResource
+		projects         []model.Project
 	)
 	d := db.DB.Model(model.Cluster{})
 	if err := dbUtil.WithConditions(&d, model.Cluster{}, conditions); err != nil {
+		return nil, err
+	}
+	if err := db.DB.Where("resource_type = 'CLUSTER'").Find(&clusterResources).Error; err != nil {
+		return nil, err
+	}
+	if err := db.DB.Find(&projects).Error; err != nil {
 		return nil, err
 	}
 
@@ -148,23 +157,25 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 		}
 	} else {
 		var (
-			project          model.Project
-			clusterIds       []string
-			projectResources []model.ProjectResource
+			clusterIds []string
+			resources  []model.ProjectResource
 		)
-		if err := db.DB.Where("name =?", user.CurrentProject).Find(&project).Error; err != nil {
-			return nil, err
-		}
-		if err := db.DB.Where("project_id = ? AND resource_type = 'CLUSTER'", project.ID).Find(&projectResources).Error; err != nil {
-			return nil, err
+		for _, pro := range projects {
+			if pro.Name == user.CurrentProject {
+				for _, res := range clusterResources {
+					if res.ProjectID == pro.ID {
+						resources = append(resources, res)
+					}
+				}
+			}
 		}
 		if user.IsRole(constant.RoleProjectManager) {
-			for _, pm := range projectResources {
+			for _, pm := range resources {
 				clusterIds = append(clusterIds, pm.ResourceID)
 			}
 		} else {
 			var resourceIds []string
-			for _, pm := range projectResources {
+			for _, pm := range resources {
 				resourceIds = append(resourceIds, pm.ResourceID)
 			}
 			var clusterMembers []model.ClusterMember
@@ -191,18 +202,29 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 	}
 
 	for _, mo := range clusters {
-		clusterDTO := dto.Cluster{
-			Cluster:       mo,
-			NodeSize:      len(mo.Nodes),
-			Status:        mo.Status.Phase,
-			Provider:      mo.Spec.Provider,
-			PreStatus:     mo.Status.PrePhase,
-			Architectures: mo.Spec.Architectures,
+		for _, res := range clusterResources {
+			if mo.ID == res.ResourceID {
+				for _, pro := range projects {
+					if pro.ID == res.ProjectID {
+						clusterDTO := dto.Cluster{
+							Cluster:       mo,
+							ProjectName:   pro.Name,
+							NodeSize:      len(mo.Nodes),
+							Status:        mo.Status.Phase,
+							Provider:      mo.Spec.Provider,
+							PreStatus:     mo.Status.PrePhase,
+							Architectures: mo.Spec.Architectures,
+						}
+						if len(mo.MultiClusterRepositories) > 0 {
+							clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+						}
+						page.Items = append(page.Items, clusterDTO)
+						break
+					}
+				}
+				break
+			}
 		}
-		if len(mo.MultiClusterRepositories) > 0 {
-			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
-		}
-		page.Items = append(page.Items, clusterDTO)
 	}
 	return &page, nil
 }
