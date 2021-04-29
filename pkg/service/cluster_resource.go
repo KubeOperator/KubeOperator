@@ -84,6 +84,63 @@ func (c clusterResourceService) Page(num, size int, clusterName, resourceType st
 	return &p, nil
 }
 
+func (c clusterResourceService) List(clusterName string, resourceType string) (interface{}, error) {
+	var (
+		cluster          model.Cluster
+		clusterResources []model.ClusterResource
+		resourceIds      []string
+		resources        interface{}
+	)
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	if err := db.DB.Model(&model.ClusterResource{}).
+		Where("cluster_id = ? AND resource_type= ?", cluster.ID, resourceType).
+		Find(&clusterResources).Error; err != nil {
+		return nil, err
+	}
+	for _, mo := range clusterResources {
+		resourceIds = append(resourceIds, mo.ResourceID)
+	}
+
+	if len(resourceIds) == 0 {
+		resourceIds = append(resourceIds, "1")
+	}
+
+	switch resourceType {
+	case constant.ResourceHost:
+		var hosts []model.Host
+		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error; err != nil {
+			return nil, err
+		}
+		var result []dto.Host
+		for _, mo := range hosts {
+			hostDTO := dto.Host{
+				Host:        mo,
+				ClusterName: mo.Cluster.Name,
+				ZoneName:    mo.Zone.Name,
+			}
+			result = append(result, hostDTO)
+		}
+		resources = result
+	case constant.ResourcePlan:
+		var result []model.Plan
+		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+			return nil, err
+		}
+		resources = result
+	case constant.ResourceBackupAccount:
+		var result []model.BackupAccount
+		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+			return nil, err
+		}
+		resources = result
+	default:
+		return nil, nil
+	}
+	return resources, nil
+}
+
 func (c clusterResourceService) Create(clusterName string, request dto.ClusterResourceCreate) ([]dto.ClusterResource, error) {
 
 	if err := createCheck(clusterName, request); err != nil {
