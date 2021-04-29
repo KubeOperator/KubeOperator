@@ -130,12 +130,12 @@ func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 	if old.ID != "" {
 		return nil, errors.New(PlanNameExist)
 	}
-
 	vars, _ := json.Marshal(creation.PlanVars)
-	region, err := p.regionRepo.Get(creation.Region)
-	if err != nil {
+	var region model.Region
+	if err := db.DB.Where("name = ?", creation.Region).First(&region).Error; err != nil {
 		return nil, err
 	}
+	tx := db.DB.Begin()
 	plan := model.Plan{
 		BaseModel:      common.BaseModel{},
 		Name:           creation.Name,
@@ -143,26 +143,45 @@ func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 		RegionID:       region.ID,
 		DeployTemplate: creation.DeployTemplate,
 	}
-	err = p.planRepo.Save(&plan, creation.Zones)
+	err := tx.Create(&plan).Error
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-
-	for _, projectName := range creation.Projects {
-		project, err := p.projectRepo.Get(projectName)
+	var zones []model.Zone
+	err = tx.Where("name in (?)", creation.Zones).Find(&zones).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	for _, z := range zones {
+		err = tx.Create(&model.PlanZones{
+			PlanID: plan.ID,
+			ZoneID: z.ID,
+		}).Error
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
-		err = p.projectResourceRepo.Create(model.ProjectResource{
+	}
+	var projects []model.Project
+	err = tx.Where("name in (?)", creation.Projects).Find(&projects).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	for _, project := range projects {
+		err = tx.Create(&model.ProjectResource{
 			ResourceType: constant.ResourcePlan,
 			ResourceID:   plan.ID,
 			ProjectID:    project.ID,
-		})
+		}).Error
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 	}
-
+	tx.Commit()
 	return &dto.Plan{Plan: plan}, err
 }
 
