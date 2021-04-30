@@ -41,7 +41,7 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return p.ProjectResourceService.Page(num, size, projectName, resourceType)
 	} else {
-		return nil, nil
+		return p.ProjectResourceService.List(projectName, resourceType)
 	}
 }
 

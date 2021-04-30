@@ -40,7 +40,10 @@ func (c ClusterResourceController) Get() (*page.Page, error) {
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return c.ClusterResourceService.Page(num, size, clusterName, resourceType)
 	} else {
-		return nil, nil
+		var page page.Page
+		resource, err := c.ClusterResourceService.List(clusterName, resourceType)
+		page.Items = resource
+		return &page, err
 	}
 }
 

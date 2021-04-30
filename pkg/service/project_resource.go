@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -17,6 +18,7 @@ import (
 type ProjectResourceService interface {
 	Batch(op dto.ProjectResourceOp) error
 	Page(num, size int, projectName string, resourceType string) (*page.Page, error)
+	List(projectName string, resourceType string) (*page.Page, error)
 	GetResources(resourceType, projectName string) (interface{}, error)
 	Create(projectName string, request dto.ProjectResourceCreate) ([]dto.ProjectResource, error)
 	Delete(name, resourceType, projectName string) error
@@ -87,6 +89,62 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 		}
 
 		page.Total = total
+	}
+
+	return &page, err
+}
+
+func (p projectResourceService) List(projectName string, resourceType string) (*page.Page, error) {
+	var mos []model.ProjectResource
+	var page page.Page
+	pj, err := p.projectRepo.Get(projectName)
+	if err != nil {
+		return nil, err
+	}
+	if err := db.DB.Where("project_id = ? AND resource_type = ?", pj.ID, resourceType).Find(&mos).Error; err != nil {
+		return nil, err
+	}
+	var resourceIds []string
+	for _, mo := range mos {
+		resourceIds = append(resourceIds, mo.ResourceID)
+	}
+
+	if len(resourceIds) > 0 {
+		switch resourceType {
+		case constant.ResourceHost:
+			var hosts []model.Host
+			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
+			if err != nil {
+				return nil, err
+			}
+
+			var result []dto.Host
+			for _, mo := range hosts {
+				hostDTO := dto.Host{
+					Host:        mo,
+					ClusterName: mo.Cluster.Name,
+					ZoneName:    mo.Zone.Name,
+				}
+				result = append(result, hostDTO)
+			}
+			page.Items = result
+		case constant.ResourcePlan:
+			var result []model.Plan
+			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
+			if err != nil {
+				return nil, err
+			}
+			page.Items = result
+		case constant.ResourceBackupAccount:
+			var result []model.BackupAccount
+			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
+			if err != nil {
+				return nil, err
+			}
+			page.Items = result
+		default:
+			return nil, err
+		}
 	}
 
 	return &page, err

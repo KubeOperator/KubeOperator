@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -13,6 +14,7 @@ import (
 
 type ClusterResourceService interface {
 	Page(num, size int, clusterName, resourceType string) (*page.Page, error)
+	List(clusterName string, resourceType string) (interface{}, error)
 	Create(clusterName string, request dto.ClusterResourceCreate) ([]dto.ClusterResource, error)
 	GetResources(resourceType, projectName, clusterName string) (interface{}, error)
 	Delete(name, resourceType, clusterName string) error
