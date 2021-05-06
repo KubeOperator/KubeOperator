@@ -206,13 +206,14 @@ func getUserRole(user *model.User) ([]string, error) {
 			if gorm.IsRecordNotFoundError(err) {
 				return nil, errors.New("no resource")
 			}
-			err = db.DB.Model(&model.ProjectMember{}).Where("cluster_id = ?", clusterMember.ClusterID).Preload("Project").First(&projectMember).Error
+			var projectResource model.ProjectResource
+			err = db.DB.Model(&model.ProjectResource{}).Where("resource_id = ?", clusterMember.ClusterID).Preload("Project").First(&projectResource).Error
 			if err != nil {
 				return nil, err
 			}
-			if projectMember.Project.Name != "" {
-				user.CurrentProject = projectMember.Project
-				user.CurrentProjectID = projectMember.Project.ID
+			if projectResource.Project.Name != "" {
+				user.CurrentProject = projectResource.Project
+				user.CurrentProjectID = projectResource.Project.ID
 				db.DB.Save(user)
 			}
 			return []string{constant.RoleClusterManager}, nil
