@@ -163,7 +163,6 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 	}
 
 	err = tx.Create(&backupAccount).Error
-	//err = b.backupAccountRepo.Save(&backupAccount)
 	if err != nil {
 		return nil, err
 	}
