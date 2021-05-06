@@ -17,6 +17,7 @@ type BackupAccountRequest struct {
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string      `json:"bucket" validate:"required"`
 	Type           string      `json:"type" validate:"required"`
+	Projects       []string    `json:"projects" validate:"required"`
 }
 
 type BackupAccountUpdate struct {
