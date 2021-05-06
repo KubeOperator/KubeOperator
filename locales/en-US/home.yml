@@ -126,5 +126,6 @@ DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "failed to delete! The backup strategy 
 #session
 SESSION_KEY_NOT_FOUND: "session key invalid"
 USER_PROFILE_INVALID: "session user conversion failed"
+USER_HAS_NO_RESOURCE: "user has no resource"
 
 

@@ -128,5 +128,6 @@ DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "删除失败！该备份账号关联�
 #session
 SESSION_KEY_NOT_FOUND: "session key 无效"
 USER_PROFILE_INVALID: "session 用户转化失败"
+USER_HAS_NO_RESOURCE: "用户没有资源"
 
 

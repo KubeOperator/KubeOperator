@@ -204,7 +204,7 @@ func getUserRole(user *model.User) ([]string, error) {
 				return nil, err
 			}
 			if gorm.IsRecordNotFoundError(err) {
-				return nil, errors.New("no resource")
+				return nil, errors.New("USER_HAS_NO_RESOURCE")
 			}
 			var projectResource model.ProjectResource
 			err = db.DB.Model(&model.ProjectResource{}).Where("resource_id = ?", clusterMember.ClusterID).Preload("Project").First(&projectResource).Error
