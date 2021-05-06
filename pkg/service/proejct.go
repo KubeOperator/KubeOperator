@@ -136,9 +136,7 @@ func (p *projectService) Update(name string, update dto.ProjectUpdate) (*dto.Pro
 	if err := db.DB.Where(model.Project{Name: name}).First(&mo).Error; err != nil {
 		return nil, err
 	}
-	if update.Description != "" {
-		mo.Description = update.Description
-	}
+	mo.Description = update.Description
 	err := p.projectRepo.Save(&mo)
 	if err := db.DB.Save(&mo).Error; err != nil {
 		return nil, err
