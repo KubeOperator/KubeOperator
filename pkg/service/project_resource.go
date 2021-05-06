@@ -230,6 +230,9 @@ func (p projectResourceService) Delete(name, resourceType, projectName string) e
 		if err := db.DB.Model(model.Host{}).Where("name = ?", name).Find(&host).Error; err != nil {
 			return err
 		} else {
+			if host.ClusterID != "" {
+				return errors.New("DELETE_HOST_FAILED")
+			}
 			resourceId = host.ID
 		}
 	} else if resourceType == constant.ResourcePlan {

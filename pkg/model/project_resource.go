@@ -7,10 +7,11 @@ import (
 
 type ProjectResource struct {
 	common.BaseModel
-	ID           string `json:"id" gorm:"type:varchar(64)"`
-	ResourceType string `json:"resourceType" gorm:"type:varchar(128)" validate:"required"`
-	ResourceID   string `json:"resourceId" gorm:"type:varchar(64)" validate:"required"`
-	ProjectID    string `json:"projectId" gorm:"type:varchar(64)" validate:"required"`
+	ID           string  `json:"id" gorm:"type:varchar(64)"`
+	ResourceType string  `json:"resourceType" gorm:"type:varchar(128)" validate:"required"`
+	ResourceID   string  `json:"resourceId" gorm:"type:varchar(64)" validate:"required"`
+	ProjectID    string  `json:"projectId" gorm:"type:varchar(64)" validate:"required"`
+	Project      Project `json:"-"`
 }
 
 func (p *ProjectResource) BeforeCreate() (err error) {

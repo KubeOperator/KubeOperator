@@ -210,7 +210,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -218,9 +218,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -3703,7 +3703,8 @@
             "required": [
                 "ip",
                 "name",
-                "port"
+                "port",
+                "project"
             ],
             "properties": {
                 "credential": {
@@ -3721,6 +3722,9 @@
                 },
                 "port": {
                     "type": "integer"
+                },
+                "project": {
+                    "type": "string"
                 }
             }
         },

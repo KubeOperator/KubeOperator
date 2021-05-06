@@ -7,7 +7,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
-	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -48,55 +47,23 @@ func (u *User) BeforeDelete() (err error) {
 	if u.Name == "admin" {
 		return errors.New(AdminCanNotDelete)
 	}
-	var member ProjectMember
-	err = db.DB.Where(ProjectMember{UserID: u.ID}).Find(&member).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&member).Error
+	err = db.DB.Model(ProjectMember{}).Where("user_id =?", u.ID).Delete(&ProjectMember{}).Error
 	if err != nil {
 		return err
 	}
-	var userMessage UserMessage
-	err = db.DB.Where(UserMessage{UserID: u.ID}).Find(&userMessage).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&userMessage).Error
+	err = db.DB.Model(ClusterMember{}).Where("user_id =?", u.ID).Delete(&ClusterMember{}).Error
 	if err != nil {
 		return err
 	}
-	var config UserNotificationConfig
-	err = db.DB.Where(UserNotificationConfig{UserID: u.ID}).Find(&config).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&config).Error
+	err = db.DB.Model(UserMessage{}).Where("user_id =?", u.ID).Delete(&UserMessage{}).Error
 	if err != nil {
 		return err
 	}
-	var receiver UserReceiver
-	err = db.DB.Where(UserReceiver{UserID: u.ID}).Find(&receiver).Error
+	err = db.DB.Model(UserNotificationConfig{}).Where("user_id =?", u.ID).Delete(&UserNotificationConfig{}).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
+		return err
 	}
-	err = db.DB.Delete(&receiver).Error
+	err = db.DB.Model(UserReceiver{}).Where("user_id =?", u.ID).Delete(&UserReceiver{}).Error
 	if err != nil {
 		return err
 	}
