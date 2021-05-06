@@ -152,6 +152,7 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 	if err != nil {
 		return nil, err
 	}
+	tx := db.DB.Begin()
 	credential, _ := json.Marshal(creation.CredentialVars)
 	backupAccount := model.BackupAccount{
 		Name:       creation.Name,
@@ -161,11 +162,37 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 		Status:     constant.Valid,
 	}
 
-	err = b.backupAccountRepo.Save(&backupAccount)
+	err = tx.Create(&backupAccount).Error
+	//err = b.backupAccountRepo.Save(&backupAccount)
 	if err != nil {
 		return nil, err
 	}
 
+	var backAccount []model.BackupAccount
+	err = tx.Where("name in (?)", creation.Name).Find(&backAccount).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	var projects []model.Project
+	err = tx.Where("name in (?)", creation.Projects).Find(&projects).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	for _, project := range projects {
+		err = tx.Create(&model.ProjectResource{
+			ResourceType: constant.ResourceBackupAccount,
+			ResourceID:   backupAccount.ID,
+			ProjectID:    project.ID,
+		}).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+	tx.Commit()
 	return &dto.BackupAccount{BackupAccount: backupAccount}, err
 }
 
