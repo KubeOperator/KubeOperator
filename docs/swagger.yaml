@@ -23,6 +23,8 @@ definitions:
         type: string
       credentialVars:
         type: object
+      id:
+        type: string
       name:
         type: string
       status:
@@ -40,12 +42,17 @@ definitions:
         type: object
       name:
         type: string
+      projects:
+        items:
+          type: string
+        type: array
       type:
         type: string
     required:
     - bucket
     - credentialVars
     - name
+    - projects
     - type
     type: object
   dto.CloudRegionResponse:
@@ -74,6 +81,8 @@ definitions:
       nodeSize:
         type: integer
       preStatus:
+        type: string
+      projectName:
         type: string
       provider:
         type: string
@@ -283,6 +292,19 @@ definitions:
     - type
     - username
     type: object
+  dto.CredentialOfHostCreate:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      privateKey:
+        type: string
+      type:
+        type: string
+      username:
+        type: string
+    type: object
   dto.CredentialUpdate:
     properties:
       password:
@@ -350,7 +372,7 @@ definitions:
   dto.HostCreate:
     properties:
       credential:
-        $ref: '#/definitions/dto.CredentialCreate'
+        $ref: '#/definitions/dto.CredentialOfHostCreate'
         type: object
       credentialId:
         type: string
@@ -887,6 +909,8 @@ definitions:
         type: string
       credential:
         type: string
+      id:
+        type: string
       name:
         type: string
       status:
@@ -1217,6 +1241,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update a backupAccount
+      tags:
+      - backupAccounts
+  /backupAccounts/search:
+    post:
+      consumes:
+      - application/json
+      description: Search backupAccount
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BackupAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BackupAccount'
+      security:
+      - ApiKeyAuth: []
+      summary: Search backupAccount
       tags:
       - backupAccounts
   /cluster/backup/files/:
@@ -1642,6 +1690,35 @@ paths:
       summary: Create a IpPool
       tags:
       - ippools
+  /ippools/{ipPoolName}/ips/{name}:
+    patch:
+      consumes:
+      - application/json
+      description: 更新 Ip
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IpUpdate'
+      - description: IP池名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Ip'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a Ip
+      tags:
+      - ips
   /ippools/{name}:
     delete:
       consumes:
@@ -1703,34 +1780,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show ips by ipPoolName
-      tags:
-      - ips
-    patch:
-      consumes:
-      - application/json
-      description: 更新 Ip
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.IpUpdate'
-      - description: IP池名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Ip'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a Ip
       tags:
       - ips
     post:
@@ -1833,10 +1882,17 @@ paths:
       tags:
       - ippools
   /logs/:
-    get:
+    post:
       consumes:
       - application/json
-      description: Show system_logs
+      description: 过滤系统日志
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
       produces:
       - application/json
       responses:
@@ -1846,7 +1902,7 @@ paths:
             $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show all system_logs
+      summary: Search user
       tags:
       - system_logs
   /plans:

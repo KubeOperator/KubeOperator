@@ -98,17 +98,15 @@ func (s *SessionController) Delete() error {
 	return nil
 }
 
-//TODO: 报错信息没有翻译
-
 func (s *SessionController) Get() (*dto.Profile, error) {
 	session := constant.Sess.Start(s.Ctx)
 	user := session.Get(constant.SessionUserKey)
 	if user == nil {
-		return nil, errors.New("")
+		return nil, errors.New("SESSION_KEY_NOT_FOUND")
 	}
 	p, ok := user.(*dto.Profile)
 	if !ok {
-		return nil, errors.New("")
+		return nil, errors.New("USER_PROFILE_INVALID")
 	}
 	// 重新查询用户,被删除的用户要退出登陆
 	var mo model.User
