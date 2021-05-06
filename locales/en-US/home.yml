@@ -123,3 +123,8 @@ CLUSTER_PROVIDER_ERROR: "The cluster created in automatic mode cannot manually m
 RESOURCE_TYPE_ERROR: "The added type is not supported! Only supports HOST, BACKUP_ACCOUNT"
 DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "failed to delete! The backup strategy associated with this backup account is being activated!"
 
+#session
+SESSION_KEY_NOT_FOUND: "session key invalid"
+USER_PROFILE_INVALID: "session user conversion failed"
+
+

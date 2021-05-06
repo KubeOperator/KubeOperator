@@ -182,6 +182,45 @@ var doc = `{
                 }
             }
         },
+        "/backupAccounts/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Search backupAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Search backupAccount",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccount"
+                        }
+                    }
+                }
+            }
+        },
         "/backupAccounts/{name}/": {
             "delete": {
                 "security": [
@@ -969,6 +1008,52 @@ var doc = `{
                 }
             }
         },
+        "/ippools/{ipPoolName}/ips/{name}": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新 Ip",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ips"
+                ],
+                "summary": "Update a Ip",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.IpUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP池名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Ip"
+                        }
+                    }
+                }
+            }
+        },
         "/ippools/{name}": {
             "get": {
                 "security": [
@@ -1112,50 +1197,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "更新 Ip",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ips"
-                ],
-                "summary": "Update a Ip",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.IpUpdate"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "IP池名称",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Ip"
-                        }
-                    }
-                }
             }
         },
         "/ippools/{name}/ips/{address}": {
@@ -1234,13 +1275,13 @@ var doc = `{
             }
         },
         "/logs/": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show system_logs",
+                "description": "过滤系统日志",
                 "consumes": [
                     "application/json"
                 ],
@@ -1250,7 +1291,18 @@ var doc = `{
                 "tags": [
                     "system_logs"
                 ],
-                "summary": "Show all system_logs",
+                "summary": "Search user",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3144,6 +3196,9 @@ var doc = `{
                 "credentialVars": {
                     "type": "object"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3164,6 +3219,7 @@ var doc = `{
                 "bucket",
                 "credentialVars",
                 "name",
+                "projects",
                 "type"
             ],
             "properties": {
@@ -3175,6 +3231,12 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "type": {
                     "type": "string"
@@ -3220,6 +3282,9 @@ var doc = `{
                     "type": "integer"
                 },
                 "preStatus": {
+                    "type": "string"
+                },
+                "projectName": {
                     "type": "string"
                 },
                 "provider": {
@@ -3534,6 +3599,26 @@ var doc = `{
                 }
             }
         },
+        "dto.CredentialOfHostCreate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CredentialUpdate": {
             "type": "object",
             "required": [
@@ -3641,7 +3726,7 @@ var doc = `{
             "properties": {
                 "credential": {
                     "type": "object",
-                    "$ref": "#/definitions/dto.CredentialCreate"
+                    "$ref": "#/definitions/dto.CredentialOfHostCreate"
                 },
                 "credentialId": {
                     "type": "string"
@@ -4439,6 +4524,9 @@ var doc = `{
                     "type": "string"
                 },
                 "credential": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {

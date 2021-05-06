@@ -21,7 +21,7 @@ type IpService interface {
 	Create(create dto.IpCreate, tx *gorm.DB) error
 	Page(num, size int, ipPoolName string, conditions condition.Conditions) (*page.Page, error)
 	Batch(op dto.IpOp) error
-	Update(update dto.IpUpdate) (*dto.Ip, error)
+	Update(name string, update dto.IpUpdate) (*dto.Ip, error)
 	Sync(ipPoolName string) error
 	Delete(address string) error
 	List(ipPoolName string, conditions condition.Conditions) ([]dto.Ip, error)
@@ -180,10 +180,10 @@ func (i ipService) Batch(op dto.IpOp) error {
 	return nil
 }
 
-func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
+func (i ipService) Update(address string, update dto.IpUpdate) (*dto.Ip, error) {
 	tx := db.DB.Begin()
 	var ip model.Ip
-	err := tx.Where("address = ?", update.Address).First(&ip).Error
+	err := tx.Where("address = ?", address).First(&ip).Error
 	if err != nil {
 		return nil, err
 	}

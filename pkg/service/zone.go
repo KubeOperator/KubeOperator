@@ -22,10 +22,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 )
 
-var (
-	ZoneNameExist = "NAME_EXISTS"
-)
-
 type ZoneService interface {
 	Get(name string) (*dto.Zone, error)
 	List(conditions condition.Conditions) ([]dto.Zone, error)
@@ -174,12 +170,12 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		old        model.Zone
 	)
 	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
-		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
+		return nil, errors.New("IP_NOT_EXISTS")
 	}
 
 	db.DB.Model(model.Zone{}).Where("name = ?", creation.Name).Find(&old)
 	if old.ID != "" {
-		return nil, errors.New(ZoneNameExist)
+		return nil, errors.New("NAME_EXISTS")
 	}
 
 	param := creation.CloudVars.(map[string]interface{})
