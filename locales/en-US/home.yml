@@ -27,7 +27,9 @@ HOST_IMPORT_ERROR_NULL: "No data to import was found! Please check the import fi
 HOST_IMPORT_NULL_VALUE: "Empty data on line %s"
 HOST_IMPORT_WRONG_FORMAT: "Incorrect port format on line %s"
 HOST_IMPORT_CREDENTIAL_NOT_FOUND: "Credential not found on line %s"
+HOST_IMPORT_PROJECT_NOT_FOUND: "Project not found on line %s"
 HOST_IMPORT_FAILED_NUM: "A total of %s rows of data are abnormal, skip"
+HOST_RESOURCE_FAILED_BIND: "Failed to bind host resource %s, reason:%s"
 HOST_IMPORT_FAILED_SAVE: "Failed to save host %s, reason:%s"
 
 

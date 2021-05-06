@@ -47,6 +47,7 @@ type hostService struct {
 	hostRepo          repository.HostRepository
 	credentialRepo    repository.CredentialRepository
 	credentialService CredentialService
+	projectRepository repository.ProjectRepository
 }
 
 func NewHostService() HostService {
@@ -54,6 +55,7 @@ func NewHostService() HostService {
 		hostRepo:          repository.NewHostRepository(),
 		credentialRepo:    repository.NewCredentialRepository(),
 		credentialService: NewCredentialService(),
+		projectRepository: repository.NewProjectRepository(),
 	}
 }
 
@@ -264,6 +266,7 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		}
 		credential = c
 	}
+
 	host := model.Host{
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
@@ -273,10 +276,24 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		Credential:   credential,
 		Status:       constant.ClusterInitializing,
 	}
-
 	if err := tx.Create(&host).Error; err != nil {
 		return nil, err
 	}
+
+	var project model.Project
+	if err := tx.Where("name = ?", creation.Project).Find(&project).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Create(&model.ProjectResource{
+		ResourceType: constant.ResourceHost,
+		ResourceID:   host.ID,
+		ProjectID:    project.ID,
+	}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	tx.Commit()
 	go h.RunGetHostConfig(&host)
 	return &dto.Host{Host: host}, nil
@@ -555,6 +572,7 @@ func (h *hostService) DownloadTemplateFile() error {
 	f.SetCellValue("Sheet1", "B1", "ip")
 	f.SetCellValue("Sheet1", "C1", "port")
 	f.SetCellValue("Sheet1", "D1", "credential (系统设置-凭据中的名称)")
+	f.SetCellValue("Sheet1", "E1", "project (项目-项目名称)")
 	file, err := os.Create("./demo.xlsx")
 	if err != nil {
 		return err
@@ -610,6 +628,12 @@ func (h *hostService) ImportHosts(file []byte) error {
 			failedNum++
 			continue
 		}
+		project, err := h.projectRepository.Get(row[4])
+		if err != nil {
+			errs = errs.Add(errorf.New("HOST_IMPORT_PROJECT_NOT_FOUND", strconv.Itoa(index)))
+			failedNum++
+			continue
+		}
 		host := model.Host{
 			Name:         strings.Trim(row[0], " "),
 			Ip:           strings.Trim(row[1], " "),
@@ -617,6 +641,7 @@ func (h *hostService) ImportHosts(file []byte) error {
 			CredentialID: credential.ID,
 			Status:       constant.ClusterInitializing,
 			Credential:   credential,
+			ClusterID:    project.ID,
 		}
 		hosts = append(hosts, host)
 	}
@@ -625,9 +650,20 @@ func (h *hostService) ImportHosts(file []byte) error {
 		errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_NUM", strconv.Itoa(failedNum)))
 	}
 
+	itemProjectName := ""
 	for _, host := range hosts {
+		itemProjectName = host.ClusterID
+		host.ClusterID = ""
 		if err := h.hostRepo.Save(&host); err != nil {
 			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_SAVE", host.Name, err.Error()))
+			continue
+		}
+		if err := db.DB.Create(&model.ProjectResource{
+			ResourceType: constant.ResourceHost,
+			ResourceID:   host.ID,
+			ProjectID:    itemProjectName,
+		}).Error; err != nil {
+			errs = errs.Add(errorf.New("HOST_RESOURCE_FAILED_BIND", host.Name, err.Error()))
 			continue
 		}
 		saveHost := host

@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	hostIsNotNull       = "delete credential error, there are some hosts use this key"
+	hostIsNotNull       = "DELETE_FAILED_RESOURCE"
 	CredentialNameExist = "NAME_EXISTS"
 )
 
@@ -173,19 +173,7 @@ func (c credentialService) Update(name string, update dto.CredentialUpdate) (*dt
 }
 
 func (c credentialService) Delete(name string) error {
-
-	credential, err := c.Get(name)
-	if err != nil {
-		return err
-	}
-	hosts, err := c.hostRepo.ListByCredentialID(credential.ID)
-	if err != nil {
-		return err
-	}
-	if len(hosts) > 0 {
-		return errors.New(hostIsNotNull)
-	}
-	err = c.credentialRepo.Delete(name)
+	err := c.credentialRepo.Delete(name)
 	if err != nil {
 		return err
 	}
