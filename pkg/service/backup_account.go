@@ -113,7 +113,6 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 		p                 page.Page
 		backupAccountDTOs []dto.BackupAccount
 		mos               []model.BackupAccount
-		projects          []string
 		projectResources  []model.ProjectResource
 	)
 
@@ -134,14 +133,14 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 		if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
 			return &p, err
 		}
-		// 查询授权
 		if err := db.DB.Where("resource_id = ?", mo.ID).Preload("Project").Find(&projectResources).Error; err != nil {
 			return nil, err
 		}
+
+		var projects []string
 		for _, pr := range projectResources {
 			projects = append(projects, pr.Project.Name)
 		}
-		// 结束查询
 		backupDTO := dto.BackupAccount{
 			CredentialVars: vars,
 			BackupAccount:  mo,
