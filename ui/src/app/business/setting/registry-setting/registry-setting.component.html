@@ -1,9 +1,0 @@
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <app-registry-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-                           (updateEvent)="openUpdate($event)"></app-registry-list>
-        <app-registry-create (created)="refresh()"></app-registry-create>
-        <app-registry-update (update)="refresh()"></app-registry-update>
-        <app-registry-delete (deleted)="refresh()"></app-registry-delete>
-    </div>
-</div>

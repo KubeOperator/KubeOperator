@@ -1,9 +1,0 @@
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <h2> {{ 'APP_PROJECT' | translate }}</h2>
-        <app-project-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)" (updateEvent)="openUpdate($event)"></app-project-list>
-        <app-project-create (created)="refresh()"></app-project-create>
-        <app-project-delete (deleted)="refresh()"></app-project-delete>
-        <app-project-update (update)="refresh()"></app-project-update>
-    </div>
-</div>
