@@ -1,5 +1,0 @@
-<app-security-task-list [currentCluster]="currentCluster" (detailEvent)="openDetail($event)"
-                        (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"></app-security-task-list>
-<app-security-task-detail></app-security-task-detail>
-<app-security-task-create [currentCluster]="currentCluster" (created)="refresh()"></app-security-task-create>
-<app-security-task-delete [currentCluster]="currentCluster" (deleted)="refresh()"></app-security-task-delete>

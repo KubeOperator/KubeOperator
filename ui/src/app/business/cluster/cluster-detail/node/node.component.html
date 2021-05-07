@@ -1,7 +1,0 @@
-<app-node-detail></app-node-detail>
-<app-node-list [currentCluster]="currentCluster" (createEvent)="openCreate()"
-               (openDetail)="openDetail($event)" (statusEvent)="openShowCreate($event)"
-               (deleteEvent)="openDelete($event)"></app-node-list>
-<app-node-create [currentCluster]="currentCluster" (created)="refresh()"></app-node-create>
-<app-node-delete [currentCluster]="currentCluster" (deleted)="refresh()"></app-node-delete>
-<app-node-status></app-node-status>

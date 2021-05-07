@@ -1,6 +1,0 @@
-<app-tools-list [currentCluster]="currentCluster" (enableEvent)="openEnable($event)" (upgradeEvent)="openUpGrade($event)"
-                (failedEvent)="openFailed($event)" (disableEvent)="openDisable($event)"></app-tools-list>
-<app-tools-upgrade (upgraded)="refresh()" [currentCluster]="currentCluster"></app-tools-upgrade>
-<app-tools-enable (enabled)="refresh()" [currentCluster]="currentCluster"></app-tools-enable>
-<app-tools-disable (disabled)="refresh()" [currentCluster]="currentCluster"></app-tools-disable>
-<app-tools-failed></app-tools-failed>
