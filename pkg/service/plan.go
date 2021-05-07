@@ -23,13 +23,14 @@ var (
 )
 
 type PlanService interface {
-	Get(name string) (dto.Plan, error)
+	Get(name string) (*dto.Plan, error)
 	List(projectName string) ([]dto.Plan, error)
 	Page(num, size int, projectName string, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
 	Create(creation dto.PlanCreate) (*dto.Plan, error)
 	Batch(op dto.PlanOp) error
 	GetConfigs(regionName string) ([]dto.PlanVmConfig, error)
+	PatchBy(name string, update dto.PlanUpdate) (*dto.Plan, error)
 }
 
 type planService struct {
@@ -50,14 +51,35 @@ func NewPlanService() PlanService {
 	}
 }
 
-func (p planService) Get(name string) (dto.Plan, error) {
-	var planDTO dto.Plan
-	mo, err := p.planRepo.Get(name)
-	if err != nil {
-		return planDTO, err
+func (p planService) Get(name string) (*dto.Plan, error) {
+	var (
+		planDTO          dto.Plan
+		plan             model.Plan
+		projectResources []model.ProjectResource
+	)
+	if err := db.DB.Where("name = ?", name).
+		Preload("Zones").
+		Preload("Region").First(&plan).Error; err != nil {
+		return nil, err
 	}
-	planDTO.Plan = mo
-	return planDTO, err
+	r := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(plan.Vars), &r); err != nil {
+		return nil, err
+	}
+	for _, zone := range plan.Zones {
+		planDTO.Zones = append(planDTO.Zones, zone.Name)
+	}
+	planDTO.PlanVars = r
+	planDTO.Plan = plan
+	planDTO.Region = plan.Region.Name
+	planDTO.Provider = plan.Region.Provider
+	if err := db.DB.Where("resource_id = ?", plan.ID).Preload("Project").Find(&projectResources).Error; err != nil {
+		return nil, err
+	}
+	for _, pr := range projectResources {
+		planDTO.Projects = append(planDTO.Projects, pr.Project.Name)
+	}
+	return &planDTO, nil
 }
 
 func (p planService) List(projectName string) ([]dto.Plan, error) {
@@ -107,8 +129,8 @@ func (p planService) Page(num, size int, projectName string, conditions conditio
 		}
 		planDTO.PlanVars = r
 		planDTO.Plan = p
-		planDTO.RegionName = p.Region.Name
-		planDTO.ZoneNames = zoneNames
+		planDTO.Region = p.Region.Name
+		planDTO.Zones = zoneNames
 		planDTOs = append(planDTOs, *planDTO)
 	}
 
@@ -183,6 +205,39 @@ func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 	}
 	tx.Commit()
 	return &dto.Plan{Plan: plan}, err
+}
+
+func (p planService) PatchBy(name string, update dto.PlanUpdate) (*dto.Plan, error) {
+	var plan model.Plan
+	if err := db.DB.Where("name = ?", name).Find(&plan).Error; err != nil {
+		return nil, err
+	}
+	vars, _ := json.Marshal(update.PlanVars)
+	plan.Vars = string(vars)
+	var projects []model.Project
+	tx := db.DB.Begin()
+	if err := tx.Where("name in (?)", update.Projects).Find(&projects).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Model(model.ProjectResource{}).Where("resource_id = ?", plan.ID).Delete(&model.ProjectResource{}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	for _, project := range projects {
+		err := tx.Create(&model.ProjectResource{
+			ResourceType: constant.ResourcePlan,
+			ResourceID:   plan.ID,
+			ProjectID:    project.ID,
+		}).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+	tx.Save(&plan)
+	tx.Commit()
+	return &dto.Plan{Plan: plan}, nil
 }
 
 func (p planService) Batch(op dto.PlanOp) error {

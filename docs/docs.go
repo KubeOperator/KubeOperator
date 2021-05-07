@@ -1470,6 +1470,50 @@ var doc = `{
                     "plans"
                 ],
                 "summary": "Delete a plan"
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新部署计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Update a plan",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.PlanUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "部署计划名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Plan"
+                        }
+                    }
+                }
             }
         },
         "/projects": {
@@ -3932,10 +3976,19 @@ var doc = `{
                 "planVars": {
                     "type": "object"
                 },
-                "regionId": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "provider": {
                     "type": "string"
                 },
-                "regionName": {
+                "region": {
+                    "type": "string"
+                },
+                "regionId": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -3944,7 +3997,7 @@ var doc = `{
                 "vars": {
                     "type": "string"
                 },
-                "zoneNames": {
+                "zones": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -3982,6 +4035,24 @@ var doc = `{
                     "type": "string"
                 },
                 "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.PlanUpdate": {
+            "type": "object",
+            "required": [
+                "planVars",
+                "projects"
+            ],
+            "properties": {
+                "planVars": {
+                    "type": "object"
+                },
+                "projects": {
                     "type": "array",
                     "items": {
                         "type": "string"

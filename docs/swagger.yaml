@@ -512,15 +512,21 @@ definitions:
         type: string
       planVars:
         type: object
-      regionId:
+      projects:
+        items:
+          type: string
+        type: array
+      provider:
         type: string
-      regionName:
+      region:
+        type: string
+      regionId:
         type: string
       updatedAt:
         type: string
       vars:
         type: string
-      zoneNames:
+      zones:
         items:
           type: string
         type: array
@@ -550,6 +556,18 @@ definitions:
     - projects
     - region
     - zones
+    type: object
+  dto.PlanUpdate:
+    properties:
+      planVars:
+        type: object
+      projects:
+        items:
+          type: string
+        type: array
+    required:
+    - planVars
+    - projects
     type: object
   dto.Profile:
     properties:
@@ -1980,6 +1998,34 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show a Plan
+      tags:
+      - plans
+    patch:
+      consumes:
+      - application/json
+      description: 更新部署计划
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PlanUpdate'
+      - description: 部署计划名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Plan'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a plan
       tags:
       - plans
   /plans/search:

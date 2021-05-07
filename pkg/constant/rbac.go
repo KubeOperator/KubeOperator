@@ -211,6 +211,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/vmconfigs/{**}",
 			"/api/v1/manifests/{**}",
 			"/api/v1/backupaccounts/{**}",
+			"/api/v1/plans/{**}",
 		},
 		Method: []string{"PATCH"},
 		Permission: &grbac.Permission{
