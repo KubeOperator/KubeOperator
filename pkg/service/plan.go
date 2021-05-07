@@ -132,9 +132,15 @@ func (p planService) Page(num, size int, projectName string, conditions conditio
 		planDTO.Plan = p
 		planDTO.Region = p.Region.Name
 		planDTO.Zones = zoneNames
+		var projectResources []model.ProjectResource
+		if err := db.DB.Where("resource_id = ?", p.ID).Preload("Project").Find(&projectResources).Error; err != nil {
+			return nil, err
+		}
+		for _, pr := range projectResources {
+			planDTO.Projects = append(planDTO.Projects, pr.Project.Name)
+		}
 		planDTOs = append(planDTOs, *planDTO)
 	}
-
 	pa.Items = planDTOs
 	return &pa, nil
 }
