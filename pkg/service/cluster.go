@@ -408,6 +408,17 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				tx.Rollback()
 				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
 			}
+
+			clusterResource := model.ClusterResource{
+				ClusterID:    cluster.ID,
+				ResourceID:   host.ID,
+				ResourceType: constant.ResourceHost,
+			}
+			if err := tx.Create(&clusterResource).Error; err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("can bind host %s to cluster", nc.HostName)
+			}
+
 			n.HostID = host.ID
 			if err := tx.Create(&n).Error; err != nil {
 				return nil, fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
