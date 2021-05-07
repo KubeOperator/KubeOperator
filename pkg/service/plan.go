@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"github.com/jinzhu/gorm"
 	"sort"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
@@ -148,7 +149,10 @@ func (p planService) Delete(name string) error {
 
 func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 
-	old, _ := p.Get(creation.Name)
+	var old model.Plan
+	if err := db.DB.Where("name = ?", creation.Name).Find(&old).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(PlanNameExist)
 	}
