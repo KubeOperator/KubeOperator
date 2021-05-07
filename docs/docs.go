@@ -81,69 +81,6 @@ var doc = `{
             }
         },
         "/backupAccounts/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Show backupAccounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "backupAccounts"
-                ],
-                "summary": "Show all backupAccounts",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "create a backupAccount",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "backupAccounts"
-                ],
-                "summary": "Create a backupAccount",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.BackupAccountRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BackupAccount"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "security": [
                     {
@@ -182,14 +119,14 @@ var doc = `{
                 }
             }
         },
-        "/backupAccounts/search": {
-            "post": {
+        "/backupAccounts/{name}/": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Search backupAccount",
+                "description": "删除备份账号",
                 "consumes": [
                     "application/json"
                 ],
@@ -199,7 +136,99 @@ var doc = `{
                 "tags": [
                     "backupAccounts"
                 ],
-                "summary": "Search backupAccount",
+                "summary": "Delete a backupAccount",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备份账号名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新备份账号",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Update a backupAccount",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccountUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccount"
+                        }
+                    }
+                }
+            }
+        },
+        "/backupaccounts/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取备份账号列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Show all backupAccounts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建备份账号",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Create a backupAccount",
                 "parameters": [
                     {
                         "description": "request",
@@ -221,32 +250,14 @@ var doc = `{
                 }
             }
         },
-        "/backupAccounts/{name}/": {
-            "delete": {
+        "/backupaccounts/search": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "credentials"
-                ],
-                "summary": "Delete a credential"
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update a backupAccount",
+                "description": "过滤备份账号",
                 "consumes": [
                     "application/json"
                 ],
@@ -256,15 +267,15 @@ var doc = `{
                 "tags": [
                     "backupAccounts"
                 ],
-                "summary": "Update a backupAccount",
+                "summary": "Search backupAccount",
                 "parameters": [
                     {
-                        "description": "request",
-                        "name": "request",
+                        "description": "conditions",
+                        "name": "conditions",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BackupAccountRequest"
+                            "$ref": "#/definitions/condition.Conditions"
                         }
                     }
                 ],
@@ -272,7 +283,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.BackupAccount"
+                            "$ref": "#/definitions/page.Page"
                         }
                     }
                 }
@@ -336,7 +347,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -370,7 +383,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -1313,6 +1328,83 @@ var doc = `{
                 }
             }
         },
+        "/manifest": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取Kubernetes版本列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "manifest"
+                ],
+                "summary": "Show all manifest",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ClusterManifestGroup"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/manifest/{name}": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新 Kubernetes 版本状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "manifest"
+                ],
+                "summary": "Update a manifest",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterManifestUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kubernetes 版本",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterManifestUpdate"
+                        }
+                    }
+                }
+            }
+        },
         "/plans": {
             "get": {
                 "security": [
@@ -1600,7 +1692,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             },
             "patch": {
@@ -3243,6 +3337,33 @@ var doc = `{
                 }
             }
         },
+        "dto.BackupAccountUpdate": {
+            "type": "object",
+            "required": [
+                "bucket",
+                "credentialVars",
+                "id",
+                "name",
+                "type"
+            ],
+            "properties": {
+                "bucket": {
+                    "type": "string"
+                },
+                "credentialVars": {
+                    "type": "object"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CloudRegionResponse": {
             "type": "object",
             "properties": {
@@ -3294,7 +3415,6 @@ var doc = `{
                     "type": "string"
                 },
                 "spec": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -3334,14 +3454,12 @@ var doc = `{
             ],
             "properties": {
                 "backupAccount": {
-                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -3509,6 +3627,78 @@ var doc = `{
                     "type": "integer"
                 },
                 "yumOperate": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterManifest": {
+            "type": "object",
+            "properties": {
+                "coreVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NameVersion"
+                    }
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NameVersion"
+                    }
+                },
+                "otherVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NameVersion"
+                    }
+                },
+                "storageVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NameVersion"
+                    }
+                },
+                "toolVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NameVersion"
+                    }
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterManifestGroup": {
+            "type": "object",
+            "properties": {
+                "clusterManifests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ClusterManifest"
+                    }
+                },
+                "largeVersion": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterManifestUpdate": {
+            "type": "object",
+            "properties": {
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -3726,7 +3916,6 @@ var doc = `{
             ],
             "properties": {
                 "credential": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.CredentialOfHostCreate"
                 },
                 "credentialId": {
@@ -3771,7 +3960,6 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -3903,6 +4091,17 @@ var doc = `{
                 }
             }
         },
+        "dto.NameVersion": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.NodeCreate": {
             "type": "object",
             "properties": {
@@ -3996,7 +4195,6 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -4418,7 +4616,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "_": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "cloudVars": {
@@ -4434,7 +4631,6 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {
