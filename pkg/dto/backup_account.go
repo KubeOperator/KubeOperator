@@ -5,6 +5,7 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 type BackupAccount struct {
 	model.BackupAccount
 	CredentialVars interface{} `json:"credentialVars"`
+	Projects       []string    `json:"projects"`
 }
 
 type BackupAccountOp struct {
@@ -17,7 +18,7 @@ type BackupAccountRequest struct {
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string      `json:"bucket" validate:"required"`
 	Type           string      `json:"type" validate:"required"`
-	Projects       []string    `json:"projects" validate:"required"`
+	Projects       []string    `json:"projects"`
 }
 
 type BackupAccountUpdate struct {
@@ -26,6 +27,7 @@ type BackupAccountUpdate struct {
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string      `json:"bucket" validate:"required"`
 	Type           string      `json:"type" validate:"required"`
+	Projects       []string    `json:"projects"`
 }
 
 type CloudStorageRequest struct {
