@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -98,7 +99,14 @@ func WithConditions(db **gorm.DB, model interface{}, conditions condition.Condit
 				if !(len(val) == 2) {
 					return fmt.Errorf("condition %s length must be 2", v.Field)
 				}
-				*db = (*db).Where(fmt.Sprintf("%s BETWEEN ? AND ?", v.Field), val)
+				switch val[0].(type) {
+				case float64:
+					date1 := time.Unix(int64(val[0].(float64))/1000, 0).Format("2006-01-02 15:04:05")
+					date2 := time.Unix(int64(val[1].(float64))/1000, 0).Format("2006-01-02 15:04:05")
+					*db = (*db).Where(fmt.Sprintf("%s BETWEEN ? AND ?", v.Field), date1, date2)
+				default:
+					*db = (*db).Where(fmt.Sprintf("%s BETWEEN ? AND ?", v.Field), val[0], val[1])
+				}
 			}
 		}
 	}
