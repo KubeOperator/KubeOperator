@@ -159,6 +159,17 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/settings/{**}",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleProjectManager},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
 			"/api/v1/users",
 			"/api/v1/users/{**}",
 		},
