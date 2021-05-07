@@ -1,9 +1,0 @@
-<div class="row">
-    <app-multi-cluster-relation-list (createEvent)="openCreate()"
-                                     (deleteEvent)="openDelete($event)"
-                                     [currentRepository]="currentRepository"></app-multi-cluster-relation-list>
-    <app-multi-cluster-relation-create [currentRepository]="currentRepository"
-                                       (created)="refresh()"></app-multi-cluster-relation-create>
-    <app-multi-cluster-relation-delete [currentRepository]="currentRepository"
-                                       (deleted)="refresh()"></app-multi-cluster-relation-delete>
-</div>

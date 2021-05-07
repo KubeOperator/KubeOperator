@@ -1,9 +1,0 @@
-:host /deep/ .CodeMirror {
-    max-height: 960px;
-    height: 100% !important;
-    font-size: 16px;
-}
-
-.git-changed {
-    color: green;
-}

@@ -1,7 +1,0 @@
-<p class="p7 prompt">{{'APP_ZONE_PROMPT'|translate}}</p>
-<app-zone-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-               (detailEvent)="openDetail($event)" (updateEvent)="openUpdate($event)"></app-zone-list>
-<app-zone-create (created)="refresh()"></app-zone-create>
-<app-zone-delete (deleted)="refresh()"></app-zone-delete>
-<app-zone-detail (detail)="refresh()"></app-zone-detail>
-<app-zone-update (updated)="refresh()"></app-zone-update>

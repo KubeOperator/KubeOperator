@@ -25,12 +25,12 @@ func NewBackupAccountController() *BackupAccountController {
 // List BackupAccount
 // @Tags backupAccounts
 // @Summary Show all backupAccounts
-// @Description Show backupAccounts
+// @Description 获取备份账号列表
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /backupAccounts/ [get]
+// @Router /backupaccounts/ [get]
 func (b BackupAccountController) Get() (*page.Page, error) {
 
 	pg, _ := b.Ctx.Values().GetBool("page")
@@ -54,13 +54,13 @@ func (b BackupAccountController) Get() (*page.Page, error) {
 // Search BackupAccount
 // @Tags backupAccounts
 // @Summary Search backupAccount
-// @Description Search backupAccount
+// @Description 过滤备份账号
 // @Accept  json
 // @Produce  json
-// @Param request body dto.BackupAccountRequest true "request"
-// @Success 200 {object} dto.BackupAccount
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /backupAccounts/search [post]
+// @Router /backupaccounts/search [post]
 func (b BackupAccountController) PostSearch() (*page.Page, error) {
 	var conditions condition.Conditions
 	if b.Ctx.GetContentLength() > 0 {
@@ -89,13 +89,13 @@ func (b BackupAccountController) PostSearch() (*page.Page, error) {
 // Create BackupAccount
 // @Tags backupAccounts
 // @Summary Create a backupAccount
-// @Description create a backupAccount
+// @Description 创建备份账号
 // @Accept  json
 // @Produce  json
 // @Param request body dto.BackupAccountRequest true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
-// @Router /backupAccounts/ [post]
+// @Router /backupaccounts/ [post]
 func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 	var req dto.BackupAccountRequest
 	err := b.Ctx.ReadJSON(&req)
@@ -143,10 +143,10 @@ func (b BackupAccountController) PostBatch() error {
 // Update BackupAccount
 // @Tags backupAccounts
 // @Summary Update a backupAccount
-// @Description Update a backupAccount
+// @Description 更新备份账号
 // @Accept  json
 // @Produce  json
-// @Param request body dto.BackupAccountRequest true "request"
+// @Param request body dto.BackupAccountUpdate true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [patch]
@@ -169,12 +169,12 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 }
 
 // Delete BackupAccount
-
 // @Tags backupAccounts
 // @Summary Delete a backupAccount
-// @Description delete a  backupAccount by name
+// @Description 删除备份账号
 // @Accept  json
 // @Produce  json
+// @Param name path string true "备份账号名称"
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [delete]
 func (b BackupAccountController) DeleteBy(name string) error {

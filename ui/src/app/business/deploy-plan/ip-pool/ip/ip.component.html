@@ -1,6 +1,0 @@
-<a (click)="backToIpPool()" class="backStyle">&lt; {{'APP_IP_POOL'|translate}}</a>
-<h4>{{ipPoolName}}</h4>
-<p class="p7 prompt">{{'IP_PROMPT'|translate}}</p>
-<app-ip-list (deleteEvent)="openDelete($event)" (createEvent)="openCreate()"></app-ip-list>
-<app-ip-create (created)="refresh()"></app-ip-create>
-<app-ip-delete (deleted)="refresh()"></app-ip-delete>

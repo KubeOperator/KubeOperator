@@ -147,12 +147,22 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/credentials",
 			"/api/v1/credentials/{**}",
 			"/api/v1/settings",
-			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{RoleAdmin},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/settings/{**}",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
 			AllowAnyone:     false,
 		},
 	},

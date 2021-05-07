@@ -55,6 +55,25 @@ definitions:
     - projects
     - type
     type: object
+  dto.BackupAccountUpdate:
+    properties:
+      bucket:
+        type: string
+      credentialVars:
+        type: object
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - bucket
+    - credentialVars
+    - id
+    - name
+    - type
+    type: object
   dto.CloudRegionResponse:
     properties:
       result:
@@ -90,7 +109,6 @@ definitions:
         type: string
       spec:
         $ref: '#/definitions/model.ClusterSpec'
-        type: object
       status:
         type: string
       updatedAt:
@@ -114,12 +132,10 @@ definitions:
     properties:
       backupAccount:
         $ref: '#/definitions/model.BackupAccount'
-        type: object
       clusterName:
         type: string
       file:
         $ref: '#/definitions/model.ClusterBackupFile'
-        type: object
       name:
         type: string
     required:
@@ -234,6 +250,53 @@ definitions:
     required:
     - name
     - version
+    type: object
+  dto.ClusterManifest:
+    properties:
+      coreVars:
+        items:
+          $ref: '#/definitions/dto.NameVersion'
+        type: array
+      isActive:
+        type: boolean
+      name:
+        type: string
+      networkVars:
+        items:
+          $ref: '#/definitions/dto.NameVersion'
+        type: array
+      otherVars:
+        items:
+          $ref: '#/definitions/dto.NameVersion'
+        type: array
+      storageVars:
+        items:
+          $ref: '#/definitions/dto.NameVersion'
+        type: array
+      toolVars:
+        items:
+          $ref: '#/definitions/dto.NameVersion'
+        type: array
+      version:
+        type: string
+    type: object
+  dto.ClusterManifestGroup:
+    properties:
+      clusterManifests:
+        items:
+          $ref: '#/definitions/dto.ClusterManifest'
+        type: array
+      largeVersion:
+        type: string
+    type: object
+  dto.ClusterManifestUpdate:
+    properties:
+      isActive:
+        type: boolean
+      name:
+        type: string
+      version:
+        type: string
     type: object
   dto.ClusterMemberCreate:
     properties:
@@ -373,7 +436,6 @@ definitions:
     properties:
       credential:
         $ref: '#/definitions/dto.CredentialOfHostCreate'
-        type: object
       credentialId:
         type: string
       ip:
@@ -408,7 +470,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/model.IpPool'
-        type: object
       ipPoolId:
         type: string
       status:
@@ -493,6 +554,13 @@ definitions:
       username:
         type: string
     type: object
+  dto.NameVersion:
+    properties:
+      name:
+        type: string
+      version:
+        type: string
+    type: object
   dto.NodeCreate:
     properties:
       hostName:
@@ -575,7 +643,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.SessionUser'
-        type: object
     type: object
   dto.Project:
     properties:
@@ -855,7 +922,6 @@ definitions:
     properties:
       _:
         $ref: '#/definitions/model.IpPool'
-        type: object
       cloudVars:
         type: object
       createdAt:
@@ -866,7 +932,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/dto.IpPool'
-        type: object
       ipPoolId:
         type: string
       ipPoolName:
@@ -1167,22 +1232,6 @@ paths:
       tags:
       - auth
   /backupAccounts/:
-    get:
-      consumes:
-      - application/json
-      description: Show backupAccounts
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all backupAccounts
-      tags:
-      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -1206,10 +1255,68 @@ paths:
       summary: Update a credential
       tags:
       - credentials
+  /backupAccounts/{name}/:
+    delete:
+      consumes:
+      - application/json
+      description: 删除备份账号
+      parameters:
+      - description: 备份账号名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a backupAccount
+      tags:
+      - backupAccounts
+    patch:
+      consumes:
+      - application/json
+      description: 更新备份账号
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BackupAccountUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BackupAccount'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a backupAccount
+      tags:
+      - backupAccounts
+  /backupaccounts/:
+    get:
+      consumes:
+      - application/json
+      description: 获取备份账号列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all backupAccounts
+      tags:
+      - backupAccounts
     post:
       consumes:
       - application/json
-      description: create a backupAccount
+      description: 创建备份账号
       parameters:
       - description: request
         in: body
@@ -1229,60 +1336,25 @@ paths:
       summary: Create a backupAccount
       tags:
       - backupAccounts
-  /backupAccounts/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a  credential by name
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a credential
-      tags:
-      - credentials
-    patch:
-      consumes:
-      - application/json
-      description: Update a backupAccount
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.BackupAccountRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.BackupAccount'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a backupAccount
-      tags:
-      - backupAccounts
-  /backupAccounts/search:
+  /backupaccounts/search:
     post:
       consumes:
       - application/json
-      description: Search backupAccount
+      description: 过滤备份账号
       parameters:
-      - description: request
+      - description: conditions
         in: body
-        name: request
+        name: conditions
         required: true
         schema:
-          $ref: '#/definitions/dto.BackupAccountRequest'
+          $ref: '#/definitions/condition.Conditions'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.BackupAccount'
+            $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
       summary: Search backupAccount
@@ -1332,7 +1404,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Backup CLuster
@@ -1353,7 +1426,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Restore CLuster
@@ -1926,6 +2000,54 @@ paths:
       summary: Search user
       tags:
       - system_logs
+  /manifest:
+    get:
+      consumes:
+      - application/json
+      description: 获取Kubernetes版本列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClusterManifestGroup'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Show all manifest
+      tags:
+      - manifest
+  /manifest/{name}:
+    patch:
+      consumes:
+      - application/json
+      description: 更新 Kubernetes 版本状态
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterManifestUpdate'
+      - description: Kubernetes 版本
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ClusterManifestUpdate'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a manifest
+      tags:
+      - manifest
   /plans:
     get:
       consumes:
@@ -2106,7 +2228,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Delete a project

@@ -67,7 +67,7 @@ func (b backupAccountService) List(projectName string, conditions condition.Cond
 	}
 	if projectName == "" {
 		if err := d.Order("name").
-			Find(mos).Error; err != nil {
+			Find(&mos).Error; err != nil {
 			return nil, err
 		}
 	} else {
