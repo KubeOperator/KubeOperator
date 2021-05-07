@@ -147,7 +147,6 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/credentials",
 			"/api/v1/credentials/{**}",
 			"/api/v1/settings",
-			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
@@ -163,7 +162,7 @@ var Roles = loader.AdvancedRules{
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
-			AuthorizedRoles: []string{RoleProjectManager},
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
 			AllowAnyone:     false,
 		},
 	},
