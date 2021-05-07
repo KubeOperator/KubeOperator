@@ -94,7 +94,7 @@ func localesEnUsHomeYml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "locales/en-US/home.yml", size: 5565, mode: os.FileMode(420), modTime: time.Unix(1620292802, 0)}
+	info := bindataFileInfo{name: "locales/en-US/home.yml", size: 5565, mode: os.FileMode(420), modTime: time.Unix(1620294567, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -114,7 +114,7 @@ func localesZhCnHomeYml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "locales/zh-CN/home.yml", size: 4795, mode: os.FileMode(420), modTime: time.Unix(1620354659, 0)}
+	info := bindataFileInfo{name: "locales/zh-CN/home.yml", size: 4795, mode: os.FileMode(420), modTime: time.Unix(1620371435, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

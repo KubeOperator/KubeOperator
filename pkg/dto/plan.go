@@ -7,9 +7,11 @@ import (
 
 type Plan struct {
 	model.Plan
-	PlanVars   interface{} `json:"planVars"`
-	RegionName string      `json:"regionName"`
-	ZoneNames  []string    `json:"zoneNames"`
+	PlanVars interface{} `json:"planVars"`
+	Region   string      `json:"region"`
+	Zones    []string    `json:"zones"`
+	Projects []string    `json:"projects"`
+	Provider string      `json:"provider"`
 }
 
 type PlanCreate struct {
@@ -29,4 +31,9 @@ type PlanOp struct {
 type PlanVmConfig struct {
 	Name   string            `json:"name"`
 	Config constant.VmConfig `json:"config"`
+}
+
+type PlanUpdate struct {
+	PlanVars interface{} `json:"planVars" validate:"required"`
+	Projects []string    `json:"projects" validate:"required"`
 }

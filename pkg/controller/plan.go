@@ -102,7 +102,7 @@ func (p PlanController) PostSearch() (*page.Page, error) {
 // @Success 200 {object} dto.Plan
 // @Security ApiKeyAuth
 // @Router /plans/{name} [get]
-func (p PlanController) GetBy(name string) (dto.Plan, error) {
+func (p PlanController) GetBy(name string) (*dto.Plan, error) {
 	return p.PlanService.Get(name)
 }
 
@@ -187,4 +187,29 @@ func (p PlanController) PostBatch() error {
 // @Router /configs/{regionName} [get]
 func (p PlanController) GetConfigsBy(regionName string) ([]dto.PlanVmConfig, error) {
 	return p.PlanService.GetConfigs(regionName)
+}
+
+// Update Plan
+// @Tags plans
+// @Summary Update a plan
+// @Description 更新部署计划
+// @Accept  json
+// @Produce  json
+// @Param request body dto.PlanUpdate true "request"
+// @Param name path string true "部署计划名称"
+// @Success 200 {object} dto.Plan
+// @Security ApiKeyAuth
+// @Router /plans/{name} [patch]
+func (p PlanController) PatchBy(name string) (*dto.Plan, error) {
+	var req dto.PlanUpdate
+	err := p.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return p.PlanService.PatchBy(name, req)
 }
