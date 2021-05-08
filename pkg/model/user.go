@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
@@ -66,13 +65,6 @@ func (u *User) BeforeDelete() (err error) {
 	err = db.DB.Model(UserReceiver{}).Where("user_id =?", u.ID).Delete(&UserReceiver{}).Error
 	if err != nil {
 		return err
-	}
-	return err
-}
-
-func (u *User) BeforeUpdate() (err error) {
-	if u.Type == constant.Ldap {
-		return errors.New(LdapCanNotUpdate)
 	}
 	return err
 }

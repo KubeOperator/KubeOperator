@@ -228,19 +228,33 @@ func (i ipService) Sync(ipPoolName string) error {
 		return err
 	}
 	for i := range ips {
-		if ips[i].Status != constant.IpUsed && ips[i].Status != constant.IpLock {
-			go func(i int) {
-				err := ipaddr.Ping(ips[i].Address)
-				if err == nil && ips[i].Status != constant.IpReachable {
-					ips[i].Status = constant.IpReachable
-					db.DB.Save(&ips[i])
-				}
-				if err != nil && ips[i].Status == constant.IpReachable {
-					ips[i].Status = constant.IpAvailable
-					db.DB.Save(&ips[i])
-				}
-			}(i)
+		if ips[i].Status == constant.IpLock {
+			continue
 		}
+		if ips[i].Status == constant.IpUsed || ips[i].Status == constant.IpAvailable {
+			var host model.Host
+			db.DB.Model(model.Host{}).Where("ip = ?", ips[i].Address).Find(&host)
+			if ips[i].Status == constant.IpUsed && host.ID == "" {
+				ips[i].Status = constant.IpAvailable
+				db.DB.Save(&ips[i])
+			}
+			if ips[i].Status == constant.IpAvailable && host.ID != "" {
+				ips[i].Status = constant.IpUsed
+				db.DB.Save(&ips[i])
+				continue
+			}
+		}
+		go func(i int) {
+			err := ipaddr.Ping(ips[i].Address)
+			if err == nil && ips[i].Status != constant.IpReachable {
+				ips[i].Status = constant.IpReachable
+				db.DB.Save(&ips[i])
+			}
+			if err != nil && ips[i].Status == constant.IpReachable {
+				ips[i].Status = constant.IpAvailable
+				db.DB.Save(&ips[i])
+			}
+		}(i)
 	}
 	return nil
 }
