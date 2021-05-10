@@ -36,7 +36,7 @@ func DashboardProxy(ctx context.Context) {
 	if proxyPath == "root" {
 		proxyPath = "/"
 	}
-	cookiePath := fmt.Sprintf("/proxy/dashboard/%s/", clusterName)
+	cookiePath := fmt.Sprintf("/api/v1/proxy/dashboard/%s/", clusterName)
 	ctx.SetCookie(&http.Cookie{Name: "skipLoginPage", Value: "true", Path: cookiePath})
 	req.URL.Path = proxyPath
 	proxy.ServeHTTP(ctx.ResponseWriter(), req)
