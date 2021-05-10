@@ -130,3 +130,5 @@ USER_PROFILE_INVALID: "session 用户转化失败"
 USER_HAS_NO_RESOURCE: "用户没有资源"
 
 
+#storage
+PROVISIONER_EXSIT: "已存在存储提供商"

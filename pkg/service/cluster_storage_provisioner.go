@@ -115,6 +115,12 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	if err != nil {
 		return dp, err
 	}
+	num := 0
+	_ = db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ? AND type = ? AND cluster_id = ?", p.Name, p.Type, cluster.ID).Count(&num).Error
+	if num != 0 {
+		return dp, errors.New("PROVISIONER_EXSIT")
+	}
+
 	err = c.provisionerRepo.Save(clusterName, &p)
 	if err != nil {
 		return dp, err

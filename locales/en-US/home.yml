@@ -129,3 +129,5 @@ USER_PROFILE_INVALID: "session user conversion failed"
 USER_HAS_NO_RESOURCE: "user has no resource"
 
 
+#storage
+PROVISIONER_EXSIT: "Storage provider already exists"
