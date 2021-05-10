@@ -247,7 +247,7 @@ func getUserRole(user *model.User) ([]string, error) {
 				return nil, err
 			}
 			if gorm.IsRecordNotFoundError(err) {
-				return nil, errors.New("no resource")
+				return nil, errors.New("USER_HAS_NO_RESOURCE")
 			}
 			return []string{constant.RoleClusterManager}, nil
 		}
