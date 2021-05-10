@@ -117,20 +117,27 @@ func (c *clusterMemberService) Delete(name, clusterName string) error {
 	var (
 		cluster model.Cluster
 		cm      model.ClusterMember
+		pm      model.ProjectMember
 	)
 	user, err := c.userService.Get(name)
 	if err != nil {
 		return err
 	}
-
-	if err := db.DB.Model(model.Project{}).Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+	if err := db.DB.Model(model.Cluster{}).Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return err
 	}
-	if err := db.DB.Model(model.ProjectMember{}).Where("cluster_id = ? AND user_id = ?", cluster.ID, user.ID).Find(&cm).Error; err != nil {
+	if err := db.DB.Model(model.ClusterMember{}).Where("cluster_id = ? AND user_id = ?", cluster.ID, user.ID).Find(&cm).Error; err != nil {
 		return err
 	}
 	if err := db.DB.Delete(&cm).Error; err != nil {
 		return err
+	}
+	if err := db.DB.Model(model.ProjectResource{}).Where("resource_id = ? ANd resource_type = 'CLUSTER'").Find(&pm).Error; err != nil {
+		return err
+	}
+	if user.CurrentProjectID == pm.ProjectID {
+		user.User.CurrentProjectID = ""
+		db.DB.Save(&user.User)
 	}
 	return nil
 }

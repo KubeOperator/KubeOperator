@@ -201,6 +201,10 @@ func (p *projectMemberService) Delete(name, projectName string) error {
 	if err := db.DB.Delete(&pm).Error; err != nil {
 		return err
 	}
+	if user.CurrentProjectID == project.ID {
+		user.User.CurrentProjectID = ""
+		db.DB.Debug().Save(&user.User)
+	}
 	return nil
 }
 
