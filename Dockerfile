@@ -40,13 +40,18 @@ RUN setcap cap_net_raw=+ep /bin/ping
 
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         cd /usr/lib/x86_64-linux-gnu \
-        && rm -rf libcurl-gnutls.so.4.6.0 libzstd.so.1.4.5 libsasl2.so.2.0.25 \
-        && rm -rf /usr/sbin/rmt-tar; \
-    fi; \
-    if [ "$GOARCH" = "arm64" ] ; then \
+        && rm -rf libcurl* libzstd* libsasl2* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -fr libkrb5* \
+    fi;
+
+RUN   if [ "$GOARCH" = "arm64" ] ; then \
         cd /usr/lib/aarch64-linux-gnu \
-        && rm -rf libcurl-gnutls.so.4.6.0 libzstd.so.1.4.5 libsasl2.so.2.0.25 \
-        && rm -rf /usr/sbin/rmt-tar; \
+        && rm -rf libcurl* libzstd* libsasl2* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -fr libkrb5* \
     fi;
 
 WORKDIR /usr/local/bin
