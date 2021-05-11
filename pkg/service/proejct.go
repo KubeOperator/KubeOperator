@@ -67,38 +67,32 @@ func (p *projectService) List(user dto.SessionUser, conditions condition.Conditi
 	}
 
 	if user.IsAdmin {
-		if err := d.Count(&pa.Total).Order("created_at ASC").Find(&projects).Error; err != nil {
+		if err := d.Count(&pa.Total).Order("created_at desc").Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
-		if user.IsRole(constant.RoleProjectManager) {
-			var projectResources []model.ProjectMember
-			err := db.DB.Where("user_id = ?", user.UserId).Find(&projectResources).Error
-			if err != nil {
-				return nil, err
-			}
-			var projectIds []string
-			for _, pm := range projectResources {
-				projectIds = append(projectIds, pm.ProjectID)
-			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			var projectResources []model.ProjectResource
-			err := db.DB.Raw("SELECT DISTINCT project_id  FROM ko_project_resource WHERE resource_type = 'CLUSTER' AND resource_id in (SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE user_id = ?)", user.UserId).Scan(&projectResources).Error
-			if err != nil {
-				return nil, err
-			}
-			var projectIds []string
-			for _, pm := range projectResources {
-				projectIds = append(projectIds, pm.ProjectID)
-			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
-			if err != nil {
-				return nil, err
-			}
+
+		var projectMembers []model.ProjectMember
+		var projectIds []string
+		var projectResources []model.ProjectResource
+
+		err := db.DB.Where("user_id = ?", user.UserId).Find(&projectMembers).Error
+		if err != nil {
+			return nil, err
+		}
+		for _, pm := range projectMembers {
+			projectIds = append(projectIds, pm.ProjectID)
+		}
+		err = db.DB.Raw("SELECT DISTINCT project_id  FROM ko_project_resource WHERE resource_type = 'CLUSTER' AND resource_id in (SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE user_id = ?)", user.UserId).Scan(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
+		for _, pm := range projectResources {
+			projectIds = append(projectIds, pm.ProjectID)
+		}
+		err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Find(&projects).Error
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -159,7 +153,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 	}
 
 	if user.IsAdmin {
-		if err := d.Count(&pa.Total).Order("created_at ASC").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
+		if err := d.Count(&pa.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
@@ -174,7 +168,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 			for _, pm := range projectResources {
 				projectIds = append(projectIds, pm.ProjectID)
 			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
 			if err != nil {
 				return nil, err
 			}
@@ -188,7 +182,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 			for _, pm := range projectResources {
 				projectIds = append(projectIds, pm.ProjectID)
 			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
 			if err != nil {
 				return nil, err
 			}

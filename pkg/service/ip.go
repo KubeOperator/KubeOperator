@@ -231,14 +231,12 @@ func (i ipService) Sync(ipPoolName string) error {
 		if ips[i].Status == constant.IpLock {
 			continue
 		}
-		if ips[i].Status == constant.IpUsed || ips[i].Status == constant.IpAvailable {
-			var host model.Host
-			db.DB.Model(model.Host{}).Where("ip = ?", ips[i].Address).Find(&host)
-			if ips[i].Status == constant.IpUsed && host.ID == "" {
-				ips[i].Status = constant.IpAvailable
-				db.DB.Save(&ips[i])
-			}
-			if ips[i].Status == constant.IpAvailable && host.ID != "" {
+		var host model.Host
+		db.DB.Model(model.Host{}).Where("ip = ?", ips[i].Address).Find(&host)
+		if host.ID != "" {
+			if ips[i].Status == constant.IpUsed {
+				continue
+			} else {
 				ips[i].Status = constant.IpUsed
 				db.DB.Save(&ips[i])
 				continue

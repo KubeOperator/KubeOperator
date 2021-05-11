@@ -18,9 +18,8 @@ func Server() *iris.Application {
 		fmt.Println(err.Error())
 	}
 	app.I18n.SetDefault("zh-CN")
-	app.I18n.URLParameter = "l"
 	app.I18n.ExtractFunc = func(ctx iris.Context) string {
-		return ctx.URLParam("l")
+		return ctx.GetHeader("lang")
 	}
 	c := &swagger.Config{
 		URL: "/swagger/doc.json",
