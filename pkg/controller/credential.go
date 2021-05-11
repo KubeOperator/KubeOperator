@@ -56,11 +56,11 @@ func (c CredentialController) GetBy(name string) (dto.Credential, error) {
 // Search Credential
 // @Tags credentials
 // @Summary Search credential
-// @Description Search  credential
+// @Description 过滤凭据
 // @Accept  json
 // @Produce  json
-// @Param request body dto.CredentialCreate true "request"
-// @Success 200 {object} dto.Credential
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /credentials/search [post]
 func (c CredentialController) PostSearch() (*page.Page, error) {
@@ -91,7 +91,7 @@ func (c CredentialController) PostSearch() (*page.Page, error) {
 // Create Credential
 // @Tags credentials
 // @Summary Create a credential
-// @Description create a credential
+// @Description 创建一个凭据
 // @Accept  json
 // @Produce  json
 // @Param request body dto.CredentialCreate true "request"
@@ -119,11 +119,11 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 // Delete Credential
 // @Tags credentials
 // @Summary Delete a credential
-// @Description delete a  credential by name
+// @Description 通过名称删除单个凭据
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-// @Router /backupAccounts/{name}/ [delete]
+// @Router /credentials/{name}/ [delete]
 func (c CredentialController) DeleteBy(name string) error {
 	//operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save("Delete", constant.DELETE_CREDENTIALS, name)
@@ -133,13 +133,13 @@ func (c CredentialController) DeleteBy(name string) error {
 // Update Credential
 // @Tags credentials
 // @Summary Update a credential
-// @Description Update a credential
+// @Description 更新单个凭据
 // @Accept  json
 // @Produce  json
 // @Param request body dto.CredentialUpdate true "request"
 // @Success 200 {object} dto.Credential
 // @Security ApiKeyAuth
-// @Router /backupAccounts/ [patch]
+// @Router /credentials/ [patch]
 func (c CredentialController) PatchBy(name string) (*dto.Credential, error) {
 	var req dto.CredentialUpdate
 	err := c.Ctx.ReadJSON(&req)

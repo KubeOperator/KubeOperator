@@ -28,6 +28,15 @@ func NewSystemSettingController() *SystemSettingController {
 	}
 }
 
+// List SystemSettings
+// @Tags SystemSetting
+// @Summary Show all SystemSettings
+// @Description 获取所有系统配置信息
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.SystemSettingResult
+// @Security ApiKeyAuth
+// @Router /settings [get]
 func (s SystemSettingController) Get() (interface{}, error) {
 	item, err := s.SystemSettingService.List()
 	if err != nil {
@@ -36,6 +45,16 @@ func (s SystemSettingController) Get() (interface{}, error) {
 	return item, nil
 }
 
+// Get SystemSettings
+// @Tags SystemSetting
+// @Summary Show a SystemSettings
+// @Description 获取单个应用配置的配置信息
+// @Accept  json
+// @Produce  json
+// @Param name path string true "应用名称"
+// @Success 200 {object} dto.SystemSettingResult
+// @Security ApiKeyAuth
+// @Router /settings/{name} [get]
 func (s SystemSettingController) GetBy(name string) (interface{}, error) {
 	item, err := s.SystemSettingService.ListByTab(name)
 	if err != nil {
@@ -44,6 +63,16 @@ func (s SystemSettingController) GetBy(name string) (interface{}, error) {
 	return item, nil
 }
 
+// Create SystemSettings
+// @Tags SystemSetting
+// @Summary Create a SystemSetting
+// @Description  创建一项配置
+// @Accept  json
+// @Produce  json
+// @Param request body dto.SystemSettingCreate true "request"
+// @Success 200 {object} []dto.SystemSetting
+// @Security ApiKeyAuth
+// @Router /settings [post]
 func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	var req dto.SystemSettingCreate
 	err := s.Ctx.ReadJSON(&req)
@@ -66,6 +95,17 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	return result, nil
 }
 
+// Check SystemSetting
+// @Tags SystemSetting
+// @Summary Check a SystemSetting
+// @Description  检查配置是否可用
+// @Accept  json
+// @Produce  json
+// @Param request body dto.SystemSettingCreate true "request"
+// @Param name path string true "应用名称"
+// @Success 200 {object} []dto.SystemSetting
+// @Security ApiKeyAuth
+// @Router /settings/check/{name} [post]
 func (s SystemSettingController) PostCheckBy(typeName string) error {
 	var req dto.SystemSettingCreate
 	err := s.Ctx.ReadJSON(&req)
@@ -84,6 +124,15 @@ func (s SystemSettingController) PostCheckBy(typeName string) error {
 	return nil
 }
 
+// List Registry
+// @Tags SystemSetting
+// @Summary Show all Registry
+// @Description 获取所有仓库信息
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /settings/registry [get]
 func (s SystemSettingController) GetRegistry() (*page.Page, error) {
 	p, _ := s.Ctx.Values().GetBool("page")
 	if p {
@@ -103,6 +152,16 @@ func (s SystemSettingController) GetRegistry() (*page.Page, error) {
 
 }
 
+// Get Registry
+// @Tags SystemSetting
+// @Summary Show a Registry
+// @Description 根据 CPU 架构获取仓库信息
+// @Accept  json
+// @Produce  json
+// @Param arch path string true "CPU 架构"
+// @Success 200 {object} dto.SystemRegistry
+// @Security ApiKeyAuth
+// @Router /settings/registry/{arch} [get]
 func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
 	item, err := s.SystemSettingService.GetRegistryByArch(arch)
 	if err != nil {
@@ -111,6 +170,16 @@ func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error)
 	return item, nil
 }
 
+// Create Registry
+// @Tags SystemSetting
+// @Summary Create a Registry
+// @Description  创建仓库配置
+// @Accept  json
+// @Produce  json
+// @Param request body dto.SystemSettingCreate true "request"
+// @Success 200 {object} dto.SystemRegistry
+// @Security ApiKeyAuth
+// @Router /settings/registry [post]
 func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	var req dto.SystemRegistryCreate
 	err := s.Ctx.ReadJSON(&req)
@@ -128,6 +197,16 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	return s.SystemSettingService.CreateRegistry(req)
 }
 
+// Search Registry
+// @Tags SystemSetting
+// @Summary Search  Registry
+// @Description 过滤仓库
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /settings/registry/search [post]
 func (s SystemSettingController) PostRegistrySearch() (*page.Page, error) {
 	var conditions condition.Conditions
 	if s.Ctx.GetContentLength() > 0 {
@@ -152,6 +231,17 @@ func (s SystemSettingController) PostRegistrySearch() (*page.Page, error) {
 	}
 }
 
+// Update Registry
+// @Tags SystemSetting
+// @Summary Update a Registry
+// @Description 更新仓库配置
+// @Accept  json
+// @Produce  json
+// @Param request body dto.SystemRegistryUpdate true "request"
+// @Param arch path string true "CPU 架构"
+// @Success 200 {object} dto.SystemRegistry
+// @Security ApiKeyAuth
+// @Router /settings/registry/{arch} [patch]
 func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegistry, error) {
 	var req dto.SystemRegistryUpdate
 	err := s.Ctx.ReadJSON(&req)
@@ -194,14 +284,14 @@ func (s SystemSettingController) PostRegistryBatch() error {
 }
 
 // Delete Registry
-// @Tags Registry
+// @Tags SystemSetting
 // @Summary Delete a Registry
 // @Description delete a  Registry by arch
+// @Param arch path string true "CPU 架构"
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /settings/registry/{arch}/ [delete]
-
 func (s SystemSettingController) DeleteRegistryBy(arch string) error {
 	go kolog.Save("Delete", constant.DELETE_REGISTRY, arch)
 	return s.SystemSettingService.DeleteRegistry(arch)
