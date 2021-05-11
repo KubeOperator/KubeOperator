@@ -76,21 +76,25 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	// 创建日志
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("create log error %s", err.Error())
 	}
 	cluster.LogId = logId
 	if err := tx.Save(&cluster.Cluster).Error; err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster error %s", err.Error())
 	}
 	cluster.Spec.UpgradeVersion = upgrade.Version
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
 	// 更新工具版本状态
 	if err := c.updateToolVersion(tx, upgrade.Version, cluster.ID); err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return err
 	}
 
@@ -100,7 +104,6 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 }
 
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
-
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
 		log.Errorf("can not get current cluster status, error: %s", err.Error())
@@ -119,9 +122,11 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.Spec.Version = cluster.Spec.UpgradeVersion
 			db.DB.Save(&cluster.Spec)
 			cancel()
+			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 			return
 		case constant.StatusFailed:
 			cancel()
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Name, constant.ClusterUpgrade)
 			return
 		}
 	}

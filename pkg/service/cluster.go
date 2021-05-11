@@ -616,12 +616,12 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
-		log.Errorf("delete luster error %s", err.Error())
+		log.Errorf("delete cluster error %s", err.Error())
 		return
 	}
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 }
 
 func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
@@ -644,14 +644,13 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		log.Errorf("delete cluster error %s", err.Error())
 		c.errClusterDelete(cluster, "delete cluster err: "+err.Error())
 		return
 	}
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-	return
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
