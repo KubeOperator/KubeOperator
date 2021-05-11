@@ -311,7 +311,7 @@ func (u *userService) ResetPassword(fp dto.UserForgotPassword) error {
 		return err
 	}
 	vars["TITLE"] = "重置密码"
-	vars["CONTENT"] = user.Name + "您的密码被重置为" + password
+	vars["CONTENT"] = "<html>您好：" + user.Name + "</br>您的密码被重置为" + password + "</html>"
 	vars["RECEIVERS"] = fp.Email
 	err = mClient.SendMessage(vars)
 	if err != nil {

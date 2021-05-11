@@ -83,15 +83,10 @@ func (p *projectService) List(user dto.SessionUser, conditions condition.Conditi
 		for _, pm := range projectMembers {
 			projectIds = append(projectIds, pm.ProjectID)
 		}
-		//err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
-		//if err != nil {
-		//	return nil, err
-		//}
 		err = db.DB.Raw("SELECT DISTINCT project_id  FROM ko_project_resource WHERE resource_type = 'CLUSTER' AND resource_id in (SELECT DISTINCT cluster_id FROM ko_cluster_member WHERE user_id = ?)", user.UserId).Scan(&projectResources).Error
 		if err != nil {
 			return nil, err
 		}
-		//var projectIds []string
 		for _, pm := range projectResources {
 			projectIds = append(projectIds, pm.ProjectID)
 		}
