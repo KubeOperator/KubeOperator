@@ -55,7 +55,7 @@ func (c clusterResourceService) Page(num, size int, clusterName, resourceType st
 	switch resourceType {
 	case constant.ResourceHost:
 		var hosts []model.Host
-		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Order("created_at desc").Find(&hosts).Error; err != nil {
 			return nil, err
 		}
 		var result []dto.Host
@@ -70,13 +70,13 @@ func (c clusterResourceService) Page(num, size int, clusterName, resourceType st
 		p.Items = result
 	case constant.ResourcePlan:
 		var result []model.Plan
-		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error; err != nil {
 			return nil, err
 		}
 		p.Items = result
 	case constant.ResourceBackupAccount:
 		var result []model.BackupAccount
-		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error; err != nil {
 			return nil, err
 		}
 		p.Items = result
@@ -112,7 +112,7 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 	switch resourceType {
 	case constant.ResourceHost:
 		var hosts []model.Host
-		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Order("created_at desc").Find(&hosts).Error; err != nil {
 			return nil, err
 		}
 		var result []dto.Host
@@ -127,13 +127,13 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 		resources = result
 	case constant.ResourcePlan:
 		var result []model.Plan
-		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error; err != nil {
 			return nil, err
 		}
 		resources = result
 	case constant.ResourceBackupAccount:
 		var result []model.BackupAccount
-		if err := db.DB.Where("id in (?)", resourceIds).Find(&result).Error; err != nil {
+		if err := db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error; err != nil {
 			return nil, err
 		}
 		resources = result

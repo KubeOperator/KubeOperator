@@ -67,7 +67,7 @@ func (p *projectService) List(user dto.SessionUser, conditions condition.Conditi
 	}
 
 	if user.IsAdmin {
-		if err := d.Count(&pa.Total).Order("created_at ASC").Find(&projects).Error; err != nil {
+		if err := d.Count(&pa.Total).Order("created_at desc").Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
@@ -90,7 +90,7 @@ func (p *projectService) List(user dto.SessionUser, conditions condition.Conditi
 		for _, pm := range projectResources {
 			projectIds = append(projectIds, pm.ProjectID)
 		}
-		err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Find(&projects).Error
+		err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Find(&projects).Error
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +153,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 	}
 
 	if user.IsAdmin {
-		if err := d.Count(&pa.Total).Order("created_at ASC").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
+		if err := d.Count(&pa.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
 			return nil, err
 		}
 	} else {
@@ -168,7 +168,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 			for _, pm := range projectResources {
 				projectIds = append(projectIds, pm.ProjectID)
 			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
 			if err != nil {
 				return nil, err
 			}
@@ -182,7 +182,7 @@ func (p *projectService) Page(num, size int, user dto.SessionUser, conditions co
 			for _, pm := range projectResources {
 				projectIds = append(projectIds, pm.ProjectID)
 			}
-			err = d.Count(&pa.Total).Order("created_at ASC").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
+			err = d.Count(&pa.Total).Order("created_at desc").Where("id in (?)", projectIds).Offset((num - 1) * size).Limit(size).Find(&projects).Error
 			if err != nil {
 				return nil, err
 			}

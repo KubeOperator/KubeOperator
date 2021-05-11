@@ -51,6 +51,7 @@ func (p *projectMemberService) Page(projectName string, num, size int) (*page.Pa
 	err := db.DB.Model(&model.ProjectMember{}).
 		Where("project_id = ?", project.ID).
 		Preload("User").
+		Order("created_at desc").
 		Count(&pa.Total).
 		Offset((num - 1) * size).
 		Limit(size).

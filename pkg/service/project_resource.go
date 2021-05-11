@@ -55,7 +55,7 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 		switch resourceType {
 		case constant.ResourceHost:
 			var hosts []model.Host
-			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
+			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Order("created_at desc").Find(&hosts).Error
 			if err != nil {
 				return nil, err
 			}
@@ -72,14 +72,14 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 			page.Items = result
 		case constant.ResourcePlan:
 			var result []model.Plan
-			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error
 			if err != nil {
 				return nil, err
 			}
 			page.Items = result
 		case constant.ResourceBackupAccount:
 			var result []model.BackupAccount
-			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Where("id in (?)", resourceIds).Order("created_at desc").Find(&result).Error
 			if err != nil {
 				return nil, err
 			}

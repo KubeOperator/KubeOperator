@@ -41,6 +41,7 @@ func (c *clusterMemberService) Page(clusterName string, num, size int) (*page.Pa
 	err := db.DB.Model(&model.ClusterMember{}).Where("cluster_id = ?", cluster.ID).
 		Preload("User").
 		Count(&pa.Total).
+		Order("created_at desc").
 		Offset((num - 1) * size).
 		Limit(size).
 		Find(&clusterMembers).Error
