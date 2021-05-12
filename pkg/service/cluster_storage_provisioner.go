@@ -63,7 +63,7 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 		return clusterStorageProvisionerDTOS, err
 	}
 	for _, p := range ps {
-		if p.Status != constant.StatusWaiting && p.Status != constant.StatusInitializing {
+		if p.Status == constant.StatusRunning || p.Status == constant.StatusFailed || p.Status == constant.StatusNotReady {
 			var syncModel dto.ClusterStorageProvisionerSync
 			syncModel.Name = p.Name
 			syncModel.Status = p.Status
@@ -108,7 +108,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		Name:   creation.Name,
 		Type:   creation.Type,
 		Vars:   string(vars),
-		Status: constant.ClusterInitializing,
+		Status: constant.ClusterCreating,
 	}
 
 	cluster, err := c.clusterService.Get(clusterName)
@@ -137,6 +137,10 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
 		log.Error(err)
+	}
+	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.ClusterInitializing).Error; err != nil {
+		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
+		return
 	}
 
 	// 获取创建参数

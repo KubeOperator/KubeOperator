@@ -124,6 +124,19 @@ exit:
 					}
 				}
 				n.Info = kn
+				if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady {
+					for _, condition := range kn.Status.Conditions {
+						if condition.Type == "Ready" && condition.Status == "True" {
+							n.Status = constant.StatusRunning
+						}
+						if condition.Type == "Ready" && condition.Status == "False" {
+							n.Status = constant.ClusterFailed
+						}
+						if condition.Type == "Ready" && condition.Status == "Unknown" {
+							n.Status = constant.StatusNotReady
+						}
+					}
+				}
 				nodes = append(nodes, n)
 				continue exit
 			}
@@ -189,6 +202,19 @@ exit:
 					}
 				}
 				n.Info = kn
+				if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady {
+					for _, condition := range kn.Status.Conditions {
+						if condition.Type == "Ready" && condition.Status == "True" {
+							n.Status = constant.StatusRunning
+						}
+						if condition.Type == "Ready" && condition.Status == "False" {
+							n.Status = constant.ClusterFailed
+						}
+						if condition.Type == "Ready" && condition.Status == "Unknown" {
+							n.Status = constant.StatusNotReady
+						}
+					}
+				}
 				nodes = append(nodes, n)
 				continue exit
 			}
@@ -381,7 +407,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		cluster.Plan = plan
 		hosts, err := c.createHostModels(cluster, item.Increase)
 		if err != nil {
-			return fmt.Errorf("can not create host models err %s", err.Error())
+			return err
 		}
 		ns, err := c.createNodeModels(cluster, currentNodes, hosts)
 		if err != nil {
