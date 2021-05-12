@@ -610,7 +610,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
 		if force {
 			if err := db.DB.Delete(&cluster).Error; err != nil {
-				log.Errorf("delete luster error %s", err.Error())
+				log.Errorf("delete cluster error %s", err.Error())
 			}
 			return
 		}
@@ -639,7 +639,7 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 		log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
 		if force {
 			if err := db.DB.Delete(&cluster).Error; err != nil {
-				log.Errorf("delete luster error %s", err.Error())
+				log.Errorf("delete cluster error %s", err.Error())
 			}
 			return
 		}
