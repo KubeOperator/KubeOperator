@@ -161,7 +161,7 @@ func (c Cluster) BeforeDelete() error {
 		messages   []Message
 		messageIDs []string
 	)
-	if err := tx.Where("cluster_id = ?", c.ID).Find(&messages).Error; err != nil {
+	if err := tx.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Find(&messages).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -174,7 +174,7 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
-	if err := tx.Where("cluster_id = ?", c.ID).Delete(&Message{}).Error; err != nil {
+	if err := tx.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Delete(&Message{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

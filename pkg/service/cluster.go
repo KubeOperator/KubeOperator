@@ -614,6 +614,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 			}
 			return
 		}
+		c.errClusterDelete(cluster, "run delete cluster playbook err: "+err.Error())
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
@@ -642,6 +643,7 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 			}
 			return
 		}
+		c.errClusterDelete(cluster, "run delete cluster playbook err: "+err.Error())
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
