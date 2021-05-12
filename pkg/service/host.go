@@ -568,7 +568,7 @@ func (h *hostService) GetHostConfig(host *model.Host) error {
 
 func (h *hostService) DownloadTemplateFile() error {
 	f := excelize.NewFile()
-	f.SetCellValue("Sheet1", "A1", "name")
+	f.SetCellValue("Sheet1", "A1", "name (中文、大小写英文、数字和-)")
 	f.SetCellValue("Sheet1", "B1", "ip")
 	f.SetCellValue("Sheet1", "C1", "port")
 	f.SetCellValue("Sheet1", "D1", "credential (系统设置-凭据中的名称)")
