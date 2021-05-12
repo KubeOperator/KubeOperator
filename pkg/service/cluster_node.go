@@ -134,6 +134,7 @@ exit:
 						}
 						if condition.Type == "Ready" && condition.Status == "Unknown" {
 							n.Status = constant.StatusNotReady
+							n.Message = condition.Message
 						}
 					}
 				}
@@ -212,6 +213,7 @@ exit:
 						}
 						if condition.Type == "Ready" && condition.Status == "Unknown" {
 							n.Status = constant.StatusNotReady
+							n.Message = condition.Message
 						}
 					}
 				}
