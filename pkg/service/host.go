@@ -611,8 +611,13 @@ func (h *hostService) ImportHosts(file []byte) error {
 		if index == 0 {
 			continue
 		}
-		if row[0] == "" || row[1] == "" || row[2] == "" || row[3] == "" {
-			errs = errs.Add(errorf.New("HOST_IMPORT_NULL_VALUE", strconv.Itoa(index)))
+		if len(row) != 5 {
+			errs = errs.Add(errorf.New("HOST_IMPORT_NOT_COMPLETE_VALUE", strconv.Itoa(index)))
+			failedNum++
+			continue
+		}
+		if row[0] == "" || row[1] == "" || row[2] == "" || row[3] == "" || row[4] == "" {
+			errs = errs.Add(errorf.New("HOST_IMPORT_NOT_COMPLETE_VALUE", strconv.Itoa(index)))
 			failedNum++
 			continue
 		}
