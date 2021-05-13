@@ -119,14 +119,14 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
 		switch cluster.Status.Phase {
 		case constant.StatusRunning:
+			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 			cluster.Spec.Version = cluster.Spec.UpgradeVersion
 			db.DB.Save(&cluster.Spec)
 			cancel()
-			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 			return
 		case constant.StatusFailed:
-			cancel()
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Name, constant.ClusterUpgrade)
+			cancel()
 			return
 		}
 	}
