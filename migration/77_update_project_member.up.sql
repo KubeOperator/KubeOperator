@@ -1,0 +1,1 @@
+UPDATE ko_project_member SET role = 'PROJECT_MANAGER' WHERE role ='CLUSTER_MANAGER';
