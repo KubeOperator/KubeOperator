@@ -36,7 +36,6 @@ func (r *RefreshHostInfo) Run() {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			log.Infof("gather host [%s] info", name)
 			_, err := r.hostService.Sync(name)
 			if err != nil {
 				log.Errorf("gather host info error: %s", err.Error())
