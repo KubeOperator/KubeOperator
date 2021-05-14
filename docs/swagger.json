@@ -2816,41 +2816,6 @@
             }
         },
         "/settings/registry/{arch}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "根据 CPU 架构获取仓库信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "SystemSetting"
-                ],
-                "summary": "Show a Registry",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "CPU 架构",
-                        "name": "arch",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.SystemRegistry"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "security": [
                     {
@@ -2923,6 +2888,43 @@
                         "required": true
                     }
                 ]
+            }
+        },
+        "/settings/registry/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据 ID 获取仓库信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SystemSetting"
+                ],
+                "summary": "Show a Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SystemRegistry"
+                        }
+                    }
+                }
             }
         },
         "/settings/{name}": {
