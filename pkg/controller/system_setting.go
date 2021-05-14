@@ -155,15 +155,15 @@ func (s SystemSettingController) GetRegistry() (*page.Page, error) {
 // Get Registry
 // @Tags SystemSetting
 // @Summary Show a Registry
-// @Description 根据 CPU 架构获取仓库信息
+// @Description 根据 ID 获取仓库信息
 // @Accept  json
 // @Produce  json
-// @Param arch path string true "CPU 架构"
+// @Param id path string true "ID"
 // @Success 200 {object} dto.SystemRegistry
 // @Security ApiKeyAuth
-// @Router /settings/registry/{arch} [get]
-func (s SystemSettingController) GetRegistryBy(arch string) (interface{}, error) {
-	item, err := s.SystemSettingService.GetRegistryByArch(arch)
+// @Router /settings/registry/{id} [get]
+func (s SystemSettingController) GetRegistryBy(id string) (interface{}, error) {
+	item, err := s.SystemSettingService.GetRegistryByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -292,7 +292,7 @@ func (s SystemSettingController) PostRegistryBatch() error {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /settings/registry/{arch}/ [delete]
-func (s SystemSettingController) DeleteRegistryBy(arch string) error {
-	go kolog.Save("Delete", constant.DELETE_REGISTRY, arch)
-	return s.SystemSettingService.DeleteRegistry(arch)
+func (s SystemSettingController) DeleteRegistryBy(id string) error {
+	go kolog.Save("Delete", constant.DELETE_REGISTRY, id)
+	return s.SystemSettingService.DeleteRegistry(id)
 }
