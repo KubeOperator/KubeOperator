@@ -27,11 +27,12 @@ type SystemSettingService interface {
 	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
 	ListRegistry(conditions condition.Conditions) ([]dto.SystemRegistry, error)
 	PageRegistry(num, size int, conditions condition.Conditions) (*page.Page, error)
+	GetRegistryByID(id string) (dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
 	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
-	DeleteRegistry(arch string) error
+	DeleteRegistry(id string) error
 }
 
 type systemSettingService struct {
@@ -188,8 +189,24 @@ func (s systemSettingService) ListRegistry(conditions condition.Conditions) ([]d
 	return systemRegistryDto, nil
 }
 
+func (s systemSettingService) GetRegistryByID(id string) (dto.SystemRegistry, error) {
+	r, err := s.systemRegistryRepo.Get(id)
+	if err != nil {
+		return dto.SystemRegistry{}, err
+	}
+	systemRegistryDto := dto.SystemRegistry{
+		SystemRegistry: model.SystemRegistry{
+			ID:           r.ID,
+			Hostname:     r.Hostname,
+			Protocol:     r.Protocol,
+			Architecture: r.Architecture,
+		},
+	}
+	return systemRegistryDto, nil
+}
+
 func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry, error) {
-	r, err := s.systemRegistryRepo.Get(arch)
+	r, err := s.systemRegistryRepo.GetByArch(arch)
 	if err != nil {
 		return dto.SystemRegistry{}, err
 	}
@@ -274,8 +291,8 @@ func (s systemSettingService) BatchRegistry(op dto.SystemRegistryBatchOp) error 
 	return nil
 }
 
-func (s systemSettingService) DeleteRegistry(arch string) error {
-	err := s.systemRegistryRepo.Delete(arch)
+func (s systemSettingService) DeleteRegistry(id string) error {
+	err := s.systemRegistryRepo.Delete(id)
 	if err != nil {
 		return err
 	}
