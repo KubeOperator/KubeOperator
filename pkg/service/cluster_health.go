@@ -261,6 +261,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 						}
 						if !isExit {
 							node.Status = constant.StatusLost
+							node.Dirty = true
 							if err := db.DB.Update(node).Error; err != nil {
 								ri.Result = constant.StatusFailed
 								ri.Msg = err.Error()
