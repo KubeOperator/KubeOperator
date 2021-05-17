@@ -64,9 +64,11 @@ func (p Prometheus) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(p.Cluster.HelmClient, p.Tool, constant.PrometheusChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
+	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(p.Cluster.Namespace, constant.DefaultPrometheusIngressName, constant.DefaultPrometheusIngress, constant.DefaultPrometheusServiceName, 80, p.Cluster.KubeClient); err != nil {
 		return err
 	}
+	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForRunning(p.Cluster.Namespace, constant.DefaultPrometheusDeploymentName, 1, p.Cluster.KubeClient); err != nil {
 		return err
 	}

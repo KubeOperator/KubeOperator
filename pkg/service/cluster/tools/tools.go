@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
@@ -18,6 +19,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 )
+
+var log = logger.Default
 
 type Interface interface {
 	Install(toolDetail model.ClusterToolDetail) error
@@ -120,6 +123,7 @@ func preInstallChart(h helm.Interface, tool *model.ClusterTool) error {
 	for _, r := range rs {
 		if r.Name == tool.Name {
 			_, err := h.Uninstall(tool.Name)
+			log.Infof("start uninstall tool %s,", tool.Name)
 			if err != nil {
 				return err
 			}
@@ -139,6 +143,7 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	if err != nil {
 		return err
 	}
+	log.Infof("start install tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Install(tool.Name, chartName, chartVersion, m)
 	if err != nil {
 		return err
@@ -155,6 +160,7 @@ func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	if err != nil {
 		return err
 	}
+	log.Infof("start upgrade tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Upgrade(tool.Name, chartName, chartVersion, m)
 	if err != nil {
 		return err
