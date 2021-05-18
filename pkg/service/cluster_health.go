@@ -182,6 +182,7 @@ var resolveMethods = map[string]string{
 	HookNameCheckHostsNetwork:            "No method",
 	HookNameCheckHostsSSHConnection:      "No method",
 	HookNameCheckKubernetesApiConnection: "Get kubernetes token again",
+	HookNameCheckKubernetesNodeStatus:    "Update cluster node status",
 }
 
 func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverItem, error) {
@@ -243,7 +244,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 						result = append(result, ri)
 						return result, nil
 					}
-					if err := db.DB.Where("cluster_id = ?", clu.ID).Preload("host").Find(&nodes).Error; err != nil {
+					if err := db.DB.Where("cluster_id = ?", clu.Cluster.ID).Preload("Host").Find(&nodes).Error; err != nil {
 						ri.Result = constant.StatusFailed
 						ri.Msg = err.Error()
 						result = append(result, ri)
@@ -260,9 +261,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 							}
 						}
 						if !isExit {
-							node.Status = constant.StatusLost
-							node.Dirty = true
-							if err := db.DB.Update(node).Error; err != nil {
+							if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).Updates(map[string]interface{}{"status": constant.StatusLost, "dirty": true}).Error; err != nil {
 								ri.Result = constant.StatusFailed
 								ri.Msg = err.Error()
 								result = append(result, ri)
