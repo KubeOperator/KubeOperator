@@ -43,16 +43,16 @@ RUN if [ "$GOARCH" = "amd64" ] ; then \
         && rm -rf libcurl* libzstd* libsasl2* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
-        && rm -fr libkrb5* \
-    fi;
+        && rm -fr libkrb5* ; \
+    fi
 
 RUN   if [ "$GOARCH" = "arm64" ] ; then \
         cd /usr/lib/aarch64-linux-gnu \
         && rm -rf libcurl* libzstd* libsasl2* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
-        && rm -fr libkrb5* \
-    fi;
+        && rm -fr libkrb5* ; \
+    fi
 
 WORKDIR /usr/local/bin
 
