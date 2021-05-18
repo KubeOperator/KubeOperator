@@ -56,9 +56,11 @@ func (e EFK) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(e.Cluster.HelmClient, e.Tool, constant.LoggingChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
+	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(e.Cluster.Namespace, constant.DefaultLoggingIngressName, constant.DefaultLoggingIngress, constant.DefaultLoggingServiceName, 9200, e.Cluster.KubeClient); err != nil {
 		return err
 	}
+	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForStatefulSetsRunning(e.Cluster.Namespace, constant.DefaultLoggingStateSetsfulName, 1, e.Cluster.KubeClient); err != nil {
 		return err
 	}

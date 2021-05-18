@@ -53,9 +53,11 @@ func (r Registry) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(r.Cluster.HelmClient, r.Tool, constant.DockerRegistryChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
+	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(r.Cluster.Namespace, constant.DefaultRegistryIngressName, constant.DefaultRegistryIngress, constant.DefaultRegistryServiceName, 5000, r.Cluster.KubeClient); err != nil {
 		return err
 	}
+	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForRunning(r.Cluster.Namespace, constant.DefaultRegistryDeploymentName, 1, r.Cluster.KubeClient); err != nil {
 		return err
 	}

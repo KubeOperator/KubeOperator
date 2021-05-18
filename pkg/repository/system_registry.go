@@ -7,12 +7,13 @@ import (
 )
 
 type SystemRegistryRepository interface {
-	Get(arch string) (model.SystemRegistry, error)
+	Get(id string) (model.SystemRegistry, error)
+	GetByArch(arch string) (model.SystemRegistry, error)
 	List() ([]model.SystemRegistry, error)
 	Save(registry *model.SystemRegistry) error
 	Page(num, size int) (int, []model.SystemRegistry, error)
 	Batch(operation string, items []model.SystemRegistry) error
-	Delete(arch string) error
+	Delete(id string) error
 }
 
 type systemRegistryRepository struct {
@@ -22,7 +23,15 @@ func NewSystemRegistryRepository() SystemRegistryRepository {
 	return &systemRegistryRepository{}
 }
 
-func (s systemRegistryRepository) Get(arch string) (model.SystemRegistry, error) {
+func (s systemRegistryRepository) Get(id string) (model.SystemRegistry, error) {
+	var registry model.SystemRegistry
+	if err := db.DB.Where("id = ?", id).First(&registry).Error; err != nil {
+		return registry, err
+	}
+	return registry, nil
+}
+
+func (s systemRegistryRepository) GetByArch(arch string) (model.SystemRegistry, error) {
 	var registry model.SystemRegistry
 	if err := db.DB.Where("architecture = ?", arch).First(&registry).Error; err != nil {
 		return registry, err
@@ -70,8 +79,8 @@ func (s systemRegistryRepository) Batch(operation string, items []model.SystemRe
 	return nil
 }
 
-func (s systemRegistryRepository) Delete(arch string) error {
-	registryItem, err := s.Get(arch)
+func (s systemRegistryRepository) Delete(id string) error {
+	registryItem, err := s.Get(id)
 	if err != nil {
 		return err
 	}

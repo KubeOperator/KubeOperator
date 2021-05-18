@@ -3019,28 +3019,6 @@ paths:
       tags:
       - SystemSetting
   /settings/registry/{arch}:
-    get:
-      consumes:
-      - application/json
-      description: 根据 CPU 架构获取仓库信息
-      parameters:
-      - description: CPU 架构
-        in: path
-        name: arch
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.SystemRegistry'
-      security:
-      - ApiKeyAuth: []
-      summary: Show a Registry
-      tags:
-      - SystemSetting
     patch:
       consumes:
       - application/json
@@ -3085,6 +3063,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a Registry
+      tags:
+      - SystemSetting
+  /settings/registry/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据 ID 获取仓库信息
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SystemRegistry'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a Registry
       tags:
       - SystemSetting
   /settings/registry/search:

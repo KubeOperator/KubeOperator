@@ -92,9 +92,11 @@ func (g Grafana) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(g.Cluster.HelmClient, g.Tool, constant.GrafanaChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
+	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(g.Cluster.Namespace, constant.DefaultGrafanaIngressName, constant.DefaultGrafanaIngress, constant.DefaultGrafanaServiceName, 80, g.Cluster.KubeClient); err != nil {
 		return err
 	}
+	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForRunning(g.Cluster.Namespace, constant.DefaultGrafanaDeploymentName, 1, g.Cluster.KubeClient); err != nil {
 		return err
 	}

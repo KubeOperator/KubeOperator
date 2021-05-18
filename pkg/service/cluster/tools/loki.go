@@ -56,9 +56,11 @@ func (l Loki) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(l.Cluster.HelmClient, l.Tool, constant.LokiChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
+	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(l.Cluster.Namespace, constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, l.Cluster.KubeClient); err != nil {
 		return err
 	}
+	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForStatefulSetsRunning(l.Cluster.Namespace, constant.DefaultLokiStateSetsfulName, 1, l.Cluster.KubeClient); err != nil {
 		return err
 	}
