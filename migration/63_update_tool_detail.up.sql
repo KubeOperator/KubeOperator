@@ -1,6 +1,5 @@
-DELETE FROM ko_cluster_tool_detail r WHERE r.name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND r.architecture='amd64';
+DELETE FROM ko_cluster_tool_detail WHERE name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND architecture='amd64';
 UPDATE ko_cluster_tool_detail SET architecture='all' WHERE name IN ('grafana', 'loki', 'prometheus', 'dashboard', 'registry', 'chartmuseum') AND architecture='arm64';
-
 
 UPDATE ko_cluster_tool_detail SET vars='{\"grafana_image_name\":\"grafana/grafana\",\"grafana_image_tag\":\"7.3.3\",\"busybox_image_name\":\"busybox\",\"busybox_image_tag\":\"1.28\",\"curl_image_name\":\"curlimages/curl\",\"curl_image_tag\":\"7.73.0\"}' WHERE name='grafana' AND version='v7.3.3';
 UPDATE ko_cluster_tool_detail SET vars='{\"loki_image_name\":\"grafana/loki\",\"loki_image_tag\":\"2.0.0\",\"promtail_image_name\":\"grafana/promtail\",\"promtail_image_tag\":\"2.0.0\"}' WHERE name='loki' AND version='v2.0.0';

@@ -31,13 +31,28 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM ubuntu:18.04
-RUN apt-get update && apt-get install iputils-ping -y
-RUN setcap cap_net_raw=+ep /bin/ping
-
+FROM ubuntu:20.10
 ARG GOARCH
 
-RUN apt-get update && apt-get -y install wget curl git
+RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-ping
+RUN apt remove less -y
+RUN setcap cap_net_raw=+ep /bin/ping
+
+RUN if [ "$GOARCH" = "amd64" ] ; then \
+        cd /usr/lib/x86_64-linux-gnu \
+        && rm -rf libcurl* libzstd* libsasl2* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -fr libkrb5* \
+    fi;
+
+RUN   if [ "$GOARCH" = "arm64" ] ; then \
+        cd /usr/lib/aarch64-linux-gnu \
+        && rm -rf libcurl* libzstd* libsasl2* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -fr libkrb5* \
+    fi;
 
 WORKDIR /usr/local/bin
 
