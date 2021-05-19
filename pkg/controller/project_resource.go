@@ -69,29 +69,22 @@ func (p ProjectResourceController) Post() ([]dto.ProjectResource, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	resource := projectName + "("
+	for _, re := range req.Names {
+		resource += (re + ",")
+	}
+	switch req.ResourceType {
+	case "PLAN":
+		go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resource+")")
+	case "BACKUP_ACCOUNT":
+		go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resource+")")
+	case "HOST":
+		go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_HOST, resource+")")
+	}
+
 	return p.ProjectResourceService.Create(projectName, req)
-}
-
-func (p ProjectResourceController) PostBatch() error {
-	var req dto.ProjectResourceOp
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
-		return err
-	}
-	err = p.ProjectResourceService.Batch(req)
-	if err != nil {
-		return err
-	}
-
-	operator := p.Ctx.Params().GetString("operator")
-	go saveResourceBindLogs(operator, req)
-
-	return err
 }
 
 // Get Project Resources
@@ -123,33 +116,16 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 func (p ProjectResourceController) DeleteBy(name string) error {
 	resourceType := p.Ctx.URLParam("resourceType")
 	projectName := p.Ctx.Params().GetString("project")
-	return p.ProjectResourceService.Delete(name, resourceType, projectName)
-}
 
-func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
-	resources := ""
-	typeStr := ""
-	for _, item := range req.Items {
-		typeStr = item.ResourceType
-		resources += item.ResourceName + ","
+	operator := p.Ctx.Values().GetString("operator")
+	switch resourceType {
+	case "PLAN":
+		go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, projectName+"-"+name)
+	case "BACKUP_ACCOUNT":
+		go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, projectName+"-"+name)
+	case "HOST":
+		go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, projectName+"-"+name)
 	}
-	if req.Operation == "create" {
-		switch typeStr {
-		case "PLAN":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
-		case "BACKUP_ACCOUNT":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
-		case "HOST":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_HOST, resources)
-		}
-	} else {
-		switch typeStr {
-		case "PLAN":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
-		case "BACKUP_ACCOUNT":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
-		case "HOST":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
-		}
-	}
+
+	return p.ProjectResourceService.Delete(name, resourceType, projectName)
 }

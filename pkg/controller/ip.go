@@ -109,6 +109,9 @@ func (i IpController) Post() error {
 	if err != nil {
 		return err
 	}
+	operator := i.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_IP, req.IpStart+"-"+req.IpEnd)
+
 	return i.IpService.Create(req, nil)
 }
 
@@ -123,6 +126,14 @@ func (i IpController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := i.Ctx.Values().GetString("operator")
+	ips := ""
+	for _, ip := range req.Items {
+		ips += (ip.Address + ",")
+	}
+	go kolog.Save(operator, constant.DELETE_IP, ips)
+
 	return i.IpService.Batch(req)
 }
 

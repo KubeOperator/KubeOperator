@@ -2,8 +2,9 @@ package controller
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"io"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -520,10 +521,16 @@ func (c ClusterController) GetProvisionerLogBy(clusterName, logId string) (*Log,
 }
 
 func (c *ClusterController) GetHealthBy(clusterName string) (*dto.ClusterHealth, error) {
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.HEALTH_CHECK, clusterName)
+
 	return c.ClusterHealthService.HealthCheck(clusterName)
 }
 
 func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterRecoverItem, error) {
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.HEALTH_RECOVER, clusterName)
+
 	return c.ClusterHealthService.Recover(clusterName)
 }
 

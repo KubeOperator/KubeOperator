@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -69,6 +70,21 @@ func (c ClusterResourceController) Post() ([]dto.ClusterResource, error) {
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	resource := clusterName + "("
+	for _, re := range req.Names {
+		resource += (re + ",")
+	}
+	switch req.ResourceType {
+	case "PLAN":
+		go kolog.Save(operator, constant.BIND_CLUSTER_RESOURCE_PLAN, resource+")")
+	case "BACKUP_ACCOUNT":
+		go kolog.Save(operator, constant.BIND_CLUSTER_RESOURCE_BACKUP, resource+")")
+	case "HOST":
+		go kolog.Save(operator, constant.BIND_CLUSTER_RESOURCE_HOST, resource+")")
+	}
+
 	return c.ClusterResourceService.Create(clusterName, req)
 }
 
@@ -87,6 +103,17 @@ func (c ClusterResourceController) Post() ([]dto.ClusterResource, error) {
 func (c ClusterResourceController) DeleteBy(name string) error {
 	resourceType := c.Ctx.URLParam("resourceType")
 	clusterName := c.Ctx.Params().GetString("cluster")
+
+	operator := c.Ctx.Values().GetString("operator")
+	switch resourceType {
+	case "PLAN":
+		go kolog.Save(operator, constant.UNBIND_CLUSTER_RESOURCE_PLAN, clusterName+"-"+name)
+	case "BACKUP_ACCOUNT":
+		go kolog.Save(operator, constant.UNBIND_CLUSTER_RESOURCE_BACKUP, clusterName+"-"+name)
+	case "HOST":
+		go kolog.Save(operator, constant.UNBIND_CLUSTER_RESOURCE_HOST, clusterName+"-"+name)
+	}
+
 	return c.ClusterResourceService.Delete(name, resourceType, clusterName)
 }
 

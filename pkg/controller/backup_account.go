@@ -178,7 +178,9 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [delete]
 func (b BackupAccountController) DeleteBy(name string) error {
-	go kolog.Save("Delete", constant.DELETE_BACKUP_ACCOUNT, name)
+	operator := b.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_BACKUP_ACCOUNT, name)
+
 	return b.BackupAccountService.Delete(name)
 }
 

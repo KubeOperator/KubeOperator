@@ -211,5 +211,8 @@ func (p PlanController) PatchBy(name string) (*dto.Plan, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPDATE_PLAN, name)
 	return p.PlanService.PatchBy(name, req)
 }

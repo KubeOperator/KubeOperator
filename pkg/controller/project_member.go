@@ -112,15 +112,16 @@ func (p ProjectMemberController) PostBatch() error {
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	delMembers, delProject := "", ""
-	//for _, item := range req.Items {
-	//	delMembers += (item.Username + ",")
-	//	delProject = item.ProjectName
-	//}
+	members := ""
+	for _, item := range req.Items {
+		for _, u := range item.Usernames {
+			members += (u + ",")
+		}
+	}
 	if req.Operation == "update" {
-		go kolog.Save(operator, constant.UPDATE_PROJECT_MEMBER_ROLE, delProject+"-"+delMembers)
+		go kolog.Save(operator, constant.UPDATE_PROJECT_MEMBER_ROLE, members)
 	} else {
-		go kolog.Save(operator, constant.UNBIND_PROJECT_MEMBER, delProject+"-"+delMembers)
+		go kolog.Save(operator, constant.UNBIND_PROJECT_MEMBER, members)
 	}
 
 	return err

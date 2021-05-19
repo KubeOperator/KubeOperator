@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -130,6 +131,14 @@ func (i IpPoolController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := i.Ctx.Values().GetString("operator")
+	ips := ""
+	for _, ip := range req.Items {
+		ips += (ip.Name + ",")
+	}
+	go kolog.Save(operator, constant.BACTH_DELETE_IP_POOL, ips)
+
 	return i.IpPoolService.Batch(req)
 }
 

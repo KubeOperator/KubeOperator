@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -204,7 +205,7 @@ func (p *projectMemberService) Delete(name, projectName string) error {
 	}
 	if user.CurrentProjectID == project.ID {
 		user.User.CurrentProjectID = ""
-		db.DB.Debug().Save(&user.User)
+		db.DB.Save(&user.User)
 	}
 	return nil
 }

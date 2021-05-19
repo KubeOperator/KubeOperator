@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -66,6 +67,14 @@ func (c ClusterMemberController) Post() ([]dto.ClusterMember, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	users := ""
+	for _, u := range req.Usernames {
+		users += (u + ",")
+	}
+	go kolog.Save(operator, constant.BIND_CLUSTER_MEMBER, users)
+
 	return result, nil
 }
 
@@ -87,5 +96,9 @@ func (c ClusterMemberController) GetUsers() (dto.UsersResponse, error) {
 // @Router /projects/{project}/clusters/{cluster}/members/{name} [delete]
 func (c ClusterMemberController) DeleteBy(name string) error {
 	clusterName := c.Ctx.Params().GetString("cluster")
+
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UNBIND_CLUSTER_MEMBER, name)
+
 	return c.ClusterMemberService.Delete(name, clusterName)
 }

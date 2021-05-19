@@ -133,7 +133,7 @@ func (c *clusterMemberService) Delete(name, clusterName string) error {
 	if err := db.DB.Delete(&cm).Error; err != nil {
 		return err
 	}
-	if err := db.DB.Debug().Model(model.ProjectResource{}).Where("resource_id = ? AND resource_type = 'CLUSTER'", cluster.ID).Find(&pr).Error; err != nil {
+	if err := db.DB.Model(model.ProjectResource{}).Where("resource_id = ? AND resource_type = 'CLUSTER'", cluster.ID).Find(&pr).Error; err != nil {
 		return err
 	}
 	if user.CurrentProjectID == pr.ProjectID {

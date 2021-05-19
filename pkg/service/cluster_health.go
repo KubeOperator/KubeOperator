@@ -127,9 +127,9 @@ func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 	return result
 }
 func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
-	client, level, msg := getBaseParams(c, HookNameCheckKubernetesNodeStatus)
+	client, level, msg := getBaseParams(c)
 	result := dto.ClusterHealthHook{
-		Name:  HookNameCheckKubernetesNodeStatus,
+		Name:  HookNameCheckKubernetesApiConnection,
 		Level: level,
 		Msg:   msg,
 	}
@@ -148,7 +148,7 @@ func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
 
 func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 	var nodes []model.ClusterNode
-	client, level, msg := getBaseParams(c, HookNameCheckKubernetesNodeStatus)
+	client, level, msg := getBaseParams(c)
 	result := dto.ClusterHealthHook{
 		Name:  HookNameCheckKubernetesNodeStatus,
 		Level: level,
@@ -224,7 +224,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 					ri.Result = constant.StatusSuccess
 					result = append(result, ri)
 				case HookNameCheckKubernetesNodeStatus:
-					client, _, msg := getBaseParams(clu.Cluster, HookNameCheckKubernetesNodeStatus)
+					client, _, msg := getBaseParams(clu.Cluster)
 					ri := dto.ClusterRecoverItem{
 						Name:     resolveMethods[ch.Hooks[i].Name],
 						HookName: ch.Hooks[i].Name,
@@ -282,7 +282,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 	return result, nil
 }
 
-func getBaseParams(c model.Cluster, name string) (*kubernetes.Clientset, string, string) {
+func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
 	var clusterService = NewClusterService()
 	secret, err := clusterService.GetSecrets(c.Name)
 	if err != nil {

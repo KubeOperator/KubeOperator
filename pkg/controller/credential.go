@@ -125,8 +125,8 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 // @Security ApiKeyAuth
 // @Router /credentials/{name}/ [delete]
 func (c CredentialController) DeleteBy(name string) error {
-	//operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save("Delete", constant.DELETE_CREDENTIALS, name)
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_CREDENTIALS, name)
 	return c.CredentialService.Delete(name)
 }
 
