@@ -9,7 +9,7 @@
 
 KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别的 Kubernetes 集群。
 
-KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware 和 OpenStack 等 IaaS 平台，支持 x86_64 和 arm64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
+KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware、OpenStack 和 FusionCompute 等 IaaS 平台，支持 x86 和 ARM64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
@@ -19,7 +19,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ## Web UI 展示
 
-![Web UI](https://kubeoperator.io/images/screenshot/05.jpg)
+![Web UI](https://kubeoperator.io/images/screenshot/day-2.png)
 
 >更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
@@ -295,9 +295,9 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ## 支持组件
 
 - 核心
-  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.14
+  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.20.4
   - [etcd](https://github.com/coreos/etcd) v3.4.14
-  - [docker](https://www.docker.com/) v19.03.9
+  - [docker](https://www.docker.com/) v19.03.15
   - [containerd](https://containerd.io/) v1.4.3
 - 网络
   - [calico](https://github.com/projectcalico/calico) v3.16.5
@@ -312,10 +312,10 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 - 工具
   - [istio](https://github.com/istio/istio) 1.8.0
   - [dashboard](https://github.com/kubernetes/dashboard) v2.0.3
-  - [kubeapps](https://github.com/kubeapps/kubeapps) v1.10.2
-  - [prometheus](https://github.com/prometheus/prometheus) v2.18.1
+  - [kubeapps](https://github.com/kubeapps/kubeapps) v2.0.1
+  - [prometheus](https://github.com/prometheus/prometheus) v2.20.1
   - [grafana](https://github.com/grafana/grafana) v7.3.3
-  - [loki](https://github.com/grafana/loki) v2.0.0
+  - [loki](https://github.com/grafana/loki) v2.1.0
   - [logging](https://github.com/elastic/elasticsearch) v7.6.2
   - [chartmuseum](https://github.com/helm/chartmuseum) v0.12.0
   - [docker-registry](https://github.com/docker/distribution) v2.7.1
@@ -338,7 +338,6 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ## 致谢
 
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
-- [Clarity](https://github.com/vmware/clarity/): KubeOperator 采用 Clarity 作为前端 Web 框架；
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
 - [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 采用 Kubeapps 作为应用商店方案。
 
