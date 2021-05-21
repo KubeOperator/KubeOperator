@@ -1,10 +1,12 @@
 package job
 
 import (
+	"testing"
+
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/spf13/viper"
-	"testing"
 )
 
 func TestCLusterBackup(t *testing.T) {
@@ -18,7 +20,7 @@ func TestCLusterBackup(t *testing.T) {
 	}
 	err := dbi.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	j := NewClusterBackup()
 	j.Run()

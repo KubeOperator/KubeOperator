@@ -6,6 +6,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/spf13/viper"
 )
@@ -28,7 +29,7 @@ func DbInit() {
 	}
 	err := dbi.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 }
 
@@ -84,6 +85,6 @@ func TestClient_Uninstall(t *testing.T) {
 // 	DbInit()
 // 	err := updateRepo()
 // 	if err != nil {
-// 		log.Fatal(err)
+// 		logger.Log.Fatal(err)
 // 	}
 // }

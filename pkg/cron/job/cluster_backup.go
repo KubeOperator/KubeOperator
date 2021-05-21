@@ -7,6 +7,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -50,11 +51,11 @@ func (c *ClusterBackup) Run() {
 					defer func() { <-sem }()
 					var cluster model.Cluster
 					db.DB.Where("id = ?", clusterBackupStrategy.ClusterID).Find(&cluster)
-					log.Infof("start backup cluster [%s]", cluster.Name)
+					logger.Log.Infof("start backup cluster [%s]", cluster.Name)
 					if cluster.ID != "" {
 						err := c.cLusterBackupFileService.Backup(dto.ClusterBackupFileCreate{ClusterName: cluster.Name})
 						if err != nil {
-							log.Errorf("backup cluster error: %s", err.Error())
+							logger.Log.Errorf("backup cluster error: %s", err.Error())
 						}
 					}
 				}()

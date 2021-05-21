@@ -11,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -194,7 +195,7 @@ func getServerVersion(cluster *model.Cluster, client *kubernetes.Clientset, wg *
 	defer wg.Done()
 	v, err := client.ServerVersion()
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 		return
 	}
 	cluster.Spec.Version = v.GitVersion
@@ -204,7 +205,7 @@ func getKubeNodes(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync
 	defer wg.Done()
 	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 		return
 	}
 	for _, node := range nodes.Items {
@@ -230,7 +231,7 @@ func getNetworkType(cluster *model.Cluster, client *kubernetes.Clientset, wg *sy
 	defer wg.Done()
 	dps, err := client.AppsV1().DaemonSets("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 		return
 	}
 	networkMap := map[string]int{
@@ -261,7 +262,7 @@ func getRuntimeType(cluster *model.Cluster, client *kubernetes.Clientset, wg *sy
 	defer wg.Done()
 	ns, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 		return
 	}
 	var node v1.Node

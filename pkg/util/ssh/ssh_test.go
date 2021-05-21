@@ -5,12 +5,14 @@ import (
 	"io/ioutil"
 	"testing"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 )
 
 func TestSSHClient(t *testing.T) {
 	key, err := ioutil.ReadFile("/Users/shenchenyang/Desktop/aa.key")
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 
 	client, err := New(&Config{
@@ -23,14 +25,14 @@ func TestSSHClient(t *testing.T) {
 		Retry:       3,
 	})
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	if err := client.Ping(); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	bs, err := client.CombinedOutput("ps", "aux")
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	fmt.Println(string(bs))
 }

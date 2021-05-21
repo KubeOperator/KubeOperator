@@ -3,16 +3,18 @@ package adm
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 )
 
 const (
@@ -172,6 +174,6 @@ func GetManiFestBy(name string) (dto.ClusterManifest, error) {
 func writeLog(msg string, writer io.Writer) {
 	_, err := fmt.Fprintln(writer, msg)
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 	}
 }

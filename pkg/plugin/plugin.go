@@ -1,12 +1,13 @@
 package plugin
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	"io/ioutil"
 	"path"
 	"plugin"
 	"strings"
+
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 )
 
 const (
@@ -33,7 +34,6 @@ type InitPluginDBPhase struct {
 }
 
 func (i *InitPluginDBPhase) Init() error {
-	var log = logger.Default
 	var p string
 	for _, pa := range pluginDirs {
 		if file.Exists(pa) {
@@ -41,7 +41,7 @@ func (i *InitPluginDBPhase) Init() error {
 		}
 	}
 	if p == "" {
-		log.Info("can not find plugin dir,skip")
+		logger.Log.Info("can not find plugin dir,skip")
 		return nil
 	}
 	fs, err := ioutil.ReadDir(p)
@@ -53,10 +53,10 @@ func (i *InitPluginDBPhase) Init() error {
 			pluginName := strings.Replace(f.Name(), ".so", "", -1)
 			p, err := plugin.Open(path.Join(p, f.Name()))
 			if err != nil {
-				log.Errorf("can not load plugin: %s message: %s", pluginName, err.Error())
+				logger.Log.Errorf("can not load plugin: %s message: %s", pluginName, err.Error())
 			} else {
 				plugins[pluginName] = p
-				log.Infof("load plugin: %s", pluginName)
+				logger.Log.Infof("load plugin: %s", pluginName)
 			}
 		}
 	}

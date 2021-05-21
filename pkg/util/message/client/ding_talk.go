@@ -16,8 +16,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 )
 
-var log = logger.Default
-
 type dingTalk struct {
 	Vars map[string]interface{}
 }
@@ -109,7 +107,7 @@ func getUrl(webhook, secret string) string {
 	*b = append(*b, secret...)
 	h := hmac.New(sha256.New, []byte(secret))
 	if _, err := h.Write(*b); err != nil {
-		log.Errorf("ding talk get url failed, error: %s", err.Error())
+		logger.Log.Errorf("ding talk get url failed, error: %s", err.Error())
 	}
 	sign := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	params.Add("timestamp", strconv.FormatInt(timestamp, 10))

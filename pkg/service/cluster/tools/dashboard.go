@@ -49,11 +49,9 @@ func (d Dashboard) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(d.Cluster.HelmClient, d.Tool, constant.DashboardChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(d.Cluster.Namespace, constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, d.Cluster.KubeClient); err != nil {
 		return err
 	}
-	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForRunning(d.Cluster.Namespace, constant.DefaultDashboardDeploymentName, 1, d.Cluster.KubeClient); err != nil {
 		return err
 	}

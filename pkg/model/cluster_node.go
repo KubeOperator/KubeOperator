@@ -56,15 +56,14 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 }
 
 func (n ClusterNode) ToKobeHost() *api.Host {
-	var log = logger.Default
 	if err := n.Host.GetHostConfig(); err != nil {
-		log.Errorf("get host config err, err: %s", err.Error())
+		logger.Log.Errorf("get host config err, err: %s", err.Error())
 	}
 	if err := db.DB.Model(&Host{}).Where("id = ?", n.Host.ID).Updates(map[string]interface{}{
 		"architecture": n.Host.Architecture,
 		"os":           n.Host.Os,
 		"os_version":   n.Host.OsVersion}).Error; err != nil {
-		log.Errorf("get host config err, err: %s", err.Error())
+		logger.Log.Errorf("get host config err, err: %s", err.Error())
 	}
 
 	r, _ := n.GetRegistry(n.Host.Architecture)

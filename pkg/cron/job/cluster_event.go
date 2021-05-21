@@ -3,12 +3,14 @@ package job
 import (
 	"context"
 	"encoding/json"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sync"
 )
 
 type ClusterEvent struct {
@@ -53,13 +55,13 @@ func (c *ClusterEvent) Run() {
 				defer func() { <-sem }()
 				namespaceList, err := client.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 				if err != nil {
-					log.Errorf("list cluster %s namespace error : %s", cluster.Name, err.Error())
+					logger.Log.Errorf("list cluster %s namespace error : %s", cluster.Name, err.Error())
 					return
 				}
 				for _, namespace := range namespaceList.Items {
 					eventList, err := client.EventsV1beta1().Events(namespace.Name).List(context.Background(), metav1.ListOptions{})
 					if err != nil {
-						log.Errorf("list namespace %s event error : %s", namespace.Name, err.Error())
+						logger.Log.Errorf("list namespace %s event error : %s", namespace.Name, err.Error())
 						return
 					}
 					for _, event := range eventList.Items {
@@ -84,7 +86,7 @@ func (c *ClusterEvent) Run() {
 								content, _ := json.Marshal(clusterEvent)
 								err := c.messageService.SendMessage(constant.Cluster, false, string(content), cluster.Name, constant.ClusterEventWarning)
 								if err != nil {
-									log.Errorf("send cluster  %s event error : %s", cluster.Name, err.Error())
+									logger.Log.Errorf("send cluster  %s event error : %s", cluster.Name, err.Error())
 								}
 							}
 							err := c.clusterEventService.Save(*clusterEvent)

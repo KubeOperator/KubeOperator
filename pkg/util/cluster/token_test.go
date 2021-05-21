@@ -2,9 +2,11 @@ package cluster
 
 import (
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"testing"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 )
 
 func TestGetClusterToken(t *testing.T) {
@@ -23,7 +25,7 @@ func TestGetClusterToken(t *testing.T) {
 	}
 	by, err := client.CombinedOutput("kubectl", "get sa -A | grep default")
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	fmt.Println(by)
 

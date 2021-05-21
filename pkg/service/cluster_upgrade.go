@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
@@ -106,7 +107,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
-		log.Errorf("can not get current cluster status, error: %s", err.Error())
+		logger.Log.Errorf("can not get current cluster status, error: %s", err.Error())
 	}
 	cluster.Status = status.ClusterStatus
 	ctx, cancel := context.WithCancel(context.Background())

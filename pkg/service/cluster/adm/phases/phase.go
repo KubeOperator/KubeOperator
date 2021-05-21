@@ -20,8 +20,6 @@ const (
 	DefaultPhaseTimeoutMinute = 10
 )
 
-var log = logger.Default
-
 type Interface interface {
 	Name() string
 	Run(p kobe.Interface, writer io.Writer) error
@@ -38,7 +36,7 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, writer 
 		go func() {
 			err = b.Watch(writer, taskId)
 			if err != nil {
-				log.Error(err)
+				logger.Log.Error(err)
 			}
 		}()
 	}

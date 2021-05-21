@@ -30,8 +30,6 @@ var migrationDirs = []string{
 	releaseMigrationDir,
 }
 
-var log = logger.Default
-
 type InitMigrateDBPhase struct {
 	Host     string
 	Port     int
@@ -70,7 +68,7 @@ func (i *InitMigrateDBPhase) Init() error {
 	v, _, _ := m.Version()
 	if err := m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			log.Info("no databases change,skip migrate")
+			logger.Log.Info("no databases change,skip migrate")
 			return nil
 		}
 		return err

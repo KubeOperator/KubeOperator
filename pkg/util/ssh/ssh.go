@@ -7,22 +7,21 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/util/hash"
-	"github.com/go-playground/validator/v10"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"net"
 	"os"
 	"path"
 	"strings"
 	"time"
-)
 
-var log = logger.Default
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/hash"
+	"github.com/go-playground/validator/v10"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
+	"k8s.io/apimachinery/pkg/util/wait"
+)
 
 type SSH struct {
 	User        string
@@ -188,10 +187,10 @@ func (s *SSH) CopyFile(src, dst string) error {
 	_ = s.WriteFile(buffer, hashFile)
 	_, err = s.CombinedOutput(fmt.Sprintf("sha256sum --check --status %s", hashFile))
 	if err == nil { // means dst exist and same as src
-		log.Infof("skip copy `%s` because already existed", src)
+		logger.Log.Infof("skip copy `%s` because already existed", src)
 		return nil
 	}
-	log.Infof("[%s] copy `%s` to %q", s.addr, src, dst)
+	logger.Log.Infof("[%s] copy `%s` to %q", s.addr, src, dst)
 
 	config := &ssh.ClientConfig{
 		User:            s.User,
@@ -237,7 +236,7 @@ func (s *SSH) CopyFile(src, dst string) error {
 }
 
 func (s *SSH) WriteFile(src io.Reader, dst string) error {
-	log.Infof("[%s] Write data to %q", s.addr, dst)
+	logger.Log.Infof("[%s] Write data to %q", s.addr, dst)
 
 	config := &ssh.ClientConfig{
 		User:            s.User,

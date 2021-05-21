@@ -35,8 +35,6 @@ const (
 	helmDriver = "configmap"
 )
 
-var log = logger.Default
-
 func nolog(format string, v ...interface{}) {}
 
 type Interface interface {
@@ -187,7 +185,7 @@ func updateRepo(arch string) error {
 		}
 		err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, repoIP), "admin", "admin123")
 		if err != nil {
-			log.Errorf("addRepo failed, error: %s", err.Error())
+			logger.Log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
 		}
 	}
@@ -214,21 +212,21 @@ func updateRepo(arch string) error {
 }
 
 func updateCharts(repos []*repo.ChartRepository) {
-	log.Debug("Hang tight while we grab the latest from your chart repositories...")
+	logger.Log.Debug("Hang tight while we grab the latest from your chart repositories...")
 	var wg sync.WaitGroup
 	for _, re := range repos {
 		wg.Add(1)
 		go func(re *repo.ChartRepository) {
 			defer wg.Done()
 			if _, err := re.DownloadIndexFile(); err != nil {
-				log.Debugf("...Unable to get an update from the %q chart repository (%s):\n\t%s\n", re.Config.Name, re.Config.URL, err)
+				logger.Log.Debugf("...Unable to get an update from the %q chart repository (%s):\n\t%s\n", re.Config.Name, re.Config.URL, err)
 			} else {
-				log.Debugf("...Successfully got an update from the %q chart repository\n", re.Config.Name)
+				logger.Log.Debugf("...Successfully got an update from the %q chart repository\n", re.Config.Name)
 			}
 		}(re)
 	}
 	wg.Wait()
-	log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
+	logger.Log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
 }
 
 func addRepo(name string, url string, username string, password string) error {
@@ -248,7 +246,7 @@ func addRepo(name string, url string, username string, password string) error {
 	if err == nil && locked {
 		defer func() {
 			if err := fileLock.Unlock(); err != nil {
-				log.Errorf("addRepo fileLock.Unlock failed, error: %s", err.Error())
+				logger.Log.Errorf("addRepo fileLock.Unlock failed, error: %s", err.Error())
 			}
 		}()
 	}

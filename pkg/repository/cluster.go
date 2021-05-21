@@ -3,11 +3,8 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
-
-var log = logger.Default
 
 type ClusterRepository interface {
 	Get(name string) (model.Cluster, error)

@@ -20,8 +20,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-var log = logger.Default
-
 type Interface interface {
 	Install(toolDetail model.ClusterToolDetail) error
 	Upgrade(toolDetail model.ClusterToolDetail) error
@@ -122,13 +120,15 @@ func preInstallChart(h helm.Interface, tool *model.ClusterTool) error {
 	}
 	for _, r := range rs {
 		if r.Name == tool.Name {
+			logger.Log.Infof("[tool] uninstall %s before installation", tool.Name)
 			_, err := h.Uninstall(tool.Name)
-			log.Infof("start uninstall tool %s,", tool.Name)
 			if err != nil {
+				logger.Log.Errorf("[tool] uninstall %s before installation failed, err: ", tool.Name, err.Error())
 				return err
 			}
 		}
 	}
+	logger.Log.Infof("[tool] uninstall %s before installation successful", tool.Name)
 	return nil
 }
 
@@ -143,11 +143,13 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	if err != nil {
 		return err
 	}
-	log.Infof("start install tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
+	logger.Log.Infof("[tool] start install tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Install(tool.Name, chartName, chartVersion, m)
 	if err != nil {
+		logger.Log.Errorf("[tool] install tool %s failed, err: %s", tool.Name, err.Error())
 		return err
 	}
+	logger.Log.Infof("[tool] install tool %s successful", tool.Name)
 	return nil
 }
 
@@ -160,24 +162,26 @@ func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	if err != nil {
 		return err
 	}
-	log.Infof("start upgrade tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
+	logger.Log.Infof("[tool] start upgrade tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Upgrade(tool.Name, chartName, chartVersion, m)
 	if err != nil {
+		logger.Log.Errorf("[tool] upgrade tool %s failed, err: %s", tool.Name, err.Error())
 		return err
 	}
+	logger.Log.Infof("[tool] upgrade tool %s successful", tool.Name)
 	return nil
 }
 
 func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes.Clientset) error {
-	ingress, _ := kubeClient.NetworkingV1beta1().
-		Ingresses(namespace).
-		Get(context.TODO(), ingressName, metav1.GetOptions{})
+	ingress, _ := kubeClient.NetworkingV1beta1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
 	if ingress.Name != "" {
 		err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
 		if err != nil {
+			logger.Log.Errorf("[tool] operation before create route %s failed, err: %s", ingressName, err.Error())
 			return err
 		}
 	}
+	logger.Log.Infof("[tool] operation before create route %s successful", ingressName)
 	return nil
 }
 
@@ -218,12 +222,15 @@ func createRoute(namespace string, ingressName string, ingressUrl string, servic
 	}
 	_, err = kubeClient.NetworkingV1beta1().Ingresses(namespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
 	if err != nil {
+		logger.Log.Errorf("[tool] create route %s failed, err: %s", ingressName, err.Error())
 		return err
 	}
+	logger.Log.Infof("[tool] create route %s successful", ingressName)
 	return nil
 }
 
 func waitForRunning(namespace string, deploymentName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
+	logger.Log.Infof("[tool] installation and configuration succeeded, now waiting for %s running", deploymentName)
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
@@ -242,6 +249,7 @@ func waitForRunning(namespace string, deploymentName string, minReplicas int32, 
 }
 
 func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
+	logger.Log.Infof("[tool] installation and configuration succeeded, now waiting for %s running", statefulSetsName)
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().StatefulSets(namespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
@@ -284,7 +292,7 @@ func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error
 	_ = json.Unmarshal([]byte(sourceData.Vars), &sourceVars)
 	sp, ok := sourceVars["namespace"]
 	if !ok {
-		return "", fmt.Errorf("获取prometheus ns 失败")
+		return "", fmt.Errorf("load namespace of prometheus failed")
 	}
 	return sp.(string), nil
 }

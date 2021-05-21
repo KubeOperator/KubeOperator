@@ -1,43 +1,30 @@
 package logger
 
 import (
-	"fmt"
 	"io"
 	"os"
-	"strings"
+	"testing"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/config"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-var Log *logrus.Logger
-
-type MineFormatter struct{}
-
-const TimeFormat = "2006-01-02 15:04:05"
-
-func (s *MineFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	msg := fmt.Sprintf("[%s] [%s] %s (%s: %d) {%v} \n", time.Now().Local().Format(TimeFormat), strings.ToUpper(entry.Level.String()), entry.Message, entry.Caller.Function, entry.Caller.Line, entry.Data)
-	return []byte(msg), nil
-}
-
-func Init() {
+func TestInit(t *testing.T) {
+	config.Init()
 	log := logrus.New()
-	path := "/var/ko/data/logs/log"
-
+	path := "/tmp/mylog/ko_log"
 	l := viper.GetString("logging.level")
 	outPut := viper.GetString("logging.out_put")
 	maxAge := viper.GetInt("logging.max_age")
 	rotationTime := viper.GetInt("logging.rotation")
-
 	level, err := logrus.ParseLevel(l)
 	if err != nil && l == "" {
 		log.SetLevel(logrus.InfoLevel)
-	} else {
-		log.SetLevel(level)
 	}
+	log.SetLevel(level)
 	log.SetReportCaller(true)
 	log.SetFormatter(new(MineFormatter))
 	writer, _ := rotatelogs.New(
@@ -59,5 +46,12 @@ func Init() {
 		fileAndStdoutWriter := io.MultiWriter(writers...)
 		log.SetOutput(fileAndStdoutWriter)
 	}
-	Log = log
+
+	for {
+		log.WithFields(logrus.Fields{
+			"animal": "walrus",
+			"size":   10,
+		}).Info("A group of walrus emerges from the ocean")
+		time.Sleep(time.Duration(2) * time.Second)
+	}
 }

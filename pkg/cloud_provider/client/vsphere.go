@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
@@ -211,7 +212,7 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 	}
 	defer func() {
 		if err := vi.Destroy(ctx); err != nil {
-			log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
+			logger.Log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
 		}
 	}()
 	var networks []mo.Network
@@ -464,7 +465,7 @@ func (v *vSphereClient) ListDatastores() ([]DatastoreResult, error) {
 	}
 	defer func() {
 		if err := vi.Destroy(ctx); err != nil {
-			log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
+			logger.Log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
 		}
 	}()
 	var clusters []mo.ClusterComputeResource

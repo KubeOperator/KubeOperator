@@ -11,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -314,7 +315,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					task.Status = CisTaskStatusSuccess
 					err = db.DB.Save(&task).Error
 					if err != nil {
-						log.Error(err)
+						logger.Log.Error(err)
 					}
 				}
 			}
@@ -330,7 +331,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 	}
 	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), resp.Name, metav1.DeleteOptions{})
 	if err != nil {
-		log.Error(err.Error())
+		logger.Log.Error(err.Error())
 		return
 	}
 }

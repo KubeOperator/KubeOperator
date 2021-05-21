@@ -2,12 +2,13 @@ package kubernetes
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/net"
 	extensionClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sync"
 )
 
 type Host string
@@ -16,8 +17,6 @@ type Config struct {
 	Hosts []Host
 	Token string
 }
-
-var log = logger.Default
 
 func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
 	var aliveHost Host
@@ -52,7 +51,7 @@ func NewKubernetesExtensionClient(c *Config) (*extensionClientSet.Clientset, err
 }
 func SelectAliveHost(hosts []Host) (Host, error) {
 	var aliveHost Host
-	aliveHostCh := make(chan Host,len(hosts)+1)
+	aliveHostCh := make(chan Host, len(hosts)+1)
 	wg := &sync.WaitGroup{}
 	for i := range hosts {
 		wg.Add(1)
@@ -60,18 +59,18 @@ func SelectAliveHost(hosts []Host) (Host, error) {
 			defer wg.Done()
 			err := net.TcpPing(string(h), true)
 			if err != nil {
-				log.Warnf("dial host %s error %s",h, err.Error())
+				logger.Log.Warnf("dial host %s error %s", h, err.Error())
 				return
 			}
-			aliveHostCh <-h
+			aliveHostCh <- h
 		}(hosts[i])
 	}
 	go func() {
 		wg.Wait()
 		aliveHostCh <- ""
 	}()
-	aliveHost=<-aliveHostCh
-	if aliveHost==""{
+	aliveHost = <-aliveHostCh
+	if aliveHost == "" {
 		return "", fmt.Errorf("no alive host in %v", hosts)
 	}
 	return aliveHost, nil

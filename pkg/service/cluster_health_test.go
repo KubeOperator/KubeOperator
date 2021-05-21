@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/spf13/viper"
-	"testing"
 )
 
 func TestClusterHealthService_HealthCheck(t *testing.T) {
@@ -19,7 +21,7 @@ func TestClusterHealthService_HealthCheck(t *testing.T) {
 	}
 	err := dbi.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 	}
 	service := NewClusterHealthService()
 	r, err := service.HealthCheck("bsdf")

@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
-	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
@@ -357,18 +359,18 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 func (z zoneService) uploadZoneImage(creation dto.ZoneCreate) {
 	zone, err := z.zoneRepo.Get(creation.Name)
 	if err != nil {
-		log.Error(err)
+		logger.Log.Error(err)
 	}
 	err = z.uploadImage(creation)
 	if err != nil {
-		log.Error(err)
+		logger.Log.Error(err)
 		zone.Status = constant.UploadImageError
 	} else {
 		zone.Status = constant.Ready
 	}
 	err = z.zoneRepo.Save(&zone)
 	if err != nil {
-		log.Error(err)
+		logger.Log.Error(err)
 	}
 }
 

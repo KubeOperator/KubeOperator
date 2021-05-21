@@ -2,8 +2,6 @@ package hook
 
 import "github.com/KubeOperator/KubeOperator/pkg/logger"
 
-var log = logger.Default
-
 type Func func() error
 
 type Hook interface {
@@ -25,10 +23,10 @@ func NewHook(Name string) Hook {
 }
 
 func (h *hook) Run() error {
-	log.Infof("run hook: %s", h.Name)
+	logger.Log.Infof("run hook: %s", h.Name)
 	for _, f := range h.fs {
 		if err := f(); err != nil {
-			log.Errorf("run hook func error %s", err.Error())
+			logger.Log.Errorf("run hook func error %s", err.Error())
 			return err
 		}
 	}

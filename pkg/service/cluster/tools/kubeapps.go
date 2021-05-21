@@ -59,11 +59,9 @@ func (k Kubeapps) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(k.Cluster.HelmClient, k.Tool, constant.KubeappsChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	log.Infof("install tool %s successful, now create route", toolDetail.Name)
 	if err := createRoute(k.Cluster.Namespace, constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, k.Cluster.KubeClient); err != nil {
 		return err
 	}
-	log.Infof("tool %s create route successful, now wait for run", toolDetail.Name)
 	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultKubeappsDeploymentName, 1, k.Cluster.KubeClient); err != nil {
 		return err
 	}

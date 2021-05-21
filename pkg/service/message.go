@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
@@ -211,7 +212,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,create client error: %v\n", err.Error())
+				logger.Log.Errorf("send message failed,create client error: %v\n", err.Error())
 				continue
 			}
 			if msg.SendType == constant.WorkWeiXin {
@@ -219,7 +220,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 				if err != nil {
 					msg.SendStatus = constant.SendFailed
 					_ = userMsgRepo.Save(&msg)
-					log.Errorf("send message failed, get token error: %v\n", err.Error())
+					logger.Log.Errorf("send message failed, get token error: %v\n", err.Error())
 					continue
 				}
 				vars["TOKEN"] = token
@@ -232,7 +233,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,send message error: %v\n", err.Error())
+				logger.Log.Errorf("send message failed,send message error: %v\n", err.Error())
 				continue
 			}
 			_ = userMsgRepo.Save(&msg)
@@ -363,7 +364,7 @@ func (m messageService) GetUserNotificationConfig(userId string, mType string) (
 	}
 	v := make(map[string]string)
 	if err := json.Unmarshal([]byte(config.Vars), &v); err != nil {
-		log.Errorf("messageService GetUserNotificationConfig json.Unmarshal failed, error: %s", err.Error())
+		logger.Log.Errorf("messageService GetUserNotificationConfig json.Unmarshal failed, error: %s", err.Error())
 	}
 	result = dto.UserNotificationConfigDTO{
 		ID:     config.ID,
@@ -388,7 +389,7 @@ func (m messageService) GetUserReceiver(userId string) (*dto.UserReceiverDTO, er
 	result.UserID = userId
 	v := make(map[string]string)
 	if err := json.Unmarshal([]byte(userReceiver.Vars), &v); err != nil {
-		log.Errorf("messageService GetUserReceiver json.Unmarshal failed, error: %s", err.Error())
+		logger.Log.Errorf("messageService GetUserReceiver json.Unmarshal failed, error: %s", err.Error())
 	}
 	result.Vars = v
 	return &result, err

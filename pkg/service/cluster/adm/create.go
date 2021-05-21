@@ -7,14 +7,11 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/ingress"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 )
-
-var log = logger.Default
 
 func (ca *ClusterAdm) Create(c *Cluster) error {
 	condition := ca.getCreateCurrentCondition(c)
