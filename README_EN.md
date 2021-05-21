@@ -12,7 +12,7 @@ KubeOperator is an open-source light-weighted Kubernetes distribution that focus
 
 ## How it works?
 
-KubeOperator uses Terraform to auto-build infrastructure on LaaS platform (vSphere, OpenStack, user can also use their resources, e.g. VMs or On-premise). It also implements automated deployment and allows changing operation through Ansible, supporting Kubernetes clusters a full life-cycle self-defined management from Day 0 planning, Day 1 deployment, to Day 2 operating. 
+KubeOperator uses Terraform to auto-build infrastructure on LaaS platform (vSphere, OpenStack, FusionCompute, user can also use their resources, e.g. VMs or On-premise). It also implements automated deployment and allows changing operation through Ansible, supporting Kubernetes clusters a full life-cycle self-defined management from Day 0 planning, Day 1 deployment, to Day 2 operating. 
 
 > Note: KubeOperator passed the [Certified Kubernetes Conformance Program] (https://landscape.cncf.io/selected=kube-operator) provided by CNCF (Cloud Native Computing Foundation)
 
@@ -225,7 +225,6 @@ KubeOperator uses Terraform to auto-build infrastructure on LaaS platform (vSphe
 ## Thanks to (Credits)
 
 - [Terraform](https://github.com/hashicorp/terraform): Allowing to auto-build VMs；
-- [Clarity](https://github.com/vmware/clarity/): Using as a front-end web framework；
 - [Ansible](https://github.com/ansible/ansible): Using as an automated deployment tool；
 - [Kubeapps](https://github.com/kubeapps/kubeapps): Creating a marketplace based on Kubeapps.
 
