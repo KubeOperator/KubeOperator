@@ -15,6 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -39,6 +40,9 @@ func NewClusterImportService() *clusterImportService {
 }
 
 func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
+	loginfo, _ := json.Marshal(clusterImport)
+	logger.Log.WithFields(logrus.Fields{"cluster_import_info": string(loginfo)}).Debugf("start to import the cluster %s", clusterImport.Name)
+
 	var address string
 	var port int
 	if strings.HasSuffix(clusterImport.ApiServer, "/") {
@@ -102,7 +106,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("can not  update spec %s", err.Error())
+		return fmt.Errorf("can not update spec %s", err.Error())
 	}
 	for _, node := range cluster.Nodes {
 		node.ClusterID = cluster.ID
@@ -145,19 +149,19 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save istio %s", err.Error())
 		}
 	}
-	tx.Commit()
 	project, err := c.projectRepository.Get(clusterImport.ProjectName)
 	if err != nil {
 		return err
-
 	}
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {
-		return err
+		tx.Rollback()
+		return fmt.Errorf("can not create project resource %s", err.Error())
 	}
+	tx.Commit()
 	return nil
 }
 

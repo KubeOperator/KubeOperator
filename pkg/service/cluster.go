@@ -297,9 +297,7 @@ var maxNodePodNumMap = map[int]int{
 
 func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
 	loginfo, _ := json.Marshal(creation)
-	logger.Log.WithFields(logrus.Fields{
-		"cluster_creation": string(loginfo),
-	}).Debug("start to create the cluster")
+	logger.Log.WithFields(logrus.Fields{"cluster_creation": string(loginfo)}).Debugf("start to create the cluster %s", creation.Name)
 
 	cluster := model.Cluster{
 		Name:   creation.Name,
@@ -533,6 +531,7 @@ func getServiceCIDRAndNodeCIDRMaskSize(clusterCIDR string, maxClusterServiceNum 
 }
 
 func (c *clusterService) Delete(name string, force bool) error {
+	logger.Log.Infof("start to delete cluster %s, isforce: %v", name, force)
 	cluster, err := c.Get(name)
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
@@ -577,6 +576,7 @@ func (c *clusterService) Delete(name string, force bool) error {
 }
 
 func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string) {
+	logger.Log.Infof("cluster %s delete failed, err: %s", cluster.Name, errStr)
 	cluster.Status.Phase = constant.ClusterFailed
 	cluster.Status.Message = errStr
 	if len(cluster.Status.ClusterStatusConditions) == 1 {
@@ -590,6 +590,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr string)
 const terminalPlaybookName = "99-reset-cluster.yml"
 
 func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
+	logger.Log.Infof("start to uninstall cluster %s, isforce: %v", cluster.Name, force)
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		logger.Log.Error(err)
@@ -635,6 +636,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 }
 
 func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
+	logger.Log.Infof("start to destroy cluster %s, isforce: %v", cluster.Name, force)
 	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		logger.Log.Error(err)
