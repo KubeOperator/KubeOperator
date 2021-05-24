@@ -23,7 +23,7 @@ func recoverClusterTask() error {
 
 	tx := db.DB.Begin()
 	for _, cluster := range clusters {
-		if cluster.Status == constant.StatusCreating || cluster.Status == constant.StatusTerminating || cluster.Status == constant.StatusInitializing {
+		if cluster.Status != constant.StatusRunning && cluster.Status == constant.StatusFailed {
 			var status model.ClusterStatus
 			if err := db.DB.Where("id = ?", cluster.StatusID).First(&status).Error; err != nil {
 				return err
