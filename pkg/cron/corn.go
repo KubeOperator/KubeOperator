@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cron/job"
 	"github.com/robfig/cron/v3"
@@ -16,13 +17,14 @@ type InitCronPhase struct {
 }
 
 func (c *InitCronPhase) Init() error {
-	Cron = cron.New()
+	nyc, _ := time.LoadLocation("Asia/Shanghai")
+	Cron = cron.New(cron.WithLocation(nyc))
 	if c.Enable {
 		_, err := Cron.AddJob("@hourly", job.NewRefreshHostInfo())
 		if err != nil {
 			return fmt.Errorf("can not add corn job: %s", err.Error())
 		}
-		_, err = Cron.AddJob("0 16 * * ?", job.NewClusterBackup())
+		_, err = Cron.AddJob("@daily", job.NewClusterBackup())
 		if err != nil {
 			return fmt.Errorf("can not add backup corn job: %s", err.Error())
 		}
