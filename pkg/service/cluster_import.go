@@ -48,12 +48,8 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if strings.HasSuffix(clusterImport.ApiServer, "/") {
 		clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "/", "", -1)
 	}
-	if strings.Contains(clusterImport.ApiServer, "http://") {
-		clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "http://", "", -1)
-	}
-	if strings.Contains(clusterImport.ApiServer, "https://") {
-		clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "https://", "", -1)
-	}
+	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "http://", "", -1)
+	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "https://", "", -1)
 	if strings.Contains(clusterImport.ApiServer, ":") {
 		strs := strings.Split(clusterImport.ApiServer, ":")
 		address = strs[0]

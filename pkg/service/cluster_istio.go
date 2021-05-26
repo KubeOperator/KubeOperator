@@ -10,7 +10,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/istios"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -156,10 +155,10 @@ func (c clusterIstioService) Disable(clusterName string, istioDtos []dto.Cluster
 	return istioDtos, nil
 }
 
-func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, []kubernetes.Host, dto.ClusterSecret, error) {
+func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, []kubernetesUtil.Host, dto.ClusterSecret, error) {
 	var (
 		cluster   dto.Cluster
-		endpoints []kubernetes.Host
+		endpoints []kubernetesUtil.Host
 		secret    dto.ClusterSecret
 		err       error
 	)
@@ -212,7 +211,7 @@ func saveIstio(istio *model.ClusterIstio) error {
 	return nil
 }
 
-func getNs(endpoints []kubernetes.Host, secret dto.ClusterSecret, namespace string) error {
+func getNs(endpoints []kubernetesUtil.Host, secret dto.ClusterSecret, namespace string) error {
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: endpoints,
 		Token: secret.KubernetesToken,
@@ -236,7 +235,7 @@ func getNs(endpoints []kubernetes.Host, secret dto.ClusterSecret, namespace stri
 	return nil
 }
 
-func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetes.Host, secret model.ClusterSecret, namespace string) (istios.IstioHelmInfo, error) {
+func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, namespace string) (istios.IstioHelmInfo, error) {
 	var p istios.IstioHelmInfo
 	p.LocalhostName = constant.LocalRepositoryDomainName
 	helmClient, err := helm.NewClient(&helm.Config{

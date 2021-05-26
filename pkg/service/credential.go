@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -14,10 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
-var (
-	hostIsNotNull       = "DELETE_FAILED_RESOURCE"
-	CredentialNameExist = "NAME_EXISTS"
-)
+var CredentialNameExist = "NAME_EXISTS"
 
 type CredentialService interface {
 	Get(name string) (dto.Credential, error)

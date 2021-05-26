@@ -170,7 +170,7 @@ func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 		return result
 	}
 	if len(nodes) != len(kubeNodes.Items) {
-		result.Msg = fmt.Sprintf("The number of system nodes does not match the number of k8s nodes")
+		result.Msg = fmt.Sprintf("The number of system nodes: %d does not match the number of k8s nodes: %d", len(nodes), len(kubeNodes.Items))
 		result.Level = constant.ClusterHealthLevelError
 		return result
 	}

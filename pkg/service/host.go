@@ -541,7 +541,7 @@ func (h *hostService) GetHostConfig(host *model.Host) error {
 		var volumes []model.Volume
 		for i := range devices {
 			device := devices[i].(map[string]interface{})
-			if "Virtual disk" == device["model"] {
+			if device["model"] == "Virtual disk" {
 				v := model.Volume{
 					ID:     uuid.NewV4().String(),
 					Name:   "/dev/" + i,

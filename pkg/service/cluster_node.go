@@ -378,9 +378,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		newNodes  []model.ClusterNode
 		hostNames []string
 	)
-	for _, host := range item.Hosts {
-		hostNames = append(hostNames, host)
-	}
+	hostNames = append(hostNames, item.Hosts...)
 
 	logger.Log.Info("start create cluster nodes")
 	switch cluster.Spec.Provider {

@@ -318,8 +318,8 @@ func deleteCheck(resourceName, resourceType, clusterName string) error {
 
 	resourceTypes := []string{constant.ResourceHost, constant.ResourceBackupAccount}
 	result := false
-	for _, resourceType := range resourceTypes {
-		if resourceType == resourceType {
+	for _, res := range resourceTypes {
+		if res == resourceType {
 			result = true
 			break
 		}

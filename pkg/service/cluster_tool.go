@@ -11,7 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/tools"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -217,10 +216,10 @@ func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool)
 	}
 }
 
-func (c clusterToolService) getBaseParams(clusterName string) (dto.Cluster, []kubernetes.Host, dto.ClusterSecret, error) {
+func (c clusterToolService) getBaseParams(clusterName string) (dto.Cluster, []kubernetesUtil.Host, dto.ClusterSecret, error) {
 	var (
 		cluster dto.Cluster
-		host    []kubernetes.Host
+		host    []kubernetesUtil.Host
 		secret  dto.ClusterSecret
 		err     error
 	)

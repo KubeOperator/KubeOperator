@@ -36,7 +36,6 @@ type RegionService interface {
 
 type regionService struct {
 	regionRepo repository.RegionRepository
-	zoneRepo   repository.ZoneRepository
 }
 
 func NewRegionService() RegionService {
