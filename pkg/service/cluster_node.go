@@ -415,11 +415,11 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		}
 		newNodes = ns
 	}
-	go c.addNodes(cluster, newNodes)
+	go c.addNodes(cluster, newNodes, item.SupportGpu)
 	return nil
 }
 
-func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.ClusterNode) {
+func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.ClusterNode, SupportGpu string) {
 	var (
 		newNodeIDs []string
 		newHostIDs []string
@@ -440,7 +440,7 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
 		return
 	}
-	if err := c.runAddWorkerPlaybook(cluster, newNodes); err != nil {
+	if err := c.runAddWorkerPlaybook(cluster, newNodes, SupportGpu); err != nil {
 		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
 			Updates(map[string]interface{}{"Status": constant.StatusFailed, "Message": err.Error()}).Error; err != nil {
 			logger.Log.Errorf("can not update node status reason %s", err.Error())
@@ -703,7 +703,7 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 
 const addWorkerPlaybook = "91-add-worker.yml"
 
-func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode) error {
+func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode, SupportGpu string) error {
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		logger.Log.Error(err)
@@ -729,6 +729,8 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 	for j, v := range clusterVars {
 		k.SetVar(j, v)
 	}
+	// 给 node 添加 enable_gpu 开关
+	k.SetVar(facts.SupportGpuName, SupportGpu)
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	var systemSetting model.SystemSetting
 	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
