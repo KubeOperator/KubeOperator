@@ -381,7 +381,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	}
 	var repo model.SystemRegistry
 	if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
-		return fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
+		return fmt.Errorf("can't find local ip from system setting, err %s", err.Error())
 	}
 	ip := repo.Hostname
 
@@ -476,11 +476,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			result, err = client.Upload(constant.FusionComputeOvfLocal, constant.FusionComputeOvfName)
+			_, err = client.Upload(constant.FusionComputeOvfLocal, constant.FusionComputeOvfName)
 			if err != nil {
 				return err
 			}
-			result, err = client.Upload(constant.FusionComputeVhdLocal, constant.FusionComputeVhdName)
+			_, err = client.Upload(constant.FusionComputeVhdLocal, constant.FusionComputeVhdName)
 			if err != nil {
 				return err
 			}

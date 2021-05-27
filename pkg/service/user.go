@@ -2,6 +2,9 @@ package service
 
 import (
 	"errors"
+	"math/rand"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -14,21 +17,19 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/jinzhu/gorm"
-	"math/rand"
-	"strings"
 )
 
 var (
-	OriginalNotMatch  = errors.New("ORIGINAL_NOT_MATCH")
-	UserNotFound      = errors.New("USER_NOT_FOUND")
-	UserIsNotActive   = errors.New("USER_IS_NOT_ACTIVE")
-	UserNameExist     = errors.New("NAME_EXISTS")
-	LdapDisable       = errors.New("LDAP_DISABLE")
-	EmailExist        = errors.New("EMAIL_EXIST")
-	NamePwdFailed     = errors.New("NAME_PASSWORD_SAME_FAILED")
-	EmailDisable      = errors.New("EMAIL_DISABLE")
-	EmailNotMatch     = errors.New("EMAIL_NOT_MATCH")
-	NameOrPasswordErr = errors.New("NAME_PASSWORD_ERROR")
+	errOriginalNotMatch  = errors.New("ORIGINAL_NOT_MATCH")
+	errUserNotFound      = errors.New("USER_NOT_FOUND")
+	errUserIsNotActive   = errors.New("USER_IS_NOT_ACTIVE")
+	errUserNameExist     = errors.New("NAME_EXISTS")
+	errLdapDisable       = errors.New("LDAP_DISABLE")
+	errEmailExist        = errors.New("EMAIL_EXIST")
+	errNamePwdFailed     = errors.New("NAME_PASSWORD_SAME_FAILED")
+	errEmailDisable      = errors.New("EMAIL_DISABLE")
+	errEmailNotMatch     = errors.New("EMAIL_NOT_MATCH")
+	errNameOrPasswordErr = errors.New("NAME_PASSWORD_ERROR")
 )
 
 type UserService interface {
@@ -115,21 +116,21 @@ func (u *userService) Page(num, size int, conditions condition.Conditions) (*pag
 func (u *userService) Create(creation dto.UserCreate) (*dto.User, error) {
 
 	if creation.Name == creation.Password {
-		return nil, NamePwdFailed
+		return nil, errNamePwdFailed
 	}
 
 	old, _ := u.Get(creation.Name)
 	if old != nil {
-		return nil, UserNameExist
+		return nil, errUserNameExist
 	}
 
 	if creation.Email == "" {
-		return nil, EmailNotMatch
+		return nil, errEmailNotMatch
 	}
 	var userEmail model.User
 	db.DB.Where("email = ?", creation.Email).First(&userEmail)
 	if userEmail.ID != "" {
-		return nil, EmailExist
+		return nil, errEmailExist
 	}
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {
@@ -213,10 +214,10 @@ func (u *userService) ChangePassword(ch dto.UserChangePassword) error {
 		return err
 	}
 	if !success {
-		return OriginalNotMatch
+		return errOriginalNotMatch
 	}
 	if ch.Password == user.Name {
-		return NamePwdFailed
+		return errNamePwdFailed
 	}
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
 	if err != nil {
@@ -233,11 +234,11 @@ func (u *userService) UserAuth(name string, password string) (user *model.User, 
 	var dbUser model.User
 	if db.DB.Where("name = ?", name).Preload("CurrentProject").First(&dbUser).RecordNotFound() {
 		if db.DB.Where("email = ?", name).Preload("CurrentProject").First(&dbUser).RecordNotFound() {
-			return nil, NameOrPasswordErr
+			return nil, errNameOrPasswordErr
 		}
 	}
 	if !dbUser.IsActive {
-		return nil, UserIsNotActive
+		return nil, errUserIsNotActive
 	}
 
 	if dbUser.Type == constant.Ldap {
@@ -246,7 +247,7 @@ func (u *userService) UserAuth(name string, password string) (user *model.User, 
 			return nil, err
 		}
 		if enable.Value == "DISABLE" {
-			return nil, LdapDisable
+			return nil, errLdapDisable
 		}
 		result, err := NewSystemSettingService().List()
 		if err != nil {
@@ -267,7 +268,7 @@ func (u *userService) UserAuth(name string, password string) (user *model.User, 
 			return nil, err
 		}
 		if uPassword != password {
-			return nil, NameOrPasswordErr
+			return nil, errNameOrPasswordErr
 		}
 	}
 	return &dbUser, nil
@@ -277,12 +278,12 @@ func (u *userService) ResetPassword(fp dto.UserForgotPassword) error {
 	user, err := u.userRepo.Get(fp.Username)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return UserNotFound
+			return errUserNotFound
 		}
 		return err
 	}
 	if user.Email != fp.Email {
-		return EmailNotMatch
+		return errEmailNotMatch
 	}
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, 6)
@@ -299,7 +300,7 @@ func (u *userService) ResetPassword(fp dto.UserForgotPassword) error {
 		return err
 	}
 	if systemSetting.Vars == nil || systemSetting.Vars["EMAIL_STATUS"] != "ENABLE" {
-		return EmailDisable
+		return errEmailDisable
 	}
 	vars := make(map[string]interface{})
 	vars["type"] = "EMAIL"

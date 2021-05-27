@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -25,18 +26,18 @@ func NewLicenseService() LicenseService {
 }
 
 var (
-	formatLicenseError = errors.New("parse license error")
-	verificationError  = errors.New("license is invalid")
-	licenseNotFound    = errors.New("license not found")
+	errFormatLicense   = errors.New("parse license error")
+	errVerification    = errors.New("license is invalid")
+	errLicenseNotFound = errors.New("license not found")
 )
 
 func (l *licenseService) Save(content string) (*dto.License, error) {
 	resp, err := license.Parse(content)
 	if err != nil {
-		return nil, formatLicenseError
+		return nil, errFormatLicense
 	}
 	if resp.Status != "valid" {
-		return nil, verificationError
+		return nil, errVerification
 	}
 	var lcs model.License
 	notFound := db.DB.First(&lcs).RecordNotFound()
@@ -58,12 +59,12 @@ func (l *licenseService) Get() (*dto.License, error) {
 	lc, err := l.licenseRepo.Get()
 	if err != nil {
 		ls.Status = "invalid"
-		ls.Message = licenseNotFound.Error()
+		ls.Message = errLicenseNotFound.Error()
 		return &ls, nil
 	}
 	resp, err := license.Parse(lc.Content)
 	if err != nil {
-		return nil, formatLicenseError
+		return nil, errFormatLicense
 	}
 	return resp, err
 }

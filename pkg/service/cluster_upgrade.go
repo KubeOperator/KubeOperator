@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -39,6 +40,9 @@ type clusterUpgradeService struct {
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
+	loginfo, _ := json.Marshal(upgrade)
+	logger.Log.WithFields(logrus.Fields{"cluster_upgrade_info": string(loginfo)}).Debugf("start to upgrade the cluster %s", upgrade.ClusterName)
+
 	cluster, err := c.clusterService.Get(upgrade.ClusterName)
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
@@ -77,29 +81,31 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	// 创建日志
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("create log error %s", err.Error())
 	}
 	cluster.LogId = logId
 	if err := tx.Save(&cluster.Cluster).Error; err != nil {
 		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster error %s", err.Error())
 	}
 	cluster.Spec.UpgradeVersion = upgrade.Version
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
 	// 更新工具版本状态
 	if err := c.updateToolVersion(tx, upgrade.Version, cluster.ID); err != nil {
 		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return err
 	}
 
 	tx.Commit()
+
+	logger.Log.Infof("update db data of cluster %s successful, now start to upgrade cluster", cluster.Name)
 	go c.do(&cluster.Cluster, writer)
 	return nil
 }
@@ -107,7 +113,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
-		logger.Log.Errorf("can not get current cluster status, error: %s", err.Error())
+		logger.Log.Errorf("can not get cluster %s status, error: %s", cluster.Name, err.Error())
 	}
 	cluster.Status = status.ClusterStatus
 	ctx, cancel := context.WithCancel(context.Background())
@@ -126,7 +132,7 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cancel()
 			return
 		case constant.StatusFailed:
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, ""), cluster.Name, constant.ClusterUpgrade)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, cluster.Status.Message), cluster.Name, constant.ClusterUpgrade)
 			cancel()
 			return
 		}

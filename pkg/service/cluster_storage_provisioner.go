@@ -536,7 +536,12 @@ func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kub
 	if err != nil {
 		return client, err
 	}
+
 	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return client, err
+	}
+
 	client, err = kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Token: secret.KubernetesToken,
 		Hosts: endpoints,

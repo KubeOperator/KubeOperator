@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
-	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"strconv"
 	"strings"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -190,10 +191,8 @@ func (i ipService) Update(address string, update dto.IpUpdate) (*dto.Ip, error) 
 	switch update.Operation {
 	case "LOCK":
 		ip.Status = constant.IpLock
-		break
 	case "UNLOCK":
 		ip.Status = constant.IpAvailable
-		break
 	default:
 		break
 	}
