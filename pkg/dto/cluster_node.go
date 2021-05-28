@@ -12,9 +12,10 @@ type Node struct {
 }
 
 type NodeCreation struct {
-	Hosts    []string `json:"hosts"`
-	Nodes    []string `json:"nodes"`
-	Increase int      `json:"increase"`
+	Hosts      []string `json:"hosts"`
+	Nodes      []string `json:"nodes"`
+	Increase   int      `json:"increase"`
+	SupportGpu string   `json:"supportGpu"`
 }
 
 type NodePage struct {
