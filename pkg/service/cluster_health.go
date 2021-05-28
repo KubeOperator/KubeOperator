@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -134,6 +135,7 @@ func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
 		Msg:   msg,
 	}
 	if len(msg) != 0 {
+		logger.Log.Error("get cluster %s base info failed: %s", c.Name, msg)
 		return result
 	}
 
@@ -155,21 +157,25 @@ func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 		Msg:   msg,
 	}
 	if len(msg) != 0 {
+		logger.Log.Error("get cluster %s base info failed: %s", c.Name, msg)
 		return result
 	}
 
 	kubeNodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
+		logger.Log.Errorf("get cluster %s kubeNodes error %s", c.Name, err.Error())
 		result.Msg = fmt.Sprintf("get cluster %s kubeNodes error %s", c.Name, err.Error())
 		result.Level = constant.ClusterHealthLevelError
 		return result
 	}
 	if err := db.DB.Where("cluster_id = ?", c.ID).Find(&nodes).Error; err != nil {
+		logger.Log.Errorf("get cluster %s nodes from db error %s", c.Name, err.Error())
 		result.Msg = fmt.Sprintf("get cluster %s nodes from db error %s", c.Name, err.Error())
 		result.Level = constant.ClusterHealthLevelError
 		return result
 	}
 	if len(nodes) != len(kubeNodes.Items) {
+		logger.Log.Errorf("get cluster %s nodes from db error %s", c.Name, err.Error())
 		result.Msg = fmt.Sprintf("The number of system nodes: %d does not match the number of k8s nodes: %d", len(nodes), len(kubeNodes.Items))
 		result.Level = constant.ClusterHealthLevelError
 		return result
@@ -300,7 +306,7 @@ func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
 
 	_, err = kubeUtil.SelectAliveHost(endpoints)
 	if err != nil {
-		msg := fmt.Sprintf("get cluster %s alive host error %s", c.Name, err.Error())
+		msg := fmt.Sprintf("get cluster %s alive host falied: %s", c.Name, err.Error())
 		level := constant.ClusterHealthLevelError
 		return nil, level, msg
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/pkg/errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
@@ -120,15 +121,14 @@ func preInstallChart(h helm.Interface, tool *model.ClusterTool) error {
 	}
 	for _, r := range rs {
 		if r.Name == tool.Name {
-			logger.Log.Infof("[tool] uninstall %s before installation", tool.Name)
+			logger.Log.Infof("uninstall %s before installation", tool.Name)
 			_, err := h.Uninstall(tool.Name)
 			if err != nil {
-				logger.Log.Errorf("[tool] uninstall %s before installation failed, err: ", tool.Name, err.Error())
 				return err
 			}
 		}
 	}
-	logger.Log.Infof("[tool] uninstall %s before installation successful", tool.Name)
+	logger.Log.Infof("uninstall %s before installation successful", tool.Name)
 	return nil
 }
 
@@ -143,13 +143,12 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	if err != nil {
 		return err
 	}
-	logger.Log.Infof("[tool] start install tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
+	logger.Log.Infof("start install tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Install(tool.Name, chartName, chartVersion, m)
 	if err != nil {
-		logger.Log.Errorf("[tool] install tool %s failed, err: %s", tool.Name, err.Error())
 		return err
 	}
-	logger.Log.Infof("[tool] install tool %s successful", tool.Name)
+	logger.Log.Infof("install tool %s successful", tool.Name)
 	return nil
 }
 
@@ -160,15 +159,14 @@ func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	}
 	m, err := MergeValueMap(valueMap)
 	if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("merge value map failed: %v", err))
 	}
-	logger.Log.Infof("[tool] start upgrade tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
+	logger.Log.Infof("start upgrade tool %s with chartName: %s, chartVersion: %s", tool.Name, chartName, chartVersion)
 	_, err = h.Upgrade(tool.Name, chartName, chartVersion, m)
 	if err != nil {
-		logger.Log.Errorf("[tool] upgrade tool %s failed, err: %s", tool.Name, err.Error())
 		return err
 	}
-	logger.Log.Infof("[tool] upgrade tool %s successful", tool.Name)
+	logger.Log.Infof("upgrade tool %s successful", tool.Name)
 	return nil
 }
 
@@ -177,11 +175,10 @@ func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes
 	if ingress.Name != "" {
 		err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
 		if err != nil {
-			logger.Log.Errorf("[tool] operation before create route %s failed, err: %s", ingressName, err.Error())
 			return err
 		}
 	}
-	logger.Log.Infof("[tool] operation before create route %s successful", ingressName)
+	logger.Log.Infof("operation before create route %s successful", ingressName)
 	return nil
 }
 
@@ -222,15 +219,14 @@ func createRoute(namespace string, ingressName string, ingressUrl string, servic
 	}
 	_, err = kubeClient.NetworkingV1beta1().Ingresses(namespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
 	if err != nil {
-		logger.Log.Errorf("[tool] create route %s failed, err: %s", ingressName, err.Error())
 		return err
 	}
-	logger.Log.Infof("[tool] create route %s successful", ingressName)
+	logger.Log.Infof("create route %s successful", ingressName)
 	return nil
 }
 
 func waitForRunning(namespace string, deploymentName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
-	logger.Log.Infof("[tool] installation and configuration succeeded, now waiting for %s running", deploymentName)
+	logger.Log.Infof("installation and configuration successful, now waiting for %s running", deploymentName)
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
@@ -249,7 +245,7 @@ func waitForRunning(namespace string, deploymentName string, minReplicas int32, 
 }
 
 func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
-	logger.Log.Infof("[tool] installation and configuration succeeded, now waiting for %s running", statefulSetsName)
+	logger.Log.Infof("installation and configuration successful, now waiting for %s running", statefulSetsName)
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().StatefulSets(namespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
@@ -278,6 +274,7 @@ func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h 
 		}
 	}
 	_ = kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
+	logger.Log.Infof("uninstall tool %s of namespace %s successful", tool.Name, namespace)
 	return nil
 }
 

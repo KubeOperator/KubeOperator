@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/spf13/viper"
 )
 
 type response struct {
@@ -39,5 +40,5 @@ func GetConnectToken(name string, apiServer string, token string) (string, error
 			return "", errors.New(r.Message)
 		}
 	}
-	return "", errors.New(string(resp.StatusCode))
+	return "", errors.New(fmt.Sprint(resp.StatusCode))
 }

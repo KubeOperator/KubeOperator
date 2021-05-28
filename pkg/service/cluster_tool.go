@@ -167,9 +167,11 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool, toolDetail model.ClusterToolDetail) {
 	err := p.Install(toolDetail)
 	if err != nil {
+		logger.Log.Errorf("install tool %s failed: %+v", tool.Name, err)
 		tool.Status = constant.ClusterFailed
 		tool.Message = err.Error()
 	} else {
+		logger.Log.Infof("install tool %s successful: %+v", tool.Name, err)
 		tool.Status = constant.ClusterRunning
 	}
 	_ = c.toolRepo.Save(tool)
@@ -178,9 +180,11 @@ func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool
 func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool, toolDetail model.ClusterToolDetail) {
 	err := p.Upgrade(toolDetail)
 	if err != nil {
+		logger.Log.Errorf("upgrade tool %s failed: %+v", tool.Name, err)
 		tool.Status = constant.ClusterFailed
 		tool.Message = err.Error()
 	} else {
+		logger.Log.Infof("upgrade tool %s successful: %+v", tool.Name, err)
 		tool.Status = constant.ClusterRunning
 	}
 	_ = c.toolRepo.Save(tool)
@@ -188,7 +192,9 @@ func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool
 
 func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTool) {
 	if err := p.Uninstall(); err != nil {
-		logger.Log.Errorf("do uninstall tool-%s failed, error: %s", tool.Name, err.Error())
+		logger.Log.Errorf("uninstall %s failed: %+v", tool.Name, err)
+	} else {
+		logger.Log.Infof("uninstall tool %s successful: %+v", tool.Name, err)
 	}
 	tool.Status = constant.ClusterWaiting
 	_ = c.toolRepo.Save(tool)

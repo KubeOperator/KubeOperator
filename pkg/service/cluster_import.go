@@ -97,7 +97,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 	if err := gatherClusterInfo(&cluster); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("can not  gather cluster info %s", err.Error())
+		return err
 	}
 
 	if err := tx.Save(&cluster.Spec).Error; err != nil {

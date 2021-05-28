@@ -68,7 +68,6 @@ func (c clusterInitService) Init(name string) error {
 	}
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
-		logger.Log.Errorf("get ansible writer log of cluster %s failed, err: ", err.Error())
 		return err
 	}
 	cluster.LogId = logId

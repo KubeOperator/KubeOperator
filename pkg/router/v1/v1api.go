@@ -6,12 +6,13 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
 	"github.com/KubeOperator/KubeOperator/pkg/errorf"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/mvc"
-	E "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 var AuthScope iris.Party
@@ -61,6 +62,7 @@ func V1(parent iris.Party) {
 
 func ErrorHandler(ctx context.Context, err error) {
 	if err != nil {
+		logger.Log.Errorf("call api failed: %+v", err)
 		warp := struct {
 			Msg string `json:"msg"`
 		}{err.Error()}
@@ -79,9 +81,9 @@ func ErrorHandler(ctx context.Context, err error) {
 				result = result + set + " "
 			}
 		case error:
-			switch err := E.Cause(err).(type) {
+			switch errRoot := errors.Cause(err).(type) {
 			case errorf.CErrFs:
-				errs := err.Get()
+				errs := errRoot.Get()
 				for _, er := range errs {
 					args := er.Args.([]interface{})
 					tr := ctx.Tr(er.Msg, args...)
@@ -90,7 +92,7 @@ func ErrorHandler(ctx context.Context, err error) {
 					}
 				}
 			default:
-				tr := ctx.Tr(err.Error())
+				tr := ctx.Tr(errors.Cause(err).Error())
 				if tr != "" {
 					result = tr
 				} else {

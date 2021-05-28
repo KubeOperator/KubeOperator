@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 func Ping(ip string) bool {
@@ -16,18 +18,17 @@ func Ping(ip string) bool {
 	return true
 }
 
-
-func TcpPing(addr string,isTls bool) error  {
-	if isTls{
-		conn,err:=tls.DialWithDialer(&net.Dialer{Timeout: 5*time.Second},"tcp",addr,&tls.Config{InsecureSkipVerify: true})
-		if err!=nil{
-			return err
+func TcpPing(addr string, isTls bool) error {
+	if isTls {
+		conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 5 * time.Second}, "tcp", addr, &tls.Config{InsecureSkipVerify: true})
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("tls tcp ping addr %s failed: %v", addr, err))
 		}
 		defer conn.Close()
-	}else {
-		conn,err:=net.DialTimeout("tcp",addr,5*time.Second)
-		if err!=nil{
-			return err
+	} else {
+		conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("tcp ping addr %s failed: %v", addr, err))
 		}
 		defer conn.Close()
 	}

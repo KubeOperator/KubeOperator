@@ -1,10 +1,13 @@
 package kobe
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/KubeOperator/kobe/api"
 	kobeClient "github.com/KubeOperator/kobe/pkg/client"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"io"
 )
 
 type Interface interface {
@@ -38,7 +41,7 @@ func NewAnsible(c *Config) *Kobe {
 func (k *Kobe) RunPlaybook(name, tag string) (string, error) {
 	result, err := k.client.RunPlaybook(k.Project, name, tag, k.Inventory)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, fmt.Sprintf("ansible run playbook failed: %v", err))
 	}
 	return result.Id, nil
 }
@@ -50,19 +53,22 @@ func (k *Kobe) SetVar(key string, value string) {
 func (k *Kobe) RunAdhoc(pattern, module, param string) (string, error) {
 	result, err := k.client.RunAdhoc(pattern, module, param, k.Inventory)
 	if err != nil {
-		return "", nil
+		return "", errors.Wrap(err, fmt.Sprintf("ansible run adhoc failed: %v", err))
 	}
 	return result.Id, nil
 }
 
 func (k *Kobe) Watch(writer io.Writer, taskId string) error {
-	err := k.client.WatchRun(taskId, writer)
-	if err != nil {
-		return err
+	if err := k.client.WatchRun(taskId, writer); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("ansible run watch failed: %v", err))
 	}
 	return nil
 }
 
 func (k *Kobe) GetResult(taskId string) (*api.Result, error) {
-	return k.client.GetResult(taskId)
+	result, err := k.client.GetResult(taskId)
+	if err != nil {
+		return result, errors.Wrap(err, fmt.Sprintf("ansible get result failed: %v", err))
+	}
+	return result, nil
 }

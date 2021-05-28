@@ -2,7 +2,10 @@ package kobe
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type Stat struct {
@@ -65,6 +68,8 @@ func (r *Result) GatherFailedInfo() {
 }
 
 func ParseResult(content string) (result Result, err error) {
-	err = json.Unmarshal([]byte(content), &result)
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		return result, errors.Wrap(err, fmt.Sprintf("unmarshal contant %s failed: %v", content, err))
+	}
 	return
 }

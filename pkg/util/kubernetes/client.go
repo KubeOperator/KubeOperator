@@ -6,6 +6,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/net"
+	"github.com/pkg/errors"
 	extensionClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -31,7 +32,11 @@ func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
 			Insecure: true,
 		},
 	}
-	return kubernetes.NewForConfig(kubeConf)
+	client, err := kubernetes.NewForConfig(kubeConf)
+	if err != nil {
+		return client, errors.Wrap(err, fmt.Sprintf("new kubernetes client with config failed: %v", err))
+	}
+	return client, nil
 }
 
 func NewKubernetesExtensionClient(c *Config) (*extensionClientSet.Clientset, error) {
@@ -47,7 +52,11 @@ func NewKubernetesExtensionClient(c *Config) (*extensionClientSet.Clientset, err
 			Insecure: true,
 		},
 	}
-	return extensionClientSet.NewForConfig(kubeConf)
+	client, err := extensionClientSet.NewForConfig(kubeConf)
+	if err != nil {
+		return client, errors.Wrap(err, fmt.Sprintf("new extension kubernetes client with config failed: %v", err))
+	}
+	return client, nil
 }
 func SelectAliveHost(hosts []Host) (Host, error) {
 	var aliveHost Host
@@ -59,7 +68,7 @@ func SelectAliveHost(hosts []Host) (Host, error) {
 			defer wg.Done()
 			err := net.TcpPing(string(h), true)
 			if err != nil {
-				logger.Log.Warnf("dial host %s error %s", h, err.Error())
+				logger.Log.Warnf("dial host %s falied: %+v", h, err)
 				return
 			}
 			aliveHostCh <- h
@@ -71,7 +80,7 @@ func SelectAliveHost(hosts []Host) (Host, error) {
 	}()
 	aliveHost = <-aliveHostCh
 	if aliveHost == "" {
-		return "", fmt.Errorf("no alive host in %v", hosts)
+		return "", errors.Wrap(errors.New("no alive host"), "")
 	}
 	return aliveHost, nil
 }

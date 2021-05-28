@@ -2,14 +2,15 @@ package ipaddr
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
-	"github.com/c-robinson/iplib"
-	"github.com/go-ping/ping"
 	"net"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/c-robinson/iplib"
+	"github.com/go-ping/ping"
+	"github.com/pkg/errors"
 )
 
 func GenerateIps(ip string, mask int, startIp string, endIp string) []string {
@@ -59,7 +60,7 @@ func Ping(host string) error {
 
 	pinger, err := ping.NewPinger(host)
 	if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("ping new failed: %v", err))
 	}
 
 	pinger.OnRecv = func(pkt *ping.Packet) {}
@@ -75,13 +76,13 @@ func Ping(host string) error {
 
 	err = pinger.Run()
 	if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("ping run failed: %v", err))
 	}
 	stats := pinger.Statistics()
 	if stats.PacketsRecv >= 1 {
 		return nil
 	} else {
-		return errors.New("request timeout")
+		return errors.Wrap(err, fmt.Sprintf("ping request timeout failed: %v", err))
 	}
 }
 
