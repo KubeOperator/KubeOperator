@@ -125,7 +125,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 Flannel / Calico 网络插件
+        <td class="features-third-td-background-style">支持 Flannel / Calico / Cilium 网络插件
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
