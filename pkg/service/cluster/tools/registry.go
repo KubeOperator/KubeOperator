@@ -33,6 +33,7 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 	_ = json.Unmarshal([]byte(r.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalHostName, r.LocalRepositoryPort, imageMap["registry_image_name"])
 	values["image.tag"] = imageMap["registry_image_tag"]
+	values["secrets.htpasswd"] = "admin:$2y$05$xOL4vcb.1gGpKBHzW0Vv0O4KV0kOAHLXkXBPHtZFAswoW.hYVGzOy"
 
 	if isInstall {
 		if _, ok := values["persistence.size"]; ok {
