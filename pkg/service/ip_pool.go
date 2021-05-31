@@ -135,9 +135,14 @@ func (i ipPoolService) Delete(name string) error {
 	if err != nil {
 		return err
 	}
-	if err := db.DB.Delete(&ipPool).Error; err != nil {
+	tx := db.DB.Begin()
+	if err := tx.Delete(&ipPool).Error; err != nil {
 		return err
 	}
+	if err := tx.Where("ip_pool_id = ?", ipPool.ID).Delete(&model.Ip{}).Error; err != nil {
+		return err
+	}
+	tx.Commit()
 	return nil
 }
 

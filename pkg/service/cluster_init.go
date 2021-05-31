@@ -90,6 +90,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 			cluster.Status.Phase = constant.ClusterFailed
 			cluster.Status.Message = err.Error()
 			_ = c.clusterStatusRepo.Save(&cluster.Status)
+			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
 			return
 		}
@@ -108,9 +109,11 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
 			cancel()
+			logger.Log.Errorf("cluster install failed: %s", cluster.Status.Message)
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.Status.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
+			logger.Log.Infof("cluster %s install successful!", cluster.Name)
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			for i := range cluster.Nodes {
 				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip

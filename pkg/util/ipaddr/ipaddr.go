@@ -82,7 +82,7 @@ func Ping(host string) error {
 	if stats.PacketsRecv >= 1 {
 		return nil
 	} else {
-		return errors.Wrap(err, fmt.Sprintf("ping request timeout failed: %v", err))
+		return errors.New("request timeout")
 	}
 }
 

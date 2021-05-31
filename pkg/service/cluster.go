@@ -555,10 +555,8 @@ func (c *clusterService) Delete(name string, force bool) error {
 			}
 			switch cluster.Spec.Provider {
 			case constant.ClusterProviderBareMetal:
-				logger.Log.Infof("start uninstall cluster %s", cluster.Name)
 				go c.uninstallCluster(&cluster.Cluster, force)
 			case constant.ClusterProviderPlan:
-				logger.Log.Infof("start destroy cluster %s", cluster.Name)
 				go c.destroyCluster(&cluster.Cluster, force)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
