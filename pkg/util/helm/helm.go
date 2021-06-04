@@ -178,7 +178,7 @@ func GetSettings() *cli.EnvSettings {
 func updateRepo(arch string) error {
 	repos, err := ListRepo()
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("list repo failed: %v", err))
+		logger.Log.Infof("list repo failed: %v, start reading from db repo", err)
 	}
 	flag := false
 	for _, r := range repos {
