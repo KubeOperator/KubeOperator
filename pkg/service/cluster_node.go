@@ -290,13 +290,15 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, deleteNode *mod
 		}
 		cluster.Plan = planDTO.Plan
 
-		if !deleteNode.Dirty {
-			if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
+		if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
+			if !deleteNode.Dirty {
 				c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
+			} else {
+				logger.Log.Error("run delete worker playbook failed error %+v", err)
 			}
-			if err := c.destroyHosts(cluster, clusterNodes, *deleteNode); err != nil {
-				logger.Log.Error("destroy host failed error %+v", err)
-			}
+		}
+		if err := c.destroyHosts(cluster, clusterNodes, *deleteNode); err != nil {
+			logger.Log.Error("destroy host failed error %+v", err)
 		}
 
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
@@ -322,12 +324,15 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, deleteNode *mod
 		}
 		tx.Commit()
 	} else {
-		if !deleteNode.Dirty {
-			if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
+		if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
+			if !deleteNode.Dirty {
 				c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
+			} else {
+				logger.Log.Errorf("run delete worker playbook failed error %+v", err)
 			}
-			logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 		}
+		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
+
 		tx := db.DB.Begin()
 		if err := tx.Model(&model.Host{}).Where("id = ?", deleteNode.HostID).
 			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
