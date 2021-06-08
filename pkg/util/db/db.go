@@ -7,6 +7,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/jinzhu/gorm"
+
+	originalDB "github.com/KubeOperator/KubeOperator/pkg/db"
 )
 
 func WithProjectResource(db **gorm.DB, projectName string, resourceType string) ([]model.ProjectResource, error) {
@@ -15,16 +17,13 @@ func WithProjectResource(db **gorm.DB, projectName string, resourceType string) 
 		res    []model.ProjectResource
 		resIds []string
 	)
-	if err := (*db).
+	if err := originalDB.DB.
 		Where("name = ?", projectName).
 		First(&p).Error; err != nil {
 		return res, err
 	}
 
-	if err := (*db).Where(model.ProjectResource{
-		ResourceType: resourceType,
-		ProjectID:    p.ID,
-	}).Find(&res).Error; err != nil {
+	if err := originalDB.DB.Where("resource_type = ? AND project_id = ?", resourceType, p.ID).Find(&res).Error; err != nil {
 		return res, err
 	}
 	for i := range res {
