@@ -2,8 +2,6 @@ package cron
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/KubeOperator/KubeOperator/pkg/cron/job"
 	"github.com/robfig/cron/v3"
 )
@@ -17,8 +15,7 @@ type InitCronPhase struct {
 }
 
 func (c *InitCronPhase) Init() error {
-	nyc, _ := time.LoadLocation("Asia/Shanghai")
-	Cron = cron.New(cron.WithLocation(nyc))
+	Cron = cron.New()
 	if c.Enable {
 		_, err := Cron.AddJob("@hourly", job.NewRefreshHostInfo())
 		if err != nil {
