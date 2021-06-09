@@ -19,7 +19,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ## Web UI 展示
 
-![Web UI](https://kubeoperator.io/images/screenshot/day-2.png)
+![Web UI](https://kubeoperator.io/images/screenshot/02.jpg)
 
 >更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
@@ -295,7 +295,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ## 支持组件
 
 - 核心
-  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.20.4
+  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.20.6
   - [etcd](https://github.com/coreos/etcd) v3.4.14
   - [docker](https://www.docker.com/) v19.03.15
   - [containerd](https://containerd.io/) v1.4.3
@@ -303,15 +303,15 @@ v1.1.0 是 v1.0.0 之后的功能版本。
   - [calico](https://github.com/projectcalico/calico) v3.16.5
   - [flanneld](https://github.com/coreos/flannel) v0.13.0
 - 应用
-  - [coredns](https://github.com/coredns/coredns) v1.8.0
+  - [coredns](https://github.com/coredns/coredns) v1.7.0
   - [helm-v2](https://github.com/helm/helm) v2.17.0
-  - [helm-v3](https://github.com/helm/helm) v3.4.1
-  - [traefik](https://github.com/containous/traefik) v2.2.1
+  - [helm-v3](https://github.com/helm/helm) v3.6.0
+  - [traefik](https://github.com/containous/traefik) v2.4.8
   - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.33.0
   - [metrics-server](https://github.com/kubernetes-sigs/metrics-server) v0.3.6
 - 工具
   - [istio](https://github.com/istio/istio) 1.8.0
-  - [dashboard](https://github.com/kubernetes/dashboard) v2.0.3
+  - [dashboard](https://github.com/kubernetes/dashboard) v2.2.0
   - [kubeapps](https://github.com/kubeapps/kubeapps) v2.0.1
   - [prometheus](https://github.com/prometheus/prometheus) v2.20.1
   - [grafana](https://github.com/grafana/grafana) v7.3.3
@@ -320,7 +320,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
   - [chartmuseum](https://github.com/helm/chartmuseum) v0.12.0
   - [docker-registry](https://github.com/docker/distribution) v2.7.1
 - 应用商店
-  - [argo-cd](https://github.com/argoproj/argo-cd) v1.7.4
+  - [argo-cd](https://github.com/argoproj/argo-cd) v2.0.3
   - [gitlab-ce](https://about.gitlab.com) v9.4.1
   - [harbor](https://github.com/goharbor/harbor) v1.10.2
   - [jenkins](https://github.com/jenkinsci/jenkins) v2.222.1
