@@ -28,6 +28,7 @@ func NewClusterEvent() *ClusterEvent {
 }
 
 func (c *ClusterEvent) Run() {
+	logger.Log.Infof("start health check")
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 5) // 信号量
 	clusters, _ := c.clusterService.List()
