@@ -302,6 +302,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 - 网络
   - [calico](https://github.com/projectcalico/calico) v3.16.5
   - [flanneld](https://github.com/coreos/flannel) v0.13.0
+  - [cilium](https://github.com/cilium/cilium) v1.9.5
 - 应用
   - [coredns](https://github.com/coredns/coredns) v1.7.0
   - [helm-v2](https://github.com/helm/helm) v2.17.0
