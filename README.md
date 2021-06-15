@@ -344,7 +344,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 ## License
 
-Copyright (c) 2014-2020 FIT2CLOUD 飞致云
+Copyright (c) 2014-2021 FIT2CLOUD 飞致云
 
 [https://www.fit2cloud.com](https://www.fit2cloud.com)<br>
 
