@@ -38,22 +38,6 @@ RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-pin
 RUN apt remove less -y
 RUN setcap cap_net_raw=+ep /bin/ping
 
-RUN if [ "$GOARCH" = "amd64" ] ; then \
-        cd /usr/lib/x86_64-linux-gnu \
-        && rm -rf libcurl* libzstd* libsasl2* \
-        && rm -fr /etc/alternatives/rmt \
-        && rm -fr /usr/sbin/rmt* \
-        && rm -fr libkrb5* ; \
-    fi
-
-RUN   if [ "$GOARCH" = "arm64" ] ; then \
-        cd /usr/lib/aarch64-linux-gnu \
-        && rm -rf libcurl* libzstd* libsasl2* \
-        && rm -fr /etc/alternatives/rmt \
-        && rm -fr /usr/sbin/rmt* \
-        && rm -fr libkrb5* ; \
-    fi
-
 WORKDIR /usr/local/bin
 
 RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
@@ -68,6 +52,22 @@ RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polar
 RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar -zvxf kubernetes-client-linux-$GOARCH.tar.gz
 RUN cp ./kubernetes/client/bin/* /usr/local/bin
 RUN chmod +x /usr/local/bin/kubectl
+
+RUN if [ "$GOARCH" = "amd64" ] ; then \
+        cd /usr/lib/x86_64-linux-gnu \
+        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -rf /usr/bin/kill ; \
+    fi
+
+RUN   if [ "$GOARCH" = "arm64" ] ; then \
+        cd /usr/lib/aarch64-linux-gnu \
+        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -rf /usr/bin/kill ; \
+    fi
 
 WORKDIR /
 
