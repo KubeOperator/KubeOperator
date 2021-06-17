@@ -36,6 +36,7 @@ type ClusterSpec struct {
 	KubernetesAudit         string `json:"kubernetesAudit"`
 	HelmVersion             string `json:"helmVersion"`
 	NetworkInterface        string `json:"networkInterface"`
+	NetworkCidr             string `json:"networkCidr"`
 	SupportGpu              string `json:"supportGpu"`
 	YumOperate              string `json:"yumOperate"`
 	KubeNetworkNodePrefix   int    `json:"kubeNetworkNodePrefix"`

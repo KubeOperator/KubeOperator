@@ -60,6 +60,7 @@ const (
 	TraefikIngressVersionFactName        = "traefik_ingress_version"
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
+	NetworkCidrFactName                  = "network_cidr"
 	SupportGpuName                       = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
 	NtpServerName                        = "ntp_server"
@@ -122,6 +123,7 @@ var DefaultFacts = map[string]string{
 	TraefikIngressVersionFactName:        "v2.2.1",
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
+	NetworkCidrFactName:                  "",
 	SupportGpuName:                       "disable",
 	YumRepoFactName:                      "replace",
 	NtpServerName:                        "ntp1.aliyun.com",

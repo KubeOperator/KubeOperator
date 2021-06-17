@@ -325,6 +325,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		KubeApiServerPort:       constant.DefaultApiServerPort,
 		HelmVersion:             creation.HelmVersion,
 		NetworkInterface:        creation.NetworkInterface,
+		NetworkCidr:             creation.NetworkCidr,
 		SupportGpu:              creation.SupportGpu,
 		YumOperate:              creation.YumOperate,
 	}
