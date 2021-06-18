@@ -58,6 +58,7 @@ RUN if [ "$GOARCH" = "amd64" ] ; then \
         && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
+        && rm -rf /usr/bin/bash \
         && rm -rf /usr/bin/kill ; \
     fi
 
@@ -66,6 +67,7 @@ RUN   if [ "$GOARCH" = "arm64" ] ; then \
         && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
+        && rm -rf /usr/bin/bash \
         && rm -rf /usr/bin/kill ; \
     fi
 
