@@ -135,7 +135,7 @@ func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
 		Msg:   msg,
 	}
 	if len(msg) != 0 {
-		logger.Log.Error("get cluster %s base info failed: %s", c.Name, msg)
+		logger.Log.Errorf("get cluster %s base info failed: %s", c.Name, msg)
 		return result
 	}
 
@@ -157,7 +157,7 @@ func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 		Msg:   msg,
 	}
 	if len(msg) != 0 {
-		logger.Log.Error("get cluster %s base info failed: %s", c.Name, msg)
+		logger.Log.Errorf("get cluster %s base info failed: %s", c.Name, msg)
 		return result
 	}
 

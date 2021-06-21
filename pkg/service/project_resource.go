@@ -219,41 +219,69 @@ func (p projectResourceService) Create(projectName string, request dto.ProjectRe
 }
 
 func (p projectResourceService) Delete(name, resourceType, projectName string) error {
-
 	var (
 		project    model.Project
 		pr         model.ProjectResource
+		crs        []model.ClusterResource
 		resourceId string
 	)
-	if resourceType == constant.ResourceHost {
+	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).Preload("Clusters").First(&project).Error; err != nil {
+		return err
+	}
+	switch resourceType {
+	case constant.ResourceHost:
 		var host model.Host
 		if err := db.DB.Model(model.Host{}).Where("name = ?", name).Find(&host).Error; err != nil {
 			return err
 		} else {
-			if host.ClusterID != "" {
-				return errors.New("DELETE_HOST_FAILED")
+			if err := db.DB.Where("resource_id = ? AND resource_type = ?", host.ID, constant.ResourceHost).Find(&crs).Error; err != nil {
+				return err
+			}
+			for _, clu := range project.Clusters {
+				for _, cr := range crs {
+					if cr.ClusterID == clu.ID {
+						return errors.New("DELETE_HOST_FAILED")
+					}
+				}
 			}
 			resourceId = host.ID
 		}
-	} else if resourceType == constant.ResourcePlan {
+	case constant.ResourcePlan:
 		var plan model.Plan
 		if err := db.DB.Model(model.Plan{}).Where("name = ?", name).Find(&plan).Error; err != nil {
 			return err
 		} else {
+			if err := db.DB.Where("resource_id = ? AND resource_type = ?", plan.ID, constant.ResourcePlan).Find(&crs).Error; err != nil {
+				return err
+			}
+			for _, clu := range project.Clusters {
+				for _, cr := range crs {
+					if cr.ClusterID == clu.ID {
+						return errors.New("DELETE_PLAN_FAILED")
+					}
+				}
+			}
 			resourceId = plan.ID
 		}
-	} else if resourceType == constant.ResourceBackupAccount {
+	case constant.ResourceBackupAccount:
 		var backupAccount model.BackupAccount
 		if err := db.DB.Model(model.BackupAccount{}).Where("name = ?", name).Find(&backupAccount).Error; err != nil {
 			return err
 		} else {
+			if err := db.DB.Where("resource_id = ? AND resource_type = ?", backupAccount.ID, constant.ResourceBackupAccount).Find(&crs).Error; err != nil {
+				return err
+			}
+			for _, clu := range project.Clusters {
+				for _, cr := range crs {
+					if cr.ClusterID == clu.ID {
+						return errors.New("DELETE_BACKUP_FAILED")
+					}
+				}
+			}
 			resourceId = backupAccount.ID
 		}
 	}
 
-	if err := db.DB.Model(model.Project{}).Where("name = ?", projectName).First(&project).Error; err != nil {
-		return err
-	}
 	if err := db.DB.Model(model.ProjectResource{}).Where("project_id = ? AND resource_id = ?", project.ID, resourceId).Find(&pr).Error; err != nil {
 		return err
 	}

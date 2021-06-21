@@ -343,7 +343,7 @@ func deleteCheck(resourceName, resourceType, clusterName string) error {
 			return err
 		}
 		var backupStrategy model.ClusterBackupStrategy
-		if err := db.DB.Model(&model.ClusterBackupStrategy{}).Where("cluster_id = ? AND backup_account_id = ?", cluster.ID, backupAccount.ID).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+		if err := db.DB.Where("cluster_id = ? AND backup_account_id = ? AND status = ?", cluster.ID, backupAccount.ID, "ENABLE").First(&backupStrategy).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
 			return err
 		}
 		if backupStrategy.ID != "" {

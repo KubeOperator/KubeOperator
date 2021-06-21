@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -34,6 +35,7 @@ import (
 
 type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
+	GetClusterByProject(projectNames string) ([]string, error)
 	CheckExistence(name string) bool
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
@@ -99,6 +101,28 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	}
 
 	return clusterDTO, nil
+}
+
+func (c clusterService) GetClusterByProject(projectNames string) ([]string, error) {
+	var (
+		projectList []string
+		projects    []model.Project
+		backdatas   []string
+	)
+	if len(projectNames) != 0 {
+		projectList = strings.Split(projectNames, ",")
+	}
+	if err := db.DB.Where("name in (?)", projectList).Preload("Clusters").Preload("Clusters.Spec").Find(&projects).Error; err != nil {
+		return nil, err
+	}
+	for _, pro := range projects {
+		for _, clu := range pro.Clusters {
+			if clu.Spec.Provider == "bareMetal" {
+				backdatas = append(backdatas, clu.Name)
+			}
+		}
+	}
+	return backdatas, nil
 }
 
 func (c clusterService) CheckExistence(name string) bool {

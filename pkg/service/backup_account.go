@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"os"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -13,7 +15,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
-	"os"
 )
 
 var (
@@ -114,6 +115,7 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 		backupAccountDTOs []dto.BackupAccount
 		mos               []model.BackupAccount
 		projectResources  []model.ProjectResource
+		clusterResources  []model.ClusterResource
 	)
 
 	d := db.DB.Model(model.BackupAccount{})
@@ -136,15 +138,23 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 		if err := db.DB.Where("resource_id = ?", mo.ID).Preload("Project").Find(&projectResources).Error; err != nil {
 			return nil, err
 		}
+		if err := db.DB.Where("resource_id = ?", mo.ID).Preload("Cluster").Find(&clusterResources).Error; err != nil {
+			return nil, err
+		}
 
-		var projects []string
+		var projects string
 		for _, pr := range projectResources {
-			projects = append(projects, pr.Project.Name)
+			projects += (pr.Project.Name + ",")
+		}
+		var clusters string
+		for _, cr := range clusterResources {
+			clusters += (cr.Cluster.Name + ",")
 		}
 		backupDTO := dto.BackupAccount{
 			CredentialVars: vars,
 			BackupAccount:  mo,
 			Projects:       projects,
+			Clusters:       clusters,
 		}
 		backupAccountDTOs = append(backupAccountDTOs, backupDTO)
 	}
@@ -153,7 +163,6 @@ func (b backupAccountService) Page(num, size int, conditions condition.Condition
 }
 
 func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
-
 	old, _ := b.Get(creation.Name)
 	if old != nil && old.ID != "" {
 		return nil, errors.New(BackupAccountNameExist)
@@ -200,6 +209,26 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 		if err != nil {
 			tx.Rollback()
 			return nil, err
+		}
+	}
+
+	if len(creation.Clusters) != 0 {
+		var clusters []model.Cluster
+		err = tx.Where("name in (?)", creation.Clusters).Find(&clusters).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		for _, cluster := range clusters {
+			err = tx.Create(&model.ClusterResource{
+				ResourceType: constant.ResourceBackupAccount,
+				ResourceID:   backupAccount.ID,
+				ClusterID:    cluster.ID,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 	}
 	tx.Commit()

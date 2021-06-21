@@ -151,11 +151,13 @@ func (h *hostService) List(projectName string, conditions condition.Conditions) 
 
 func (h *hostService) Page(num, size int, projectName string, conditions condition.Conditions) (*page.Page, error) {
 	var (
-		p         page.Page
-		hostDTOs  []dto.Host
-		mos       []model.Host
-		projects  []model.Project
-		resources []model.ProjectResource
+		p                page.Page
+		hostDTOs         []dto.Host
+		mos              []model.Host
+		projects         []model.Project
+		clusters         []model.Cluster
+		projectResources []model.ProjectResource
+		clusterResources []model.ClusterResource
 	)
 	d := db.DB.Model(model.Host{})
 	if err := dbUtil.WithConditions(&d, model.Host{}, conditions); err != nil {
@@ -166,11 +168,14 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		if err != nil {
 			return nil, err
 		}
-		resources = res[:]
+		projectResources = res[:]
 	} else {
-		if err := db.DB.Where(model.ProjectResource{ResourceType: constant.ResourceHost}).Find(&resources).Error; err != nil {
+		if err := db.DB.Where(model.ProjectResource{ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 			return &p, err
 		}
+	}
+	if err := db.DB.Find(&clusterResources).Error; err != nil {
+		return &p, err
 	}
 
 	if err := d.
@@ -179,7 +184,6 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		Offset((num - 1) * size).
 		Limit(size).
 		Preload("Volumes").
-		Preload("Cluster").
 		Preload("Zone").
 		Find(&mos).Error; err != nil {
 		return &p, err
@@ -188,33 +192,34 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 	if err := db.DB.Find(&projects).Error; err != nil {
 		return &p, err
 	}
+	if err := db.DB.Find(&clusters).Error; err != nil {
+		return &p, err
+	}
 
 	for _, mo := range mos {
-		isExist := false
-		for _, res := range resources {
+		hostItem := dto.Host{Host: mo, ZoneName: mo.Zone.Name}
+		for _, res := range projectResources {
 			if mo.ID == res.ResourceID {
-				isExist = true
 				for _, pro := range projects {
 					if pro.ID == res.ProjectID {
-						hostDTOs = append(hostDTOs, dto.Host{
-							Host:        mo,
-							ProjectName: pro.Name,
-							ClusterName: mo.Cluster.Name,
-							ZoneName:    mo.Zone.Name,
-						})
+						hostItem.ProjectName = pro.Name
 						break
 					}
 				}
 				break
 			}
 		}
-		if !isExist {
-			hostDTOs = append(hostDTOs, dto.Host{
-				Host:        mo,
-				ClusterName: mo.Cluster.Name,
-				ZoneName:    mo.Zone.Name,
-			})
+		for _, res := range clusterResources {
+			if mo.ID == res.ResourceID {
+				for _, clu := range clusters {
+					if clu.ID == res.ClusterID {
+						hostItem.ClusterName = clu.Name
+						break
+					}
+				}
+			}
 		}
+		hostDTOs = append(hostDTOs, hostItem)
 	}
 	p.Items = hostDTOs
 	return &p, nil
@@ -279,6 +284,21 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 	}
 	if err := tx.Create(&host).Error; err != nil {
 		return nil, err
+	}
+	if creation.Cluster != "" {
+		var cluster model.Cluster
+		if err := tx.Where("name = ?", creation.Cluster).Find(&cluster).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		if err := tx.Create(&model.ClusterResource{
+			ResourceType: constant.ResourceHost,
+			ResourceID:   host.ID,
+			ClusterID:    cluster.ID,
+		}).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
 	var project model.Project

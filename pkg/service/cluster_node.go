@@ -144,7 +144,7 @@ exit:
 			n.Status = constant.StatusLost
 			go func() {
 				if err := db.DB.Save(&n.ClusterNode).Error; err != nil {
-					logger.Log.Error("save cluster node failed: %s", n.ClusterNode.Name)
+					logger.Log.Errorf("save cluster node failed: %s", n.ClusterNode.Name)
 				}
 			}()
 		}
@@ -223,7 +223,7 @@ exit:
 			n.Status = constant.StatusLost
 			go func() {
 				if err := db.DB.Save(&n.ClusterNode).Error; err != nil {
-					logger.Log.Error("save cluster node failed: %s", n.ClusterNode.Name)
+					logger.Log.Errorf("save cluster node failed: %s", n.ClusterNode.Name)
 				}
 			}()
 		}
@@ -294,11 +294,11 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, deleteNode *mod
 			if !deleteNode.Dirty {
 				c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
 			} else {
-				logger.Log.Error("run delete worker playbook failed error %+v", err)
+				logger.Log.Errorf("run delete worker playbook failed error %+v", err)
 			}
 		}
 		if err := c.destroyHosts(cluster, clusterNodes, *deleteNode); err != nil {
-			logger.Log.Error("destroy host failed error %+v", err)
+			logger.Log.Errorf("destroy host failed error %+v", err)
 		}
 
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
