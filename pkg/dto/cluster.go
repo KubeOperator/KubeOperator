@@ -122,3 +122,7 @@ type ClusterRecoverItem struct {
 	Result   string `json:"result"`
 	Msg      string `json:"msg"`
 }
+type ClusterInfo struct {
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
+}

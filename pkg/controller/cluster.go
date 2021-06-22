@@ -137,7 +137,7 @@ func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
 // @Success 200 {object} dto.Cluster
 // @Security ApiKeyAuth
 // @Router /clusters/name/{projectNames} [get]
-func (c ClusterController) GetNameBy(projectNames string) ([]string, error) {
+func (c ClusterController) GetNameBy(projectNames string) ([]dto.ClusterInfo, error) {
 	return c.ClusterService.GetClusterByProject(projectNames)
 }
 
