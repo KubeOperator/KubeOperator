@@ -252,7 +252,7 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		host.Status = model.Disconnect
 		return err
 	}
-	result, _, _, err := client.Exec("lspci|grep -i NVIDIA")
+	result, _, _, err := client.Exec("sudo lspci|grep -i NVIDIA")
 	if err != nil {
 		host.HasGpu = false
 		host.GpuNum = 0
@@ -294,7 +294,7 @@ func (h hostService) GetHostMem(host *model.Host) error {
 		host.Status = model.Disconnect
 		return err
 	}
-	result, _, _, err := client.Exec("dmidecode -t 17 | grep \"Size.*MB\" | awk '{s+=$2} END {print s}'")
+	result, _, _, err := client.Exec("sudo dmidecode -t 17 | grep \"Size.*MB\" | awk '{s+=$2} END {print s}'")
 	if err != nil {
 		return err
 	}
