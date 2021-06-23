@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -54,4 +55,9 @@ func TestInit(t *testing.T) {
 		}).Info("A group of walrus emerges from the ocean")
 		time.Sleep(time.Duration(2) * time.Second)
 	}
+}
+
+func TestTimeNow(t *testing.T) {
+	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
+	fmt.Println(time.Now().In(cstSh).Format("2006-01-02 15:04:05"))
 }

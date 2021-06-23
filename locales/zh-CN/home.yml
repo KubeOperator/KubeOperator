@@ -81,9 +81,11 @@ CHECK_FAILED: "校验失败！"
 DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT: "删除失败！该备份账号已经关联项目！"
 
 #plan
+DELETE_PLAN_FAILED: "删除失败！该部署计划已在项目下集群中使用"
 DELETE_FAILED_BY_PROJECT: "删除失败！该部署计划已经关联项目"
 
 #clusterBackup
+DELETE_BACKUP_FAILED: "删除失败！该备份账号已在项目下集群中使用"
 BACKUP_FILES_NOT_NULL: "请先删除备份文件再切换备份账号"
 CLUSTER_IS_BACKUP: "集群正在备份中！"
 CLUSTER_IS_RESTORE: "集群正在恢复中！"

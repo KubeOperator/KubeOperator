@@ -19,7 +19,8 @@ type MineFormatter struct{}
 const TimeFormat = "2006-01-02 15:04:05"
 
 func (s *MineFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	msg := fmt.Sprintf("[%s] [%s] %s (%s: %d) {%v} \n", time.Now().Local().Format(TimeFormat), strings.ToUpper(entry.Level.String()), entry.Message, entry.Caller.Function, entry.Caller.Line, entry.Data)
+	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
+	msg := fmt.Sprintf("[%s] [%s] %s (%s: %d) {%v} \n", time.Now().In(cstSh).Format(TimeFormat), strings.ToUpper(entry.Level.String()), entry.Message, entry.Caller.Function, entry.Caller.Line, entry.Data)
 	return []byte(msg), nil
 }
 

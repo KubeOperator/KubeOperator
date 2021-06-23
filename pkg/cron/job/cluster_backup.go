@@ -26,6 +26,7 @@ func NewClusterBackup() *ClusterBackup {
 }
 
 func (c *ClusterBackup) Run() {
+	logger.Log.Infof("start backup")
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 2) // 信号量
 	clusterBackupStrategies, _ := c.clusterBackupStrategyRepository.List()

@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_cluster_spec` ADD COLUMN `network_cidr` varchar(255) NULL AFTER `network_interface`;

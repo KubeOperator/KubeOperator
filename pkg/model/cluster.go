@@ -23,6 +23,7 @@ type Cluster struct {
 	StatusID                 string                   `json:"-"`
 	PlanID                   string                   `json:"-"`
 	LogId                    string                   `json:"logId"`
+	ProjectID                string                   `json:"projectID"`
 	Dirty                    bool                     `json:"dirty"`
 	Plan                     Plan                     `json:"-"`
 	Spec                     ClusterSpec              `gorm:"save_associations:false" json:"spec"`
@@ -406,6 +407,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 	}
 	if c.Spec.NetworkInterface != "" {
 		result[facts.NetworkInterfaceFactName] = c.Spec.NetworkInterface
+	}
+	if c.Spec.NetworkCidr != "" {
+		result[facts.NetworkCidrFactName] = c.Spec.NetworkCidr
 	}
 	if c.Spec.SupportGpu != "" {
 		result[facts.SupportGpuName] = c.Spec.SupportGpu

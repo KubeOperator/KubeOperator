@@ -17,6 +17,7 @@ type HostCreate struct {
 	Ip           string                 `json:"ip" validate:"required"`
 	Port         int                    `json:"port" validate:"required"`
 	Project      string                 `json:"project" validate:"required"`
+	Cluster      string                 `json:"cluster"`
 	CredentialID string                 `json:"credentialId"`
 	Credential   CredentialOfHostCreate `json:"credential"`
 }

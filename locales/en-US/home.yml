@@ -79,9 +79,11 @@ CHECK_FAILED: "Verification failed"
 DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT: "Failed to delete! The backupAccount is already associated with the project"
 
 #plan
+DELETE_PLAN_FAILED: "Failed to failed! The plan has been used in the cluster under the project"
 DELETE_FAILED_BY_PROJECT: "Failed to delete! The plan is already associated with the project"
 
 #clusterBackup
+DELETE_BACKUP_FAILED: "Failed to failed! The backup account has been used in the cluster under the project"
 BACKUP_FILES_NOT_NULL: "Please delete the backup file before switching the backup account"
 CLUSTER_IS_BACKUP: "The cluster is being backed up！"
 CLUSTER_IS_RESTORE: "The cluster is restoring！"

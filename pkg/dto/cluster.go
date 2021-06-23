@@ -65,6 +65,7 @@ type ClusterCreate struct {
 	ProjectName             string       `json:"projectName"`
 	HelmVersion             string       `json:"helmVersion"`
 	NetworkInterface        string       `json:"networkInterface"`
+	NetworkCidr             string       `json:"networkCidr"`
 	SupportGpu              string       `json:"supportGpu"`
 	YumOperate              string       `json:"yumOperate"`
 	ClusterCIDR             string       `json:"clusterCidr"`
@@ -120,4 +121,8 @@ type ClusterRecoverItem struct {
 	HookName string `json:"hookName"`
 	Result   string `json:"result"`
 	Msg      string `json:"msg"`
+}
+type ClusterInfo struct {
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
 }

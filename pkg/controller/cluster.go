@@ -128,6 +128,19 @@ func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
 	return &cl, nil
 }
 
+// Get Cluster Name By Projects
+// @Tags clusters
+// @Summary Show cluster names of projects
+// @Description Show a cluster names of projects
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Cluster
+// @Security ApiKeyAuth
+// @Router /clusters/name/{projectNames} [get]
+func (c ClusterController) GetNameBy(projectNames string) ([]dto.ClusterInfo, error) {
+	return c.ClusterService.GetClusterByProject(projectNames)
+}
+
 func (c ClusterController) GetExistenceBy(name string) *dto.IsClusterNameExist {
 	isExit := c.ClusterService.CheckExistence(name)
 	return &dto.IsClusterNameExist{IsExist: isExit}
