@@ -664,9 +664,9 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	}
 	cluster.LogId = logId
 	_ = db.DB.Save(cluster)
-
+	plan, _ := c.planRepo.GetById(cluster.PlanID)
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	_, err = k.Destroy()
+	_, err = k.Destroy(plan.Region.Vars)
 	if err != nil {
 		if force {
 			logger.Log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())

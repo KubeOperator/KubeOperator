@@ -35,16 +35,16 @@ func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts
 	return result, nil
 
 }
-func (k *Kotf) Apply() (*api.Result, error) {
-	result, err := k.Client.Apply(k.Cluster)
+func (k *Kotf) Apply(regionVars string) (*api.Result, error) {
+	result, err := k.Client.Apply(k.Cluster, regionVars)
 	if err != nil {
 		return result, errors.Wrap(err, fmt.Sprintf("terraform apply failed: %v", err))
 	}
 	return result, nil
 }
 
-func (k *Kotf) Destroy() (*api.Result, error) {
-	result, err := k.Client.Destroy(k.Cluster)
+func (k *Kotf) Destroy(regionVars string) (*api.Result, error) {
+	result, err := k.Client.Destroy(k.Cluster, regionVars)
 	if err != nil {
 		return result, errors.Wrap(err, fmt.Sprintf("terraform destory failed: %v", err))
 	}
