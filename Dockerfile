@@ -55,19 +55,21 @@ RUN chmod +x /usr/local/bin/kubectl
 
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         cd /usr/lib/x86_64-linux-gnu \
-        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
+        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libcrypto* libssh* libpcre.so* libkrb5* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
         && rm -rf /usr/bin/bash \
+        && rm -rf /usr/bin/openssl \
         && rm -rf /usr/bin/kill ; \
     fi
 
 RUN   if [ "$GOARCH" = "arm64" ] ; then \
         cd /usr/lib/aarch64-linux-gnu \
-        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libssh* libpcre.so* libkrb5* \
+        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libcrypto* libssh* libpcre.so* libkrb5* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
         && rm -rf /usr/bin/bash \
+        && rm -rf /usr/bin/openssl \
         && rm -rf /usr/bin/kill ; \
     fi
 
