@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	cmd = "/usr/local/bin/kubectl get sa -A | grep ko-admin &> /dev/null && /usr/local/bin/kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep ko-admin | awk '{print $1}') | grep token: | awk '{print $2}'"
+	cmd = "sudo /usr/local/bin/kubectl get sa -A | grep ko-admin &> /dev/null && sudo /usr/local/bin/kubectl -n kube-system describe secret $(sudo /usr/local/bin/kubectl -n kube-system get secret | grep ko-admin | awk '{print $1}') | grep token: | awk '{print $2}'"
 )
 
 func GetClusterToken(client ssh.Interface) (string, error) {
