@@ -196,10 +196,13 @@ func (s systemSettingService) GetRegistryByID(id string) (dto.SystemRegistry, er
 	}
 	systemRegistryDto := dto.SystemRegistry{
 		SystemRegistry: model.SystemRegistry{
-			ID:           r.ID,
-			Hostname:     r.Hostname,
-			Protocol:     r.Protocol,
-			Architecture: r.Architecture,
+			ID:                 r.ID,
+			Hostname:           r.Hostname,
+			Protocol:           r.Protocol,
+			Architecture:       r.Architecture,
+			RepoPort:           r.RepoPort,
+			RegistryPort:       r.RegistryPort,
+			RegistryHostedPort: r.RegistryHostedPort,
 		},
 	}
 	return systemRegistryDto, nil
@@ -266,10 +269,13 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 
 func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
 	systemRegistry := model.SystemRegistry{
-		ID:           creation.ID,
-		Architecture: arch,
-		Protocol:     creation.Protocol,
-		Hostname:     creation.Hostname,
+		ID:                 creation.ID,
+		Architecture:       arch,
+		Protocol:           creation.Protocol,
+		Hostname:           creation.Hostname,
+		RepoPort:           creation.RepoPort,
+		RegistryPort:       creation.RegistryPort,
+		RegistryHostedPort: creation.RegistryHostedPort,
 	}
 	err := s.systemRegistryRepo.Save(&systemRegistry)
 	if err != nil {
