@@ -249,10 +249,13 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 
 func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
 	systemRegistry := model.SystemRegistry{
-		ID:           creation.ID,
-		Architecture: creation.Architecture,
-		Protocol:     creation.Protocol,
-		Hostname:     creation.Hostname,
+		ID:                 creation.ID,
+		Architecture:       creation.Architecture,
+		Protocol:           creation.Protocol,
+		Hostname:           creation.Hostname,
+		RepoPort:           creation.RepoPort,
+		RegistryPort:       creation.RegistryPort,
+		RegistryHostedPort: creation.RegistryHostedPort,
 	}
 	err := s.systemRegistryRepo.Save(&systemRegistry)
 	if err != nil {

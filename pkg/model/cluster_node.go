@@ -27,9 +27,12 @@ type ClusterNode struct {
 }
 
 type Registry struct {
-	Architecture string
-	Protocol     string
-	Hostname     string
+	Architecture       string
+	Protocol           string
+	Hostname           string
+	RepoPort           int
+	RegistryPort       int
+	RegistryHostedPort int
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {
@@ -46,6 +49,9 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 	}
 	registry.Hostname = systemRegistry.Hostname
 	registry.Protocol = systemRegistry.Protocol
+	registry.RepoPort = systemRegistry.RepoPort
+	registry.RegistryPort = systemRegistry.RegistryPort
+	registry.RegistryHostedPort = systemRegistry.RegistryHostedPort
 	switch n.Host.Architecture {
 	case "x86_64":
 		registry.Architecture = "amd64"
@@ -75,10 +81,13 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		Password:   n.Host.Credential.Password,
 		PrivateKey: n.Host.Credential.PrivateKey,
 		Vars: map[string]string{
-			"has_gpu":           fmt.Sprintf("%v", n.Host.HasGpu),
-			"architectures":     r.Architecture,
-			"registry_protocol": r.Protocol,
-			"registry_hostname": r.Hostname,
+			"has_gpu":              fmt.Sprintf("%v", n.Host.HasGpu),
+			"architectures":        r.Architecture,
+			"registry_protocol":    r.Protocol,
+			"registry_hostname":    r.Hostname,
+			"repo_port":            fmt.Sprintf("%v", r.RepoPort),
+			"registry_port":        fmt.Sprintf("%v", r.RegistryPort),
+			"registry_hosted_port": fmt.Sprintf("%v", r.RegistryHostedPort),
 		},
 	}
 }

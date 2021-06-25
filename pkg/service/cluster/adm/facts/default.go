@@ -38,9 +38,10 @@ const (
 	BinDirFactName                       = "bin_dir"
 	BaseDirFactName                      = "base_dir"
 	RegistryHostnameFactName             = "registry_hostname"
-	RegistryProtocolFactName             = "registry_protocol"
 	RepoPortFactName                     = "repo_port"
 	RegistryPortFactName                 = "registry_port"
+	RegistryHostedPortFactName           = "registry_hosted_port"
+	RegistryProtocolFactName             = "registry_protocol"
 	CorednsImageFactName                 = "coredns_image"
 	KubeadmTokenFactName                 = "kubeadm_token"
 	CalicoIpv4poolIpIpFactName           = "calico_ipv4pool_ipip"
@@ -95,6 +96,7 @@ var DefaultFacts = map[string]string{
 	RegistryHostnameFactName:             "172.16.10.64",
 	RepoPortFactName:                     "8081",
 	RegistryPortFactName:                 "8082",
+	RegistryHostedPortFactName:           "8083",
 	KubeImageRepositoryFactName:          "docker.io/kubeoperator",
 	PodInfraContainerImageFactName:       "docker.io/kubeoperator/pause:3.1",
 	CertsExpiredFactName:                 "36500",
