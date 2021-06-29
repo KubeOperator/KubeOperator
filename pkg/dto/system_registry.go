@@ -8,15 +8,21 @@ type SystemRegistry struct {
 
 type SystemRegistryCreate struct {
 	model.SystemRegistry
-	Hostname     string `json:"hostname" validate:"required"`
-	Protocol     string `json:"protocol" validate:"required"`
-	Architecture string `json:"architecture" validate:"required"`
+	Hostname           string `json:"hostname" validate:"required"`
+	Protocol           string `json:"protocol" validate:"required"`
+	Architecture       string `json:"architecture" validate:"required"`
+	RepoPort           int    `json:"repoPort" validate:"required"`
+	RegistryPort       int    `json:"registryPort" validate:"required"`
+	RegistryHostedPort int    `json:"registryHostedPort" validate:"required"`
 }
 
 type SystemRegistryUpdate struct {
-	ID       string `json:"id" validate:"required"`
-	Hostname string `json:"hostname" validate:"required"`
-	Protocol string `json:"protocol" validate:"required"`
+	ID                 string `json:"id" validate:"required"`
+	Hostname           string `json:"hostname" validate:"required"`
+	Protocol           string `json:"protocol" validate:"required"`
+	RepoPort           int    `json:"repoPort" validate:"required"`
+	RegistryPort       int    `json:"registryPort" validate:"required"`
+	RegistryHostedPort int    `json:"registryHostedPort" validate:"required"`
 }
 
 type SystemRegistryDelete struct {
