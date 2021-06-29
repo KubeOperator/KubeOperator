@@ -105,8 +105,6 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/vmconfigs/{**}",
 			"/api/v1/hosts",
 			"/api/v1/hosts/{**}",
-			"/api/v1/manifests",
-			"/api/v1/manifests/{active,group}",
 			"/api/v1/backupaccounts",
 			"/api/v1/backupaccounts/{**}",
 			"/api/v1/projects/{**}/{resources,members}",
@@ -114,6 +112,18 @@ var Roles = loader.AdvancedRules{
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/manifests",
+			"/api/v1/manifests/{active,group}",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager, RoleClusterManager},
 			AllowAnyone:     false,
 		},
 	},
@@ -160,7 +170,20 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
 		},
-		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
+		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/settings",
+			"/api/v1/settings/{**}",
+			"/api/v1/settings/{**}/{**}",
+		},
+		Method: []string{"GET"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager, RoleClusterManager},
 			AllowAnyone:     false,
