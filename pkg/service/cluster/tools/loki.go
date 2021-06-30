@@ -20,7 +20,7 @@ func NewLoki(cluster *Cluster, tool *model.ClusterTool) (*Loki, error) {
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 	}
 	return p, nil
 }

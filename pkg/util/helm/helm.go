@@ -41,7 +41,7 @@ type Interface interface {
 	Upgrade(name string, chartName string, chartVersion string, values map[string]interface{}) (*release.Release, error)
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
 	List() ([]*release.Release, error)
-	GetRepoIP(arch string) (string, error)
+	GetRepoIP(arch string) (string, int, error)
 }
 
 type Config struct {
@@ -194,11 +194,11 @@ func updateRepo(arch string) error {
 			return errors.Wrap(err, fmt.Sprintf("load system repo failed: %v", err))
 		}
 		var c Client
-		repoIP, err := c.GetRepoIP(arch)
+		repoIP, repoPort, err := c.GetRepoIP(arch)
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("load system repo of arch %s failed: %v", arch, err))
 		}
-		url := fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, repoIP)
+		url := fmt.Sprintf("%s://%s:%d/repository/applications", p.Value, repoIP, repoPort)
 		err = addRepo("nexus", url, "admin", "admin123")
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("add helm repo %s failed: %v", url, err))
@@ -309,26 +309,26 @@ func addRepo(name string, url string, username string, password string) error {
 	return nil
 }
 
-func (c Client) GetRepoIP(arch string) (string, error) {
+func (c Client) GetRepoIP(arch string) (string, int, error) {
 	var repo model.SystemRegistry
 	switch arch {
 	case "amd64":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
-			return "", err
+			return "", 0, err
 		}
-		return repo.Hostname, nil
+		return repo.Hostname, repo.RepoPort, nil
 	case "arm64":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
-			return "", err
+			return "", 0, err
 		}
-		return repo.Hostname, nil
+		return repo.Hostname, repo.RepoPort, nil
 	case "all":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
-			return "", err
+			return "", 0, err
 		}
-		return repo.Hostname, nil
+		return repo.Hostname, repo.RepoPort, nil
 	}
-	return "", errors.New("no such architecture")
+	return "", 0, errors.New("no such architecture")
 }
 
 func ListRepo() ([]*repo.Entry, error) {

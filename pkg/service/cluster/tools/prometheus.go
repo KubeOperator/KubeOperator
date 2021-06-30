@@ -20,7 +20,7 @@ func NewPrometheus(cluster *Cluster, tool *model.ClusterTool) (*Prometheus, erro
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 	}
 	return p, nil
 }

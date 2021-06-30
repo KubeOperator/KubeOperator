@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -11,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/istios"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -245,6 +247,19 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetesUtil.Host, se
 		Namespace:     namespace,
 		Architectures: cluster.Spec.Architectures,
 	})
+	var localRepoPort int
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		if repo.AmdRepositoryPort == 0 {
+			return p, errors.New("load image pull port of amd failed")
+		}
+		localRepoPort = repo.AmdRepositoryPort
+	} else {
+		if repo.ArmRepositoryPort == 0 {
+			return p, errors.New("load image pull port of arm failed")
+		}
+		localRepoPort = repo.ArmRepositoryPort
+	}
+	p.LocalhostPort = localRepoPort
 	if err != nil {
 		return p, err
 	}

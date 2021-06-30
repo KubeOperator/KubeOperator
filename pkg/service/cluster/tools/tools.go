@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/pkg/errors"
@@ -13,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	"helm.sh/helm/v3/pkg/strvals"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,14 +33,28 @@ type Cluster struct {
 	OldNamespace string
 	Namespace    string
 	model.Cluster
-	HelmClient helm.Interface
-	KubeClient *kubernetes.Clientset
+	helmRepoPort int
+	HelmClient   helm.Interface
+	KubeClient   *kubernetes.Clientset
 }
 
 func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
+	var localRepoPort int
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		if repo.AmdRepositoryPort == 0 {
+			return nil, errors.New("load image pull port of amd failed")
+		}
+		localRepoPort = repo.AmdRepositoryPort
+	} else {
+		if repo.ArmRepositoryPort == 0 {
+			return nil, errors.New("load image pull port of arm failed")
+		}
+		localRepoPort = repo.ArmRepositoryPort
+	}
+	c.helmRepoPort = localRepoPort
 	c.Namespace = namespace
 	helmClient, err := helm.NewClient(&helm.Config{
 		Hosts:         hosts,

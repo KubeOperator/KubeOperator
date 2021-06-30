@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -138,6 +140,18 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	var localRepoPort int
+	if cluster.Architectures == constant.ArchAMD64 {
+		if repo.AmdRepositoryPort == 0 {
+			return false, errors.New("load image pull port of amd failed")
+		}
+		localRepoPort = repo.AmdRepositoryPort
+	} else {
+		if repo.ArmRepositoryPort == 0 {
+			return false, errors.New("load image pull port of arm failed")
+		}
+		localRepoPort = repo.ArmRepositoryPort
+	}
 	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
 		return false, err
@@ -190,7 +204,7 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 									"--logtostderr",
 									"--config.system-log-monitor=/config/abrt-adaptor.json,/config/docker-monitor.json,/config/kernel-monitor.json,/config/systemd-monitor.json",
 								},
-								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort),
+								Image: fmt.Sprintf("%s:%d/kubeoperator/node-problem-detector:v0.8.1", constant.LocalRepositoryDomainName, localRepoPort),
 								Resources: corev1.ResourceRequirements{
 									Limits: corev1.ResourceList{
 										"cpu":    resource.MustParse("10m"),

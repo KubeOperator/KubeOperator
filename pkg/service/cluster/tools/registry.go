@@ -20,7 +20,7 @@ func NewRegistry(cluster *Cluster, tool *model.ClusterTool) (*Registry, error) {
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 	}
 	return p, nil
 }

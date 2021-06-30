@@ -2,8 +2,10 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -264,6 +266,7 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 	if err != nil {
 		return nil, err
 	}
+	go repo.LoadRegistery()
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
@@ -281,6 +284,7 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 	if err != nil {
 		return nil, err
 	}
+	go repo.LoadRegistery()
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
@@ -297,6 +301,7 @@ func (s systemSettingService) BatchRegistry(op dto.SystemRegistryBatchOp) error 
 	if err != nil {
 		return err
 	}
+	go repo.LoadRegistery()
 	return nil
 }
 

@@ -22,7 +22,7 @@ func NewGrafana(cluster *Cluster, tool *model.ClusterTool, prometheusNs, lokiNs 
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 		prometheusNs:        prometheusNs,
 		lokiNs:              lokiNs,
 	}

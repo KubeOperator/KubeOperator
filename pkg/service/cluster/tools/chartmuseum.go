@@ -20,7 +20,7 @@ func NewChartmuseum(cluster *Cluster, tool *model.ClusterTool) (*Chartmuseum, er
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 	}
 	return p, nil
 }

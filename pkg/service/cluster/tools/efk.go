@@ -20,7 +20,7 @@ func NewEFK(cluster *Cluster, tool *model.ClusterTool) (*EFK, error) {
 		Tool:                tool,
 		Cluster:             cluster,
 		LocalHostName:       constant.LocalRepositoryDomainName,
-		LocalRepositoryPort: constant.LocalDockerRepositoryPort,
+		LocalRepositoryPort: cluster.helmRepoPort,
 	}
 	return p, nil
 }

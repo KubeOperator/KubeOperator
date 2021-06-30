@@ -18,6 +18,7 @@ type IstioHelmInfo struct {
 	Namespace     string
 	Cluster       model.Cluster
 	LocalhostName string
+	LocalhostPort int
 	HelmClient    helm.Interface
 	KubeClient    *kubernetes.Clientset
 }

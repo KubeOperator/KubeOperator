@@ -15,6 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	uuid "github.com/satori/go.uuid"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -114,6 +115,18 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	if err != nil {
 		return nil, err
 	}
+	var localRepoPort int
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		if repo.AmdRepositoryPort == 0 {
+			return nil, errors.New("load image pull port of amd failed")
+		}
+		localRepoPort = repo.AmdRepositoryPort
+	} else {
+		if repo.ArmRepositoryPort == 0 {
+			return nil, errors.New("load image pull port of arm failed")
+		}
+		localRepoPort = repo.ArmRepositoryPort
+	}
 
 	var clusterTasks []model.CisTask
 	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)
@@ -151,7 +164,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		return nil, err
 	}
 	tx.Commit()
-	go Do(&cluster, client, &task)
+	go Do(&cluster, client, &task, localRepoPort)
 	return &dto.CisTask{CisTask: task}, nil
 }
 
@@ -166,7 +179,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 	return nil
 }
 
-func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask) {
+func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
 	task.Status = CisTaskStatusRunning
 	db.DB.Save(&task)
 
@@ -184,7 +197,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1", constant.LocalRepositoryDomainName, constant.LocalDockerRepositoryPort),
+							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1", constant.LocalRepositoryDomainName, port),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{

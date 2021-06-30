@@ -384,6 +384,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		return fmt.Errorf("can't find local ip from system setting, err %s", err.Error())
 	}
 	ip := repo.Hostname
+	port := repo.RepoPort
 
 	regionVars := region.RegionVars.(map[string]interface{})
 	regionVars["datacenter"] = region.Datacenter
@@ -401,11 +402,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
-		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip)
-		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip)
+		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip, port)
+		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip, port)
 	}
 	if region.Provider == constant.OpenStack {
-		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip)
+		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip, port)
 	}
 	if region.Provider == constant.FusionCompute {
 		zoneVars := creation.CloudVars.(map[string]interface{})
@@ -442,7 +443,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			ovfResp, err := http.Get(fmt.Sprintf(constant.FusionComputeOvfPath, ip))
+			ovfResp, err := http.Get(fmt.Sprintf(constant.FusionComputeOvfPath, ip, port))
 			if err != nil {
 				return err
 			}
@@ -459,7 +460,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			vhdResp, err := http.Get(fmt.Sprintf(constant.FusionComputeVhdPath, ip))
+			vhdResp, err := http.Get(fmt.Sprintf(constant.FusionComputeVhdPath, ip, port))
 			if err != nil {
 				return err
 			}

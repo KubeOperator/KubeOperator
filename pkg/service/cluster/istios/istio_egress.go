@@ -27,7 +27,7 @@ func NewEgressInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) *
 func (e *EgressInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(e.Component.Vars), &values)
-	values["global.proxy.image"] = fmt.Sprintf("%s:%d/%s", e.HelmInfo.LocalhostName, constant.LocalDockerRepositoryPort, EgressImage)
+	values["global.proxy.image"] = fmt.Sprintf("%s:%d/%s", e.HelmInfo.LocalhostName, e.HelmInfo.LocalhostPort, EgressImage)
 	values["global.jwtPolicy"] = "first-party-jwt"
 	values["gateways.istio-egressgateway.resources.requests.cpu"] = fmt.Sprintf("%vm", values["gateways.istio-egressgateway.resources.requests.cpu"])
 	values["gateways.istio-egressgateway.resources.requests.memory"] = fmt.Sprintf("%vMi", values["gateways.istio-egressgateway.resources.requests.memory"])
