@@ -14,8 +14,8 @@ KO_DATA_DIR=usr/local/lib/ko
 GOPROXY="https://goproxy.cn,direct"
 
 build_server_linux:
-	GOOS=linux GOARCH=$(GOARCH) --buildmode=$(GOBUILDMODE) -trimpath $(GOGINDATA) -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
-	GOOS=linux GOARCH=$(GOARCH)  $(GOBUILD) -o $(BUILDDIR)/$(KO_BIN_DIR)/$(KO_SERVER_NAME) main.go
+	GOOS=linux GOARCH=$(GOARCH)  $(GOGINDATA) -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
+	GOOS=linux GOARCH=$(GOARCH)  $(GOBUILD)  --buildmode=$(GOBUILDMODE) -trimpath -o $(BUILDDIR)/$(KO_BIN_DIR)/$(KO_SERVER_NAME) main.go
 	mkdir -p $(BUILDDIR)/$(KO_CONFIG_DIR) && cp -r  $(BASEPATH)/conf/app.yaml $(BUILDDIR)/$(KO_CONFIG_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_DATA_DIR)
 	cp -r  $(BASEPATH)/migration $(BUILDDIR)/$(KO_DATA_DIR)
