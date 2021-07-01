@@ -406,28 +406,22 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
-func (c ClusterController) PostNodeBy(clusterName string) error {
-	var req dto.NodeCreation
+func (c ClusterController) PostNodeBatchBy(clusterName string) error {
+	var req dto.NodeBatch
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return err
 	}
-	err = c.ClusterNodeService.Create(clusterName, req)
+	err = c.ClusterNodeService.Batch(clusterName, req)
 	if err != nil {
 		return err
 	}
 	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
-
-	return nil
-}
-
-func (c ClusterController) DeleteNodeBy(clusterName string, nodeName string) error {
-	if err := c.ClusterNodeService.Delete(clusterName, nodeName); err != nil {
-		return err
+	if req.Operation == "delete" {
+		go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
+	} else {
+		go kolog.Save(operator, constant.CREATE_CLUSTER_NODE, clusterName)
 	}
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_CLUSTER_NODE, clusterName)
 
 	return nil
 }

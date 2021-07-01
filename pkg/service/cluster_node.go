@@ -27,8 +27,7 @@ import (
 type ClusterNodeService interface {
 	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
-	Create(clusterName string, batch dto.NodeCreation) error
-	Delete(clusterName, nodeName string) error
+	Batch(clusterName string, batch dto.NodeBatch) error
 	Page(num, size int, clusterName string) (*dto.NodePage, error)
 }
 
@@ -232,7 +231,7 @@ exit:
 	return nodes, nil
 }
 
-func (c *clusterNodeService) Create(clusterName string, item dto.NodeCreation) error {
+func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error {
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
 		return fmt.Errorf("can not found %s", clusterName)
@@ -246,122 +245,126 @@ func (c *clusterNodeService) Create(clusterName string, item dto.NodeCreation) e
 			return errors.New("NODE_ALREADY_RUNNING_TASK")
 		}
 	}
-	return c.batchCreate(&cluster.Cluster, currentNodes, item)
+	switch item.Operation {
+	case constant.BatchOperationCreate:
+		return c.batchCreate(&cluster.Cluster, currentNodes, item)
+	case constant.BatchOperationDelete:
+		return c.batchDelete(&cluster.Cluster, currentNodes, item)
+	}
+	return nil
 }
 
-func (c *clusterNodeService) Delete(clusterName, nodeName string) error {
-	cluster, err := c.ClusterService.Get(clusterName)
-	if err != nil {
-		return fmt.Errorf("can not found %s", clusterName)
-	}
-	var deleteNode model.ClusterNode
-	if err := db.DB.Where("cluster_id = ? AND name = ?", cluster.ID, nodeName).
+// 脏节点只删除数据库数据，正常节点集群中删除节点然后删数据库
+func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
+	var (
+		nodesForDelete []model.ClusterNode
+		notDirtyNodes  []model.ClusterNode
+		nodeIDs        []string
+		hostIDs        []string
+		hostIPs        []string
+	)
+	if err := db.DB.Where("name in (?)", item.Nodes).
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
-		Find(&deleteNode).Error; err != nil {
-		return fmt.Errorf("can not read cluster %s current nodes %s", cluster.Name, err.Error())
+		Find(&nodesForDelete).Error; err != nil {
+		return fmt.Errorf("can not find nodes reason %s", err.Error())
 	}
+
 	logger.Log.Infof("start delete nodes")
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", deleteNode.ID).
+	for _, node := range nodesForDelete {
+		hostIDs = append(hostIDs, node.Host.ID)
+		hostIPs = append(hostIPs, node.Host.Ip)
+		nodeIDs = append(nodeIDs, node.ID)
+		if !node.Dirty {
+			notDirtyNodes = append(notDirtyNodes, node)
+		}
+	}
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
 		Updates(map[string]interface{}{"Status": constant.StatusTerminating}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 		return err
 	}
 
-	go c.removeNodes(&cluster.Cluster, &deleteNode)
+	go c.removeNodes(cluster, currentNodes, notDirtyNodes, hostIDs, hostIPs, nodeIDs)
 	return nil
 }
 
-func (c *clusterNodeService) removeNodes(cluster *model.Cluster, deleteNode *model.ClusterNode) {
-	var clusterNodes []model.ClusterNode
-	if err := db.DB.Where("cluster_id = ?", cluster.ID).Preload("Host").Preload("Host.Credential").Preload("Host.Zone").Find(&clusterNodes).Error; err != nil {
-		c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
-	}
-
+func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, notDirtyNodes []model.ClusterNode, hostIDs, hostIPs, nodeIDs []string) {
+	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
-		if err := db.DB.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
+		if err := tx.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		}
 		planDTO, err := c.planService.Get(p.Name)
 		if err != nil {
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		}
 		cluster.Plan = planDTO.Plan
 
-		if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
-			if !deleteNode.Dirty {
-				c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
-			} else {
-				logger.Log.Errorf("run delete worker playbook failed error %+v", err)
-			}
+		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		}
-		if err := c.destroyHosts(cluster, clusterNodes, *deleteNode); err != nil {
-			logger.Log.Errorf("destroy host failed error %+v", err)
+		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
+			logger.Log.Error("destroy host failed error %+v", err)
 		}
-
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
-		tx := db.DB.Begin()
 
-		if err := tx.Where("id = ?", deleteNode.HostID).Delete(&model.Host{}).Error; err != nil {
+		if err := tx.Where("id in (?)", hostIDs).Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 		}
-		if err := tx.Where("resource_id = ? AND resource_type = ?", deleteNode.HostID, constant.ResourceHost).
+		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ProjectResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 		}
-		if err := tx.Model(&model.Ip{}).Where("address = ?", deleteNode.Host.Ip).
+		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
 			Update("status", constant.IpAvailable).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 		}
-		if err := tx.Where("id = ?", deleteNode.ID).Delete(&model.ClusterNode{}).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, true)
-		}
-		tx.Commit()
 	} else {
-		if err := c.runDeleteWorkerPlaybook(cluster, *deleteNode); err != nil {
-			if !deleteNode.Dirty {
-				c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
-			} else {
-				logger.Log.Errorf("run delete worker playbook failed error %+v", err)
-			}
+		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 
-		tx := db.DB.Begin()
-		if err := tx.Model(&model.Host{}).Where("id = ?", deleteNode.HostID).
+		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
 			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 		}
-		if err := tx.Where("id = ?", deleteNode.ID).Delete(&model.ClusterNode{}).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, deleteNode.ID, err, false)
-		}
-		tx.Commit()
 	}
+	if err := tx.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+		tx.Rollback()
+		c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+	}
+	tx.Commit()
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
 	logger.Log.Info("delete node successful!")
 }
 
-func (c *clusterNodeService) updateNodeStatus(clusterName string, notDirtyNodeID string, errMsg error, isDirty bool) {
+func (c *clusterNodeService) updateNodeStatus(clusterName string, notDirtyNodeID []string, errMsg error, isDirty bool) {
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, errMsg.Error()), clusterName, constant.ClusterRemoveWorker)
 	logger.Log.Errorf("remove node failed: %+v", errMsg)
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", notDirtyNodeID).
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in ?", notDirtyNodeID).
 		Updates(map[string]interface{}{"Status": constant.ClusterFailed, "Message": errMsg.Error(), "Dirty": isDirty}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 	}
 }
 
-func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, deleteNode model.ClusterNode) error {
+func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, deleteNodes []model.ClusterNode) error {
 	var aliveHosts []*model.Host
 	for i := range currentNodes {
-		if currentNodes[i].Name != deleteNode.Name {
+		alive := true
+		for k := range deleteNodes {
+			if currentNodes[i].Name == deleteNodes[k].Name {
+				alive = false
+			}
+		}
+		if alive {
 			aliveHosts = append(aliveHosts, &currentNodes[i].Host)
 		}
 	}
@@ -369,7 +372,7 @@ func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes [
 	return doInit(k, cluster.Plan, aliveHosts)
 }
 
-func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeCreation) error {
+func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
 	var (
 		newNodes  []model.ClusterNode
 		hostNames []string
@@ -658,7 +661,7 @@ func (c clusterNodeService) doCreateHosts(cluster *model.Cluster, hosts []*model
 
 const deleteWorkerPlaybook = "96-remove-worker.yml"
 
-func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, node model.ClusterNode) error {
+func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode) error {
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		logger.Log.Error(err)
@@ -669,7 +672,9 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	inventory := cluster.ParseInventory()
 	for i := range inventory.Groups {
 		if inventory.Groups[i].Name == "del-worker" {
-			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, node.Name)
+			for _, n := range nodes {
+				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
+			}
 		}
 	}
 	k := kobe.NewAnsible(&kobe.Config{
