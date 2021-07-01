@@ -382,6 +382,12 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	cluster.SpecID = spec.ID
 	cluster.StatusID = status.ID
 	cluster.SecretID = secret.ID
+	var project model.Project
+	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
+	}
+	cluster.ProjectID = project.ID
 	if err := tx.Create(&cluster).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -462,11 +468,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 		return nil, err
 	}
-	var project model.Project
-	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
-	}
+
 	projectResource := model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
