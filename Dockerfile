@@ -40,7 +40,6 @@ RUN setcap cap_net_raw=+ep /bin/ping
 
 WORKDIR /usr/local/bin
 
-RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
 RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && chmod +x encrypt_linux_$GOARCH
 
 WORKDIR /tmp
