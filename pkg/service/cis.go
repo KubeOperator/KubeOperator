@@ -15,7 +15,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	uuid "github.com/satori/go.uuid"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -115,18 +114,17 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	if err != nil {
 		return nil, err
 	}
-	var localRepoPort int
+	var registery model.SystemRegistry
 	if cluster.Spec.Architectures == constant.ArchAMD64 {
-		if repo.AmdRepositoryPort == 0 {
-			return nil, errors.New("load image pull port of amd failed")
-		}
-		localRepoPort = repo.AmdRepositoryPort
-	} else {
-		if repo.ArmRepositoryPort == 0 {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return nil, errors.New("load image pull port of arm failed")
 		}
-		localRepoPort = repo.ArmRepositoryPort
+	} else {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
+			return nil, errors.New("load image pull port of arm failed")
+		}
 	}
+	localRepoPort := registery.RegistryPort
 
 	var clusterTasks []model.CisTask
 	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)

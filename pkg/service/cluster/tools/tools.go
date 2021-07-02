@@ -14,7 +14,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	"helm.sh/helm/v3/pkg/strvals"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,19 +41,17 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model
 	c := Cluster{
 		Cluster: cluster,
 	}
-	var localRepoPort int
+	var registery model.SystemRegistry
 	if cluster.Spec.Architectures == constant.ArchAMD64 {
-		if repo.AmdRepositoryPort == 0 {
-			return nil, errors.New("load image pull port of amd failed")
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
+			return nil, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.AmdRepositoryPort
 	} else {
-		if repo.ArmRepositoryPort == 0 {
-			return nil, errors.New("load image pull port of arm failed")
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
+			return nil, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.ArmRepositoryPort
 	}
-	c.helmRepoPort = localRepoPort
+	c.helmRepoPort = registery.RegistryPort
 	c.Namespace = namespace
 	helmClient, err := helm.NewClient(&helm.Config{
 		Hosts:         hosts,

@@ -12,7 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/istios"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -247,19 +246,17 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetesUtil.Host, se
 		Namespace:     namespace,
 		Architectures: cluster.Spec.Architectures,
 	})
-	var localRepoPort int
+	var registery model.SystemRegistry
 	if cluster.Spec.Architectures == constant.ArchAMD64 {
-		if repo.AmdRepositoryPort == 0 {
-			return p, errors.New("load image pull port of amd failed")
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
+			return p, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.AmdRepositoryPort
 	} else {
-		if repo.ArmRepositoryPort == 0 {
-			return p, errors.New("load image pull port of arm failed")
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
+			return p, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.ArmRepositoryPort
 	}
-	p.LocalhostPort = localRepoPort
+	p.LocalhostPort = registery.RegistryPort
 	if err != nil {
 		return p, err
 	}

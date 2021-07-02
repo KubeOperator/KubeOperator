@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/KubeOperator/KubeOperator/pkg/util/repo"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -140,18 +140,18 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var localRepoPort int
-	if cluster.Architectures == constant.ArchAMD64 {
-		if repo.AmdRepositoryPort == 0 {
-			return false, errors.New("load image pull port of amd failed")
+	var registery model.SystemRegistry
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
+			return false, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.AmdRepositoryPort
 	} else {
-		if repo.ArmRepositoryPort == 0 {
-			return false, errors.New("load image pull port of arm failed")
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
+			return false, errors.New("load image pull port failed")
 		}
-		localRepoPort = repo.ArmRepositoryPort
 	}
+	localRepoPort := registery.RegistryPort
+
 	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
 		return false, err
