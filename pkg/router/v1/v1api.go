@@ -6,7 +6,6 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
 	"github.com/KubeOperator/KubeOperator/pkg/errorf"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris/v12"
@@ -62,7 +61,6 @@ func V1(parent iris.Party) {
 
 func ErrorHandler(ctx context.Context, err error) {
 	if err != nil {
-		logger.Log.Errorf("call api failed: %+v", err)
 		warp := struct {
 			Msg string `json:"msg"`
 		}{err.Error()}

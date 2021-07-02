@@ -320,6 +320,11 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 		}
+		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
+			Delete(&model.ClusterResource{}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+		}
 		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
 			Update("status", constant.IpAvailable).Error; err != nil {
 			tx.Rollback()
@@ -330,7 +335,11 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
-
+		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
+			Delete(&model.ClusterResource{}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+		}
 		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
 			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			tx.Rollback()
