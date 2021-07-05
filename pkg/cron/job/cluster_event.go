@@ -3,7 +3,6 @@ package job
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -29,8 +28,6 @@ func NewClusterEvent() *ClusterEvent {
 }
 
 func (c *ClusterEvent) Run() {
-	fmt.Println("start event")
-	logger.Log.Infof("start cluster event")
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 5) // 信号量
 	clusters, _ := c.clusterService.List()
