@@ -632,7 +632,7 @@ func (h *hostService) ImportHosts(file []byte) error {
 		if index == 0 {
 			continue
 		}
-		if len(row) != 5 {
+		if len(row) < 5 {
 			errs = errs.Add(errorf.New("HOST_IMPORT_NOT_COMPLETE_VALUE", strconv.Itoa(index)))
 			failedNum++
 			continue
