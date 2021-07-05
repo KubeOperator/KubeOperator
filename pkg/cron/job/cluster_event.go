@@ -28,6 +28,7 @@ func NewClusterEvent() *ClusterEvent {
 }
 
 func (c *ClusterEvent) Run() {
+	logger.Log.Infof("start cluster event")
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 5) // 信号量
 	clusters, _ := c.clusterService.List()
