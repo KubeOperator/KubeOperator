@@ -237,6 +237,7 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			return
 		}
 		_ = c.clusterLogService.End(&clog, true, "")
+		creation.ClusterBackupStrategyID = clusterBackupStrategy.ID
 		_, err = c.Create(creation)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
