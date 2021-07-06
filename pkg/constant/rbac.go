@@ -81,8 +81,6 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/projects/{**}",
 			"/api/v1/projects/{**}/{resources,members}/{**}",
-			"/api/v1/projects/{**}/clusters/{**}/{**}",
-			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
 			"/api/v1/multicluster/repositories",
 			"/api/v1/multicluster/repositories/{**}",
 			"/api/v1/multicluster/repositories/{**}/{**}",
@@ -92,6 +90,30 @@ var Roles = loader.AdvancedRules{
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/projects/{**}/clusters/{**}/{**}",
+			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
+		},
+		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/projects/{**}/clusters/{**}/{**}",
+			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager, RoleClusterManager},
 			AllowAnyone:     false,
 		},
 	},
