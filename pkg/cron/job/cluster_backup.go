@@ -46,10 +46,9 @@ func (c *ClusterBackup) Run() {
 			var cluster model.Cluster
 			db.DB.Where("id = ?", clusterBackupStrategy.ClusterID).Find(&cluster)
 			if len(backupFiles) >= clusterBackupStrategy.SaveNum {
-				logger.Log.Infof("---------- delete backup file -----------")
 				var deleteFileNum = len(backupFiles) + 1 - clusterBackupStrategy.SaveNum
-				logger.Log.Infof("----------length %s -----------", deleteFileNum)
 				for i := 0; i < deleteFileNum; i++ {
+					logger.Log.Infof("delete backup file %s", backupFiles[i].Name)
 					err := c.cLusterBackupFileService.Delete(backupFiles[i].Name)
 					if err != nil {
 						logger.Log.Errorf("delete cluster [%s] backup file error : %s", cluster.Name, err.Error())
