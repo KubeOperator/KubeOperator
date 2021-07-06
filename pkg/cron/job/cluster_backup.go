@@ -26,7 +26,7 @@ func NewClusterBackup() *ClusterBackup {
 }
 
 func (c *ClusterBackup) Run() {
-	logger.Log.Infof("start backup")
+	logger.Log.Infof("---------- start backup cron job -----------")
 	var wg sync.WaitGroup
 	clusterBackupStrategies, _ := c.clusterBackupStrategyRepository.List()
 	for _, clusterBackupStrategy := range clusterBackupStrategies {
@@ -46,6 +46,7 @@ func (c *ClusterBackup) Run() {
 			var cluster model.Cluster
 			db.DB.Where("id = ?", clusterBackupStrategy.ClusterID).Find(&cluster)
 			if len(backupFiles) >= clusterBackupStrategy.SaveNum {
+				logger.Log.Infof("---------- delete backup file -----------")
 				var deleteFileNum = len(backupFiles) - clusterBackupStrategy.SaveNum
 				for i := 0; i < deleteFileNum; i++ {
 					err := c.cLusterBackupFileService.Delete(backupFiles[i].Name)
@@ -55,11 +56,12 @@ func (c *ClusterBackup) Run() {
 				}
 			}
 			db.DB.Where("cluster_id = ?", clusterBackupStrategy.ClusterID).Order("created_at ASC").Find(&backupFiles)
+			logger.Log.Infof("length %s", len(backupFiles))
 			if len(backupFiles) < clusterBackupStrategy.SaveNum {
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
-					logger.Log.Infof("start backup cluster [%s]", cluster.Name)
+					logger.Log.Infof("backup cluster [%s]", cluster.Name)
 					if cluster.ID != "" {
 						err := c.cLusterBackupFileService.Backup(dto.ClusterBackupFileCreate{ClusterName: cluster.Name})
 						if err != nil {
@@ -73,4 +75,5 @@ func (c *ClusterBackup) Run() {
 		}
 	}
 	wg.Wait()
+	logger.Log.Infof("---------- backup cron job end -----------")
 }
