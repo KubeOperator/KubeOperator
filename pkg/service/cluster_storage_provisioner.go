@@ -126,14 +126,25 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	if err != nil {
 		return dp, err
 	}
+	var registery model.SystemRegistry
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
+			return dp, errors.New("load image pull port failed")
+		}
+	} else {
+		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
+			return dp, errors.New("load image pull port failed")
+		}
+	}
+
 	//playbook
-	go c.do(cluster.Cluster, p)
+	go c.do(cluster.Cluster, p, registery.RegistryPort)
 	dp.ClusterStorageProvisioner = p
 	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
 	return dp, nil
 }
 
-func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner) {
+func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, repoPort int) {
 	admCluster := adm.NewCluster(cluster)
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
@@ -149,6 +160,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
+	admCluster.Kobe.SetVar("registry_port", fmt.Sprint(repoPort))
 	// 获取 k8s client
 	client, err := c.getBaseParam(cluster.Name)
 	if err != nil {
