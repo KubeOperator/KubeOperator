@@ -21,7 +21,7 @@ func (c *InitCronPhase) Init() error {
 		if err != nil {
 			return fmt.Errorf("can not add corn job: %s", err.Error())
 		}
-		_, err = Cron.AddJob("@every 10m", job.NewClusterBackup())
+		_, err = Cron.AddJob("@daily", job.NewClusterBackup())
 		if err != nil {
 			return fmt.Errorf("can not add backup corn job: %s", err.Error())
 		}
