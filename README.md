@@ -32,8 +32,6 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ![UI展示](https://kubeoperator.oss-cn-beijing.aliyuncs.com/img/demo.gif)
 
-> 更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
-
 ### 功能架构
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
@@ -67,9 +65,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 - [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
 - [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
-### KubeOperator 企业版
-
-- [申请企业版试用](https://jinshuju.net/f/qc6g44/)
 
 ### 功能列表
 
