@@ -776,7 +776,7 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	bf, err := kubeconfig.ReadKubeConfigFile(s)
+	bf, err := kubeconfig.ReadKubeConfigFile(s, m.Host.Credential.Username)
 	if err != nil {
 		return "", err
 	}
