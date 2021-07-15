@@ -71,16 +71,9 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
-ARG GOARCH
-
-RUN echo > /etc/apk/repositories && echo -e "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main\nhttps://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && apk update && apk upgrade
-
-RUN apk add wget \
-    && apk add git
-
 WORKDIR /usr/local/bin
 
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && chmod +x encrypt_linux_$GOARCH
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_amd64 && chmod +x encrypt_linux_amd64
 
 WORKDIR /tmp
 
@@ -88,7 +81,9 @@ RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polar
     && tar zxvf ./polaris.tar.gz \
     && mv ./polaris-1.2.1/checks/ /checks
 
-RUN   apk del wget
+RUN echo > /etc/apk/repositories \
+    && echo -e "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main\nhttps://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && apk update && apk upgrade \
+    && apk del wget
 
 WORKDIR /
 
