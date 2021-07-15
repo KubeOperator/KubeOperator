@@ -1,0 +1,116 @@
+FROM golang:1.14 as stage-build
+LABEL stage=stage-build
+WORKDIR /build/ko
+ARG GOPROXY
+ARG GOARCH
+ARG XPACK
+
+ENV GOARCH=$GOARCH
+ENV GO111MODULE=on
+ENV GOOS=linux
+ENV CGO_ENABLED=1
+
+RUN apt-get update && apt-get install unzip
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-bindata.zip  \
+    && cd /tmp \
+    && unzip  /tmp/go-bindata.zip  \
+    && cd /tmp/go-bindata-3.1.3 \
+    && go build \
+    && cd go-bindata \
+    && go build \
+    && cp go-bindata /go/bin
+
+RUN export PATH=$PATH:$GOPATH/bin
+
+COPY . .
+RUN make build_server_linux GOARCH=$GOARCH
+
+RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
+
+FROM alpine:3.14.0
+
+RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.31-r0" && \
+    ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+    ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+    ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+    apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
+    echo \
+        "-----BEGIN PUBLIC KEY-----\
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApZ2u1KJKUu/fW4A25y9m\
+        y70AGEa/J3Wi5ibNVGNn1gT1r0VfgeWd0pUybS4UmcHdiNzxJPgoWQhV2SSW1JYu\
+        tOqKZF5QSN6X937PTUpNBjUvLtTQ1ve1fp39uf/lEXPpFpOPL88LKnDBgbh7wkCp\
+        m2KzLVGChf83MS0ShL6G9EQIAUxLm99VpgRjwqTQ/KfzGtpke1wqws4au0Ab4qPY\
+        KXvMLSPLUp7cfulWvhmZSegr5AdhNw5KNizPqCJT8ZrGvgHypXyiFvvAH5YRtSsc\
+        Zvo9GI2e2MaZyo9/lvb+LbLEJZKEQckqRj4P26gmASrZEPStwc+yqy1ShHLA0j6m\
+        1QIDAQAB\
+        -----END PUBLIC KEY-----" | sed 's/   */\n/g' > "/etc/apk/keys/sgerrand.rsa.pub" && \
+    wget \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    apk add --no-cache \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    \
+    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
+    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
+    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
+    \
+    apk del glibc-i18n && \
+    \
+    rm "/root/.wget-hsts" && \
+    apk del .build-dependencies && \
+    rm \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+
+ARG GOARCH
+
+RUN echo > /etc/apk/repositories && echo -e "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main\nhttps://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && apk update && apk upgrade
+
+RUN apk add wget \
+    && apk add git
+
+WORKDIR /usr/local/bin
+
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && chmod +x encrypt_linux_$GOARCH
+
+WORKDIR /tmp
+
+RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polaris.tar.gz \
+    && tar zxvf ./polaris.tar.gz \
+    && mv ./polaris-1.2.1/checks/ /checks
+
+RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar -zvxf kubernetes-client-linux-$GOARCH.tar.gz
+RUN cp ./kubernetes/client/bin/* /usr/local/bin
+RUN chmod +x /usr/local/bin/kubectl
+
+RUN   cd /usr/lib/x86_64-linux-gnu \
+        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libcrypto* libssh* libpcre.so* libkrb5* \
+        && rm -fr /etc/alternatives/rmt \
+        && rm -fr /usr/sbin/rmt* \
+        && rm -rf /usr/bin/bash \
+        && rm -rf /usr/bin/openssl \
+        && rm -rf /usr/bin/kill
+
+RUN   apk del wget
+
+WORKDIR /
+
+COPY --from=stage-build /build/ko/dist/etc /etc/
+COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
+ENV ZONEINFO /opt/zoneinfo.zip
+
+COPY --from=stage-build /build/ko/dist/etc /etc/
+COPY --from=stage-build /build/ko/dist/usr /usr/
+
+EXPOSE 8080
+
+CMD ["ko-server"]

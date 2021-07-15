@@ -31,12 +31,16 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM ubuntu:20.10
+FROM kubeoperator/euleros:2.0
 ARG GOARCH
 
-RUN apt-get update && apt -y upgrade  && apt-get -y install wget git iputils-ping
-RUN apt remove less -y
-RUN setcap cap_net_raw=+ep /bin/ping
+
+
+RUN echo > /etc/yum.repos.d/Euler-Base.repo && echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo
+
+RUN curl -sSLo /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+
+RUN yum install -y  git wget
 
 WORKDIR /usr/local/bin
 
@@ -52,25 +56,15 @@ RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar
 RUN cp ./kubernetes/client/bin/* /usr/local/bin
 RUN chmod +x /usr/local/bin/kubectl
 
-RUN if [ "$GOARCH" = "amd64" ] ; then \
-        cd /usr/lib/x86_64-linux-gnu \
-        && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libcrypto* libssh* libpcre.so* libkrb5* \
-        && rm -fr /etc/alternatives/rmt \
-        && rm -fr /usr/sbin/rmt* \
-        && rm -rf /usr/bin/bash \
-        && rm -rf /usr/bin/openssl \
-        && rm -rf /usr/bin/kill ; \
-    fi
+RUN yum remove -y  wget
 
-RUN   if [ "$GOARCH" = "arm64" ] ; then \
-        cd /usr/lib/aarch64-linux-gnu \
+RUN     cd /usr/lib/aarch64-linux-gnu \
         && rm -rf libcurl* libzstd* libsasl2* libtinfo* libexpat* liblz4* libgcrypt* libssl* libcrypto* libssh* libpcre.so* libkrb5* \
         && rm -fr /etc/alternatives/rmt \
         && rm -fr /usr/sbin/rmt* \
         && rm -rf /usr/bin/bash \
         && rm -rf /usr/bin/openssl \
-        && rm -rf /usr/bin/kill ; \
-    fi
+        && rm -rf /usr/bin/kill
 
 WORKDIR /
 
