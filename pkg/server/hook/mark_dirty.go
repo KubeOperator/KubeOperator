@@ -9,7 +9,6 @@ import (
 
 func init() {
 	BeforeApplicationStart.AddFunc(recoverClusterTask)
-	BeforeApplicationStart.AddFunc(markClusterNodeDirtyData)
 }
 
 var clusterService = service.NewClusterService()
@@ -53,14 +52,5 @@ func recoverClusterTask() error {
 		}
 	}
 	tx.Commit()
-	return nil
-}
-
-// cluster node
-func markClusterNodeDirtyData() error {
-	var status = []string{constant.StatusTerminating, constant.StatusInitializing, constant.StatusCreating, constant.StatusWaiting}
-	if err := db.DB.Model(&model.ClusterNode{}).Where("status in (?)", status).Updates(map[string]interface{}{"Dirty": true}).Error; err != nil {
-		return err
-	}
 	return nil
 }

@@ -406,6 +406,22 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
+func (c ClusterController) GetNodeDetailBy(clusterName string, nodeName string) (*dto.Node, error) {
+	node, err := c.ClusterNodeService.Get(clusterName, nodeName)
+	if err != nil {
+		return nil, err
+	}
+	return node, nil
+}
+
+func (c ClusterController) PostNodeRecreateBy(clusterName string, node string) error {
+	fmt.Printf("我的代码走进来了")
+	if err := c.ClusterNodeService.Init(clusterName, node); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c ClusterController) PostNodeBatchBy(clusterName string) error {
 	var req dto.NodeBatch
 	err := c.Ctx.ReadJSON(&req)

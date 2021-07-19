@@ -22,6 +22,7 @@ type ClusterNode struct {
 	ClusterID string `json:"clusterId"`
 	Role      string `json:"role"`
 	Status    string `json:"status"`
+	PreStatus string `json:"pre_status"`
 	Dirty     bool   `json:"dirty"`
 	Message   string `json:"message"`
 }

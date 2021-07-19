@@ -1,0 +1,1 @@
+ALTER TABLE `ko_cluster_node` ADD COLUMN `pre_status` varchar(255) NOT NULL AFTER `status`;
