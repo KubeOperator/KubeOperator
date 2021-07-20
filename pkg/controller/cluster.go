@@ -415,8 +415,7 @@ func (c ClusterController) GetNodeDetailBy(clusterName string, nodeName string) 
 }
 
 func (c ClusterController) PostNodeRecreateBy(clusterName string, node string) error {
-	fmt.Printf("我的代码走进来了")
-	if err := c.ClusterNodeService.Init(clusterName, node); err != nil {
+	if err := c.ClusterNodeService.Recreate(clusterName, node); err != nil {
 		return err
 	}
 	return nil

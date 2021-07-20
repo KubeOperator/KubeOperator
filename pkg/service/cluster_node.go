@@ -28,7 +28,7 @@ type ClusterNodeService interface {
 	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) error
-	Init(clusterName string, name string) error
+	Recreate(clusterName string, name string) error
 	Page(num, size int, clusterName string) (*dto.NodePage, error)
 }
 
@@ -234,7 +234,7 @@ exit:
 	return nodes, nil
 }
 
-func (c clusterNodeService) Init(clusterName, name string) error {
+func (c clusterNodeService) Recreate(clusterName, name string) error {
 	cluster, err := c.clusterRepo.Get(clusterName)
 	if err != nil {
 		return err
@@ -349,7 +349,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 		}
 	}
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusTerminating, "Message": ""}).Error; err != nil {
+		Updates(map[string]interface{}{"Status": constant.StatusTerminating, "PreStatus": constant.StatusFailed, "Message": ""}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 		return err
 	}
