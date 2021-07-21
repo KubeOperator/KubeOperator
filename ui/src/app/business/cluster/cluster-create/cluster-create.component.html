@@ -80,11 +80,11 @@
         <form clrForm #setupForm='ngForm'>
 
             <clr-input-container>
-                <label>Cluster Network CIDR</label>
+                <label>{{'APP_CLUSTER_NETWORK_CIDR'|translate}}</label>
                 <input clrInput [size]="32" name="cluster cidr" [(ngModel)]="item.clusterCidr"/>
             </clr-input-container>
             <clr-input-container>
-                <label>Service Network CIDR</label>
+                <label>{{'APP_SERVICE_NETWORK_CIDR'|translate}}</label>
                 <input clrInput [size]="32" name="service cidr" [(ngModel)]="item.serviceCidr"/>
             </clr-input-container>
 
@@ -260,8 +260,8 @@
     </clr-wizard-page>
 
 
-        <clr-wizard-page [clrWizardPageNextDisabled]="!(masters.length===1 || masters.length===3) || workers.length === 0"
-                         (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
+    <clr-wizard-page [clrWizardPageNextDisabled]="!(masters.length===1 || masters.length===3) || workers.length === 0"
+                     (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <span>{{'APP_CLUSTER_HOST_HELPER'|translate}}</span>
         <form>

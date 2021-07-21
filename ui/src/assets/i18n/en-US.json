@@ -713,5 +713,7 @@
   "APP_PROVISIONER_NAME": "Provisioner Name",
   "APP_STORAGE_POLICY_TYPE": "Storage Policy Type",
   "APP_STORAGE_POLICY": "Storage Policy",
-  "APP_MAX_POD_NUM": "Max POD num"
+  "APP_MAX_POD_NUM": "Max POD num",
+  "APP_CLUSTER_NETWORK_CIDR": "Cluster Network CIDR",
+  "APP_SERVICE_NETWORK_CIDR": "Service Network CIDR"
 }

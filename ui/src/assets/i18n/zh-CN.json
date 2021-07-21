@@ -719,5 +719,7 @@
   "APP_PROVISIONER_NAME": "提供商名称",
   "APP_STORAGE_POLICY_TYPE": "存储策略类型",
   "APP_STORAGE_POLICY": "存储策略",
-  "APP_MAX_POD_NUM": "最大POD数量"
+  "APP_MAX_POD_NUM": "最大POD数量",
+  "APP_CLUSTER_NETWORK_CIDR": "集群网络 CIDR",
+  "APP_SERVICE_NETWORK_CIDR": "服务网络 CIDR"
 }
