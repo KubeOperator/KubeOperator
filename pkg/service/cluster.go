@@ -200,13 +200,6 @@ func (c clusterService) GetPlan(name string) (dto.Plan, error) {
 	return plan, nil
 }
 
-var maxNodePodNumMap = map[int]int{
-	24: 110,
-	25: 64,
-	26: 32,
-	27: 16,
-}
-
 func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
 	cluster := model.Cluster{
 		Name:   creation.Name,
@@ -239,14 +232,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	}
 
 	spec.KubePodSubnet = creation.ClusterCIDR
-	serviceCIDR, nodeMask, err := getServiceCIDRAndNodeCIDRMaskSize(creation.ClusterCIDR, creation.MaxClusterServiceNum, creation.MaxNodePodNum)
-	if err != nil {
-		return nil, err
-	}
-
-	spec.KubeServiceSubnet = serviceCIDR
-	spec.KubeMaxPods = maxNodePodNumMap[nodeMask]
-	spec.KubeNetworkNodePrefix = nodeMask
+	spec.KubeServiceSubnet = creation.ServiceCIDR
+	spec.KubeMaxPods = creation.MaxPodNum
+	spec.KubeNetworkNodePrefix = 24
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
 	secret := model.ClusterSecret{

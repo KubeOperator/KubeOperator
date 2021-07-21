@@ -78,52 +78,22 @@
     <clr-wizard-page [clrWizardPageNextDisabled]="setupForm.invalid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_SETUP"|translate}}</ng-template>
         <form clrForm #setupForm='ngForm'>
-            <div class="clr-row" style="margin-top: 15px">
-                <div class="clr-col-2 clr-control-label">
-                    {{"APP_CONTAINER"|translate}}{{"APP_NETWORK"|translate}}
-                </div>
-                <div class="clr-col-10">
-                    <select name="cidr1" [(ngModel)]="parts[0]" (change)="onPart1Change()">
-                        <option *ngFor="let op of part1Options" [value]="op">{{op}}</option>
-                    </select>
-                    .
-                    <select name="cidr2" [(ngModel)]="parts[1]"
-                            [disabled]="part2Options.length<2" (change)="getNodeNum()">
-                        <option *ngFor="let op of part2Options" [value]="op">{{op}}</option>
-                    </select>
-                    .
-                    <select name="cidr3" [(ngModel)]="parts[2]" [disabled]="part3Options.length<2"
-                            (change)="getNodeNum()">
-                        <option *ngFor="let op of part3Options" [value]="op">{{op}}</option>
-                    </select>
-                    .
-                    <select name="cidr4" [(ngModel)]="parts[3]" disabled>
-                        <option>0</option>
-                    </select>
-                    /
-                    <select name="cidr5" [(ngModel)]="parts[4]" (change)="onMaskChange()">
-                        <option *ngFor="let op of maskOptions" [value]="op">{{op}}</option>
-                    </select>
-                    <p class="clr-subtext clr-form-control-8-helper">
-                        {{"APP_CIDR_HELPER"|translate}}
-                    </p>
-                </div>
-            </div>
 
-            <clr-select-container>
-                <label>POD {{"APP_NUM_LIMIT"|translate}}/{{"APP_NODE"|translate}}</label>
-                <select clrSelect name="pod_max_num" [(ngModel)]="item.maxNodePodNum" (change)="getNodeNum()">
-                    <option *ngFor="let o of podMaxNumOptions" [ngValue]="o">{{o}}</option>
-                </select>
-            </clr-select-container>
+            <clr-input-container>
+                <label>Cluster Network CIDR</label>
+                <input clrInput [size]="32" name="cluster cidr" [(ngModel)]="item.clusterCidr"/>
+            </clr-input-container>
+            <clr-input-container>
+                <label>Service Network CIDR</label>
+                <input clrInput [size]="32" name="service cidr" [(ngModel)]="item.serviceCidr"/>
+            </clr-input-container>
 
-            <clr-select-container>
-                <label>Service {{"APP_NUM_LIMIT"|translate}}/{{"APP_CLUSTER"|translate}}</label>
-                <select clrSelect name="service_max_num" [(ngModel)]="item.maxClusterServiceNum"
-                        (change)="getNodeNum()">
-                    <option *ngFor="let o of serviceMaxNumOptions" [ngValue]="o">{{o}}</option>
-                </select>
-            </clr-select-container>
+            <clr-input-container>
+                <label>Max Pod Num</label>
+                <input clrInput [size]="32" type="number" name="max pod num" [(ngModel)]="item.maxPodNum"/>
+            </clr-input-container>
+
+
             <clr-select-container>
                 <label>proxy {{"APP_MODE"|translate}}</label>
                 <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
@@ -133,7 +103,7 @@
                 </select>
             </clr-select-container>
 
-            <clr-select-container >
+            <clr-select-container>
                 <label>{{"APP_DNS_CACHE"|translate}}</label>
                 <select clrSelect name="enableDnsCache" [(ngModel)]="item.enableDnsCache">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
@@ -151,10 +121,6 @@
                 </select>
             </clr-select-container>
         </form>
-
-        <p>
-            {{"APP_MAX_NODES_HELPLER"|translate}} {{maxNodesNum}} {{"APP_NODE"|translate}}
-        </p>
     </clr-wizard-page>
 
 
@@ -194,13 +160,15 @@
             </clr-input-container>
             <clr-select-container>
                 <label>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</label>
-                <select clrSelect (change)="getDefaultFlannelBackend()" name="network" [(ngModel)]="item.networkType" required>
+                <select clrSelect (change)="getDefaultFlannelBackend()" name="network" [(ngModel)]="item.networkType"
+                        required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="flannel">flannel</option>
                     <option value="calico">calico</option>
                     <option *ngIf="item.architectures === 'amd64'" value="cilium">cilium</option>
                 </select>
-                <clr-control-helper style="font-weight:bold; color: black;" *ngIf="item.networkType === 'cilium'">{{"APP_CILIUM_HELPER"|translate}}</clr-control-helper>
+                <clr-control-helper style="font-weight:bold; color: black;"
+                                    *ngIf="item.networkType === 'cilium'">{{"APP_CILIUM_HELPER"|translate}}</clr-control-helper>
             </clr-select-container>
             <clr-select-container *ngIf="item.networkType === 'flannel'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
@@ -228,17 +196,22 @@
             </clr-select-container>
 
             <div *ngIf="item.networkType === 'cilium'">
-                <clr-select-container >
+                <clr-select-container>
                     <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                    <select (change)="getDefaultTunnelMode()" clrSelect name="cilium_type" [(ngModel)]="item.flannelBackend" required>
+                    <select (change)="getDefaultTunnelMode()" clrSelect name="cilium_type"
+                            [(ngModel)]="item.flannelBackend" required>
                         <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                         <option value="Overlay">Overlay</option>
                         <option value="Native Routing">Native Routing</option>
                     </select>
-                    <clr-control-helper *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_HELPER"|translate}}</clr-control-helper>
-                    <clr-control-helper *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_USE_HELPER"|translate}}</clr-control-helper>
-                    <clr-control-helper *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_HELPER"|translate}}</clr-control-helper>
-                    <clr-control-helper *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_USE_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper
+                            *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper
+                            *ngIf="item.flannelBackend === 'Overlay'">{{"APP_CILIUM_OVERLAY_USE_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper
+                            *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_HELPER"|translate}}</clr-control-helper>
+                    <clr-control-helper
+                            *ngIf="item.flannelBackend === 'Native Routing'">{{"APP_CILIUM_NATIVE_USE_HELPER"|translate}}</clr-control-helper>
                 </clr-select-container>
                 <clr-select-container *ngIf="item.flannelBackend === 'Overlay'">
                     <label>Tunnel Name</label>
@@ -250,7 +223,8 @@
                 </clr-select-container>
                 <clr-input-container *ngIf="item.flannelBackend === 'Native Routing'" required>
                     <label>Native Routing Cidr</label>
-                    <input clrInput [size]="32" name="cilium_native_routing_cidr" [(ngModel)]="item.ciliumNativeRoutingCidr" required/>
+                    <input clrInput [size]="32" name="cilium_native_routing_cidr"
+                           [(ngModel)]="item.ciliumNativeRoutingCidr" required/>
                 </clr-input-container>
             </div>
         </form>
@@ -286,8 +260,9 @@
     </clr-wizard-page>
 
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="!(masters.length===1 || masters.length===3) || workers.length === 0"
-                     (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
+    <!--    <clr-wizard-page [clrWizardPageNextDisabled]="!(masters.length===1 || masters.length===3) || workers.length === 0"-->
+    <!--                     (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">-->
+    <clr-wizard-page (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <span>{{'APP_CLUSTER_HOST_HELPER'|translate}}</span>
         <form>
@@ -361,17 +336,11 @@
                 <h4>{{'APP_CLUSTER_SETUP'|translate}}</h4>
                 <table class="table table-noborder">
                     <tbody>
+
+
                     <tr>
                         <td class="left bold">{{"APP_CLUSTER"|translate}} CIDR</td>
                         <td class="left">{{item.clusterCidr}}</td>
-                    </tr>
-                    <tr>
-                        <td class="left bold">POD {{"APP_NUM_LIMIT"|translate}}/{{"APP_NODE"|translate}}</td>
-                        <td class="left">{{item.maxNodePodNum}}</td>
-                    </tr>
-                    <tr>
-                        <td class="left bold">Service {{"APP_NUM_LIMIT"|translate}}/{{"APP_CLUSTER"|translate}}</td>
-                        <td class="left">{{item.maxClusterServiceNum}}</td>
                     </tr>
 
                     <tr>

@@ -67,8 +67,8 @@ type ClusterCreate struct {
 	SupportGpu              string       `json:"supportGpu"`
 	YumOperate              string       `json:"yumOperate"`
 	ClusterCIDR             string       `json:"clusterCidr"`
-	MaxClusterServiceNum    int          `json:"maxClusterServiceNum"`
-	MaxNodePodNum           int          `json:"maxNodePodNum"`
+	ServiceCIDR             string       `json:"serviceCidr"`
+	MaxPodNum               int          `json:"maxPodNum"`
 }
 
 type ClusterBatch struct {

@@ -72,9 +72,9 @@ export class ClusterCreateRequest extends BaseModel {
     networkInterface: string;
     supportGpu: string;
     yumOperate: string;
-    maxClusterServiceNum: number;
-    maxNodePodNum: number;
     clusterCidr: string;
+    serviceCidr: string;
+    maxPodNum: number;
 }
 
 export class CLusterImportRequest {

@@ -37,12 +37,10 @@ export class ClusterCreateComponent implements OnInit {
     helmVersions: string[] = [];
 
 
-    part1Options = ['192', '172', '10'];
-    part2Options = [];
-    part3Options = [];
-    parts = ['192', '168', '0', '0', '16'];
-    maskOptions = [];
-    maxNodesNum = 255;
+    clusterCidr = "10.244.0.0/18"
+    serviceCidr = "10.244.64.0/18"
+    maxPodNum = 110
+
 
     podMaxNumOptions = [32, 64, 128, 256];
     serviceMaxNumOptions = [32, 64, 128, 256, 512, 1024, 2048, 4096];
@@ -77,80 +75,9 @@ export class ClusterCreateComponent implements OnInit {
         });
     }
 
-    onPart1Change() {
-        switch (this.parts[0]) {
-            case '192':
-                this.part2Options = ['168'];
-                this.maskOptions = [].concat(['16', '17', '18', '19']);
-                this.parts[4] = this.maskOptions[0];
-                break;
-            case '172':
-                const selects1 = [];
-                for (let i = 16; i < 32; i++) {
-                    if (i !== 17) {
-                        selects1.push(i + '');
-                    }
-                }
-                this.part2Options = selects1;
-                this.parts[1] = this.part2Options[0];
-                this.maskOptions = [].concat(['16', '17', '18', '19']);
-                this.parts[4] = this.maskOptions[0];
-                break;
-            case '10':
-                this.parts[1] = this.part2Options[0];
-                this.maskOptions = [].concat(['14', '15', '16', '17', '18', '19']);
-                this.parts[4] = this.maskOptions[0];
-                break;
-        }
-        this.onMaskChange();
-    }
-
-    onMaskChange() {
-        const mask = Number(this.parts[4]);
-        if (this.parts[0] === '192' || this.parts[0] === '172') {
-            const a = Math.pow(2, (32 - mask - 8));
-            const selects = [];
-            for (let i = 0; i < 256; i += a) {
-                selects.push(i);
-            }
-            this.part3Options = selects;
-            this.parts[2] = this.part3Options[0];
-        }
-        if (this.parts[0] === '10') {
-            if (mask < 16) {
-                const a = Math.pow(2, (32 - mask - 16));
-                const selects = [];
-                for (let i = 0; i < 256; i += a) {
-                    selects.push(i);
-                }
-                this.part2Options = selects;
-                this.parts[1] = this.part2Options[0];
-
-            } else {
-                const select1 = [];
-                for (let i = 0; i < 256; i++) {
-                    select1.push(i);
-                }
-                this.part2Options = select1;
-                this.parts[1] = this.part2Options[0];
-                const a = Math.pow(2, (32 - mask - 8));
-                const selects = [];
-                for (let i = 0; i < 256; i += a) {
-                    selects.push(i);
-                }
-                this.part3Options = selects;
-                this.parts[2] = this.part3Options[0];
-            }
-        }
-        this.getNodeNum();
-    }
 
 
-    getNodeNum() {
-        this.item.clusterCidr = this.releaseCidr();
-        // tslint:disable-next-line:max-line-length
-        this.maxNodesNum = Math.pow(2, 32 - Number(this.parts[4])) / this.item.maxNodePodNum - Math.ceil(this.item.maxClusterServiceNum / this.item.maxNodePodNum);
-    }
+
 
 
     reset() {
@@ -164,13 +91,6 @@ export class ClusterCreateComponent implements OnInit {
         this.nameValid = true;
         this.nameChecking = false;
         this.helmVersions = ['v3', 'v2'];
-        this.part1Options = ['192', '172', '10'];
-        this.part2Options = [];
-        this.part3Options = [];
-        this.parts = ['192', '168', '0', '0', '16'];
-        this.maskOptions = [];
-        this.maxNodesNum = 255;
-
     }
 
     setDefaultValue() {
@@ -195,10 +115,9 @@ export class ClusterCreateComponent implements OnInit {
         this.item.helmVersion = 'v3';
         this.item.supportGpu = 'disable';
         this.item.yumOperate = 'replace';
-        this.item.clusterCidr = '192.168.0.0/16';
-        this.item.maxNodePodNum = 256;
-        this.item.maxClusterServiceNum = 256;
-        this.onPart1Change();
+        this.item.clusterCidr = "10.244.0.0/18"
+        this.item.serviceCidr = "10.244.64.0/18"
+        this.item.maxPodNum = 110
     }
 
     onNameCheck() {
@@ -391,9 +310,6 @@ export class ClusterCreateComponent implements OnInit {
         return hostName;
     }
 
-    releaseCidr() {
-        return this.parts[0] + '.' + this.parts[1] + '.' + this.parts[2] + '.' + this.parts[3] + '/' + this.parts[4];
-    }
 
 
 }
