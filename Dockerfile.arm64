@@ -32,19 +32,15 @@ RUN make build_server_linux GOARCH=$GOARCH
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
 FROM kubeoperator/euleros:2.0
-ARG GOARCH
 
-
-
-RUN echo > /etc/yum.repos.d/Euler-Base.repo && echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo
-
-RUN curl -sSLo /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
-
-RUN yum install -y  git wget
+RUN echo > /etc/yum.repos.d/Euler-Base.repo \
+    && echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo \
+    && yum install -y wget
 
 WORKDIR /usr/local/bin
 
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && chmod +x encrypt_linux_$GOARCH
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_arm64 \
+    && chmod +x encrypt_linux_arm64
 
 WORKDIR /tmp
 
@@ -52,9 +48,9 @@ RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polar
     && tar zxvf ./polaris.tar.gz \
     && mv ./polaris-1.2.1/checks/ /checks
 
-
-RUN yum remove -y  wget
-
+RUN yum remove -y wget \
+    && yum clean all \
+    && rm -rf /var/cache/yum/*
 
 WORKDIR /
 

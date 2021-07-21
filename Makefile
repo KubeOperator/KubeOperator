@@ -32,7 +32,7 @@ docker_server:
 	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) -f ./Dockerfile.$(GOARCH) --build-arg XPACK="no" .
 
 docker_server_xpack:
-	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) -f ./Dockerfile.$(GOARCH) . --build-arg XPACK="yes" .
+	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) -f ./Dockerfile.$(GOARCH) --build-arg XPACK="yes" .
 
 clean:
 	rm -fr ./dist
