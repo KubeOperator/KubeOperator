@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"net"
 	"strings"
 	"time"
 
@@ -12,9 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/sirupsen/logrus"
-
-	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
-	"github.com/pkg/errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -350,15 +346,16 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		NetworkCidr:             creation.NetworkCidr,
 		SupportGpu:              creation.SupportGpu,
 		YumOperate:              creation.YumOperate,
+		KubePodSubnet:           creation.KubePodSubnet,
+		KubeServiceSubnet:       creation.KubeServiceSubnet,
+		MaxNodeNum:              creation.MaxNodeNum,
 	}
 
-	spec.KubePodSubnet = creation.ClusterCIDR
-	serviceCIDR, nodeMask, err := getServiceCIDRAndNodeCIDRMaskSize(creation.ClusterCIDR, creation.MaxClusterServiceNum, creation.MaxNodePodNum)
+	nodeMask, err := getNodeCIDRMaskSize(creation.MaxNodePodNum)
 	if err != nil {
 		return nil, err
 	}
 
-	spec.KubeServiceSubnet = serviceCIDR
 	spec.KubeMaxPods = maxNodePodNumMap[nodeMask]
 	spec.KubeNetworkNodePrefix = nodeMask
 
@@ -525,34 +522,10 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	return &dto.Cluster{Cluster: cluster}, nil
 }
 
-func getServiceCIDRAndNodeCIDRMaskSize(clusterCIDR string, maxClusterServiceNum int, maxNodePodNum int) (string, int, error) {
-	if maxClusterServiceNum <= 0 || maxNodePodNum <= 0 {
-		return "", 0, errors.New("maxClusterServiceNum or maxNodePodNum must more than 0")
-	}
-	_, svcSubnetCIDR, err := net.ParseCIDR(clusterCIDR)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "ParseCIDR error")
-	}
-
-	size := ipaddr.RangeSize(svcSubnetCIDR)
-	if size < int64(maxClusterServiceNum) {
-		return "", 0, errors.New("clusterCIDR IP size is less than maxClusterServiceNum")
-	}
-	lastIP, err := ipaddr.GetIndexedIP(svcSubnetCIDR, int(size-1))
-	if err != nil {
-		return "", 0, errors.Wrap(err, "get last IP error")
-	}
-
-	maskSize := int(math.Ceil(math.Log2(float64(maxClusterServiceNum))))
-	_, serviceCidr, _ := net.ParseCIDR(fmt.Sprintf("%s/%d", lastIP.String(), 32-maskSize))
-
+func getNodeCIDRMaskSize(maxNodePodNum int) (int, error) {
 	nodeCidrOccupy := math.Ceil(math.Log2(float64(maxNodePodNum)))
 	nodeCIDRMaskSize := 32 - int(nodeCidrOccupy)
-	ones, _ := svcSubnetCIDR.Mask.Size()
-	if ones > nodeCIDRMaskSize {
-		return "", 0, errors.New("clusterCIDR IP size is less than maxNodePodNum")
-	}
-	return serviceCidr.String(), nodeCIDRMaskSize, nil
+	return nodeCIDRMaskSize, nil
 }
 
 func (c *clusterService) Delete(name string, force bool) error {
