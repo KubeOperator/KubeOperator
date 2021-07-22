@@ -1,2 +1,2 @@
-ALTER TABLE ko_cluster_spec ADD COLUMN max_node_num int(11) NOT NULL AFTER kube_max_pods;
-UPDATE ko_cluster_spec AS s SET s.max_node_num = POW(2, s.kube_network_node_prefix - SUBSTRING_INDEX(s.kube_pod_subnet, '/', -1)); 
+ALTER TABLE `ko_cluster_spec` ADD COLUMN `max_node_num` int(11) DEFAULT NULL AFTER `kube_max_pods`;
+UPDATE `ko_cluster_spec` AS s SET s.max_node_num = POW(2, s.kube_network_node_prefix - SUBSTRING_INDEX(s.kube_pod_subnet, '/', -1));
