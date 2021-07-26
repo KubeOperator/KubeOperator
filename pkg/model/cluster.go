@@ -206,7 +206,7 @@ func (c Cluster) BeforeDelete() error {
 				}
 			}
 			var clusterResourceSyncLogs []MultiClusterSyncClusterResourceLog
-			if err := tx.Where("multi_cluster_sync_cluster_log_id", clusterLog.ID).Find(&clusterResourceSyncLogs).Error; err != nil {
+			if err := tx.Where("multi_cluster_sync_cluster_log_id = ?", clusterLog.ID).Find(&clusterResourceSyncLogs).Error; err != nil {
 				return err
 			}
 			for _, resourceLog := range clusterResourceSyncLogs {

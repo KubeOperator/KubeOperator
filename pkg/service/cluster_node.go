@@ -28,12 +28,14 @@ type ClusterNodeService interface {
 	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) error
+	Recreate(clusterName string, name string) error
 	Page(num, size int, clusterName string) (*dto.NodePage, error)
 }
 
 func NewClusterNodeService() ClusterNodeService {
 	return &clusterNodeService{
 		ClusterService:      NewClusterService(),
+		clusterRepo:         repository.NewClusterRepository(),
 		NodeRepo:            repository.NewClusterNodeRepository(),
 		HostRepo:            repository.NewHostRepository(),
 		systemSettingRepo:   repository.NewSystemSettingRepository(),
@@ -47,6 +49,7 @@ func NewClusterNodeService() ClusterNodeService {
 
 type clusterNodeService struct {
 	ClusterService      ClusterService
+	clusterRepo         repository.ClusterRepository
 	NodeRepo            repository.ClusterNodeRepository
 	HostRepo            repository.HostRepository
 	planService         PlanService
@@ -231,6 +234,71 @@ exit:
 	return nodes, nil
 }
 
+func (c clusterNodeService) Recreate(clusterName, name string) error {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	var node model.ClusterNode
+	if err = db.DB.Where("cluster_id = ? AND name = ?", cluster.ID, name).First(&node).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).Updates(map[string]interface{}{
+		"Status":    constant.StatusInitializing,
+		"PreStatus": constant.StatusFailed,
+		"Message":   "",
+	}).Error; err != nil {
+		return err
+	}
+	go c.recreate(&cluster, &node)
+	return nil
+}
+
+func (c clusterNodeService) recreate(cluster *model.Cluster, node *model.ClusterNode) {
+	var (
+		nodes      []model.ClusterNode
+		newNodeIDs []string
+		newHostIDs []string
+	)
+	nodes = append(nodes, *node)
+	newNodeIDs = append(newNodeIDs, node.ID)
+	newHostIDs = append(newNodeIDs, node.HostID)
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		logger.Log.Info("cluster-plan restart add hosts, update hosts status and infos")
+		if err := c.updataHostInfo(cluster, newNodeIDs, newHostIDs); err != nil {
+			if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).Updates(map[string]interface{}{
+				"Status":    constant.StatusFailed,
+				"PreStatus": constant.ClusterInitializing,
+				"Message":   err.Error(),
+			}).Error; err != nil {
+				logger.Log.Errorf("can not update node status reason %s", err.Error())
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
+				return
+			}
+		}
+	}
+	if err := c.runAddWorkerPlaybook(cluster, nodes, "disabled"); err != nil {
+		if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).
+			Updates(map[string]interface{}{
+				"Status":    constant.StatusFailed,
+				"PreStatus": constant.ClusterInitializing,
+				"Message":   err.Error(),
+			}).Error; err != nil {
+			logger.Log.Errorf("can not update node status reason %s", err.Error())
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
+			return
+		}
+	}
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).
+		Updates(map[string]interface{}{"Status": constant.StatusRunning, "PreStatus": constant.ClusterInitializing}).Error; err != nil {
+		logger.Log.Errorf("can not update node status reason %s", err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
+		return
+	}
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
+	logger.Log.Info("create cluster nodes successful!")
+}
+
 func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error {
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
@@ -281,7 +349,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 		}
 	}
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusTerminating}).Error; err != nil {
+		Updates(map[string]interface{}{"Status": constant.StatusTerminating, "PreStatus": constant.StatusFailed, "Message": ""}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 		return err
 	}
@@ -296,15 +364,18 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 		var p model.Plan
 		if err := tx.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			return
 		}
 		planDTO, err := c.planService.Get(p.Name)
 		if err != nil {
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			return
 		}
 		cluster.Plan = planDTO.Plan
 
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			return
 		}
 		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
 			logger.Log.Error("destroy host failed error %+v", err)
@@ -314,41 +385,43 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 		if err := tx.Where("id in (?)", hostIDs).Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ProjectResource{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ClusterResource{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			return
 		}
 		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
 			Update("status", constant.IpAvailable).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			return
 		}
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			return
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
-		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
-			Delete(&model.ClusterResource{}).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
-		}
 		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
 			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			return
 		}
 	}
 	if err := tx.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 		tx.Rollback()
 		c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+		return
 	}
 	tx.Commit()
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
@@ -358,8 +431,8 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 func (c *clusterNodeService) updateNodeStatus(clusterName string, notDirtyNodeID []string, errMsg error, isDirty bool) {
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, errMsg.Error()), clusterName, constant.ClusterRemoveWorker)
 	logger.Log.Errorf("remove node failed: %+v", errMsg)
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id in ?", notDirtyNodeID).
-		Updates(map[string]interface{}{"Status": constant.ClusterFailed, "Message": errMsg.Error(), "Dirty": isDirty}).Error; err != nil {
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", notDirtyNodeID).
+		Updates(map[string]interface{}{"Status": constant.ClusterFailed, "PreStatus": constant.ClusterTerminating, "Message": errMsg.Error(), "Dirty": isDirty}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 	}
 }
@@ -448,14 +521,14 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 	}
 	if err := c.runAddWorkerPlaybook(cluster, newNodes, SupportGpu); err != nil {
 		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-			Updates(map[string]interface{}{"Status": constant.StatusFailed, "Message": err.Error()}).Error; err != nil {
+			Updates(map[string]interface{}{"Status": constant.StatusFailed, "PreStatus": constant.StatusInitializing, "Message": err.Error()}).Error; err != nil {
 			logger.Log.Errorf("can not update node status reason %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
 		}
 		return
 	}
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusRunning}).Error; err != nil {
+		Updates(map[string]interface{}{"Status": constant.StatusRunning, "PreStatus": constant.StatusInitializing}).Error; err != nil {
 		logger.Log.Errorf("can not update node status reason %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
 	}
@@ -490,9 +563,10 @@ func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, n
 		}
 		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
 			Updates(map[string]interface{}{
-				"Status":  constant.StatusFailed,
-				"Message": fmt.Errorf("can not create hosts reason %s", err.Error()),
-				"HostID":  "",
+				"Status":    constant.StatusFailed,
+				"PreStatus": constant.StatusCreating,
+				"Message":   fmt.Errorf("can not create hosts reason %s", err.Error()),
+				"HostID":    "",
 			}).Error; err != nil {
 			logger.Log.Errorf("can not update node status reason %s", err.Error())
 		}
@@ -611,8 +685,8 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		}
 	}
 
-	var clusterResource model.ProjectResource
-	if err := db.DB.Where("resource_id = ? AND resource_type = ?", cluster.ID, constant.ResourceCluster).First(&clusterResource).Error; err != nil {
+	var projectResource model.ProjectResource
+	if err := db.DB.Where("resource_id = ? AND resource_type = ?", cluster.ID, constant.ResourceCluster).First(&projectResource).Error; err != nil {
 		return nil, fmt.Errorf("can not find project resource %s", err.Error())
 	}
 
@@ -635,7 +709,7 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		hostProjectResource := model.ProjectResource{
 			ResourceType: constant.ResourceHost,
 			ResourceID:   newHosts[i].ID,
-			ProjectID:    clusterResource.ProjectID,
+			ProjectID:    projectResource.ProjectID,
 		}
 		if err := tx.Create(&hostProjectResource).Error; err != nil {
 			tx.Rollback()

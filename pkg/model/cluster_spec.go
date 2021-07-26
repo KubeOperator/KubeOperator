@@ -25,6 +25,7 @@ type ClusterSpec struct {
 	KubeRouter              string `json:"kubeRouter"`
 	KubePodSubnet           string `json:"kubePodSubnet"`
 	KubeServiceSubnet       string `json:"kubeServiceSubnet"`
+	MaxNodeNum              int    `json:"maxNodeNum"`
 	DockerSubnet            string `json:"docker_subnet"`
 	WorkerAmount            int    `json:"workerAmount"`
 	KubeMaxPods             int    `json:"kubeMaxPods"`
