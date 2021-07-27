@@ -170,7 +170,7 @@ func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) e
 	}
 	now := time.Now()
 	day := now.Format("2006-01-02-15-04")
-	fileName := cluster.Name + "-" + day + ".backup.tar.gz"
+	fileName := cluster.Name + "-" + day + ".backup.db"
 	creation.Name = fileName
 	creation.Folder = cluster.Name + "/" + fileName
 	go c.doBackup(cluster.Cluster, creation)
