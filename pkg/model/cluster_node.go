@@ -62,7 +62,7 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 	return &registry, nil
 }
 
-func (n ClusterNode) ToKobeHost() *api.Host {
+func (n ClusterNode) ToKobeHost(role string) *api.Host {
 	if err := n.Host.GetHostConfig(); err != nil {
 		logger.Log.Errorf("get host config err, err: %s", err.Error())
 	}
@@ -74,7 +74,7 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 	}
 
 	r, _ := n.GetRegistry(n.Host.Architecture)
-	return &api.Host{
+	apiHost := api.Host{
 		Ip:         n.Host.Ip,
 		Name:       n.Name,
 		Port:       int32(n.Host.Port),
@@ -91,6 +91,19 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 			"registry_hosted_port": fmt.Sprintf("%v", r.RegistryHostedPort),
 		},
 	}
+	if role == "internal" {
+		return &apiHost
+	}
+	lb_role := ""
+	if n.Role == "master" {
+		lb_role = role
+	}
+	apiHost.Vars["lb_role"] = lb_role
+	for k, v := range apiHost.Vars {
+		fmt.Printf("key: %s, value: %s", k, v)
+	}
+	fmt.Println("okl")
+	return &apiHost
 }
 
 func (n ClusterNode) ToSSHConfig() ssh.Config {

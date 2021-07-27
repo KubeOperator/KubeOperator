@@ -378,8 +378,14 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.ContainerdStorageDir != "" {
 		result[facts.ContainerdStorageDirFactName] = c.Spec.ContainerdStorageDir
 	}
+	if c.Spec.LbMode != "" {
+		result[facts.LbModeFactName] = c.Spec.LbMode
+	}
 	if c.Spec.LbKubeApiserverIp != "" {
-		result[facts.LbKubeApiserverPortFactName] = c.Spec.LbKubeApiserverIp
+		result[facts.LbKubeApiserverIpFactName] = c.Spec.LbKubeApiserverIp
+	}
+	if c.Spec.LbKubeApiserverPort != "" {
+		result[facts.LbKubeApiserverPortFactName] = c.Spec.LbKubeApiserverPort
 	}
 	if c.Spec.KubePodSubnet != "" {
 		result[facts.KubePodSubnetFactName] = c.Spec.KubePodSubnet
@@ -429,8 +435,8 @@ func (c Cluster) ParseInventory() *api.Inventory {
 	var workers []string
 	var chrony []string
 	var hosts []*api.Host
+	i := 0
 	for _, node := range c.Nodes {
-		hosts = append(hosts, node.ToKobeHost())
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
 			if node.Status == "" || node.Status == constant.ClusterRunning {
@@ -440,6 +446,16 @@ func (c Cluster) ParseInventory() *api.Inventory {
 			if node.Status == "" || node.Status == constant.ClusterRunning {
 				workers = append(workers, node.Name)
 			}
+		}
+		if c.Spec.LbMode == "external" {
+			if i == 0 {
+				hosts = append(hosts, node.ToKobeHost("master"))
+				i = 1
+			} else {
+				hosts = append(hosts, node.ToKobeHost("backup"))
+			}
+		} else {
+			hosts = append(hosts, node.ToKobeHost("internal"))
 		}
 	}
 	if len(masters) > 0 {
@@ -468,10 +484,9 @@ func (c Cluster) ParseInventory() *api.Inventory {
 				Vars:  map[string]string{},
 			}, {
 
-				Name:     "lb",
-				Hosts:    []string{},
-				Children: []string{},
-				Vars:     map[string]string{},
+				Name:  "ex_lb",
+				Hosts: []string{},
+				Vars:  map[string]string{},
 			},
 			{
 				Name:     "etcd",
