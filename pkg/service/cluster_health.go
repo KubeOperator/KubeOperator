@@ -139,51 +139,15 @@ func checkKubernetesToken(c model.Cluster) dto.ClusterHealthHook {
 }
 
 func checkKubernetesApi(c model.Cluster) dto.ClusterHealthHook {
-	clusterService := NewClusterService()
 	result := dto.ClusterHealthHook{
 		Name:  HookNameCheckKubernetesApi,
 		Level: constant.ClusterHealthLevelSuccess,
 	}
-
-	endpoints, err := clusterService.GetApiServerEndpoints(c.Name)
-	if err != nil {
-		result.Msg = fmt.Sprintf("Get cluster secret error %s", err.Error())
+	isOK, err := GetClusterStatusByAPI(c)
+	if !isOK {
+		result.Msg = err
 		result.Level = constant.ClusterHealthLevelError
-		return result
 	}
-	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
-	if err != nil {
-		result.Msg = fmt.Sprintf("Select alive host error %s", err.Error())
-		result.Level = constant.ClusterHealthLevelError
-		return result
-	}
-	reqURL := fmt.Sprintf("https://%s", aliveHost)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Timeout: 3 * time.Second, Transport: tr}
-	secret, err := clusterService.GetSecrets(c.Name)
-	if err != nil {
-		result.Msg = fmt.Sprintf("Get secrets error %s", err.Error())
-		result.Level = constant.ClusterHealthLevelError
-		return result
-	}
-	token := fmt.Sprintf("%s %s", "Bearer", secret.KubernetesToken)
-	request, _ := http.NewRequest("GET", reqURL, nil)
-	request.Header.Add("Authorization", token)
-	response, err := client.Do(request)
-	if err != nil {
-		result.Msg = fmt.Sprintf("Http get error %s", err.Error())
-		result.Level = constant.ClusterHealthLevelError
-		return result
-	}
-	defer response.Body.Close()
-	if response.StatusCode == 200 {
-		return result
-	}
-	s, _ := ioutil.ReadAll(response.Body)
-	result.Msg = fmt.Sprintf("Api check error %s", string(s))
-	result.Level = constant.ClusterHealthLevelError
 	return result
 }
 
@@ -374,4 +338,38 @@ func getClusterToken(c model.Cluster) (string, error) {
 	sshConfig := master.ToSSHConfig()
 	client, _ := ssh.New(&sshConfig)
 	return clusterUtil.GetClusterToken(client)
+}
+
+func GetClusterStatusByAPI(c model.Cluster) (bool, string) {
+	clusterService := NewClusterService()
+	endpoints, err := clusterService.GetApiServerEndpoints(c.Name)
+	if err != nil {
+		return false, fmt.Sprintf("Get cluster secret error %s", err.Error())
+	}
+	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
+	if err != nil {
+		return false, fmt.Sprintf("Select alive host error %s", err.Error())
+	}
+	reqURL := fmt.Sprintf("https://%s", aliveHost)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Timeout: 3 * time.Second, Transport: tr}
+	secret, err := clusterService.GetSecrets(c.Name)
+	if err != nil {
+		return false, fmt.Sprintf("Get secrets error %s", err.Error())
+	}
+	token := fmt.Sprintf("%s %s", "Bearer", secret.KubernetesToken)
+	request, _ := http.NewRequest("GET", reqURL, nil)
+	request.Header.Add("Authorization", token)
+	response, err := client.Do(request)
+	if err != nil {
+		return false, fmt.Sprintf("Http get error %s", err.Error())
+	}
+	defer response.Body.Close()
+	if response.StatusCode == 200 {
+		return true, ""
+	}
+	s, _ := ioutil.ReadAll(response.Body)
+	return false, fmt.Sprintf("Api check error %s", string(s))
 }

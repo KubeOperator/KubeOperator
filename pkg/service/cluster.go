@@ -222,6 +222,16 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 	}
 
 	for _, mo := range clusters {
+		status := mo.Status.Phase
+		isOK, message := GetClusterStatusByAPI(mo)
+		if !isOK {
+			status = constant.ClusterNotReady
+			_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
+		}
+		if isOK && mo.Status.Phase == constant.ClusterNotReady {
+			status = constant.ClusterRunning
+			_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+		}
 		for _, res := range clusterResources {
 			if mo.ID == res.ResourceID {
 				for _, pro := range projects {
@@ -230,10 +240,11 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 							Cluster:       mo,
 							ProjectName:   pro.Name,
 							NodeSize:      len(mo.Nodes),
-							Status:        mo.Status.Phase,
+							Status:        status,
 							Provider:      mo.Spec.Provider,
 							PreStatus:     mo.Status.PrePhase,
 							Architectures: mo.Spec.Architectures,
+							Message:       message,
 						}
 						if len(mo.MultiClusterRepositories) > 0 {
 							clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name

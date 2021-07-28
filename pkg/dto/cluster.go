@@ -11,6 +11,7 @@ type Cluster struct {
 	Provider               string `json:"provider"`
 	Architectures          string `json:"architectures"`
 	MultiClusterRepository string `json:"multiClusterRepository"`
+	Message                string `json:"message"`
 }
 
 type ClusterPage struct {
