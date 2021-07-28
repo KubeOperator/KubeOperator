@@ -223,14 +223,18 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 
 	for _, mo := range clusters {
 		status := mo.Status.Phase
-		isOK, message := GetClusterStatusByAPI(mo)
-		if !isOK {
-			status = constant.ClusterNotReady
-			_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
-		}
-		if isOK && mo.Status.Phase == constant.ClusterNotReady {
-			status = constant.ClusterRunning
-			_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+		message := ""
+		if mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady {
+			isOK := false
+			isOK, message = GetClusterStatusByAPI(mo)
+			if !isOK {
+				status = constant.ClusterNotReady
+				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
+			}
+			if isOK && mo.Status.Phase == constant.ClusterNotReady {
+				status = constant.ClusterRunning
+				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+			}
 		}
 		for _, res := range clusterResources {
 			if mo.ID == res.ResourceID {
