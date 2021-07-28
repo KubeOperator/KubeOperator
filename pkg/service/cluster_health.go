@@ -2,14 +2,19 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"sync"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
@@ -38,9 +43,9 @@ type HealthCheckFunc func(c model.Cluster) dto.ClusterHealthHook
 
 func (c clusterHealthService) HealthCheck(clusterName string) (*dto.ClusterHealth, error) {
 	hookList := []HealthCheckFunc{
-		checkHostNetworkConnected,
 		checkHostSSHConnected,
-		checkKubernetesApiServer,
+		checkKubernetesToken,
+		checkKubernetesApi,
 		checkKubernetesNodeStatus,
 	}
 	clu, err := c.clusterService.Get(clusterName)
@@ -52,6 +57,8 @@ func (c clusterHealthService) HealthCheck(clusterName string) (*dto.ClusterHealt
 		hookResult := h(clu.Cluster)
 		if hookResult.Level == constant.ClusterHealthLevelError {
 			result.Level = constant.ClusterHealthLevelError
+			result.Hooks = append(result.Hooks, hookResult)
+			return &result, nil
 		}
 		result.Hooks = append(result.Hooks, hookResult)
 	}
@@ -59,67 +66,44 @@ func (c clusterHealthService) HealthCheck(clusterName string) (*dto.ClusterHealt
 }
 
 const (
-	HookNameCheckHostsNetwork            = "Check Hosts Network"
-	HookNameCheckHostsSSHConnection      = "Check Host SSH Connection"
-	HookNameCheckKubernetesApiConnection = "Check Kubernetes Api Connection"
-	HookNameCheckKubernetesNodeStatus    = "Check Kubernetes Node Status"
+	HookNameCheckHostsSSHConnection   = "Check Host SSH Connection"       // 检测节点可连接性
+	HookNameCheckKubernetesToken      = "Check Kubernetes Token"          // 检测集群 token 是否匹配
+	HookNameCheckKubernetesApi        = "Check Kubernetes Api Connection" // 检测集群 API 是否已就绪
+	HookNameCheckKubernetesNodeStatus = "Check Kubernetes Node Status"    // 检测集群节点是否同步
 )
 
-func checkHostNetworkConnected(c model.Cluster) dto.ClusterHealthHook {
-	result := dto.ClusterHealthHook{
-		Name:  HookNameCheckHostsNetwork,
-		Level: constant.ClusterHealthLevelSuccess,
-	}
-	aliveMaster := 0
-	wg := &sync.WaitGroup{}
-	for i := range c.Nodes {
-		wg.Add(1)
-		i := i
-		go func() {
-			defer wg.Done()
-			if err := ipaddr.Ping(c.Nodes[i].Host.Ip); err != nil {
-				result.Level = constant.ClusterHealthLevelWarning
-				result.Msg += err.Error()
-				return
-			}
-			if c.Nodes[i].Role == constant.NodeRoleNameMaster {
-				aliveMaster++
-			}
-		}()
-	}
-	wg.Wait()
-	if !(aliveMaster > 0) {
-		result.Level = constant.ClusterHealthLevelError
-	}
-	return result
-}
 func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 	result := dto.ClusterHealthHook{
 		Name:  HookNameCheckHostsSSHConnection,
 		Level: constant.ClusterHealthLevelSuccess,
 	}
 	aliveMaster := 0
-	wg := &sync.WaitGroup{}
+	wg := sync.WaitGroup{}
 	for i := range c.Nodes {
 		wg.Add(1)
-		i := i
-		go func() {
+		go func(n int) {
 			defer wg.Done()
-			sshCfg := c.Nodes[i].ToSSHConfig()
+			if err := ipaddr.Ping(c.Nodes[n].Host.Ip); err != nil {
+				result.Level = constant.ClusterHealthLevelWarning
+				result.Msg += fmt.Sprintf("Ping %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
+				return
+			}
+			sshCfg := c.Nodes[n].ToSSHConfig()
 			sshClient, err := ssh.New(&sshCfg)
 			if err != nil {
-				result.Msg += err.Error()
+				result.Level = constant.ClusterHealthLevelWarning
+				result.Msg += fmt.Sprintf("Ssh %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
 				return
 			}
 			if err := sshClient.Ping(); err != nil {
 				result.Level = constant.ClusterHealthLevelWarning
-				result.Msg += err.Error()
+				result.Msg += fmt.Sprintf("Ssh ping %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
 				return
 			}
-			if c.Nodes[i].Role == constant.NodeRoleNameMaster {
+			if c.Nodes[n].Role == constant.NodeRoleNameMaster {
 				aliveMaster++
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 	if !(aliveMaster > 0) {
@@ -127,24 +111,79 @@ func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 	}
 	return result
 }
-func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
-	client, level, msg := getBaseParams(c)
-	result := dto.ClusterHealthHook{
-		Name:  HookNameCheckKubernetesApiConnection,
-		Level: level,
-		Msg:   msg,
-	}
-	if len(msg) != 0 {
-		logger.Log.Errorf("get cluster %s base info failed: %s", c.Name, msg)
-		return result
-	}
 
-	_, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+func checkKubernetesToken(c model.Cluster) dto.ClusterHealthHook {
+	clusterService := NewClusterService()
+	result := dto.ClusterHealthHook{
+		Name:  HookNameCheckKubernetesToken,
+		Level: constant.ClusterHealthLevelSuccess,
+	}
+	token, err := getClusterToken(c)
 	if err != nil {
-		result.Msg = fmt.Sprintf("get cluster %s api error %s", c.Name, err.Error())
+		result.Msg = fmt.Sprintf("Get token form cluster failed %s", err.Error())
 		result.Level = constant.ClusterHealthLevelError
 		return result
 	}
+	secret, err := clusterService.GetSecrets(c.Name)
+	if err != nil {
+		result.Msg = fmt.Sprintf("Get token from db failed %s", err.Error())
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	if token != secret.KubernetesToken {
+		result.Msg = "The cluster token is inconsistent with the database"
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	return result
+}
+
+func checkKubernetesApi(c model.Cluster) dto.ClusterHealthHook {
+	clusterService := NewClusterService()
+	result := dto.ClusterHealthHook{
+		Name:  HookNameCheckKubernetesApi,
+		Level: constant.ClusterHealthLevelSuccess,
+	}
+
+	endpoints, err := clusterService.GetApiServerEndpoints(c.Name)
+	if err != nil {
+		result.Msg = fmt.Sprintf("Get cluster secret error %s", err.Error())
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
+	if err != nil {
+		result.Msg = fmt.Sprintf("Select alive host error %s", err.Error())
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	reqURL := fmt.Sprintf("https://%s", aliveHost)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Timeout: 3 * time.Second, Transport: tr}
+	secret, err := clusterService.GetSecrets(c.Name)
+	if err != nil {
+		result.Msg = fmt.Sprintf("Get secrets error %s", err.Error())
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	token := fmt.Sprintf("%s %s", "Bearer", secret.KubernetesToken)
+	request, _ := http.NewRequest("GET", reqURL, nil)
+	request.Header.Add("Authorization", token)
+	response, err := client.Do(request)
+	if err != nil {
+		result.Msg = fmt.Sprintf("Http get error %s", err.Error())
+		result.Level = constant.ClusterHealthLevelError
+		return result
+	}
+	defer response.Body.Close()
+	if response.StatusCode == 200 {
+		return result
+	}
+	s, _ := ioutil.ReadAll(response.Body)
+	result.Msg = fmt.Sprintf("Api check error %s", string(s))
+	result.Level = constant.ClusterHealthLevelError
 	return result
 }
 
@@ -185,10 +224,10 @@ func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 }
 
 var resolveMethods = map[string]string{
-	HookNameCheckHostsNetwork:            "No method",
-	HookNameCheckHostsSSHConnection:      "No method",
-	HookNameCheckKubernetesApiConnection: "Get kubernetes token again",
-	HookNameCheckKubernetesNodeStatus:    "Update cluster node status",
+	HookNameCheckHostsSSHConnection:   "No method",
+	HookNameCheckKubernetesToken:      "Get kubernetes token again",
+	HookNameCheckKubernetesApi:        "No method",
+	HookNameCheckKubernetesNodeStatus: "Update cluster node status",
 }
 
 func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverItem, error) {
@@ -206,7 +245,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 		for i := range ch.Hooks {
 			if ch.Hooks[i].Level == constant.ClusterHealthLevelError {
 				switch ch.Hooks[i].Name {
-				case HookNameCheckHostsNetwork, HookNameCheckHostsSSHConnection:
+				case HookNameCheckHostsSSHConnection, HookNameCheckKubernetesApi:
 					ri := dto.ClusterRecoverItem{
 						Name:     resolveMethods[ch.Hooks[i].Name],
 						HookName: ch.Hooks[i].Name,
@@ -215,7 +254,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 					}
 					result = append(result, ri)
 					return result, nil
-				case HookNameCheckKubernetesApiConnection:
+				case HookNameCheckKubernetesToken:
 					ri := dto.ClusterRecoverItem{
 						Name:     resolveMethods[ch.Hooks[i].Name],
 						HookName: ch.Hooks[i].Name,
@@ -289,7 +328,7 @@ func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverI
 }
 
 func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
-	var clusterService = NewClusterService()
+	clusterService := NewClusterService()
 	secret, err := clusterService.GetSecrets(c.Name)
 	if err != nil {
 		msg := fmt.Sprintf("get cluster %s secret error %s", c.Name, err.Error())
@@ -322,4 +361,17 @@ func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
 	}
 
 	return kubeClient, constant.ClusterHealthLevelSuccess, ""
+}
+
+func getClusterToken(c model.Cluster) (string, error) {
+	var master model.ClusterNode
+	for _, item := range c.Nodes {
+		if item.Role == constant.NodeRoleNameMaster {
+			master = item
+			break
+		}
+	}
+	sshConfig := master.ToSSHConfig()
+	client, _ := ssh.New(&sshConfig)
+	return clusterUtil.GetClusterToken(client)
 }

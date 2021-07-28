@@ -378,7 +378,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 			return
 		}
 		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
-			logger.Log.Error("destroy host failed error %+v", err)
+			logger.Log.Errorf("destroy host failed error %+v", err)
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 
