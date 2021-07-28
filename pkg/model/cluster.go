@@ -435,6 +435,8 @@ func (c Cluster) ParseInventory() *api.Inventory {
 	var workers []string
 	var chrony []string
 	var hosts []*api.Host
+	var lbhosts []string
+
 	i := 0
 	for _, node := range c.Nodes {
 		switch node.Role {
@@ -448,6 +450,9 @@ func (c Cluster) ParseInventory() *api.Inventory {
 			}
 		}
 		if c.Spec.LbMode == "external" {
+			if node.Role == constant.NodeRoleNameMaster {
+				lbhosts = append(lbhosts, node.Name)
+			}
 			if i == 0 {
 				hosts = append(hosts, node.ToKobeHost("master"))
 				i = 1
@@ -483,9 +488,8 @@ func (c Cluster) ParseInventory() *api.Inventory {
 				Hosts: []string{},
 				Vars:  map[string]string{},
 			}, {
-
 				Name:  "ex_lb",
-				Hosts: []string{},
+				Hosts: lbhosts,
 				Vars:  map[string]string{},
 			},
 			{
