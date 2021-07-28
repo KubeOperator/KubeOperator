@@ -99,10 +99,6 @@ func (n ClusterNode) ToKobeHost(role string) *api.Host {
 		lb_role = role
 	}
 	apiHost.Vars["lb_role"] = lb_role
-	for k, v := range apiHost.Vars {
-		fmt.Printf("key: %s, value: %s", k, v)
-	}
-	fmt.Println("okl")
 	return &apiHost
 }
 
