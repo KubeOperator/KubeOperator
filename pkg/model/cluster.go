@@ -384,8 +384,8 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.LbKubeApiserverIp != "" {
 		result[facts.LbKubeApiserverIpFactName] = c.Spec.LbKubeApiserverIp
 	}
-	if c.Spec.LbKubeApiserverPort != "" {
-		result[facts.LbKubeApiserverPortFactName] = c.Spec.LbKubeApiserverPort
+	if c.Spec.KubeApiServerPort != 0 {
+		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.Spec.KubeApiServerPort)
 	}
 	if c.Spec.KubePodSubnet != "" {
 		result[facts.KubePodSubnetFactName] = c.Spec.KubePodSubnet

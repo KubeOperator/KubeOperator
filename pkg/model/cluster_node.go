@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -91,7 +92,7 @@ func (n ClusterNode) ToKobeHost(role string) *api.Host {
 			"registry_hosted_port": fmt.Sprintf("%v", r.RegistryHostedPort),
 		},
 	}
-	if role == "internal" {
+	if role == constant.LbModeInternal {
 		return &apiHost
 	}
 	lb_role := ""

@@ -22,7 +22,6 @@ type ClusterSpec struct {
 	ContainerdStorageDir    string `json:"containerdStorageDir"`
 	LbMode                  string `json:"lbMode"`
 	LbKubeApiserverIp       string `json:"lbKubeApiserverIp"`
-	LbKubeApiserverPort     string `json:"lbKubeApiserverPort"`
 	KubeApiServerPort       int    `json:"kubeApiServerPort"`
 	KubeRouter              string `json:"kubeRouter"`
 	KubePodSubnet           string `json:"kubePodSubnet"`

@@ -71,7 +71,7 @@ type ClusterCreate struct {
 	YumOperate              string       `json:"yumOperate"`
 	LbMode                  string       `json:"lbMode"`
 	LbKubeApiserverIp       string       `json:"lbKubeApiserverIp"`
-	LbKubeApiserverPort     string       `json:"lbKubeApiserverPort"`
+	KubeApiServerPort       int          `json:"kubeApiserverPort"`
 
 	KubePodSubnet     string `json:"kubePodSubnet"`
 	MaxNodePodNum     int    `json:"maxNodePodNum"`

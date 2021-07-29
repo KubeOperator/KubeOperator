@@ -7,7 +7,7 @@ const (
 	ContainerRuntimeFactName             = "container_runtime"
 	LbModeFactName                       = "lb_mode"
 	LbKubeApiserverIpFactName            = "lb_kube_apiserver_ip"
-	LbKubeApiserverPortFactName          = "lb_kube_apiserver_port"
+	KubeApiserverPortFactName            = "lb_kube_apiserver_port"
 	KubeDnsDomainFactName                = "kube_dns_domain"
 	KubePodSubnetFactName                = "kube_pod_subnet"
 	KubeServiceSubnetFactName            = "kube_service_subnet"
@@ -73,7 +73,7 @@ var DefaultFacts = map[string]string{
 	ContainerRuntimeFactName:             "docker",
 	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",
 	LbModeFactName:                       "internal",
-	LbKubeApiserverPortFactName:          "8443",
+	KubeApiserverPortFactName:            "8443",
 	KubeDnsDomainFactName:                "cluster.local",
 	KubePodSubnetFactName:                "10.244.0.0/18",
 	KubeServiceSubnetFactName:            "10.244.64.0/18",

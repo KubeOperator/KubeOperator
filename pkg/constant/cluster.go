@@ -36,6 +36,7 @@ const (
 
 	NodeRoleNameMaster = "master"
 	NodeRoleNameWorker = "worker"
+	LbModeInternal     = "internal"
 
 	ClusterProviderBareMetal = "bareMetal"
 	ClusterProviderPlan      = "plan"

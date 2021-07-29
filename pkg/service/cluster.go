@@ -355,7 +355,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		Architectures:           creation.Architectures,
 		KubernetesAudit:         creation.KubernetesAudit,
 		DockerSubnet:            creation.DockerSubnet,
-		KubeApiServerPort:       constant.DefaultApiServerPort,
 		HelmVersion:             creation.HelmVersion,
 		NetworkInterface:        creation.NetworkInterface,
 		NetworkCidr:             creation.NetworkCidr,
@@ -363,7 +362,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		YumOperate:              creation.YumOperate,
 		LbMode:                  creation.LbMode,
 		LbKubeApiserverIp:       creation.LbKubeApiserverIp,
-		LbKubeApiserverPort:     creation.LbKubeApiserverPort,
+		KubeApiServerPort:       creation.KubeApiServerPort,
 		KubePodSubnet:           creation.KubePodSubnet,
 		KubeServiceSubnet:       creation.KubeServiceSubnet,
 		MaxNodeNum:              creation.MaxNodeNum,
@@ -433,6 +432,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	case constant.ClusterProviderBareMetal:
 		workerNo := 1
 		masterNo := 1
+		firstMasterIP := ""
 		for _, nc := range creation.Nodes {
 			n := model.ClusterNode{
 				ClusterID: cluster.ID,
@@ -441,6 +441,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			switch n.Role {
 			case constant.NodeRoleNameMaster:
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
+				if len(firstMasterIP) == 0 {
+					firstMasterIP = n.Host.Ip
+				}
 				masterNo++
 			case constant.NodeRoleNameWorker:
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
@@ -474,6 +477,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			}
 			n.Host = host
 			cluster.Nodes = append(cluster.Nodes, n)
+		}
+		if cluster.Spec.LbMode == constant.LbModeInternal {
+			cluster.Spec.LbKubeApiserverIp = firstMasterIP
 		}
 		if len(cluster.Nodes) > 0 {
 			spec.KubeRouter = cluster.Nodes[0].Host.Ip

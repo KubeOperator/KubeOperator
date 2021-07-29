@@ -115,12 +115,21 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 		case constant.ClusterRunning:
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
+			firstMasterIP := ""
 			for i := range cluster.Nodes {
-				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
-				_ = c.clusterSpecRepo.Save(&cluster.Spec)
+				if cluster.Nodes[i].Role == constant.NodeRoleNameMaster && len(firstMasterIP) == 0 {
+					firstMasterIP = cluster.Nodes[i].Host.Ip
+				}
 				cluster.Nodes[i].Status = constant.ClusterRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}
+			if len(cluster.Nodes) > 0 {
+				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
+			}
+			if cluster.Spec.LbMode == constant.LbModeInternal {
+				cluster.Spec.LbKubeApiserverIp = firstMasterIP
+			}
+			_ = c.clusterSpecRepo.Save(&cluster.Spec)
 			cancel()
 			err := c.GatherKubernetesToken(cluster.Cluster)
 			if err != nil {
