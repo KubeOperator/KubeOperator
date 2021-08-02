@@ -1,0 +1,1 @@
+UPDATE ko_cluster_manifest SET network_vars='[{\"name\":\"calico\",\"version\":\"v3.19.1\"}, {\"name\":\"flanneld\",\"version\":\"v0.13.0\"}, {\"name\":\"cilium\",\"version\":\"v1.9.5\"}]' WHERE name='v1.18.15-ko1';
