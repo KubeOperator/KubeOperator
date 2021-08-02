@@ -102,7 +102,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.dockerStorageDir = '/var/lib/docker';
         this.item.containerdStorageDir = '/var/lib/containerd';
         this.item.flannelBackend = 'vxlan';
-        this.item.enableDnsCache = 'enable';
+        this.item.enableDnsCache = 'disable';
         this.item.dnsCacheVersion = '1.17.0';
         this.item.calicoIpv4poolIpip = 'Always';
         this.item.dockerSubnet = '172.17.0.1/16';

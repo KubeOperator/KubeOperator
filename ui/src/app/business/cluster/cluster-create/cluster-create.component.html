@@ -103,6 +103,12 @@
                 </select>
             </clr-select-container>
 
+            <clr-input-container>
+                <label>NodePort {{"APP_ADDRESS"|translate}}</label>
+                <input clrInput [size]="32" placeholder="192.168.10.0/24,192.168.60.0/24" name="nodeport_address" [(ngModel)]="item.nodeportAddress"/>
+                <clr-control-helper>{{"APP_ADDRESS_HELP"|translate}}</clr-control-helper>
+            </clr-input-container>
+
             <clr-select-container>
                 <label>{{"APP_DNS_CACHE"|translate}}</label>
                 <select clrSelect name="enableDnsCache" [(ngModel)]="item.enableDnsCache">
@@ -345,6 +351,11 @@
                     <tr>
                         <td class="left bold">proxy {{"APP_MODE"|translate}}</td>
                         <td class="left">{{item.kubeProxyMode}}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="left bold">NodePort {{"APP_ADDRESS"|translate}}</td>
+                        <td class="left">{{item.nodeportAddress}}</td>
                     </tr>
                     </tbody>
                 </table>

@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_cluster_spec` ADD COLUMN `nodeport_address` VARCHAR(255) NULL AFTER `kube_proxy_mode`;

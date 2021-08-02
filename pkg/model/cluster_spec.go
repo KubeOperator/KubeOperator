@@ -29,6 +29,7 @@ type ClusterSpec struct {
 	WorkerAmount            int    `json:"workerAmount"`
 	KubeMaxPods             int    `json:"kubeMaxPods"`
 	KubeProxyMode           string `json:"kubeProxyMode"`
+	NodeportAddress         string `json:"nodeportAddress"`
 	EnableDnsCache          string `json:"enableDnsCache"`
 	DnsCacheVersion         string `json:"dnsCacheVersion"`
 	IngressControllerType   string `json:"ingressControllerType"`

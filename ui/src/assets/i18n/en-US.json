@@ -386,6 +386,8 @@
   "APP_MIN": "Min",
   "APP_AUDIT": "Audit",
   "APP_MODE": "Mode",
+  "APP_ADDRESS": "Address",
+  "APP_ADDRESS_HELP": "This parameter is not mandatory. All local addresses are used by default",
   "APP_IP_CHECK_SUCCESS": "Verification successful",
   "APP_BACKUP_NOW": "Backup Now",
   "APP_RESTORE": "Restore",

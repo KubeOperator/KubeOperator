@@ -14,6 +14,7 @@ const (
 	KubeMaxPodsFactName                  = "kube_max_pods"
 	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
 	KubeProxyModeFactName                = "kube_proxy_mode"
+	NodePortAddressFactName              = "nodeport_address"
 	EnableDnsCacheFactName               = "enable_dns_cache"
 	DnsCacheVersionFactName              = "dns_cache_version"
 	NetworkPluginFactName                = "network_plugin"
@@ -78,7 +79,8 @@ var DefaultFacts = map[string]string{
 	KubeNetworkNodePrefixFactName:        "24",
 	KubeMaxPodsFactName:                  "110",
 	KubeProxyModeFactName:                "iptables",
-	EnableDnsCacheFactName:               "enable",
+	NodePortAddressFactName:              "",
+	EnableDnsCacheFactName:               "disable",
 	DnsCacheVersionFactName:              "1.17.0",
 	NetworkPluginFactName:                "calico",
 	CiliumVersionFactName:                "v1.9.5",

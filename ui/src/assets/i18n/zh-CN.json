@@ -393,6 +393,8 @@
   "APP_MIN": "最小",
   "APP_AUDIT": "审计",
   "APP_MODE": "模式",
+  "APP_ADDRESS": "地址",
+  "APP_ADDRESS_HELP": "非必填，默认使用所有本地地址",
   "APP_IP_CHECK_SUCCESS": "校验成功！",
   "APP_BACKUP_NOW": "立即备份",
   "APP_RESTORE": "恢复",

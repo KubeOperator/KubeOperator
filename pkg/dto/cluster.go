@@ -54,6 +54,7 @@ type ClusterCreate struct {
 	FlannelBackend          string       `json:"flannelBackend"`
 	CalicoIpv4poolIpip      string       `json:"calicoIpv4PoolIpip"`
 	KubeProxyMode           string       `json:"kubeProxyMode"`
+	NodeportAddress         string       `json:"nodeportAddress"`
 	EnableDnsCache          string       `json:"enableDnsCache"`
 	DnsCacheVersion         string       `json:"dnsCacheVersion"`
 	IngressControllerType   string       `json:"ingressControllerType"`
