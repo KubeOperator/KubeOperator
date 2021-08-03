@@ -44,7 +44,7 @@ type ClusterService interface {
 	GetKubeconfig(name string) (string, error)
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
-	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
+	Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
 	Delete(name string, force bool) error
 }
 
@@ -148,7 +148,7 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	return clusterDTOS, err
 }
 
-func (c clusterService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error) {
+func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error) {
 	var (
 		page             dto.ClusterPage
 		clusters         []model.Cluster
@@ -224,7 +224,7 @@ func (c clusterService) Page(num, size int, user dto.SessionUser, conditions con
 	for _, mo := range clusters {
 		status := mo.Status.Phase
 		message := ""
-		if mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady {
+		if (mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
 			isOK, message = GetClusterStatusByAPI(mo)
 			if !isOK {

@@ -59,12 +59,19 @@ func NewClusterController() *ClusterController {
 // @Router /clusters/ [get]
 func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
+	var conditions condition.Conditions
 	sessionUser := c.Ctx.Values().Get("user")
 	user, _ := sessionUser.(dto.SessionUser)
+	if c.Ctx.GetContentLength() > 0 {
+		if err := c.Ctx.ReadJSON(&conditions); err != nil {
+			return nil, err
+		}
+	}
 	if page {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		pageItem, err := c.ClusterService.Page(num, size, user, condition.TODO())
+		isPolling := c.Ctx.URLParam(constant.PageSizeQueryKey)
+		pageItem, err := c.ClusterService.Page(num, size, isPolling, user, conditions)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +101,8 @@ func (c ClusterController) PostSearch() (*dto.ClusterPage, error) {
 	if page {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		pageItem, err := c.ClusterService.Page(num, size, user, conditions)
+		isPolling := c.Ctx.URLParam("isPolling")
+		pageItem, err := c.ClusterService.Page(num, size, isPolling, user, conditions)
 		if err != nil {
 			return nil, err
 		}
