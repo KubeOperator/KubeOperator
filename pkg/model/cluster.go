@@ -399,6 +399,12 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.KubeProxyMode != "" {
 		result[facts.KubeProxyModeFactName] = c.Spec.KubeProxyMode
 	}
+	if c.Spec.NodeportAddress != "" {
+		result[facts.NodeportAddressFactName] = c.Spec.NodeportAddress
+	}
+	if c.Spec.KubeServiceNodePortRange != "" {
+		result[facts.KubeServiceNodePortRangeFactName] = c.Spec.KubeServiceNodePortRange
+	}
 	if c.Spec.IngressControllerType != "" {
 		result[facts.IngressControllerTypeFactName] = c.Spec.IngressControllerType
 	}

@@ -41,37 +41,39 @@ type NodeCreate struct {
 }
 
 type ClusterCreate struct {
-	Name                    string       `json:"name" binding:"required"`
-	Version                 string       `json:"version" binding:"required"`
-	Provider                string       `json:"provider"`
-	Plan                    string       `json:"plan"`
-	WorkerAmount            int          `json:"workerAmount"`
-	NetworkType             string       `json:"networkType"`
-	CiliumVersion           string       `json:"ciliumVersion"`
-	CiliumTunnelMode        string       `json:"ciliumTunnelMode"`
-	CiliumNativeRoutingCidr string       `json:"ciliumNativeRoutingCidr"`
-	RuntimeType             string       `json:"runtimeType"`
-	DockerStorageDIr        string       `json:"dockerStorageDIr"`
-	ContainerdStorageDIr    string       `json:"containerdStorageDIr"`
-	FlannelBackend          string       `json:"flannelBackend"`
-	CalicoIpv4poolIpip      string       `json:"calicoIpv4PoolIpip"`
-	KubeProxyMode           string       `json:"kubeProxyMode"`
-	EnableDnsCache          string       `json:"enableDnsCache"`
-	DnsCacheVersion         string       `json:"dnsCacheVersion"`
-	IngressControllerType   string       `json:"ingressControllerType"`
-	Architectures           string       `json:"architectures"`
-	KubernetesAudit         string       `json:"kubernetesAudit"`
-	DockerSubnet            string       `json:"dockerSubnet"`
-	Nodes                   []NodeCreate `json:"nodes"`
-	ProjectName             string       `json:"projectName"`
-	HelmVersion             string       `json:"helmVersion"`
-	NetworkInterface        string       `json:"networkInterface"`
-	NetworkCidr             string       `json:"networkCidr"`
-	SupportGpu              string       `json:"supportGpu"`
-	YumOperate              string       `json:"yumOperate"`
-	LbMode                  string       `json:"lbMode"`
-	LbKubeApiserverIp       string       `json:"lbKubeApiserverIp"`
-	KubeApiServerPort       int          `json:"kubeApiserverPort"`
+	Name                     string       `json:"name" binding:"required"`
+	Version                  string       `json:"version" binding:"required"`
+	Provider                 string       `json:"provider"`
+	Plan                     string       `json:"plan"`
+	WorkerAmount             int          `json:"workerAmount"`
+	NetworkType              string       `json:"networkType"`
+	CiliumVersion            string       `json:"ciliumVersion"`
+	CiliumTunnelMode         string       `json:"ciliumTunnelMode"`
+	CiliumNativeRoutingCidr  string       `json:"ciliumNativeRoutingCidr"`
+	RuntimeType              string       `json:"runtimeType"`
+	DockerStorageDIr         string       `json:"dockerStorageDIr"`
+	ContainerdStorageDIr     string       `json:"containerdStorageDIr"`
+	FlannelBackend           string       `json:"flannelBackend"`
+	CalicoIpv4poolIpip       string       `json:"calicoIpv4PoolIpip"`
+	KubeProxyMode            string       `json:"kubeProxyMode"`
+	NodeportAddress          string       `json:"nodeportAddress"`
+	KubeServiceNodePortRange string       `json:"kubeServiceNodePortRange"`
+	EnableDnsCache           string       `json:"enableDnsCache"`
+	DnsCacheVersion          string       `json:"dnsCacheVersion"`
+	IngressControllerType    string       `json:"ingressControllerType"`
+	Architectures            string       `json:"architectures"`
+	KubernetesAudit          string       `json:"kubernetesAudit"`
+	DockerSubnet             string       `json:"dockerSubnet"`
+	Nodes                    []NodeCreate `json:"nodes"`
+	ProjectName              string       `json:"projectName"`
+	HelmVersion              string       `json:"helmVersion"`
+	NetworkInterface         string       `json:"networkInterface"`
+	NetworkCidr              string       `json:"networkCidr"`
+	SupportGpu               string       `json:"supportGpu"`
+	YumOperate               string       `json:"yumOperate"`
+	LbMode                   string       `json:"lbMode"`
+	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
+	KubeApiServerPort        int          `json:"kubeApiserverPort"`
 
 	KubePodSubnet     string `json:"kubePodSubnet"`
 	MaxNodePodNum     int    `json:"maxNodePodNum"`

@@ -13,6 +13,7 @@ const (
 	KubeServiceSubnetFactName            = "kube_service_subnet"
 	KubeNetworkNodePrefixFactName        = "kube_network_node_prefix"
 	KubeMaxPodsFactName                  = "kube_max_pods"
+	NodeportAddressFactName              = "nodeport_address"
 	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
 	KubeProxyModeFactName                = "kube_proxy_mode"
 	EnableDnsCacheFactName               = "enable_dns_cache"
@@ -87,6 +88,7 @@ var DefaultFacts = map[string]string{
 	CiliumVersionFactName:                "v1.9.5",
 	CiliumTunnelModeFactName:             "vxlan",
 	CiliumNativeRoutingCidrFactName:      "10.244.0.0/18",
+	NodeportAddressFactName:              "",
 	KubeServiceNodePortRangeFactName:     "30000-32767",
 	KubeletRootDirFactName:               "/var/lib/kubelet",
 	DockerStorageDirFactName:             "/var/lib/docker",
