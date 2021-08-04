@@ -8,17 +8,6 @@ CLUSTER_IS_NOT_RUNNING: "集群不在运行中！"
 CLUSTER_IS_NOT_LOCAL: "导入集群无法升级"
 
 
-#health check
-CHECK_HOST_SSH_CONNECTION: "检测节点可连接性"
-CHECK_K8S_TOKEN: "检测集群 token 是否匹配"
-CHECK_K8S_API: "检测集群 API 是否已就绪"
-CHECK_K8S_NODE_STATUS: "检测集群节点是否同步"
-STATUS_SUCCESS: "成功"
-STATUS_WARNING: "警告"
-STATUS_FAILED: "失败"
-STATUS_ERROR: "错误"
-
-
 #credential
 DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"
 DELETE_FAILED_RESOURCE_ZONE: "删除失败！该秘钥下有关联可用区"

@@ -9,17 +9,6 @@ CLUSTER_IS_NOT_RUNNING: "The cluster is not running"
 CLUSTER_IS_NOT_LOCAL: "Import cluster cannot be upgraded"
 
 
-#health check
-CHECK_HOST_SSH_CONNECTION: "Check host SSH connection"
-CHECK_K8S_TOKEN: "Check kubernetes token"
-CHECK_K8S_API: "Check kubernetes api connection"
-CHECK_K8S_NODE_STATUS: "Check kubernetes node status"
-STATUS_SUCCESS: "Successful"
-STATUS_WARNING: "Warning"
-STATUS_FAILED: "Failed"
-STATUS_ERROR: "Error"
-
-
 #credential
 DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under this key"
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"

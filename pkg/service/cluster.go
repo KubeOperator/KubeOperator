@@ -564,7 +564,7 @@ func (c *clusterService) Delete(name string, force bool) error {
 	switch cluster.Source {
 	case constant.ClusterSourceLocal:
 		switch cluster.Status {
-		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed:
+		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed, constant.StatusNotReady:
 			cluster.Cluster.Status.Phase = constant.StatusTerminating
 			cluster.Cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
 			condition := model.ClusterStatusCondition{
