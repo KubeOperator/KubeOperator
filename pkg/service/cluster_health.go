@@ -77,13 +77,6 @@ func (c clusterHealthService) HealthCheck(clusterName string) (*dto.ClusterHealt
 	return &result, nil
 }
 
-// const (
-// 	CheckHostSSHConnection   = "Check Host SSH Connection"       // 检测节点可连接性
-// 	CheckK8sToken      = "Check Kubernetes Token"          // 检测集群 token 是否匹配
-// 	CheckK8sAPI        = "Check Kubernetes Api Connection" // 检测集群 API 是否已就绪
-// 	CheckK8sNodeStatus = "Check Kubernetes Node Status"    // 检测集群节点是否同步
-// )
-
 func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 	result := dto.ClusterHealthHook{
 		Name:  CheckHostSSHConnection,
@@ -200,10 +193,10 @@ func checkKubernetesNodeStatus(c model.Cluster) dto.ClusterHealthHook {
 }
 
 var resolveMethods = map[string]string{
-	CheckHostSSHConnection: "No method",
-	CheckK8sToken:          "Get kubernetes token again",
-	CheckK8sAPI:            "No method",
-	CheckK8sNodeStatus:     "Update cluster node status",
+	CheckHostSSHConnection: "NO_METHODS",
+	CheckK8sToken:          "GET_K8S_TOKEN_ANGIN",
+	CheckK8sAPI:            "NO_METHODS",
+	CheckK8sNodeStatus:     "UPDATE_CLUSTER_NODE_STATUS",
 }
 
 func (c clusterHealthService) Recover(clusterName string) ([]dto.ClusterRecoverItem, error) {
