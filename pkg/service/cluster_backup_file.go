@@ -283,7 +283,9 @@ func (c cLusterBackupFileService) Restore(restore dto.ClusterBackupFileRestore) 
 		return err
 	}
 	restore.BackupAccount = *backupAccount
-	go c.doRestore(restore)
+	go func() {
+		c.doRestore(restore)
+	}()
 	return nil
 }
 
