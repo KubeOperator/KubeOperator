@@ -29,7 +29,7 @@ type ClusterNodeService interface {
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) error
 	Recreate(clusterName string, name string) error
-	Page(num, size int, clusterName string) (*dto.NodePage, error)
+	Page(num, size int, isPolling, clusterName string) (*dto.NodePage, error)
 }
 
 func NewClusterNodeService() ClusterNodeService {
@@ -76,7 +76,7 @@ func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
 	}, nil
 }
 
-func (c clusterNodeService) Page(num, size int, clusterName string) (*dto.NodePage, error) {
+func (c clusterNodeService) Page(num, size int, isPolling, clusterName string) (*dto.NodePage, error) {
 	var nodes []dto.Node
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
@@ -124,17 +124,19 @@ exit:
 					}
 				}
 				n.Info = kn
-				if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
-					for _, condition := range kn.Status.Conditions {
-						if condition.Type == "Ready" && condition.Status == "True" {
-							n.Status = constant.StatusRunning
-						}
-						if condition.Type == "Ready" && condition.Status == "False" {
-							n.Status = constant.ClusterFailed
-						}
-						if condition.Type == "Ready" && condition.Status == "Unknown" {
-							n.Status = constant.StatusNotReady
-							n.Message = condition.Message
+				if isPolling != "true" {
+					if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
+						for _, condition := range kn.Status.Conditions {
+							if condition.Type == "Ready" && condition.Status == "True" {
+								n.Status = constant.StatusRunning
+							}
+							if condition.Type == "Ready" && condition.Status == "False" {
+								n.Status = constant.ClusterFailed
+							}
+							if condition.Type == "Ready" && condition.Status == "Unknown" {
+								n.Status = constant.StatusNotReady
+								n.Message = condition.Message
+							}
 						}
 					}
 				}
