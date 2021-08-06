@@ -374,7 +374,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 		cluster.Plan = planDTO.Plan
 
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 			return
 		}
 		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
@@ -384,43 +384,43 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, n
 
 		if err := tx.Where("id in (?)", hostIDs).Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ProjectResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ClusterResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
 			Update("status", constant.IpAvailable).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 			return
 		}
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
 			return
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
 			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+			c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 			return
 		}
 	}
 	if err := tx.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 		tx.Rollback()
-		c.updateNodeStatus(cluster.Name, nodeIDs, err, true)
+		c.updateNodeStatus(cluster.Name, nodeIDs, err, false)
 		return
 	}
 	tx.Commit()
