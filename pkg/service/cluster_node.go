@@ -257,28 +257,8 @@ func (c clusterNodeService) Recreate(clusterName, name string) error {
 }
 
 func (c clusterNodeService) recreate(cluster *model.Cluster, node *model.ClusterNode) {
-	var (
-		nodes      []model.ClusterNode
-		newNodeIDs []string
-		newHostIDs []string
-	)
+	var nodes []model.ClusterNode
 	nodes = append(nodes, *node)
-	newNodeIDs = append(newNodeIDs, node.ID)
-	newHostIDs = append(newNodeIDs, node.HostID)
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		logger.Log.Info("cluster-plan restart add hosts, update hosts status and infos")
-		if err := c.updataHostInfo(cluster, newNodeIDs, newHostIDs); err != nil {
-			if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).Updates(map[string]interface{}{
-				"Status":    constant.StatusFailed,
-				"PreStatus": constant.ClusterInitializing,
-				"Message":   err.Error(),
-			}).Error; err != nil {
-				logger.Log.Errorf("can not update node status reason %s", err.Error())
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
-				return
-			}
-		}
-	}
 	if err := c.runAddWorkerPlaybook(cluster, nodes, "disabled"); err != nil {
 		if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).
 			Updates(map[string]interface{}{
