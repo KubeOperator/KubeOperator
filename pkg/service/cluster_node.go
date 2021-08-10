@@ -205,7 +205,7 @@ exit:
 					}
 				}
 				n.Info = kn
-				if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
+				if n.Status == constant.StatusRunning || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
 					for _, condition := range kn.Status.Conditions {
 						if condition.Type == "Ready" && condition.Status == "True" {
 							n.Status = constant.StatusRunning
