@@ -68,6 +68,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		Spec: model.ClusterSpec{
 			LbKubeApiserverIp: address,
 			KubeApiServerPort: port,
+			Architectures:     clusterImport.Architectures,
 			KubeRouter:        clusterImport.Router,
 		},
 		Secret: model.ClusterSecret{
