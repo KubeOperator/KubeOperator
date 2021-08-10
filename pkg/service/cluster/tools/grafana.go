@@ -40,7 +40,7 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 	values["initChownData.enabled"] = true
 	values["initChownData.image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["busybox_image_name"])
 	values["initChownData.image.tag"] = imageMap["busybox_image_tag"]
-	values["downloadDashboardsImage.repository"] = imageMap["curl_image_name"]
+	values["downloadDashboardsImage.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["curl_image_name"])
 	values["downloadDashboardsImage.tag"] = imageMap["curl_image_tag"]
 
 	if isInstall {
