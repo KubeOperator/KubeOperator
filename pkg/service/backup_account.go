@@ -51,8 +51,13 @@ func (b backupAccountService) Get(name string) (*dto.BackupAccount, error) {
 	if err != nil {
 		return nil, err
 	}
+	vars := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
+		return nil, err
+	}
 	backupAccountDTO = dto.BackupAccount{
-		BackupAccount: *mo,
+		CredentialVars: vars,
+		BackupAccount:  *mo,
 	}
 	return &backupAccountDTO, nil
 }

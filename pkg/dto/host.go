@@ -22,6 +22,14 @@ type HostCreate struct {
 	Credential   CredentialOfHostCreate `json:"credential"`
 }
 
+type HostUptate struct {
+	Name         string                 `json:"name" validate:"required"`
+	Ip           string                 `json:"ip" validate:"required"`
+	Port         int                    `json:"port" validate:"required"`
+	CredentialID string                 `json:"credentialId"`
+	Credential   CredentialOfHostCreate `json:"credential"`
+}
+
 type CredentialOfHostCreate struct {
 	Name       string `json:"name"`
 	Username   string `json:"username"`

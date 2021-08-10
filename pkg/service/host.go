@@ -36,6 +36,7 @@ type HostService interface {
 	List(projectName string, conditions condition.Conditions) ([]dto.Host, error)
 	Page(num, size int, projectName string, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.HostCreate) (*dto.Host, error)
+	Update(host dto.HostUptate) (*dto.Host, error)
 	Delete(name string) error
 	SyncList(names []dto.HostSync) error
 	Sync(name string) (dto.Host, error)
@@ -318,6 +319,70 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 	tx.Commit()
 	go h.RunGetHostConfig(&host)
 	return &dto.Host{Host: host}, nil
+}
+
+func (h *hostService) Update(host dto.HostUptate) (*dto.Host, error) {
+	tx := db.DB.Begin()
+	var num int
+	if err := db.DB.Model(model.SystemRegistry{}).Where("hostname = ?", host.Ip).Count(&num).Error; err != nil {
+		return nil, err
+	}
+	if num != 0 {
+		return nil, errors.New("IS_LOCAL_HOST")
+	}
+	var credential model.Credential
+	if host.CredentialID != "" {
+		if err := db.DB.Where(model.Credential{ID: host.CredentialID}).First(&credential).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		var password string
+		if host.Credential.Password != "" {
+			p, err := encrypt.StringEncrypt(host.Credential.Password)
+			if err != nil {
+				return nil, err
+			}
+			password = p
+		}
+		c := model.Credential{
+			Name:       host.Credential.Name,
+			Password:   password,
+			Username:   host.Credential.Username,
+			PrivateKey: host.Credential.PrivateKey,
+			Type:       host.Credential.Type,
+		}
+		if err := tx.Create(&c).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		credential = c
+	}
+	var oldHost model.Host
+	if err := tx.Where("name = ?", host.Name).First(&oldHost).Error; err != nil {
+		return nil, err
+	}
+	if err := tx.Model(&model.Host{}).Where("id = ?", oldHost.ID).Updates(map[string]interface{}{
+		"Ip":           host.Ip,
+		"Port":         host.Port,
+		"CredentialID": credential.ID,
+		"Status":       constant.ClusterInitializing,
+	}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	newHost := model.Host{
+		ID:           oldHost.ID,
+		Name:         host.Name,
+		Ip:           host.Ip,
+		Port:         host.Port,
+		CredentialID: credential.ID,
+		Credential:   credential,
+		Status:       constant.ClusterInitializing,
+	}
+
+	tx.Commit()
+	go h.RunGetHostConfig(&newHost)
+	return &dto.Host{Host: newHost}, nil
 }
 
 func (h *hostService) SyncList(hosts []dto.HostSync) error {

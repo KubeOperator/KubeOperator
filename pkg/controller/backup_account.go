@@ -51,6 +51,19 @@ func (b BackupAccountController) Get() (*page.Page, error) {
 	}
 }
 
+// Get Host
+// @Tags backupaccounts
+// @Summary Show a backupaccounts
+// @Description show a backupaccounts by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.BackupAccount
+// @Security ApiKeyAuth
+// @Router /backupaccounts/{name}/ [get]
+func (b BackupAccountController) GetBy(name string) (*dto.BackupAccount, error) {
+	return b.BackupAccountService.Get(name)
+}
+
 // Search BackupAccount
 // @Tags backupAccounts
 // @Summary Search backupAccount
