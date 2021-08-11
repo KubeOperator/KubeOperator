@@ -408,18 +408,20 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
 			return
 		}
-		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes, resetWorkerPlaybook); err != nil {
-			// 未执行 reset 的脏节点直接删除
-			if err := tx.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
-				logger.Log.Errorf("delete node failed, err: %v", err)
+		if len(notDirtyNodes) != 0 {
+			if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes, resetWorkerPlaybook); err != nil {
+				// 未执行 reset 的脏节点直接删除
+				if err := tx.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+					logger.Log.Errorf("delete node failed, err: %v", err)
+				}
+				// 执行 reset 失败的节点，返回错误信息
+				var notDirtyNodeIDs []string
+				for _, node := range notDirtyNodes {
+					notDirtyNodeIDs = append(notDirtyNodeIDs, node.ID)
+				}
+				c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, notDirtyNodeIDs, err, true)
+				return
 			}
-			// 执行 reset 失败的节点，返回错误信息
-			var notDirtyNodeIDs []string
-			for _, node := range notDirtyNodes {
-				notDirtyNodeIDs = append(notDirtyNodeIDs, node.ID)
-			}
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, notDirtyNodeIDs, err, true)
-			return
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
@@ -518,7 +520,11 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 		}
 	}
 	logger.Log.Info("start binding nodes to cluster")
-	c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusInitializing, constant.StatusCreating, newNodeIDs, nil, false)
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
+		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating}).Error; err != nil {
+		c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusInitializing, constant.StatusCreating, newNodeIDs, err, false)
+		return
+	}
 
 	if err := c.runAddWorkerPlaybook(cluster, newNodes, SupportGpu); err != nil {
 		c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusFailed, constant.StatusInitializing, newNodeIDs, err, false)
@@ -535,10 +541,14 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 }
 
 func (c *clusterNodeService) updateNodeStatus(operation, clusterName, status, preStatus string, notDirtyNodeID []string, errMsg error, isDirty bool) {
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errMsg.Error()), clusterName, operation)
+	errmsg := ""
+	if errMsg != nil {
+		errmsg = errMsg.Error()
+	}
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), clusterName, operation)
 	logger.Log.Infof("change node statu %s to %s, msg: %v", status, preStatus, errMsg)
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", notDirtyNodeID).
-		Updates(map[string]interface{}{"Status": status, "PreStatus": preStatus, "Message": errMsg.Error(), "Dirty": isDirty}).Error; err != nil {
+		Updates(map[string]interface{}{"Status": status, "PreStatus": preStatus, "Message": errmsg, "Dirty": isDirty}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 	}
 }
@@ -750,7 +760,7 @@ func (c clusterNodeService) doCreateHosts(cluster *model.Cluster, hosts []*model
 }
 
 const removeWorkerPlaybook = "96-remove-worker.yml"
-const resetWorkerPlaybook = "97-remove-worker.yml"
+const resetWorkerPlaybook = "97-reset-worker.yml"
 
 func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode, playbookName string) error {
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
