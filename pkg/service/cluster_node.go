@@ -304,28 +304,28 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 			logger.Log.Errorf("can not update node status %s", err.Error())
 			return err
 		}
-		go c.removeNodes(&cluster.Cluster, item, currentNodes)
+		var nodesForDelete []model.ClusterNode
+		if err := db.DB.Where("name in (?)", item.Nodes).
+			Preload("Host").
+			Preload("Host.Credential").
+			Preload("Host.Zone").
+			Find(&nodesForDelete).Error; err != nil {
+			return err
+		}
+		go c.removeNodes(&cluster.Cluster, item, currentNodes, nodesForDelete)
 		return nil
 	}
 	return nil
 }
 
-func prepareRemove(item dto.NodeBatch) ([]model.ClusterNode, []model.ClusterNode, []string, []string, []string, []string, error) {
+func prepareRemove(item dto.NodeBatch, nodesForDelete []model.ClusterNode) ([]model.ClusterNode, []string, []string, []string, []string, error) {
 	var (
-		nodesForDelete []model.ClusterNode
-		notDirtyNodes  []model.ClusterNode
-		dirtyNodeIDs   []string
-		nodeIDs        []string
-		hostIDs        []string
-		hostIPs        []string
+		notDirtyNodes []model.ClusterNode
+		dirtyNodeIDs  []string
+		nodeIDs       []string
+		hostIDs       []string
+		hostIPs       []string
 	)
-	if err := db.DB.Where("name in (?)", item.Nodes).
-		Preload("Host").
-		Preload("Host.Credential").
-		Preload("Host.Zone").
-		Find(&nodesForDelete).Error; err != nil {
-		return nodesForDelete, notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, fmt.Errorf("can not find nodes reason %s", err.Error())
-	}
 
 	// notDirtyNodes 待执行脚本的节点（非强制删除的所有、强制删除时 运行状态或非脏节点）
 	logger.Log.Infof("start delete nodes")
@@ -343,19 +343,18 @@ func prepareRemove(item dto.NodeBatch) ([]model.ClusterNode, []model.ClusterNode
 			notDirtyNodes = append(notDirtyNodes, node)
 		}
 	}
-	return nodesForDelete, notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, nil
+	return notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, nil
 }
 
-func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBatch, currentNodes []model.ClusterNode) {
-	nodesForDelete, notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, err := prepareRemove(item)
+func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBatch, currentNodes, nodesForDelete []model.ClusterNode) {
+	notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, err := prepareRemove(item, nodesForDelete)
 	if err != nil {
 		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 	}
 
-	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
-		if err := tx.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
+		if err := db.DB.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
@@ -380,6 +379,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 
+		tx := db.DB.Begin()
 		if err := tx.Where("id in (?)", hostIDs).Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
@@ -403,6 +403,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
+		tx.Commit()
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, nodesForDelete, removeWorkerPlaybook); err != nil {
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
@@ -411,7 +412,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		if len(notDirtyNodes) != 0 {
 			if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes, resetWorkerPlaybook); err != nil {
 				// 未执行 reset 的脏节点直接删除
-				if err := tx.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+				if err := db.DB.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 					logger.Log.Errorf("delete node failed, err: %v", err)
 				}
 				// 执行 reset 失败的节点，返回错误信息
@@ -424,19 +425,15 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 			}
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
-		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).
-			Updates(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
-			tx.Rollback()
+		if err := db.DB.Model(&model.Host{}).Where("id in (?)", hostIDs).Update(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 	}
-	if err := tx.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
-		tx.Rollback()
+	if err := db.DB.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 		return
 	}
-	tx.Commit()
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
 	logger.Log.Info("delete node successful!")
 }
