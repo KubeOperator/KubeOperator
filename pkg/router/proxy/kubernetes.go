@@ -24,7 +24,7 @@ import (
 func KubernetesClientProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
 	proxyPath := ctx.Params().Get("p")
-	endpoints, err := clusterService.GetApiServerEndpoints(clusterName)
+	endpoints, _ := clusterService.GetApiServerEndpoints(clusterName)
 
 	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
 	if err != nil {
@@ -80,11 +80,13 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 
 	proxyPath := ctx.Params().Get("p")
 	tmpPath = proxyPath[(strings.Index(proxyPath, "/v1/") + 4):]
-	if strings.Index(tmpPath, "/") != -1 {
+	if strings.Contains(tmpPath, "/") {
 		itemvalue := strings.Split(tmpPath, "/")
-		askModule = itemvalue[0]
-		if len(itemvalue) == 2 {
-			askParam = itemvalue[1]
+		if len(itemvalue) < 4 {
+			askModule = itemvalue[0]
+			if len(itemvalue) == 2 {
+				askParam = itemvalue[1]
+			}
 		}
 	} else {
 		askModule = tmpPath
@@ -117,7 +119,6 @@ func goSaveLogs(askParam, clusterName, operator, deleteConstant, createConstant 
 			}
 		}
 	}
-	return
 }
 
 func getOperator(ctx context.Context) string {

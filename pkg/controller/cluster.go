@@ -70,7 +70,7 @@ func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	if page {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		isPolling := c.Ctx.URLParam(constant.PageSizeQueryKey)
+		isPolling := c.Ctx.URLParam("isPolling")
 		pageItem, err := c.ClusterService.Page(num, size, isPolling, user, conditions)
 		if err != nil {
 			return nil, err
@@ -396,7 +396,8 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 	if p {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		pageItem, err := c.ClusterNodeService.Page(num, size, clusterName)
+		isPolling := c.Ctx.URLParam("isPolling")
+		pageItem, err := c.ClusterNodeService.Page(num, size, isPolling, clusterName)
 		if err != nil {
 			return nil, err
 		}

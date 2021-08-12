@@ -238,7 +238,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/backupaccounts/buckets",
 			"/api/v1/projects/{**}/{resources,members}",
 		},
-		Method: []string{"POST"},
+		Method: []string{"POST", "PATCH"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{RoleAdmin},
 			AllowAnyone:     false,

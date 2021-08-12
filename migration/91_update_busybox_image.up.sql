@@ -1,0 +1,1 @@
+UPDATE ko_cluster_tool_detail SET vars='{\"grafana_image_name\":\"grafana/grafana\",\"grafana_image_tag\":\"7.3.3\",\"busybox_image_name\":\"kubeoperator/busybox\",\"busybox_image_tag\":\"1.28\",\"curl_image_name\":\"curlimages/curl\",\"curl_image_tag\":\"7.73.0\"}' WHERE name='grafana' AND version='v7.3.3';

@@ -1,8 +1,9 @@
 package controller
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"io/ioutil"
+
+	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -122,6 +123,29 @@ func (h *HostController) Post() (*dto.Host, error) {
 	}
 
 	item, err := h.HostService.Create(req)
+	if err != nil {
+		return nil, err
+	}
+
+	operator := h.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_HOST, req.Name)
+
+	return item, nil
+}
+
+func (h *HostController) Patch() (*dto.Host, error) {
+	var req dto.HostUptate
+	err := h.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+
+	item, err := h.HostService.Update(req)
 	if err != nil {
 		return nil, err
 	}

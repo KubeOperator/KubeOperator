@@ -97,12 +97,12 @@ func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 			sshClient, err := ssh.New(&sshCfg)
 			if err != nil {
 				result.Level = StatusWarning
-				result.Msg += fmt.Sprintf("Ssh %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
+				result.Msg += fmt.Sprintf("SSH %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
 				return
 			}
 			if err := sshClient.Ping(); err != nil {
 				result.Level = StatusWarning
-				result.Msg += fmt.Sprintf("Ssh ping %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
+				result.Msg += fmt.Sprintf("SSH ping %s failed: %s,", c.Nodes[n].Host.Ip, err.Error())
 				return
 			}
 			if c.Nodes[n].Role == constant.NodeRoleNameMaster {
@@ -355,11 +355,11 @@ func GetClusterStatusByAPI(c model.Cluster) (bool, string) {
 	if err != nil {
 		return false, fmt.Sprintf("Select alive host error %s", err.Error())
 	}
-	reqURL := fmt.Sprintf("https://%s", aliveHost)
+	reqURL := fmt.Sprintf("https://%s/livez", aliveHost)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Timeout: 3 * time.Second, Transport: tr}
+	client := &http.Client{Timeout: 2 * time.Second, Transport: tr}
 	secret, err := clusterService.GetSecrets(c.Name)
 	if err != nil {
 		return false, fmt.Sprintf("Get secrets error %s", err.Error())

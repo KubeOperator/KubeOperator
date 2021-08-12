@@ -16,6 +16,7 @@ type NodeBatch struct {
 	Nodes      []string `json:"nodes"`
 	Increase   int      `json:"increase"`
 	Operation  string   `json:"operation"`
+	IsForce    bool     `json:"isForce"`
 	SupportGpu string   `json:"supportGpu"`
 }
 
