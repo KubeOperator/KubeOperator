@@ -246,11 +246,12 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		} else {
+			go func() {
+				c.deleteBackupFile(cluster.Name)
+			}()
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterBackup, true, ""), cluster.Name, constant.ClusterBackup)
 		}
-		go func() {
-			c.deleteBackupFile(cluster.Name)
-		}()
+
 	}
 
 }
