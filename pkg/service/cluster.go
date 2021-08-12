@@ -589,10 +589,10 @@ func (c *clusterService) Delete(name string, force bool) error {
 			return fmt.Errorf("cluster %s already in status %s", cluster.Name, cluster.Status)
 		}
 	case constant.ClusterSourceExternal:
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
 			return err
 		}
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
 }

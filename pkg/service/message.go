@@ -66,7 +66,7 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 	if err != nil {
 		return err
 	}
-	userMessages, err := m.GetUserMessages(msg)
+	userMessages, err := m.GetUserMessages(msg, clusterName)
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 	}
 }
 
-func (m messageService) GetUserMessages(message model.Message) ([]model.UserMessage, error) {
+func (m messageService) GetUserMessages(message model.Message, clusterName string) ([]model.UserMessage, error) {
 	var projectId string
 	var userMessages []model.UserMessage
 	var userIds []string
@@ -302,21 +302,22 @@ func (m messageService) GetUserMessages(message model.Message) ([]model.UserMess
 			}
 		}
 		userMessage := model.UserMessage{
-			UserID:     "",
-			MessageID:  message.ID,
-			SendStatus: constant.SendSuccess,
-			ReadStatus: constant.UnRead,
-			SendType:   k,
-			Receive:    receivers,
-			Message:    message,
+			UserID:      "",
+			MessageID:   message.ID,
+			SendStatus:  constant.SendSuccess,
+			ReadStatus:  constant.UnRead,
+			SendType:    k,
+			Receive:     receivers,
+			Message:     message,
+			ClusterName: clusterName,
 		}
 		userMessages = append(userMessages, userMessage)
 	}
-	m.AddLocalUserMessage(message, userIds)
+	m.AddLocalUserMessage(message, userIds, clusterName)
 	return userMessages, nil
 }
 
-func (m messageService) AddLocalUserMessage(message model.Message, userIds []string) {
+func (m messageService) AddLocalUserMessage(message model.Message, userIds []string, clusterName string) {
 	for _, userId := range userIds {
 		userConfig, err := m.GetUserNotificationConfig(userId, message.Type)
 		if err != nil {
@@ -324,11 +325,12 @@ func (m messageService) AddLocalUserMessage(message model.Message, userIds []str
 		}
 		if userConfig.Vars[constant.LocalMail] == "ENABLE" {
 			userMessage := model.UserMessage{
-				UserID:     userId,
-				MessageID:  message.ID,
-				SendStatus: constant.SendSuccess,
-				ReadStatus: constant.UnRead,
-				SendType:   constant.LocalMail,
+				UserID:      userId,
+				MessageID:   message.ID,
+				SendStatus:  constant.SendSuccess,
+				ReadStatus:  constant.UnRead,
+				SendType:    constant.LocalMail,
+				ClusterName: clusterName,
 			}
 			_ = m.userMessageRepo.Save(&userMessage)
 		}
