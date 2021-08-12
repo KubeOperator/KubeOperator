@@ -195,6 +195,16 @@ func (c ClusterController) PostInitBy(name string) error {
 	return c.ClusterInitService.Init(name)
 }
 
+// Upgrade Cluster
+// @Tags clusters
+// @Summary Upgrade a cluster
+// @Description Upgrade a cluster
+// @Param request body dto.ClusterUpgrade true "request"
+// @Accept  json
+// @Produce  json
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /clusters/upgrade [post]
 func (c ClusterController) PostUpgrade() error {
 	var req dto.ClusterUpgrade
 	err := c.Ctx.ReadJSON(&req)
@@ -415,6 +425,15 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
+// Get Cluster Details
+// @Tags clusters
+// @Summary Get cluster node details
+// @Description Get cluster node details
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.Node
+// @Router /clusters/node/{clusterName}/{nodeName} [get]
 func (c ClusterController) GetNodeDetailBy(clusterName string, nodeName string) (*dto.Node, error) {
 	node, err := c.ClusterNodeService.Get(clusterName, nodeName)
 	if err != nil {
@@ -423,6 +442,15 @@ func (c ClusterController) GetNodeDetailBy(clusterName string, nodeName string) 
 	return node, nil
 }
 
+// Recreate Cluster Node
+// @Tags clusters
+// @Summary Recreate cluster node
+// @Description Recreate cluster node
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200
+// @Router /clusters/node/recreate/{clusterName}/{node} [post]
 func (c ClusterController) PostNodeRecreateBy(clusterName string, node string) error {
 	if err := c.ClusterNodeService.Recreate(clusterName, node); err != nil {
 		return err
@@ -430,6 +458,16 @@ func (c ClusterController) PostNodeRecreateBy(clusterName string, node string) e
 	return nil
 }
 
+// Batch Delete Or Create Cluster Node
+// @Tags clusters
+// @Summary Batch delete or create cluster node
+// @Description Batch delete or create cluster node
+// @Accept  json
+// @Produce  json
+// @Param request body dto.NodeBatch true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /clusters/node/batch/{clusterName} [post]
 func (c ClusterController) PostNodeBatchBy(clusterName string) error {
 	var req dto.NodeBatch
 	err := c.Ctx.ReadJSON(&req)
