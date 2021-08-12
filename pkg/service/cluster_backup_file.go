@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"io/ioutil"
 	"os"
 	"time"
@@ -245,8 +246,12 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 			return
 		} else {
+			go func() {
+				c.deleteBackupFile(cluster.Name)
+			}()
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterBackup, true, ""), cluster.Name, constant.ClusterBackup)
 		}
+
 	}
 
 }
@@ -402,4 +407,24 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		}
 	}()
 	return nil
+}
+
+func (c cLusterBackupFileService) deleteBackupFile(clusterName string) {
+	clusterBackupStrategy, err := c.clusterBackupStrategyRepository.Get(clusterName)
+	if err != nil {
+		logger.Log.Errorf("get clusterBackupStrategy [%s]  error : %s", clusterName, err.Error())
+		return
+	}
+	var backupFiles []model.ClusterBackupFile
+	db.DB.Where("cluster_id = ?", clusterBackupStrategy.ClusterID).Order("created_at ASC").Find(&backupFiles)
+	if len(backupFiles) > clusterBackupStrategy.SaveNum {
+		var deleteFileNum = len(backupFiles) - clusterBackupStrategy.SaveNum
+		for i := 0; i < deleteFileNum; i++ {
+			logger.Log.Infof("delete backup file %s", backupFiles[i].Name)
+			err := c.Delete(backupFiles[i].Name)
+			if err != nil {
+				logger.Log.Errorf("delete cluster [%s] backup file error : %s", clusterName, err.Error())
+			}
+		}
+	}
 }
