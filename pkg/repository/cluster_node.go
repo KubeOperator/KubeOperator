@@ -52,7 +52,7 @@ func (c clusterNodeRepository) Page(num, size int, clusterName string) (int, []m
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
-		Order("substring_index(name, '-', 2), cast(substring_index(name, '-', -1) as UNSIGNED INTEGER)").
+		Order("name asc").
 		Find(&nodes).Error; err != nil {
 		return 0, nodes, err
 	}
