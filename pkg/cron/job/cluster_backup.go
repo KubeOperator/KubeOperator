@@ -45,9 +45,6 @@ func (c *ClusterBackup) Run() {
 			}
 			var cluster model.Cluster
 			db.DB.Where("id = ?", clusterBackupStrategy.ClusterID).Find(&cluster)
-			//db.DB.Where("cluster_id = ?", clusterBackupStrategy.ClusterID).Order("created_at ASC").Find(&backupFiles)
-			//logger.Log.Infof("length %s", len(backupFiles))
-			//if len(backupFiles) < clusterBackupStrategy.SaveNum {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -58,21 +55,9 @@ func (c *ClusterBackup) Run() {
 						logger.Log.Errorf("backup cluster error: %s", err.Error())
 					} else {
 						logger.Log.Infof("backup cluster [%s] success", cluster.Name)
-						db.DB.Where("cluster_id = ?", clusterBackupStrategy.ClusterID).Order("created_at ASC").Find(&backupFiles)
-						if len(backupFiles) > clusterBackupStrategy.SaveNum {
-							var deleteFileNum = len(backupFiles) + 1 - clusterBackupStrategy.SaveNum
-							for i := 0; i < deleteFileNum; i++ {
-								logger.Log.Infof("delete backup file %s", backupFiles[i].Name)
-								err := c.cLusterBackupFileService.Delete(backupFiles[i].Name)
-								if err != nil {
-									logger.Log.Errorf("delete cluster [%s] backup file error : %s", cluster.Name, err.Error())
-								}
-							}
-						}
 					}
 				}
 			}()
-			//}
 		}
 	}
 	wg.Wait()
