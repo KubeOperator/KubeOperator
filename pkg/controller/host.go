@@ -72,6 +72,16 @@ func (h *HostController) GetBy(name string) (*dto.Host, error) {
 	return h.HostService.Get(name)
 }
 
+// Search Host
+// @Tags hosts
+// @Summary Search Host
+// @Description 过滤主机
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /host/search [post]
 func (h *HostController) PostSearch() (*page.Page, error) {
 	var conditions condition.Conditions
 	projectName, err := sessionUtil.GetProjectName(h.Ctx)
@@ -133,6 +143,16 @@ func (h *HostController) Post() (*dto.Host, error) {
 	return item, nil
 }
 
+// Update Host
+// @Tags hosts
+// @Summary Update a host
+// @Description 更新主机信息
+// @Accept  json
+// @Produce  json
+// @Param request body dto.HostUptate true "request"
+// @Success 200 {object} dto.Host
+// @Security ApiKeyAuth
+// @Router /host [patch]
 func (h *HostController) Patch() (*dto.Host, error) {
 	var req dto.HostUptate
 	err := h.Ctx.ReadJSON(&req)
@@ -170,6 +190,16 @@ func (h *HostController) DeleteBy(name string) error {
 	return h.HostService.Delete(name)
 }
 
+// Sync Host
+// @Tags hosts
+// @Summary Sync hosts
+// @Description 同步主机状态
+// @Accept  json
+// @Produce  json
+// @Param request body dto.HostSync true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /hosts/sync [post]
 func (h *HostController) PostSync() error {
 	var req []dto.HostSync
 	err := h.Ctx.ReadJSON(&req)
