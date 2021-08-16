@@ -289,8 +289,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
     </tr>
  </table>
 
-具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
-
 ### 支持组件
 
 - 核心
