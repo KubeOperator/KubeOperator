@@ -119,9 +119,10 @@ type ClusterHealth struct {
 }
 
 type ClusterHealthHook struct {
-	Name  string `json:"name"`
-	Level string `json:"level"`
-	Msg   string `json:"msg"`
+	Name        string `json:"name"`
+	Level       string `json:"level"`
+	Msg         string `json:"msg"`
+	AdjustValue string `json:"adjustValue"`
 }
 
 type ClusterRecoverItem struct {

@@ -483,9 +483,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		if cluster.Spec.LbMode == constant.LbModeInternal {
 			cluster.Spec.LbKubeApiserverIp = firstMasterIP
 		}
-		if len(cluster.Nodes) > 0 {
-			spec.KubeRouter = cluster.Nodes[0].Host.Ip
-		}
+		spec.KubeRouter = firstMasterIP
 	}
 	if err := tx.Save(&spec).Error; err != nil {
 		tx.Rollback()
