@@ -121,6 +121,7 @@ IP_POOL_DELETE_FAILED: "The IP pool has been associated with the available zone 
 
 #registry
 REGISTRY_ALREADY_EXISTS: "The registry of this architecture type already exists"
+REGISTRY_ALREADY_USED: "The registry of this architecture type is in use"
 
 #clusterResource
 CLUSTER_PROVIDER_ERROR: "The cluster created in automatic mode cannot manually modify host resources"
