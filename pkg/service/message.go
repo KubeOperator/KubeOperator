@@ -162,6 +162,8 @@ func Tr(title string) string {
 	switch title {
 	case constant.ClusterInstall:
 		result = "集群安装"
+	case constant.ClusterDelete:
+		result = "集群删除"
 	case constant.ClusterUnInstall:
 		result = "集群卸载"
 	case constant.ClusterUpgrade:
