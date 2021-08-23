@@ -284,6 +284,7 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		Status:       constant.ClusterInitializing,
 	}
 	if err := tx.Create(&host).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	if creation.Cluster != "" {
@@ -819,6 +820,7 @@ func syncHostInfoWithDB(host *model.Host) error {
 			"datastore":    host.Datastore,
 			"architecture": host.Architecture,
 		}).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	tx.Commit()

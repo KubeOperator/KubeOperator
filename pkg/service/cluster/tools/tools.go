@@ -37,7 +37,7 @@ type Cluster struct {
 	KubeClient   *kubernetes.Clientset
 }
 
-func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string) (*Cluster, error) {
+func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
@@ -55,7 +55,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model
 	c.Namespace = namespace
 	helmClient, err := helm.NewClient(&helm.Config{
 		Hosts:         hosts,
-		BearerToken:   secret.KubernetesToken,
+		BearerToken:   cluster.Secret.KubernetesToken,
 		OldNamespace:  oldNamespace,
 		Namespace:     namespace,
 		Architectures: cluster.Spec.Architectures,
@@ -66,7 +66,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model
 	c.HelmClient = helmClient
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: hosts,
-		Token: secret.KubernetesToken,
+		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
 		return nil, err
@@ -75,8 +75,8 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string, enable bool) (Interface, error) {
-	c, err := NewCluster(cluster, hosts, secret, oldNamespace, namespace)
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string, enable bool) (Interface, error) {
+	c, err := NewCluster(cluster, hosts, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}

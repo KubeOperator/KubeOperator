@@ -51,7 +51,7 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 }
 
 func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
-	cluster, hosts, secret, err := c.getBaseParams(clusterName)
+	cluster, hosts, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return tool, err
 	}
@@ -70,7 +70,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 		namespace = itemValue.(string)
 	}
 
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, false)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster, hosts, namespace, namespace, false)
 	if err != nil {
 		return tool, err
 	}
@@ -81,7 +81,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 }
 
 func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
-	cluster, hosts, secret, err := c.getBaseParams(clusterName)
+	cluster, hosts, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return tool, err
 	}
@@ -99,7 +99,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: hosts,
-		Token: secret.KubernetesToken,
+		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
 		return tool, err
@@ -117,7 +117,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, oldNamespace, namespace, true)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster, hosts, oldNamespace, namespace, true)
 	if err != nil {
 		return tool, err
 	}
@@ -128,7 +128,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 }
 
 func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
-	cluster, hosts, secret, err := c.getBaseParams(clusterName)
+	cluster, hosts, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return tool, err
 	}
@@ -154,7 +154,7 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	} else {
 		namespace = itemValue.(string)
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, true)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster, hosts, namespace, namespace, true)
 	if err != nil {
 		return tool, err
 	}
@@ -222,25 +222,20 @@ func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool)
 	}
 }
 
-func (c clusterToolService) getBaseParams(clusterName string) (dto.Cluster, []kubernetesUtil.Host, dto.ClusterSecret, error) {
+func (c clusterToolService) getBaseParams(clusterName string) (model.Cluster, []kubernetesUtil.Host, error) {
 	var (
-		cluster dto.Cluster
+		cluster model.Cluster
 		host    []kubernetesUtil.Host
-		secret  dto.ClusterSecret
 		err     error
 	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
-		return cluster, host, secret, err
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+		return cluster, host, err
 	}
 
 	host, err = c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
-		return cluster, host, secret, err
-	}
-	secret, err = c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return cluster, host, secret, err
+		return cluster, host, err
 	}
 
-	return cluster, host, secret, nil
+	return cluster, host, nil
 }

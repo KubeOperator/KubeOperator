@@ -123,9 +123,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 				cluster.Nodes[i].Status = constant.ClusterRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}
-			if len(cluster.Nodes) > 0 {
-				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
-			}
+			cluster.Spec.KubeRouter = firstMasterIP
 			if cluster.Spec.LbMode == constant.LbModeInternal {
 				cluster.Spec.LbKubeApiserverIp = firstMasterIP
 			}

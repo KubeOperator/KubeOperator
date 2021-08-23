@@ -612,10 +612,15 @@ func (c *ClusterController) GetHealthBy(clusterName string) (*dto.ClusterHealth,
 }
 
 func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterRecoverItem, error) {
+	var req dto.ClusterHealth
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return []dto.ClusterRecoverItem{}, err
+	}
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.HEALTH_RECOVER, clusterName)
 
-	return c.ClusterHealthService.Recover(clusterName)
+	return c.ClusterHealthService.Recover(clusterName, req)
 }
 
 func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {

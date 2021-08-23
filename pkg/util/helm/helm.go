@@ -160,7 +160,7 @@ func (c Client) List() ([]*release.Release, error) {
 	client.All = true
 	release, err := client.Run()
 	if err != nil {
-		return release, errors.Wrap(err, fmt.Sprintf("list chart failed: %v", err))
+		return release, fmt.Errorf("list chart failed: %v", err)
 	}
 	return release, nil
 }

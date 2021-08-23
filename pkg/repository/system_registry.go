@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -80,9 +82,28 @@ func (s systemRegistryRepository) Batch(operation string, items []model.SystemRe
 }
 
 func (s systemRegistryRepository) Delete(id string) error {
+	var specs []model.ClusterSpec
+	if err := db.DB.Find(&specs).Error; err != nil {
+		return err
+	}
+	isAMDExist := false
+	isARMExist := false
+	for _, spec := range specs {
+		if spec.Architectures == constant.ArchAMD64 {
+			isAMDExist = true
+		} else if spec.Architectures == constant.ArchARM64 {
+			isARMExist = true
+		} else {
+			isAMDExist = true
+			isARMExist = true
+		}
+	}
 	registryItem, err := s.Get(id)
 	if err != nil {
 		return err
+	}
+	if (registryItem.Architecture == constant.ArchitectureOfAMD64 && isAMDExist) || (registryItem.Architecture == constant.ArchitectureOfARM64 && isARMExist) {
+		return errors.New("REGISTRY_ALREADY_USED")
 	}
 	return db.DB.Delete(&registryItem).Error
 }

@@ -306,7 +306,7 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
   - [helm-v3](https://github.com/helm/helm) v3.6.0
   - [traefik](https://github.com/containous/traefik) v2.4.8
   - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.33.0
-  - [metrics-server](https://github.com/kubernetes-sigs/metrics-server) v0.3.6
+  - [metrics-server](https://github.com/kubernetes-sigs/metrics-server) v0.5.0
 - 工具
   - [istio](https://github.com/istio/istio) 1.8.0
   - [dashboard](https://github.com/kubernetes/dashboard) v2.2.0
@@ -320,8 +320,8 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 - 应用商店
   - [argo-cd](https://github.com/argoproj/argo-cd) v2.0.3
   - [gitlab-ce](https://about.gitlab.com) v9.4.1
-  - [harbor](https://github.com/goharbor/harbor) v1.10.2
-  - [jenkins](https://github.com/jenkinsci/jenkins) v2.222.1
+  - [harbor](https://github.com/goharbor/harbor) v2.3.1
+  - [jenkins](https://github.com/jenkinsci/jenkins) v2.289.3
   - [kuboard](https://github.com/eip-work/kuboard-press) v2.0.5.1
   - [redmine](https://github.com/redmine/redmine) v4.1.1
   - [sonarqube](https://github.com/SonarSource/sonarqube) v7.9.2
