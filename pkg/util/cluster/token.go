@@ -31,6 +31,18 @@ func GetClusterToken(client ssh.Interface) (string, error) {
 	return result, nil
 }
 
+func GetClusterTokenWithoutRetry(client ssh.Interface) (string, error) {
+	result := ""
+	buf, err := client.CombinedOutput(cmd)
+	if err != nil {
+		return "", err
+	}
+	result = string(buf)
+	result = strings.Replace(result, "\n", "", -1)
+
+	return result, nil
+}
+
 func GenerateKubeadmToken() string {
 	return uuid.NewV4().String()
 }

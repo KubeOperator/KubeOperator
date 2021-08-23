@@ -31,10 +31,12 @@ var (
 	CheckK8sNodeStatus     = "CHECK_K8S_NODE_STATUS"
 	CheckKubeRouter        = "CHECK_KUBE_ROUTER"
 
-	StatusSuccess = "STATUS_SUCCESS"
-	StatusWarning = "STATUS_WARNING"
-	StatusFailed  = "STATUS_FAILED"
-	StatusError   = "STATUS_ERROR"
+	StatusSuccess        = "STATUS_SUCCESS"
+	StatusWarning        = "STATUS_WARNING"
+	StatusFailed         = "STATUS_FAILED"
+	StatusError          = "STATUS_ERROR"
+	StatusSolvedManually = "STATUS_SOLVED_MANUALLY"
+	StatusRecoverd       = "STATUS_RECOVERD"
 )
 
 type ClusterHealthService interface {
@@ -178,7 +180,7 @@ func checkKubernetesToken(c model.Cluster, sshClient *ssh.SSH) (string, dto.Clus
 		Name:  CheckK8sToken,
 		Level: StatusSuccess,
 	}
-	token, err := clusterUtil.GetClusterToken(sshClient)
+	token, err := clusterUtil.GetClusterTokenWithoutRetry(sshClient)
 	if err != nil {
 		result.Msg = fmt.Sprintf("Get token form cluster failed %s", err.Error())
 		result.Level = StatusError
@@ -270,9 +272,9 @@ func checkKubeRouter(c model.Cluster, nodes []v1.Node) dto.ClusterHealthHook {
 }
 
 var resolveMethods = map[string]string{
-	CheckHostSSHConnection: "NO_METHODS",
+	CheckHostSSHConnection: "CHECK_SSH_CONNECTION",
 	CheckK8sToken:          "GET_K8S_TOKEN_ANGIN",
-	CheckK8sAPI:            "NO_METHODS",
+	CheckK8sAPI:            "CHECK_API_CONNECTION",
 	CheckK8sNodeStatus:     "UPDATE_CLUSTER_NODE_STATUS",
 	CheckKubeRouter:        "UPDATE_KUBE_ROUTER",
 }
@@ -288,13 +290,12 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 		for i := range ch.Hooks {
 			if ch.Hooks[i].Level == StatusError {
 				ri := dto.ClusterRecoverItem{
-					Name:     resolveMethods[ch.Hooks[i].Name],
-					HookName: ch.Hooks[i].Name,
+					Name:   ch.Hooks[i].Name,
+					Method: resolveMethods[ch.Hooks[i].Name],
 				}
 				switch ch.Hooks[i].Name {
 				case CheckHostSSHConnection, CheckK8sAPI:
-					ri.Result = StatusFailed
-					ri.Msg = "No method"
+					ri.Result = StatusSolvedManually
 					result = append(result, ri)
 					return result, nil
 				case CheckK8sToken:
@@ -313,7 +314,7 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 							return result, nil
 						}
 					}
-					ri.Result = StatusSuccess
+					ri.Result = StatusRecoverd
 					result = append(result, ri)
 				case CheckK8sNodeStatus:
 					var nodes []model.ClusterNode
@@ -350,14 +351,21 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 							result = append(result, ri)
 							return result, nil
 						}
-
 						for _, node := range nodes {
+							hasNode := false
 							for _, kn := range kubeNodes.Items {
 								for _, addr := range kn.Status.Addresses {
 									if addr.Type == "InternalIP" && node.Host.Ip == addr.Address {
-										continue
+										hasNode = true
+										break
 									}
 								}
+								if hasNode {
+									break
+								}
+							}
+							if hasNode {
+								continue
 							}
 							nodeIDs = append(nodeIDs, node.ID)
 						}
@@ -368,7 +376,7 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 						result = append(result, ri)
 						return result, nil
 					}
-					ri.Result = StatusSuccess
+					ri.Result = StatusSolvedManually
 					result = append(result, ri)
 				case CheckKubeRouter:
 					kubeRouter := ""
@@ -391,6 +399,9 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 						}
 						isExist := false
 						for _, node := range kubeNodes.Items {
+							if _, ok := node.ObjectMeta.Labels["node-role.kubernetes.io/master"]; !ok {
+								continue
+							}
 							for _, addr := range node.Status.Addresses {
 								if addr.Type == "InternalIP" {
 									kubeRouter = addr.Address
@@ -415,7 +426,7 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 						result = append(result, ri)
 						return result, nil
 					}
-					ri.Result = StatusSuccess
+					ri.Result = StatusRecoverd
 					result = append(result, ri)
 				default:
 					return result, nil
