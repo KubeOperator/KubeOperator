@@ -27,7 +27,7 @@ func NewTerraform(c *Config) *Kotf {
 	}
 }
 
-func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts string) (*api.Result, error) {
+func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts string) (*api.KotfResult, error) {
 	result, err := k.Client.Init(k.Cluster, cloudType, provider, cloudRegion, hosts)
 	if err != nil {
 		return result, errors.Wrap(err, fmt.Sprintf("terraform init failed: %v", err))
@@ -35,7 +35,7 @@ func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts
 	return result, nil
 
 }
-func (k *Kotf) Apply(regionVars string) (*api.Result, error) {
+func (k *Kotf) Apply(regionVars string) (*api.KotfResult, error) {
 	result, err := k.Client.Apply(k.Cluster, regionVars)
 	if err != nil {
 		return result, errors.Wrap(err, fmt.Sprintf("terraform apply failed: %v", err))
@@ -43,7 +43,7 @@ func (k *Kotf) Apply(regionVars string) (*api.Result, error) {
 	return result, nil
 }
 
-func (k *Kotf) Destroy(regionVars string) (*api.Result, error) {
+func (k *Kotf) Destroy(regionVars string) (*api.KotfResult, error) {
 	result, err := k.Client.Destroy(k.Cluster, regionVars)
 	if err != nil {
 		return result, errors.Wrap(err, fmt.Sprintf("terraform destory failed: %v", err))
