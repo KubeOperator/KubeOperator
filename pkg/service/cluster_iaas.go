@@ -328,6 +328,12 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 		hosts[i].CredentialID = zones[hash].CredentialID
 		hosts[i].ZoneID = zones[hash].ID
 		hosts[i].Zone = zones[hash]
+		var zoneVars map[string]interface{}
+		_ = json.Unmarshal([]byte(zones[hash].Vars), &zoneVars)
+		if zoneVars["port"] != nil {
+			port, _ := strconv.Atoi(zoneVars["port"].(string))
+			hosts[i].Port = port
+		}
 	}
 	return groupMap
 }

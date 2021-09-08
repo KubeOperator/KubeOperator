@@ -10,7 +10,7 @@ require (
 	github.com/CloudyKit/jet/v3 v3.0.1 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.1.2
-	github.com/KubeOperator/kotf v0.1.3
+	github.com/KubeOperator/kotf v0.1.4
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -101,7 +101,6 @@ require (
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
-
 
 replace (
 	k8s.io/api => k8s.io/api v0.19.4
