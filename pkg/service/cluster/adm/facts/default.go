@@ -65,7 +65,6 @@ const (
 	NetworkInterfaceFactName             = "network_interface"
 	NetworkCidrFactName                  = "network_cidr"
 	SupportGpuName                       = "support_gpu"
-	YumRepoFactName                      = "yum_operate"
 	NtpServerName                        = "ntp_server"
 )
 
@@ -130,6 +129,5 @@ var DefaultFacts = map[string]string{
 	NetworkInterfaceFactName:             "",
 	NetworkCidrFactName:                  "",
 	SupportGpuName:                       "disable",
-	YumRepoFactName:                      "replace",
 	NtpServerName:                        "ntp1.aliyun.com",
 }

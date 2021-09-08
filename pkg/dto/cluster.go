@@ -70,7 +70,6 @@ type ClusterCreate struct {
 	NetworkInterface         string       `json:"networkInterface"`
 	NetworkCidr              string       `json:"networkCidr"`
 	SupportGpu               string       `json:"supportGpu"`
-	YumOperate               string       `json:"yumOperate"`
 	LbMode                   string       `json:"lbMode"`
 	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
 	KubeApiServerPort        int          `json:"kubeApiserverPort"`
