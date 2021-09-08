@@ -5,10 +5,12 @@ go 1.14
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Azure/azure-storage-blob-go v0.10.0
+	github.com/Azure/go-autorest/autorest v0.11.4 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.2 // indirect
 	github.com/CloudyKit/jet/v3 v3.0.1 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.1.2
-	github.com/KubeOperator/kotf v0.1.3
+	github.com/KubeOperator/kotf v0.1.4
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -22,7 +24,7 @@ require (
 	github.com/docker/spdystream v0.0.0-20170912183627-bc6354cbbc29 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
-	github.com/fairwindsops/polaris v0.0.0-20201005190522-9cce9fcec757
+	github.com/fairwindsops/polaris v0.0.0-20210818215548-9ae4f774e98e
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.2.0
@@ -37,10 +39,11 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/flock v0.8.0
 	github.com/golang-migrate/migrate/v4 v4.12.1
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.3
 	github.com/gophercloud/gophercloud v0.12.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
+	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/jade v1.1.4
 	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
@@ -56,18 +59,20 @@ require (
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.1.2
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/mozillazg/go-pinyin v0.18.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
+	github.com/prometheus/common v0.13.0 // indirect
+	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/robfig/cron v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.7.0
-	github.com/spf13/viper v1.7.0
+	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/viper v1.8.1
 	github.com/storyicon/grbac v0.0.0-20200224041032-a0461737df7e
 	github.com/swaggo/swag v1.6.5
 	github.com/valyala/fasthttp v1.14.0 // indirect
@@ -77,9 +82,10 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
+	gitlab.com/golang-commonmark/linkify v0.0.0-20200225224916-64bca66f6ad3 // indirect
+	gitlab.com/golang-commonmark/markdown v0.0.0-20191127184510-91b5b3c99c19 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
 	golang.org/x/text v0.3.6
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
@@ -87,11 +93,11 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	helm.sh/helm/v3 v3.4.2
-	k8s.io/api v0.19.4
+	k8s.io/api v0.22.0
 	k8s.io/apiextensions-apiserver v0.19.4
-	k8s.io/apimachinery v0.19.4
+	k8s.io/apimachinery v0.22.0
 	k8s.io/cli-runtime v0.19.4
-	k8s.io/client-go v0.19.4
+	k8s.io/client-go v0.22.0
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )

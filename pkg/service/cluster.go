@@ -586,7 +586,7 @@ func (c *clusterService) Delete(name string, force bool) error {
 			return fmt.Errorf("cluster %s already in status %s", cluster.Name, cluster.Status)
 		}
 	case constant.ClusterSourceExternal:
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterDelete, true, ""), cluster.Name, constant.ClusterDelete)
 		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
 			return err
 		}

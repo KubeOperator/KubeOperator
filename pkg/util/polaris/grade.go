@@ -19,6 +19,7 @@ type Config struct {
 }
 
 func NewResourceProvider(c *Config) (*kube.ResourceProvider, error) {
+
 	kubeConf := &rest.Config{
 		Host:        fmt.Sprintf("%s:%d", c.Host, c.Port),
 		BearerToken: c.Token,
@@ -34,33 +35,44 @@ func NewResourceProvider(c *Config) (*kube.ResourceProvider, error) {
 	if err != nil {
 		return nil, err
 	}
-	return kube.CreateResourceProviderFromAPI(context.Background(), api, kubeConf.Host, &dynamicInterface)
+	config := NewPolarisConfig()
+	return kube.CreateResourceProviderFromAPI(context.Background(), api, "", &dynamicInterface, config)
 }
 
 func NewPolarisConfig() conf.Configuration {
 	return conf.Configuration{
 		DisplayName: "kube-operator",
 		Checks: map[string]conf.Severity{
-			"multipleReplicasForDeployment": conf.SeverityWarning,
-			"priorityClassNotSet":           conf.SeverityWarning,
-			"cpuRequestsMissing":            conf.SeverityWarning,
-			"cpuLimitsMissing":              conf.SeverityWarning,
-			"memoryRequestsMissing":         conf.SeverityWarning,
-			"memoryLimitsMissing":           conf.SeverityWarning,
+			//# reliability
+			"multipleReplicasForDeployment": conf.SeverityIgnore,
+			"priorityClassNotSet":           conf.SeverityIgnore,
 			"tagNotSpecified":               conf.SeverityDanger,
 			"pullPolicyNotAlways":           conf.SeverityWarning,
 			"readinessProbeMissing":         conf.SeverityWarning,
 			"livenessProbeMissing":          conf.SeverityWarning,
-			"hostNetworkSet":                conf.SeverityWarning,
-			"hostPortSet":                   conf.SeverityWarning,
-			"hostIPCSet":                    conf.SeverityDanger,
-			"hostPIDSet":                    conf.SeverityDanger,
-			"notReadOnlyRootFilesystem":     conf.SeverityWarning,
-			"privilegeEscalationAllowed":    conf.SeverityDanger,
-			"runAsRootAllowed":              conf.SeverityWarning,
-			"runAsPrivileged":               conf.SeverityDanger,
-			"dangerousCapabilities":         conf.SeverityDanger,
-			"insecureCapabilities":          conf.SeverityWarning,
+			//# efficiency
+			"cpuRequestsMissing":    conf.SeverityWarning,
+			"cpuLimitsMissing":      conf.SeverityWarning,
+			"memoryRequestsMissing": conf.SeverityWarning,
+			"memoryLimitsMissing":   conf.SeverityWarning,
+			//# security
+			"hostIPCSet":                 conf.SeverityDanger,
+			"hostPIDSet":                 conf.SeverityDanger,
+			"notReadOnlyRootFilesystem":  conf.SeverityWarning,
+			"privilegeEscalationAllowed": conf.SeverityDanger,
+			"runAsRootAllowed":           conf.SeverityWarning,
+			"runAsPrivileged":            conf.SeverityDanger,
+			"dangerousCapabilities":      conf.SeverityDanger,
+			"insecureCapabilities":       conf.SeverityWarning,
+			"hostNetworkSet":             conf.SeverityWarning,
+			"hostPortSet":                conf.SeverityWarning,
+			//# custom
+			"resourceLimits":             conf.SeverityWarning,
+			"imageRegistry":              conf.SeverityDanger,
+			"metadataAndNameMismatched":  conf.SeverityIgnore,
+			"pdbDisruptionsIsZero":       conf.SeverityWarning,
+			"missingPodDisruptionBudget": conf.SeverityIgnore,
+			"tlsSettingsMissing":         conf.SeverityWarning,
 		},
 		Exemptions: []conf.Exemption{
 			{
@@ -140,8 +152,9 @@ func RunGrade(c *Config) (*dto.ClusterGrade, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	config := NewPolarisConfig()
-	auditData, err := validator.RunAudit(context.Background(), config, k)
+	auditData, err := validator.RunAudit(config, k)
 	if err != nil {
 		return nil, err
 	}
@@ -177,15 +190,17 @@ func GetCLusterGrade(data validator.AuditData) *dto.ClusterGrade {
 				Name: v.Name,
 				Kind: v.Kind,
 			}
-			for _, pod := range v.PodResult.Results {
-				podResult := dto.PodResult{
-					ID:       pod.ID,
-					Message:  pod.Message,
-					Category: pod.Category,
-					Success:  pod.Success,
-					Severity: string(pod.Severity),
+			if v.PodResult != nil && v.PodResult.Results != nil {
+				for _, pod := range v.PodResult.Results {
+					podResult := dto.PodResult{
+						ID:       pod.ID,
+						Message:  pod.Message,
+						Category: pod.Category,
+						Success:  pod.Success,
+						Severity: string(pod.Severity),
+					}
+					detail.PodResults = append(detail.PodResults, podResult)
 				}
-				detail.PodResults = append(detail.PodResults, podResult)
 			}
 			namespaceResult.Results = append(namespaceResult.Results, detail)
 		}
