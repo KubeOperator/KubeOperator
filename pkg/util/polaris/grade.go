@@ -67,8 +67,8 @@ func NewPolarisConfig() conf.Configuration {
 			"hostNetworkSet":             conf.SeverityWarning,
 			"hostPortSet":                conf.SeverityWarning,
 			//# custom
-			"resourceLimits":             conf.SeverityWarning,
-			"imageRegistry":              conf.SeverityDanger,
+			//"resourceLimits":             conf.SeverityWarning,
+			//"imageRegistry":              conf.SeverityDanger,
 			"metadataAndNameMismatched":  conf.SeverityIgnore,
 			"pdbDisruptionsIsZero":       conf.SeverityWarning,
 			"missingPodDisruptionBudget": conf.SeverityIgnore,

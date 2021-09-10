@@ -44,9 +44,9 @@ RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_lin
 
 WORKDIR /tmp
 
-RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polaris.tar.gz \
+RUN wget https://github.com/FairwindsOps/polaris/archive/4.1.0.tar.gz -O ./polaris.tar.gz \
     && tar zxvf ./polaris.tar.gz \
-    && mv ./polaris-1.2.1/checks/ /checks
+    && mv ./polaris-4.1.0/checks/ /checks
 
 RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar -zvxf kubernetes-client-linux-$GOARCH.tar.gz
 RUN cp ./kubernetes/client/bin/* /usr/local/bin
