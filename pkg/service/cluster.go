@@ -361,6 +361,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		NetworkInterface:         creation.NetworkInterface,
 		NetworkCidr:              creation.NetworkCidr,
 		SupportGpu:               creation.SupportGpu,
+		YumOperate:               creation.YumOperate,
 		LbMode:                   creation.LbMode,
 		LbKubeApiserverIp:        creation.LbKubeApiserverIp,
 		KubeApiServerPort:        creation.KubeApiServerPort,
