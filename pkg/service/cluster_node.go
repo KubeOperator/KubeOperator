@@ -21,6 +21,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -77,7 +78,6 @@ func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
 }
 
 func (c clusterNodeService) Page(num, size int, isPolling, clusterName string) (*dto.NodePage, error) {
-	var nodes []dto.Node
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
 		return nil, err
@@ -108,60 +108,14 @@ func (c clusterNodeService) Page(num, size int, isPolling, clusterName string) (
 	if err != nil {
 		return nil, err
 	}
-exit:
-	for _, node := range mNodes {
-		n := dto.Node{
-			ClusterNode: node,
-			Ip:          node.Host.Ip,
-		}
-		for _, kn := range kubeNodes.Items {
-			if node.Name == kn.Name {
-				if cluster.Source == constant.ClusterSourceExternal {
-					for _, addr := range kn.Status.Addresses {
-						if addr.Type == "InternalIP" {
-							n.Ip = addr.Address
-						}
-					}
-				}
-				n.Info = kn
-				if isPolling != "true" {
-					if n.Status == constant.StatusRunning || n.Status == constant.StatusFailed || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
-						for _, condition := range kn.Status.Conditions {
-							if condition.Type == "Ready" && condition.Status == "True" {
-								n.Status = constant.StatusRunning
-							}
-							if condition.Type == "Ready" && condition.Status == "False" {
-								n.Status = constant.ClusterFailed
-							}
-							if condition.Type == "Ready" && condition.Status == "Unknown" {
-								n.Status = constant.StatusNotReady
-								n.Message = condition.Message
-							}
-						}
-					}
-				}
-				nodes = append(nodes, n)
-				continue exit
-			}
-		}
-		if n.Status == constant.StatusRunning {
-			n.Status = constant.StatusLost
-			go func() {
-				if err := db.DB.Save(&n.ClusterNode).Error; err != nil {
-					logger.Log.Errorf("save cluster node failed: %s", n.ClusterNode.Name)
-				}
-			}()
-		}
-		nodes = append(nodes, n)
-	}
+	nodesAfterSync := syncNodeStatus(mNodes, kubeNodes, cluster.Source, isPolling)
 	return &dto.NodePage{
-		Items: nodes,
+		Items: nodesAfterSync,
 		Total: count,
 	}, nil
 }
 
 func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
-	var nodes []dto.Node
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
 		return nil, err
@@ -189,51 +143,8 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-exit:
-	for _, node := range mNodes {
-		n := dto.Node{
-			ClusterNode: node,
-			Ip:          node.Host.Ip,
-		}
-		for _, kn := range kubeNodes.Items {
-			if node.Name == kn.Name {
-				if cluster.Source == constant.ClusterSourceExternal {
-					for _, addr := range kn.Status.Addresses {
-						if addr.Type == "InternalIP" {
-							n.Ip = addr.Address
-						}
-					}
-				}
-				n.Info = kn
-				if n.Status == constant.StatusRunning || n.Status == constant.StatusNotReady || n.Status == constant.StatusLost {
-					for _, condition := range kn.Status.Conditions {
-						if condition.Type == "Ready" && condition.Status == "True" {
-							n.Status = constant.StatusRunning
-						}
-						if condition.Type == "Ready" && condition.Status == "False" {
-							n.Status = constant.ClusterFailed
-						}
-						if condition.Type == "Ready" && condition.Status == "Unknown" {
-							n.Status = constant.StatusNotReady
-							n.Message = condition.Message
-						}
-					}
-				}
-				nodes = append(nodes, n)
-				continue exit
-			}
-		}
-		if n.Status == constant.StatusRunning {
-			n.Status = constant.StatusLost
-			go func() {
-				if err := db.DB.Save(&n.ClusterNode).Error; err != nil {
-					logger.Log.Errorf("save cluster node failed: %s", n.ClusterNode.Name)
-				}
-			}()
-		}
-		nodes = append(nodes, n)
-	}
-	return nodes, nil
+	nodesAfterSync := syncNodeStatus(mNodes, kubeNodes, cluster.Source, "true")
+	return nodesAfterSync, nil
 }
 
 func (c clusterNodeService) Recreate(clusterName, name string) error {
@@ -846,4 +757,92 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 		return err
 	}
 	return nil
+}
+
+// db 存在，cluster 不存在  ====>  失联
+func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, resource, isPolling string) []dto.Node {
+	var (
+		runningList  []string
+		notReadyList []string
+		lostedList   []string
+		failedList   []string
+		nodes        []dto.Node
+	)
+	for _, node := range nodesInDB {
+		n := dto.Node{
+			ClusterNode: node,
+			Ip:          node.Host.Ip,
+		}
+		hasNode := false
+		for _, kn := range kubeNodes.Items {
+			if node.Name == kn.Name {
+				if resource == constant.ClusterSourceExternal {
+					for _, addr := range kn.Status.Addresses {
+						if addr.Type == "InternalIP" {
+							n.Ip = addr.Address
+						}
+					}
+				}
+				hasNode = true
+				n.Info = kn
+				if isPolling != "true" {
+					if node.Status == constant.StatusRunning || node.Status == constant.StatusFailed || node.Status == constant.StatusNotReady || node.Status == constant.StatusLost {
+						for _, condition := range kn.Status.Conditions {
+							if condition.Type == "Ready" && condition.Status == "True" {
+								if node.Status != constant.StatusRunning {
+									runningList = append(runningList, node.ID)
+								}
+								n.Status = constant.StatusRunning
+							}
+							if condition.Type == "Ready" && condition.Status == "False" {
+								if node.Status != constant.ClusterFailed {
+									failedList = append(failedList, node.ID)
+								}
+								n.Status = constant.ClusterFailed
+							}
+							if condition.Type == "Ready" && condition.Status == "Unknown" {
+								if node.Status != constant.StatusNotReady {
+									notReadyList = append(notReadyList, node.ID)
+								}
+								n.Status = constant.StatusNotReady
+								n.Message = condition.Message
+							}
+						}
+					}
+				}
+				nodes = append(nodes, n)
+				break
+			}
+		}
+		if hasNode {
+			continue
+		}
+		if node.Status == constant.StatusRunning {
+			lostedList = append(lostedList, node.ID)
+		}
+		nodes = append(nodes, n)
+	}
+	go func() {
+		if len(runningList) != 0 {
+			if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", runningList).Updates(map[string]interface{}{"status": constant.StatusRunning}).Error; err != nil {
+				logger.Log.Errorf("Change node(%v) status into running failed, err is %s", runningList, err.Error())
+			}
+		}
+		if len(failedList) != 0 {
+			if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", failedList).Updates(map[string]interface{}{"status": constant.StatusFailed}).Error; err != nil {
+				logger.Log.Errorf("Change node(%v) status into failed failed, err is %s", failedList, err.Error())
+			}
+		}
+		if len(notReadyList) != 0 {
+			if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", notReadyList).Updates(map[string]interface{}{"status": constant.StatusNotReady}).Error; err != nil {
+				logger.Log.Errorf("Change node(%v) status into not ready failed, err is %s", notReadyList, err.Error())
+			}
+		}
+		if len(lostedList) != 0 {
+			if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", lostedList).Updates(map[string]interface{}{"status": constant.StatusLost}).Error; err != nil {
+				logger.Log.Errorf("Change node(%v) status into losted failed, err is %s", lostedList, err.Error())
+			}
+		}
+	}()
+	return nodes
 }
