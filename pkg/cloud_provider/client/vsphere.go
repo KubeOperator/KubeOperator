@@ -70,7 +70,7 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		return result, err
 	}
 	var clusters []mo.ClusterComputeResource
-	err = view.Retrieve(context.TODO(), []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
+	err = view.Retrieve(context.TODO(), []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent", "host"}, &clusters)
 	if err != nil {
 		return result, err
 	}
@@ -86,13 +86,10 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		if err := pc.RetrieveOne(context.TODO(), *host.Parent, []string{"name"}, &datacenter); err != nil {
 			return result, err
 		}
-
 		if datacenter.Name != v.Vars["datacenter"] {
 			continue
 		}
-
 		clusterData := make(map[string]interface{})
-
 		clusterData["cluster"] = d.ManagedEntity.Name
 		networks, _ := v.GetNetwork(d.ComputeResource.Network)
 		clusterData["networks"] = networks
@@ -100,7 +97,8 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		clusterData["datastores"] = datastores
 		resourcePools, _ := v.GetResourcePools(*d.ComputeResource.ResourcePool)
 		clusterData["resourcePools"] = resourcePools
-
+		hosts, _ := v.getHosts(d.Host)
+		clusterData["hosts"] = hosts
 		result = append(result, clusterData)
 	}
 
@@ -197,6 +195,28 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 	return data, nil
 }
 
+func (v *vSphereClient) getHosts(mos []types.ManagedObjectReference) ([]interface{}, error) {
+	pc := property.DefaultCollector(v.Client.Client)
+	var hostResult []interface{}
+
+	var hosts []mo.HostSystem
+	if err := pc.Retrieve(context.TODO(), mos, []string{"name", "network", "datastore"}, &hosts); err != nil {
+		return nil, err
+	}
+	for _, h := range hosts {
+		hostData := make(map[string]interface{})
+		hostData["name"] = h.Name
+		hostData["value"] = h.ManagedEntity.Self.Value
+		datastores, _ := v.GetDatastore(h.Datastore)
+		hostData["datastores"] = datastores
+		networks, _ := v.GetNetwork(h.Network)
+		hostData["networks"] = networks
+		hostResult = append(hostResult, hostData)
+	}
+
+	return hostResult, nil
+}
+
 func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 	if err := v.GetConnect(); err != nil {
 		return nil, err
@@ -277,19 +297,39 @@ func (v *vSphereClient) UploadImage() error {
 
 	f := find.NewFinder(client, true)
 
-	resourcePoolPath := v.Vars["resourcePool"].(string)
-	if v.Vars["resourcePool"].(string) == "Resources" {
-		resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
-	}
-
 	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
 	if err != nil {
 		return err
 	}
 	f.SetDatacenter(datacenter)
-	resourcePool, err := f.ResourcePool(ctx, resourcePoolPath)
-	if err != nil {
-		return err
+
+	var resourcePool *object.ResourcePool
+	var host *object.HostSystem
+	resourceType := v.Vars["resourceType"].(string)
+	if resourceType == "host" {
+		hostPath := "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/" + v.Vars["hostSystem"].(string)
+		host, err := f.HostSystem(ctx, hostPath)
+		if err != nil {
+			return err
+		}
+		resourcePool, err = host.ResourcePool(ctx)
+		if err != nil {
+			return err
+		}
+	} else {
+		resourcePoolPath := v.Vars["resourcePool"].(string)
+		if v.Vars["resourcePool"].(string) == "Resources" {
+			resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
+		}
+		resourcePool, err = f.ResourcePool(ctx, resourcePoolPath)
+		if err != nil {
+			return err
+		}
+		hosts, err := f.HostSystemList(ctx, "*")
+		if err != nil {
+			return err
+		}
+		host = hosts[0]
 	}
 	var datastoreName string
 	for _, name := range v.Vars["datastore"].([]interface{}) {
@@ -300,11 +340,6 @@ func (v *vSphereClient) UploadImage() error {
 	if err != nil {
 		return err
 	}
-	hosts, err := f.HostSystemList(ctx, "*")
-	if err != nil {
-		return err
-	}
-	host := hosts[0]
 
 	folder, err := f.Folder(ctx, constant.VSphereFolder)
 	if err != nil {
