@@ -231,6 +231,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/users/{**}",
 			"/api/v1/license",
 			"/api/v1/hosts",
+			"/api/v1/hosts/load",
 			"/api/v1/hosts/{sync,upload}",
 			"/api/v1/plans",
 			"/api/v1/vmconfigs",

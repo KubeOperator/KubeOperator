@@ -195,6 +195,21 @@ func (c ClusterController) PostInitBy(name string) error {
 	return c.ClusterInitService.Init(name)
 }
 
+func (c ClusterController) PostLoad() (dto.ClusterLoadInfo, error) {
+	var req dto.ClusterLoad
+	var data dto.ClusterLoadInfo
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return data, err
+	}
+
+	data, err = c.ClusterImportService.LoadClusterInfo(&req)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
+}
+
 // Upgrade Cluster
 // @Tags clusters
 // @Summary Upgrade a cluster
@@ -367,9 +382,10 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 func (c ClusterController) DeleteBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	force, _ := c.Ctx.Values().GetBool("force")
+	uninstall, _ := c.Ctx.Values().GetBool("uninstall")
 
 	go kolog.Save(operator, constant.DELETE_CLUSTER, name)
-	return c.ClusterService.Delete(name, force)
+	return c.ClusterService.Delete(name, force, uninstall)
 }
 
 // Import Cluster

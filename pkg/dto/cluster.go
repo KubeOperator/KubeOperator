@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/KubeOperator/KubeOperator/pkg/model"
+import (
+	"github.com/KubeOperator/KubeOperator/pkg/model"
+)
 
 type Cluster struct {
 	model.Cluster
@@ -134,4 +136,41 @@ type ClusterRecoverItem struct {
 type ClusterInfo struct {
 	Name     string `json:"name"`
 	Provider string `json:"provider"`
+}
+
+type ClusterLoad struct {
+	Name          string `json:"name"`
+	ApiServer     string `json:"apiServer"`
+	Router        string `json:"router"`
+	Token         string `json:"token"`
+	Architectures string `json:"architectures"`
+}
+
+type ClusterLoadInfo struct {
+	Version                  string `json:"version"`
+	Architectures            string `json:"architectures"`
+	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
+	NodeportAddress          string `json:"nodeportAddress"`
+	KubeProxyMode            string `json:"kubeProxyMode"`
+	NetworkType              string `json:"networkType"`
+	IngressControllerType    string `json:"ingressControllerType"`
+	EnableDnsCache           string `json:"enableDnsCache"`
+	RuntimeType              string `json:"runtimeType"`
+
+	KubePodSubnet         string         `json:"kubePodSubnet"`
+	KubeServiceSubnet     string         `json:"kubeServiceSubnet"`
+	MaxNodeNum            int            `json:"maxNodeNum"`
+	MaxNodePodNum         int            `json:"maxNodePodNum"`
+	KubeMaxPods           int            `json:"kubeMaxPods"`
+	KubeNetworkNodePrefix int            `json:"kubeNetworkNodePrefix"`
+	Nodes                 []NodeLoadInfo `json:"nodes"`
+}
+
+type NodeLoadInfo struct {
+	Name         string `json:"name"`
+	Port         int    `json:"port"`
+	Ip           string `json:"ip"`
+	Architecture string `json:"architecture"`
+	Role         string `json:"role"`
+	CredentialID string `json:"credentialID"`
 }

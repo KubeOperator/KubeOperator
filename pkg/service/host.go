@@ -42,6 +42,7 @@ type HostService interface {
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
 	DownloadTemplateFile() error
+	RunGetHostConfig(host *model.Host)
 	ImportHosts(file []byte) error
 }
 

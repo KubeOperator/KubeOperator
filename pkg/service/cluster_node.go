@@ -775,15 +775,13 @@ func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, resou
 		}
 		hasNode := false
 		for _, kn := range kubeNodes.Items {
-			if node.Name == kn.Name {
-				if resource == constant.ClusterSourceExternal {
-					for _, addr := range kn.Status.Addresses {
-						if addr.Type == "InternalIP" {
-							n.Ip = addr.Address
-						}
-					}
+			for _, addr := range kn.Status.Addresses {
+				if addr.Type == "InternalIP" && node.Host.Ip == addr.Address {
+					hasNode = true
+					break
 				}
-				hasNode = true
+			}
+			if hasNode {
 				n.Info = kn
 				if isPolling != "true" {
 					if node.Status == constant.StatusRunning || node.Status == constant.StatusFailed || node.Status == constant.StatusNotReady || node.Status == constant.StatusLost {

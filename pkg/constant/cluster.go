@@ -26,9 +26,11 @@ const (
 	ClusterCreating      = "Creating"
 	ClusterSynchronizing = "Synchronizing"
 
-	ClusterSourceLocal    = "local"
-	ClusterNotReady       = "NotReady"
-	ClusterSourceExternal = "external"
+	ClusterSourceLocal      = "local"
+	ClusterNotReady         = "NotReady"
+	ClusterSourceInternal   = "internal"
+	ClusterSourceExternal   = "external"
+	ClusterSourceKoExternal = "ko-external"
 
 	ConditionTrue    = "True"
 	ConditionFalse   = "False"

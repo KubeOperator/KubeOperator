@@ -45,7 +45,7 @@ type ClusterService interface {
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
 	Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
-	Delete(name string, force bool) error
+	Delete(name string, force bool, uninstall bool) error
 }
 
 func NewClusterService() ClusterService {
@@ -552,11 +552,18 @@ func getNodeCIDRMaskSize(maxNodePodNum int) (int, error) {
 	return nodeCIDRMaskSize, nil
 }
 
-func (c *clusterService) Delete(name string, force bool) error {
+func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	logger.Log.Infof("start to delete cluster %s, isforce: %v", name, force)
 	cluster, err := c.Get(name)
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
+	}
+	if cluster.Source == constant.ClusterSourceKoExternal {
+		if uninstall {
+			cluster.Source = constant.ClusterSourceLocal
+		} else {
+			cluster.Source = constant.ClusterSourceExternal
+		}
 	}
 
 	switch cluster.Source {
