@@ -402,6 +402,12 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
+		if zoneVars["resourceType"] != nil {
+			regionVars["resourceType"] = zoneVars["resourceType"]
+		}
+		if zoneVars["hostSystem"] != nil {
+			regionVars["hostSystem"] = zoneVars["hostSystem"]
+		}
 		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip, port)
 		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip, port)
 	}
