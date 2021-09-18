@@ -354,13 +354,8 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 						for _, node := range nodes {
 							hasNode := false
 							for _, kn := range kubeNodes.Items {
-								for _, addr := range kn.Status.Addresses {
-									if addr.Type == "InternalIP" && node.Host.Ip == addr.Address {
-										hasNode = true
-										break
-									}
-								}
-								if hasNode {
+								if kn.ObjectMeta.Name == node.Name {
+									hasNode = true
 									break
 								}
 							}
