@@ -760,7 +760,7 @@ func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes 
 }
 
 // db 存在，cluster 不存在  ====>  失联
-func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, resource, isPolling string) []dto.Node {
+func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, source, isPolling string) []dto.Node {
 	var (
 		runningList  []string
 		notReadyList []string
@@ -775,10 +775,15 @@ func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, resou
 		}
 		hasNode := false
 		for _, kn := range kubeNodes.Items {
-			for _, addr := range kn.Status.Addresses {
-				if addr.Type == "InternalIP" && node.Host.Ip == addr.Address {
-					hasNode = true
-					break
+			if kn.ObjectMeta.Name == node.Name {
+				hasNode = true
+				if source == constant.ClusterSourceExternal {
+					for _, addr := range kn.Status.Addresses {
+						if addr.Type == "InternalIP" {
+							n.Ip = addr.Address
+							break
+						}
+					}
 				}
 			}
 			if hasNode {

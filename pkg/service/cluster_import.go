@@ -84,6 +84,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		},
 	}
 	if clusterImport.IsKoCluster {
+		cluster.Name = clusterImport.KoClusterInfo.Name
 		cluster.Source = constant.ClusterSourceKoExternal
 		cluster.Spec = model.ClusterSpec{
 			RuntimeType:              clusterImport.KoClusterInfo.RuntimeType,
@@ -142,11 +143,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err := tx.Create(&cluster).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("can not create cluster secret %s", err.Error())
-	}
-
-	if err := tx.Save(&cluster.Spec).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("can not update spec %s", err.Error())
 	}
 
 	var synchosts []dto.HostSync
@@ -210,6 +206,11 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
+	if err := tx.Save(&cluster.Spec).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not update spec %s", err.Error())
+	}
+
 	var (
 		manifest model.ClusterManifest
 		toolVars []model.VersionHelp
@@ -271,7 +272,7 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 		return err
 	}
 	var nodesFromK8s []dto.NodesFromK8s
-	nodesFromK8s, cluster.Spec.RuntimeType, err = getKubeNodes(cluster.Name, c)
+	nodesFromK8s, cluster.Spec.RuntimeType, _, err = getKubeNodes(false, c)
 	if err != nil {
 		return err
 	}
@@ -301,15 +302,16 @@ func getServerVersion(client *kubernetes.Clientset) (string, error) {
 	return manifest.Name, nil
 }
 
-func getKubeNodes(clusterName string, client *kubernetes.Clientset) ([]dto.NodesFromK8s, string, error) {
+func getKubeNodes(isKoImport bool, client *kubernetes.Clientset) ([]dto.NodesFromK8s, string, string, error) {
 	var (
 		k8sNodes    []dto.NodesFromK8s
 		runtimeType string
+		clusterName string
 	)
 
 	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return k8sNodes, runtimeType, fmt.Errorf("get nodes from cluster failed: %v", err)
+		return k8sNodes, runtimeType, clusterName, fmt.Errorf("get nodes from cluster failed: %v", err)
 	}
 	for i, node := range nodes.Items {
 		if i == 0 {
@@ -319,16 +321,27 @@ func getKubeNodes(clusterName string, client *kubernetes.Clientset) ([]dto.Nodes
 				runtimeType = "containerd"
 			}
 		}
+
+		if isKoImport {
+			if strings.Contains(node.ObjectMeta.Name, "-") {
+				if i == 0 {
+					clusterName = strings.Split(node.ObjectMeta.Name, "-")[0]
+				} else {
+					if clusterName != strings.Split(node.ObjectMeta.Name, "-")[0] {
+						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+					}
+				}
+			} else {
+				return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+			}
+		}
+
 		var item dto.NodesFromK8s
+		item.Name = node.ObjectMeta.Name
 		if _, ok := node.ObjectMeta.Labels["node-role.kubernetes.io/master"]; ok {
 			item.Role = "master"
 		} else {
 			item.Role = "worker"
-		}
-		if strings.Contains(node.ObjectMeta.Name, "-") {
-			item.Name = strings.Replace(node.ObjectMeta.Name, strings.Split(node.ObjectMeta.Name, "-")[0], clusterName, 1)
-		} else {
-			item.Name = node.ObjectMeta.Name
 		}
 		item.Architecture = node.Status.NodeInfo.Architecture
 		item.Port = 22
@@ -339,7 +352,7 @@ func getKubeNodes(clusterName string, client *kubernetes.Clientset) ([]dto.Nodes
 		}
 		k8sNodes = append(k8sNodes, item)
 	}
-	return k8sNodes, runtimeType, nil
+	return k8sNodes, runtimeType, clusterName, nil
 }
 
 func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string, error) {
@@ -397,7 +410,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 
 	//load nodes
-	clusterInfo.Nodes, clusterInfo.RuntimeType, err = getKubeNodes(loadInfo.Name, kubeClient)
+	clusterInfo.Nodes, clusterInfo.RuntimeType, clusterInfo.Name, err = getKubeNodes(true, kubeClient)
 	if err != nil {
 		return clusterInfo, err
 	}

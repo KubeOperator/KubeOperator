@@ -147,6 +147,7 @@ type ClusterLoad struct {
 }
 
 type ClusterLoadInfo struct {
+	Name                     string `json:"name"`
 	Version                  string `json:"version"`
 	Architectures            string `json:"architectures"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
