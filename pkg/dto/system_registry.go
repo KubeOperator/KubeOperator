@@ -14,6 +14,7 @@ type SystemRegistryCreate struct {
 	RepoPort           int    `json:"repoPort" validate:"required"`
 	RegistryPort       int    `json:"registryPort" validate:"required"`
 	RegistryHostedPort int    `json:"registryHostedPort" validate:"required"`
+	NexusPassword      string `json:"nexusPassword" validate:"required"`
 }
 
 type SystemRegistryUpdate struct {
@@ -23,6 +24,7 @@ type SystemRegistryUpdate struct {
 	RepoPort           int    `json:"repoPort" validate:"required"`
 	RegistryPort       int    `json:"registryPort" validate:"required"`
 	RegistryHostedPort int    `json:"registryHostedPort" validate:"required"`
+	NexusPassword      string `json:"nexusPassword" validate:"required"`
 }
 
 type SystemRegistryDelete struct {

@@ -14,6 +14,7 @@ type SystemRegistry struct {
 	RepoPort           int    `json:"repoPort" gorm:"type:int(64)"`
 	RegistryPort       int    `json:"registryPort" gorm:"type:int(64)"`
 	RegistryHostedPort int    `json:"registryHostedPort" gorm:"type:int(64)"`
+	NexusPassword      string `json:"nexusPassword" gorm:"type:varchar(256);not null;"`
 }
 
 func (s *SystemRegistry) BeforeCreate() (err error) {

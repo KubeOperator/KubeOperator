@@ -260,6 +260,7 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
+		NexusPassword:      creation.NexusPassword,
 	}
 	err := s.systemRegistryRepo.Save(&systemRegistry)
 	if err != nil {
@@ -277,6 +278,7 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
+		NexusPassword:      creation.NexusPassword,
 	}
 	err := s.systemRegistryRepo.Save(&systemRegistry)
 	if err != nil {
