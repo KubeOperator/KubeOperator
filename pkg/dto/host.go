@@ -7,9 +7,10 @@ import (
 
 type Host struct {
 	model.Host
-	ClusterName string `json:"clusterName"`
-	ProjectName string `json:"projectName"`
-	ZoneName    string `json:"zoneName"`
+	ClusterName    string `json:"clusterName"`
+	ProjectName    string `json:"projectName"`
+	CredentialName string `json:"credentialName"`
+	ZoneName       string `json:"zoneName"`
 }
 
 type HostCreate struct {

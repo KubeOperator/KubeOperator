@@ -187,6 +187,7 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 		Limit(size).
 		Preload("Volumes").
 		Preload("Zone").
+		Preload("Credential").
 		Find(&mos).Error; err != nil {
 		return &p, err
 	}
@@ -199,7 +200,7 @@ func (h *hostService) Page(num, size int, projectName string, conditions conditi
 	}
 
 	for _, mo := range mos {
-		hostItem := dto.Host{Host: mo, ZoneName: mo.Zone.Name}
+		hostItem := dto.Host{Host: mo, ZoneName: mo.Zone.Name, CredentialName: mo.Credential.Name}
 		for _, res := range projectResources {
 			if mo.ID == res.ResourceID {
 				for _, pro := range projects {
