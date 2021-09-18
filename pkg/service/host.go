@@ -518,7 +518,19 @@ func (h *hostService) GetHostMem(host *model.Host) error {
 	if err != nil {
 		return err
 	}
-	host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
+	if len(result) == 0 {
+		result, _, _, err = client.Exec("sudo dmidecode -t 17 | grep \"Size.*GB\" | awk '{s+=$2} END {print s}'")
+		if err != nil {
+			return err
+		}
+		host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
+	} else {
+		me, err := strconv.Atoi(strings.Trim(result, "\n"))
+		if err != nil {
+			return err
+		}
+		host.Memory = me / 1024
+	}
 	return err
 }
 

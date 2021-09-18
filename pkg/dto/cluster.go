@@ -163,10 +163,10 @@ type ClusterLoadInfo struct {
 	MaxNodePodNum         int            `json:"maxNodePodNum"`
 	KubeMaxPods           int            `json:"kubeMaxPods"`
 	KubeNetworkNodePrefix int            `json:"kubeNetworkNodePrefix"`
-	Nodes                 []NodeLoadInfo `json:"nodes"`
+	Nodes                 []NodesFromK8s `json:"nodes"`
 }
 
-type NodeLoadInfo struct {
+type NodesFromK8s struct {
 	Name         string `json:"name"`
 	Port         int    `json:"port"`
 	Ip           string `json:"ip"`

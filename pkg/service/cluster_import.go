@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -18,7 +17,6 @@ import (
 	"github.com/icza/dyno"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -268,121 +266,114 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 	if err != nil {
 		return err
 	}
-	_, err = c.ServerVersion()
+	cluster.Spec.Version, err = getServerVersion(c)
 	if err != nil {
 		return err
 	}
-	var wg sync.WaitGroup
-	for _, f := range funcList {
-		wg.Add(1)
-		go f(cluster, c, &wg)
+	var nodesFromK8s []dto.NodesFromK8s
+	nodesFromK8s, cluster.Spec.RuntimeType, err = getKubeNodes(cluster.Name, c)
+	if err != nil {
+		return err
 	}
-	wg.Wait()
+	for _, n := range nodesFromK8s {
+		cluster.Nodes = append(cluster.Nodes, model.ClusterNode{
+			Name:   n.Name,
+			Role:   n.Role,
+			Status: constant.StatusRunning,
+		})
+	}
+	cluster.Spec.RuntimeType, cluster.Spec.EnableDnsCache, cluster.Spec.IngressControllerType, err = getInfoFromDaemonset(c)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-type GatherClusterInfoFunc func(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync.WaitGroup)
-
-var funcList = []GatherClusterInfoFunc{
-	getServerVersion,
-	getKubeNodes,
-	getNetworkType,
-	getRuntimeType,
-}
-
-func getServerVersion(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync.WaitGroup) {
-	defer wg.Done()
+func getServerVersion(client *kubernetes.Clientset) (string, error) {
 	v, err := client.ServerVersion()
 	if err != nil {
-		logger.Log.Error(err.Error())
-		return
+		return "", fmt.Errorf("get version from cluster failed: %v", err.Error())
 	}
 	var manifest model.ClusterManifest
 	if err := db.DB.Where("version = ?", v.GitVersion).Order("created_at ASC").First(&manifest).Error; err != nil {
-		logger.Log.Error("get manifest %s failed: %v", v.GitVersion, err.Error())
+		return "", fmt.Errorf("get manifest %s from db failed: %v", v.GitVersion, err.Error())
 	}
-	cluster.Spec.Version = manifest.Name
+	return manifest.Name, nil
 }
 
-func getKubeNodes(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync.WaitGroup) {
-	defer wg.Done()
+func getKubeNodes(clusterName string, client *kubernetes.Clientset) ([]dto.NodesFromK8s, string, error) {
+	var (
+		k8sNodes    []dto.NodesFromK8s
+		runtimeType string
+	)
+
 	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		logger.Log.Error(err.Error())
-		return
+		return k8sNodes, runtimeType, fmt.Errorf("get nodes from cluster failed: %v", err)
 	}
-	for _, node := range nodes.Items {
-		var role string
-		_, ok := node.Labels["node-role.kubernetes.io/master"]
-		if ok {
-			role = constant.NodeRoleNameMaster
+	for i, node := range nodes.Items {
+		if i == 0 {
+			if strings.Contains(node.Status.NodeInfo.ContainerRuntimeVersion, "docker") {
+				runtimeType = "docker"
+			} else {
+				runtimeType = "containerd"
+			}
+		}
+		var item dto.NodesFromK8s
+		if _, ok := node.ObjectMeta.Labels["node-role.kubernetes.io/master"]; ok {
+			item.Role = "master"
 		} else {
-			_, ok := node.Labels["node-role.kubernetes.io/worker"]
-			if ok {
-				role = constant.NodeRoleNameWorker
+			item.Role = "worker"
+		}
+		if strings.Contains(node.ObjectMeta.Name, "-") {
+			item.Name = strings.Replace(node.ObjectMeta.Name, strings.Split(node.ObjectMeta.Name, "-")[0], clusterName, 1)
+		} else {
+			item.Name = node.ObjectMeta.Name
+		}
+		item.Architecture = node.Status.NodeInfo.Architecture
+		item.Port = 22
+		for _, addr := range node.Status.Addresses {
+			if addr.Type == "InternalIP" {
+				item.Ip = addr.Address
 			}
 		}
-		cluster.Nodes = append(cluster.Nodes, model.ClusterNode{
-			Name:   node.Name,
-			Role:   role,
-			Status: constant.ClusterRunning,
-		})
+		k8sNodes = append(k8sNodes, item)
 	}
+	return k8sNodes, runtimeType, nil
 }
 
-func getNetworkType(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync.WaitGroup) {
-	defer wg.Done()
-	dps, err := client.AppsV1().DaemonSets("").List(context.TODO(), metav1.ListOptions{})
+func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string, error) {
+	var (
+		networkType           string
+		enableDnsCache        string
+		ingressControllerType string
+	)
+	enableDnsCache = "disable"
+	daemonsets, err := client.AppsV1().DaemonSets("kube-system").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		logger.Log.Error(err.Error())
-		return
+		return networkType, enableDnsCache, ingressControllerType, fmt.Errorf("get daemonsets from cluster failed: %v", err.Error())
 	}
-	networkMap := map[string]int{
-		"flannel": 0,
-		"calico":  0,
-	}
-	for _, dp := range dps.Items {
-		for i := range networkMap {
-			if strings.Contains(dp.Name, i) {
-				networkMap[i]++
-			}
+	for _, daemonset := range daemonsets.Items {
+		if daemonset.ObjectMeta.Name == "calico-node" {
+			networkType = "calico"
+		}
+		if daemonset.ObjectMeta.Name == "kube-flannel-ds" {
+			networkType = "flannel"
+		}
+		if daemonset.ObjectMeta.Name == "cilium" {
+			networkType = "cilium"
+		}
+		if daemonset.ObjectMeta.Name == "node-local-dns" {
+			enableDnsCache = "enable"
+		}
+		if daemonset.ObjectMeta.Name == "nginx-ingress-controller" {
+			ingressControllerType = "nginx"
+		}
+		if daemonset.ObjectMeta.Name == "traefik" {
+			ingressControllerType = "traefik"
 		}
 	}
-	var networkType = ""
-	for k, v := range networkMap {
-		if v > 0 {
-			networkType = k
-			break
-		}
-	}
-	if networkType == "" {
-		networkType = "unknown"
-	}
-	cluster.Spec.NetworkType = networkType
-}
-
-func getRuntimeType(cluster *model.Cluster, client *kubernetes.Clientset, wg *sync.WaitGroup) {
-	defer wg.Done()
-	ns, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		logger.Log.Error(err.Error())
-		return
-	}
-	var node v1.Node
-	// 找第一个 master
-	for _, n := range ns.Items {
-		if _, ok := n.Labels["node-role.kubernetes.io/master"]; ok {
-			node = n
-			break
-		}
-	}
-	cluster.Spec.Architectures = node.Status.NodeInfo.Architecture
-	if strings.Contains(node.Status.NodeInfo.ContainerRuntimeVersion, "docker") {
-		cluster.Spec.RuntimeType = "docker"
-	}
-	if strings.Contains(node.Status.NodeInfo.ContainerRuntimeVersion, "containerd") {
-		cluster.Spec.RuntimeType = "containerd"
-	}
+	return networkType, enableDnsCache, ingressControllerType, nil
 }
 
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
@@ -400,48 +391,15 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 
 	// load version
-	v, err := kubeClient.ServerVersion()
+	clusterInfo.Version, err = getServerVersion(kubeClient)
 	if err != nil {
 		return clusterInfo, err
 	}
-	var manifest model.ClusterManifest
-	if err := db.DB.Where("version = ?", v.GitVersion).Order("created_at ASC").First(&manifest).Error; err != nil {
-		return clusterInfo, err
-	}
-	clusterInfo.Version = manifest.Name
 
-	// load Node
-	kubeNodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	//load nodes
+	clusterInfo.Nodes, clusterInfo.RuntimeType, err = getKubeNodes(loadInfo.Name, kubeClient)
 	if err != nil {
 		return clusterInfo, err
-	}
-	for i, node := range kubeNodes.Items {
-		if i == 0 {
-			if strings.Contains(node.Status.NodeInfo.ContainerRuntimeVersion, "docker") {
-				clusterInfo.RuntimeType = "docker"
-			} else {
-				clusterInfo.RuntimeType = "containerd"
-			}
-		}
-		var item dto.NodeLoadInfo
-		if _, ok := node.ObjectMeta.Labels["node-role.kubernetes.io/master"]; ok {
-			item.Role = "master"
-		} else {
-			item.Role = "worker"
-		}
-		if strings.Contains(node.ObjectMeta.Name, "-") {
-			item.Name = strings.Replace(node.ObjectMeta.Name, strings.Split(node.ObjectMeta.Name, "-")[0], loadInfo.Name, 1)
-		} else {
-			item.Name = node.ObjectMeta.Name
-		}
-		item.Architecture = node.Status.NodeInfo.Architecture
-		item.Port = 22
-		for _, addr := range node.Status.Addresses {
-			if addr.Type == "InternalIP" {
-				item.Ip = addr.Address
-			}
-		}
-		clusterInfo.Nodes = append(clusterInfo.Nodes, item)
 	}
 
 	// load kubeadm-config
@@ -474,7 +432,6 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 		podMask, _ := strconv.Atoi(subnets[1])
 		clusterInfo.MaxNodeNum = (2 << (31 - podMask)) / clusterInfo.MaxNodePodNum
 	}
-
 	clusterInfo.KubePodSubnet = data.Network.PodSubnet
 	clusterInfo.KubeServiceSubnet = data.Network.ServiceSubnet
 
@@ -501,31 +458,11 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.NodeportAddress = data2.NodePortAddresses
 
 	// load network
-	clusterInfo.EnableDnsCache = "disable"
-	daemonsets, err := kubeClient.AppsV1().DaemonSets("kube-system").List(context.TODO(), metav1.ListOptions{})
+	clusterInfo.NetworkType, clusterInfo.EnableDnsCache, clusterInfo.IngressControllerType, err = getInfoFromDaemonset(kubeClient)
 	if err != nil {
-		return clusterInfo, fmt.Errorf("load daemonsets failed: %s", err.Error())
+		return clusterInfo, err
 	}
-	for _, daemonset := range daemonsets.Items {
-		if daemonset.ObjectMeta.Name == "calico-node" {
-			clusterInfo.NetworkType = "calico"
-		}
-		if daemonset.ObjectMeta.Name == "kube-flannel-ds" {
-			clusterInfo.NetworkType = "flannel"
-		}
-		if daemonset.ObjectMeta.Name == "cilium" {
-			clusterInfo.NetworkType = "cilium"
-		}
-		if daemonset.ObjectMeta.Name == "node-local-dns" {
-			clusterInfo.EnableDnsCache = "enable"
-		}
-		if daemonset.ObjectMeta.Name == "nginx-ingress-controller" {
-			clusterInfo.IngressControllerType = "nginx"
-		}
-		if daemonset.ObjectMeta.Name == "traefik" {
-			clusterInfo.IngressControllerType = "traefik"
-		}
-	}
+
 	return clusterInfo, nil
 }
 
