@@ -382,7 +382,8 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 func (c ClusterController) DeleteBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	force, _ := c.Ctx.Values().GetBool("force")
-	uninstall, _ := c.Ctx.Values().GetBool("uninstall")
+	uninstallStr := c.Ctx.URLParam("uninstall")
+	uninstall := uninstallStr == "true"
 
 	go kolog.Save(operator, constant.DELETE_CLUSTER, name)
 	return c.ClusterService.Delete(name, force, uninstall)
