@@ -789,7 +789,7 @@ func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, sourc
 			if hasNode {
 				n.Info = kn
 				if isPolling != "true" {
-					if node.Status == constant.StatusRunning || node.Status == constant.StatusFailed || node.Status == constant.StatusNotReady || node.Status == constant.StatusLost {
+					if node.Status == constant.StatusRunning || node.Status == constant.StatusNotReady || node.Status == constant.StatusLost {
 						for _, condition := range kn.Status.Conditions {
 							if condition.Type == "Ready" && condition.Status == "True" {
 								if node.Status != constant.StatusRunning {
@@ -797,13 +797,7 @@ func syncNodeStatus(nodesInDB []model.ClusterNode, kubeNodes *v1.NodeList, sourc
 								}
 								n.Status = constant.StatusRunning
 							}
-							if condition.Type == "Ready" && condition.Status == "False" {
-								if node.Status != constant.ClusterFailed {
-									failedList = append(failedList, node.ID)
-								}
-								n.Status = constant.ClusterFailed
-							}
-							if condition.Type == "Ready" && condition.Status == "Unknown" {
+							if condition.Type == "Ready" && (condition.Status == "False" || condition.Status == "Unknown") {
 								if node.Status != constant.StatusNotReady {
 									notReadyList = append(notReadyList, node.ID)
 								}

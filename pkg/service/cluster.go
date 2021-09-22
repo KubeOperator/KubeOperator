@@ -226,7 +226,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 		message := ""
 		if (mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
-			isOK, message = GetClusterStatusByAPI(mo)
+			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.Spec.LbKubeApiserverIp, mo.Spec.KubeApiServerPort))
 			if !isOK {
 				status = constant.ClusterNotReady
 				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
@@ -723,10 +723,6 @@ func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, e
 		return nil, err
 	}
 	port := cluster.Spec.KubeApiServerPort
-	if cluster.Spec.LbKubeApiserverIp != "" {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port)))
-		return result, nil
-	}
 	masters, err := c.clusterNodeRepo.AllMaster(cluster.ID)
 	if err != nil {
 		return nil, err

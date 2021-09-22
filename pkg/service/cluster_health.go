@@ -205,7 +205,7 @@ func checkKubernetesApi(c model.Cluster) dto.ClusterHealthHook {
 		Name:  CheckK8sAPI,
 		Level: StatusSuccess,
 	}
-	isOK, err := GetClusterStatusByAPI(c)
+	isOK, err := GetClusterStatusByAPI(fmt.Sprintf("%s:%d", c.Spec.LbKubeApiserverIp, c.Spec.KubeApiServerPort))
 	if !isOK {
 		result.Msg = err
 		result.Level = StatusError
@@ -294,8 +294,12 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 					Method: resolveMethods[ch.Hooks[i].Name],
 				}
 				switch ch.Hooks[i].Name {
-				case CheckHostSSHConnection, CheckK8sAPI:
+				case CheckHostSSHConnection:
 					ri.Result = StatusSolvedManually
+					result = append(result, ri)
+					return result, nil
+				case CheckK8sAPI:
+					c.recoverK8sAPI(clu, &ri)
 					result = append(result, ri)
 					return result, nil
 				case CheckK8sToken:
@@ -433,6 +437,34 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 	return result, nil
 }
 
+// 主节点中筛选一个存活的主机，修改为 lb_kube_apiserver_ip
+func (c clusterHealthService) recoverK8sAPI(m dto.Cluster, ri *dto.ClusterRecoverItem) {
+	endpoints, err := c.clusterService.GetApiServerEndpoints(m.Cluster.Name)
+	if err != nil {
+		ri.Result = StatusFailed
+		ri.Msg = fmt.Sprintf("get cluster secret error %s", err.Error())
+		return
+	}
+	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
+	if err != nil {
+		ri.Result = StatusFailed
+		ri.Msg = fmt.Sprintf("select alive host error %s", err.Error())
+		return
+	}
+	isOk, msg := GetClusterStatusByAPI(string(aliveHost))
+	if isOk {
+		if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", m.Cluster.SpecID).Updates(map[string]interface{}{"lb_kube_apiserver_ip": strings.Split(string(aliveHost), ":")[0]}).Error; err != nil {
+			ri.Result = StatusFailed
+			ri.Msg = err.Error()
+			return
+		}
+		ri.Result = StatusRecoverd
+		return
+	}
+	ri.Result = StatusFailed
+	ri.Msg = msg
+}
+
 func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
 	clusterService := NewClusterService()
 	secret, err := clusterService.GetSecrets(c.Name)
@@ -469,31 +501,16 @@ func getBaseParams(c model.Cluster) (*kubernetes.Clientset, string, string) {
 	return kubeClient, StatusSuccess, ""
 }
 
-func GetClusterStatusByAPI(c model.Cluster) (bool, string) {
-	clusterService := NewClusterService()
-	endpoints, err := clusterService.GetApiServerEndpoints(c.Name)
-	if err != nil {
-		return false, fmt.Sprintf("Get cluster secret error %s", err.Error())
-	}
-	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
-	if err != nil {
-		return false, fmt.Sprintf("Select alive host error %s", err.Error())
-	}
-	reqURL := fmt.Sprintf("https://%s/livez", aliveHost)
+func GetClusterStatusByAPI(addr string) (bool, string) {
+	reqURL := fmt.Sprintf("https://%s/livez", addr)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Timeout: 1 * time.Second, Transport: tr}
-	secret, err := clusterService.GetSecrets(c.Name)
-	if err != nil {
-		return false, fmt.Sprintf("Get secrets error %s", err.Error())
-	}
-	token := fmt.Sprintf("%s %s", "Bearer", secret.KubernetesToken)
 	request, _ := http.NewRequest("GET", reqURL, nil)
-	request.Header.Add("Authorization", token)
 	response, err := client.Do(request)
 	if err != nil {
-		return false, fmt.Sprintf("Http get error %s", err.Error())
+		return false, fmt.Sprintf("Https get error %s", err.Error())
 	}
 	defer response.Body.Close()
 	if response.StatusCode == 200 {
