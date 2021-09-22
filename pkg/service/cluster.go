@@ -558,11 +558,16 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
 	}
+
+	// ko 导入集群执行删除时，是否卸载，卸载则走正常手动卸载模式，否则走导入集群删除逻辑直接删除数据库数据，但是需要删除主机和资源绑定信息
 	if cluster.Source == constant.ClusterSourceKoExternal {
 		if uninstall {
 			cluster.Source = constant.ClusterSourceLocal
 		} else {
 			cluster.Source = constant.ClusterSourceExternal
+			if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update("provider", constant.ClusterProviderPlan).Error; err != nil {
+				return err
+			}
 		}
 	}
 
