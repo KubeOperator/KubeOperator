@@ -15,9 +15,14 @@ KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
+### 组件项目
+
+- **[KubePi](https://github.com/KubeOperator/KubePi)**: 简单易用的开源 Kubernetes 可视化管理面板
+- **[Web Kubectl](https://github.com/KubeOperator/webkubectl)**: 在 Web 浏览器中运行 kubectl 命令
+
 ### KubeOperator 的优势
 
--   **简单易用**: 提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl) 和 [KubePi](https://github.com/KubeOperator/KubePi)；
+-   **简单易用**: 提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [KubePi](https://github.com/KubeOperator/KubePi) 和 [Web Kubectl](https://github.com/KubeOperator/webkubectl)；
 -   **按需创建**: 调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -   **按需伸缩**: 快速伸缩 Kubernetes 集群，优化资源使用效率；
 -   **按需修补**: 快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
