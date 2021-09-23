@@ -9,7 +9,7 @@
 </p>
 <hr />
 
-KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别的 Kubernetes 集群。
+KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别 Kubernetes 集群。
 
 KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware、OpenStack 和 FusionCompute 等 IaaS 平台，支持 x86_64 和 ARM64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
 
@@ -17,7 +17,9 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ### KubeOperator 的优势
 
--   **简单易用**: 提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl) 和 [KubePi](https://github.com/KubeOperator/KubePi)；
+-   **简单易用**: 提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [KubePi](https://github.com/KubeOperator/KubePi) 和 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
+-   **[KubePi](https://github.com/KubeOperator/KubePi)**: 简单易用的开源 Kubernetes 可视化管理面板；
+-   **[Webkubectl](https://github.com/KubeOperator/webkubectl)**: 在Web浏览器中运行kubectl命令；
 -   **按需创建**: 调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -   **按需伸缩**: 快速伸缩 Kubernetes 集群，优化资源使用效率；
 -   **按需修补**: 快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
