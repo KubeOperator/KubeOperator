@@ -40,7 +40,7 @@ type clusterInfo struct {
 	YumOperate               string `json:"yumOperate"`
 	LbMode                   string `json:"lbMode"`
 	LbKubeApiserverIp        string `json:"lbKubeApiserverIp"`
-	KubeApiServerPort        int    `json:"kubeApiserverPort"`
+	KubeApiServerPort        int    `json:"kubeApiServerPort"`
 
 	KubePodSubnet         string `json:"kubePodSubnet"`
 	MaxNodePodNum         int    `json:"maxNodePodNum"`

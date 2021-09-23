@@ -323,16 +323,26 @@ func getKubeNodes(isKoImport bool, client *kubernetes.Clientset) ([]dto.NodesFro
 		}
 
 		if isKoImport {
-			if strings.Contains(node.ObjectMeta.Name, "-") {
-				if i == 0 {
-					clusterName = strings.Split(node.ObjectMeta.Name, "-")[0]
+			if i == 0 {
+				if strings.Contains(node.ObjectMeta.Name, "-master") {
+					clusterName = strings.Split(node.ObjectMeta.Name, "-master")[0]
+				} else if strings.Contains(node.ObjectMeta.Name, "-worker") {
+					clusterName = strings.Split(node.ObjectMeta.Name, "-worker")[0]
 				} else {
-					if clusterName != strings.Split(node.ObjectMeta.Name, "-")[0] {
-						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
-					}
+					return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
 				}
 			} else {
-				return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+				if strings.Contains(node.ObjectMeta.Name, "-master") {
+					if clusterName != strings.Split(node.ObjectMeta.Name, "-master")[0] {
+						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+					}
+				} else if strings.Contains(node.ObjectMeta.Name, "-worker") {
+					if clusterName != strings.Split(node.ObjectMeta.Name, "-worker")[0] {
+						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+					}
+				} else {
+					return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+				}
 			}
 		}
 
@@ -391,8 +401,15 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
 	var clusterInfo dto.ClusterLoadInfo
+	if !strings.Contains(loadInfo.ApiServer, ":") {
+		return clusterInfo, fmt.Errorf("the api server %s doesn't meet the criteria", loadInfo.ApiServer)
+	}
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "http://", "", -1)
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "https://", "", -1)
+	clusterInfo.LbMode = constant.ClusterSourceInternal
+	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
+	port, _ := strconv.Atoi(strings.Split(loadInfo.ApiServer, ":")[1])
+	clusterInfo.KubeApiServerPort = port
 	clusterInfo.Architectures = loadInfo.Architectures
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
@@ -447,6 +464,11 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	clusterInfo.KubePodSubnet = data.Network.PodSubnet
 	clusterInfo.KubeServiceSubnet = data.Network.ServiceSubnet
+	if len(data.ApiServer.ExtraArgs.AuditLogPath) == 0 {
+		clusterInfo.KubernetesAudit = "no"
+	} else {
+		clusterInfo.KubernetesAudit = "yes"
+	}
 
 	// load kube-proxy
 	kubeProxyMap, err := kubeClient.CoreV1().ConfigMaps("kube-system").Get(context.TODO(), "kube-proxy", metav1.GetOptions{})
@@ -468,7 +490,12 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 		return clusterInfo, fmt.Errorf("kube-proxy json unmarshall failed: %s", err.Error())
 	}
 	clusterInfo.KubeProxyMode = data2.Mode
-	clusterInfo.NodeportAddress = data2.NodePortAddresses
+	if len(data2.NodePortAddresses) != 0 {
+		for _, addr := range data2.NodePortAddresses {
+			clusterInfo.NodeportAddress += (addr + ",")
+		}
+		clusterInfo.NodeportAddress = clusterInfo.NodeportAddress[0:len(clusterInfo.NodeportAddress)]
+	}
 
 	// load network
 	clusterInfo.NetworkType, clusterInfo.EnableDnsCache, clusterInfo.IngressControllerType, err = getInfoFromDaemonset(kubeClient)
@@ -486,8 +513,8 @@ type admConfigStruct struct {
 }
 
 type proxyConfigStruct struct {
-	Mode              string `json:"mode"`
-	NodePortAddresses string `json:"nodePortAddresses"`
+	Mode              string   `json:"mode"`
+	NodePortAddresses []string `json:"nodePortAddresses"`
 }
 
 type apiServerStruct struct {
@@ -506,4 +533,5 @@ type networkStruct struct {
 type extraArgsStruct struct {
 	ServiceNodePortRange string `json:"service-node-port-range"`
 	NodeCidrMaskSize     string `json:"node-cidr-mask-size"`
+	AuditLogPath         string `json:"audit-log-path"`
 }

@@ -204,6 +204,7 @@ func (s systemSettingService) GetRegistryByID(id string) (dto.SystemRegistry, er
 			RepoPort:           r.RepoPort,
 			RegistryPort:       r.RegistryPort,
 			RegistryHostedPort: r.RegistryHostedPort,
+			NexusPassword:      r.NexusPassword,
 		},
 	}
 	return systemRegistryDto, nil

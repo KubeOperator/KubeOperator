@@ -75,7 +75,7 @@ type ClusterCreate struct {
 	YumOperate               string       `json:"yumOperate"`
 	LbMode                   string       `json:"lbMode"`
 	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
-	KubeApiServerPort        int          `json:"kubeApiserverPort"`
+	KubeApiServerPort        int          `json:"kubeApiServerPort"`
 
 	KubePodSubnet     string `json:"kubePodSubnet"`
 	MaxNodePodNum     int    `json:"maxNodePodNum"`
@@ -150,12 +150,16 @@ type ClusterLoadInfo struct {
 	Name                     string `json:"name"`
 	Version                  string `json:"version"`
 	Architectures            string `json:"architectures"`
+	LbMode                   string `json:"lbMode"`
+	LbKubeApiserverIp        string `json:"lbKubeApiserverIp"`
+	KubeApiServerPort        int    `json:"kubeApiServerPort"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeProxyMode            string `json:"kubeProxyMode"`
 	NetworkType              string `json:"networkType"`
 	IngressControllerType    string `json:"ingressControllerType"`
 	EnableDnsCache           string `json:"enableDnsCache"`
+	KubernetesAudit          string `json:"kubernetesAudit"`
 	RuntimeType              string `json:"runtimeType"`
 
 	KubePodSubnet         string         `json:"kubePodSubnet"`
