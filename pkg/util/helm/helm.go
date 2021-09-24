@@ -107,16 +107,16 @@ func (c Client) Install(name, chartName, chartVersion string, values map[string]
 	}
 	p, err := client.ChartPathOptions.LocateChart(chartName, c.settings)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("locate chart %s failed: %v", chartName, err))
+		return nil, fmt.Errorf("locate chart %s failed: %v", chartName, err)
 	}
 	ct, err := loader.Load(p)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("load chart %s failed: %v", chartName, err))
+		return nil, fmt.Errorf("load chart %s failed: %v", chartName, err)
 	}
 
 	release, err := client.Run(ct, values)
 	if err != nil {
-		return release, errors.Wrap(err, fmt.Sprintf("install tool %s with chart %s failed: %v", name, chartName, err))
+		return release, fmt.Errorf("install tool %s with chart %s failed: %v", name, chartName, err)
 	}
 	return release, nil
 }
@@ -132,16 +132,16 @@ func (c Client) Upgrade(name, chartName, chartVersion string, values map[string]
 	client.ChartPathOptions.Version = chartVersion
 	p, err := client.ChartPathOptions.LocateChart(chartName, c.settings)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("locate chart %s failed: %v", chartName, err))
+		return nil, fmt.Errorf("locate chart %s failed: %v", chartName, err)
 	}
 	ct, err := loader.Load(p)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("load chart %s failed: %v", chartName, err))
+		return nil, fmt.Errorf("load chart %s failed: %v", chartName, err)
 	}
 
 	release, err := client.Run(name, ct, values)
 	if err != nil {
-		return release, errors.Wrap(err, fmt.Sprintf("upgrade tool %s with chart %s failed: %v", name, chartName, err))
+		return release, fmt.Errorf("upgrade tool %s with chart %s failed: %v", name, chartName, err)
 	}
 	return release, nil
 }
@@ -150,7 +150,7 @@ func (c Client) Uninstall(name string) (*release.UninstallReleaseResponse, error
 	client := action.NewUninstall(c.unInstallActionConfig)
 	release, err := client.Run(name)
 	if err != nil {
-		return release, errors.Wrap(err, fmt.Sprintf("uninstall tool %s failed: %v", name, err))
+		return release, fmt.Errorf("uninstall tool %s failed: %v", name, err)
 	}
 	return release, nil
 }
@@ -191,17 +191,17 @@ func updateRepo(arch string) error {
 		r := repository.NewSystemSettingRepository()
 		p, err := r.Get("REGISTRY_PROTOCOL")
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("load system repo failed: %v", err))
+			return fmt.Errorf("load system repo failed: %v", err)
 		}
 		var c Client
 		repoIP, nexusPsw, repoPort, _, err := c.GetRepoIP(arch)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("load system repo of arch %s failed: %v", arch, err))
+			return fmt.Errorf("load system repo of arch %s failed: %v", arch, err)
 		}
 		url := fmt.Sprintf("%s://%s:%d/repository/applications", p.Value, repoIP, repoPort)
 		err = addRepo("nexus", url, "admin", nexusPsw)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("add helm repo %s failed: %v", url, err))
+			return fmt.Errorf("add helm repo %s failed: %v", url, err)
 		}
 		logger.Log.Infof("my nexus addr is %s", url)
 	}
@@ -210,7 +210,7 @@ func updateRepo(arch string) error {
 	repoCache := settings.RepositoryCache
 	f, err := repo.LoadFile(repoFile)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("load file of repo %s failed: %v", repoFile, err))
+		return fmt.Errorf("load file of repo %s failed: %v", repoFile, err)
 	}
 	var rps []*repo.ChartRepository
 	for _, cfg := range f.Repositories {

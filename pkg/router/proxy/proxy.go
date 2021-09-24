@@ -23,4 +23,5 @@ func RegisterProxy(parent iris.Party) {
 	proxy.Any("/dashboard/{cluster_name}/{p:path}", DashboardProxy)
 	proxy.Any("/registry/{cluster_name}/{p:path}", RegistryProxy)
 	proxy.Any("/kubeapps/{cluster_name}/{p:path}", KubeappsProxy)
+	proxy.Any("/kubepi/{cluster_name}/{p:path}", KubePiProxy)
 }

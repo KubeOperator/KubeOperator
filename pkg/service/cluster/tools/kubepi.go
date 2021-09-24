@@ -42,7 +42,7 @@ func (k KubePi) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(k.Cluster.HelmClient, k.Tool, constant.KubePiChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(k.Cluster.Namespace, constant.DefaultKubePiIngressName, constant.DefaultKubePiIngress, constant.DefaultKubePiServiceName, 9090, k.Cluster.KubeClient); err != nil {
+	if err := createRoute(k.Cluster.Namespace, constant.DefaultKubePiIngressName, constant.DefaultKubePiIngress, constant.DefaultKubePiServiceName, 80, k.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultKubePiDeploymentName, 1, k.Cluster.KubeClient); err != nil {
