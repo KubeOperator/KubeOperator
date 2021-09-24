@@ -102,6 +102,8 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kube
 		return NewRegistry(c, tool)
 	case "dashboard":
 		return NewDashboard(c, tool)
+	case "kubepi":
+		return NewKubePi(c, tool)
 	case "chartmuseum":
 		return NewChartmuseum(c, tool)
 	case "kubeapps":

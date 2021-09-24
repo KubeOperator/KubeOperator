@@ -55,6 +55,7 @@ const (
 	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
 	DefaultRegistryIngress    = "registry." + DefaultIngress
 	DefaultDashboardIngress   = "dashboard." + DefaultIngress
+	DefaultKubePiIngress      = "kubepi." + DefaultIngress
 	DefaultKubeappsIngress    = "kubeapps." + DefaultIngress
 
 	ChartmuseumChartName    = "nexus/chartmuseum"
@@ -64,11 +65,13 @@ const (
 	LokiChartName           = "nexus/loki-stack"
 	GrafanaChartName        = "nexus/grafana"
 	DashboardChartName      = "nexus/kubernetes-dashboard"
+	KubePiChartName         = "nexus/kubepi"
 	KubeappsChartName       = "nexus/kubeapps"
 
 	DefaultRegistryServiceName    = "registry-docker-registry"
 	DefaultChartmuseumServiceName = "chartmuseum-chartmuseum"
 	DefaultDashboardServiceName   = "dashboard-kubernetes-dashboard"
+	DefaultKubePiServiceName      = "kubepi"
 	DefaultLoggingServiceName     = "elasticsearch-master"
 	DefaultLokiServiceName        = "loki"
 	DefaultGrafanaServiceName     = "grafana"
@@ -78,6 +81,7 @@ const (
 	DefaultRegistryIngressName    = "docker-registry-ingress"
 	DefaultChartmuseumIngressName = "chartmuseum-ingress"
 	DefaultDashboardIngressName   = "dashboard-ingress"
+	DefaultKubePiIngressName      = "kubepi-ingress"
 	DefaultLoggingIngressName     = "logging-ingress"
 	DefaultLokiIngressName        = "loki-ingress"
 	DefaultGrafanaIngressName     = "grafana-ingress"
@@ -87,6 +91,7 @@ const (
 	DefaultRegistryDeploymentName    = "registry-docker-registry"
 	DefaultChartmuseumDeploymentName = "chartmuseum-chartmuseum"
 	DefaultDashboardDeploymentName   = "dashboard-kubernetes-dashboard"
+	DefaultKubePiDeploymentName      = "kubepi"
 	DefaultKubeappsDeploymentName    = "kubeapps"
 	DefaultLoggingStateSetsfulName   = "elasticsearch-master"
 	DefaultLokiStateSetsfulName      = "loki"
