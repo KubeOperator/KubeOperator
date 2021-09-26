@@ -257,19 +257,19 @@ func (c Cluster) PrepareIstios() []ClusterIstio {
 func (c Cluster) PrepareTools() []ClusterTool {
 	return []ClusterTool{
 		{
-			Name:         "dashboard",
-			Version:      "v2.0.3",
-			Describe:     "",
+			Name:         "kubepi",
+			Version:      "v1.0.1",
+			Describe:     "仪表盘|Dashboard",
 			Status:       constant.ClusterWaiting,
-			Logo:         "kubernetes.png",
+			Logo:         "kubepi.png",
 			Frame:        true,
-			Url:          "/proxy/dashboard/{cluster_name}/root",
+			Url:          "/proxy/kubepi/{cluster_name}/root",
 			Architecture: supportedArchitectureAll,
 		},
 		{
 			Name:         "kubeapps",
 			Version:      "v1.10.2",
-			Describe:     "",
+			Describe:     "应用商店|App store",
 			Status:       constant.ClusterWaiting,
 			Logo:         "kubeapps.png",
 			Frame:        true,
@@ -279,7 +279,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "prometheus",
 			Version:      "v2.18.1",
-			Describe:     "",
+			Describe:     "监控|Monitor",
 			Status:       constant.ClusterWaiting,
 			Logo:         "prometheus.png",
 			Frame:        false,
@@ -289,7 +289,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "logging",
 			Version:      "v7.6.2",
-			Describe:     "",
+			Describe:     "日志|Logs",
 			Status:       constant.ClusterWaiting,
 			Logo:         "elasticsearch.png",
 			Frame:        false,
@@ -299,7 +299,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "loki",
 			Version:      "v2.0.0",
-			Describe:     "",
+			Describe:     "日志|Logs",
 			Status:       constant.ClusterWaiting,
 			Logo:         "loki.png",
 			Frame:        false,
@@ -309,7 +309,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "grafana",
 			Version:      "v7.3.3",
-			Describe:     "",
+			Describe:     "监控|Monitor",
 			Status:       constant.ClusterWaiting,
 			Logo:         "grafana.png",
 			Frame:        true,
@@ -319,7 +319,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
-			Describe:     "",
+			Describe:     "Chart 仓库|Chart warehouse",
 			Status:       constant.ClusterWaiting,
 			Logo:         "chartmuseum.png",
 			Frame:        false,
@@ -329,7 +329,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			Name:         "registry",
 			Version:      "v2.7.1",
-			Describe:     "",
+			Describe:     "镜像仓库|Image warehouse",
 			Status:       constant.ClusterWaiting,
 			Logo:         "registry.png",
 			Frame:        false,
