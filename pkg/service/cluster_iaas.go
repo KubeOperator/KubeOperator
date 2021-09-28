@@ -166,7 +166,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 				return nil, err
 			}
 			host.CpuCore = masterConfig.Cpu
-			host.Memory = masterConfig.Memory * 1024
+			host.Memory = masterConfig.Memory
 		}
 		hosts = append(hosts, &host)
 	}
@@ -185,7 +185,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 				return nil, err
 			}
 			host.CpuCore = workerConfig.Cpu
-			host.Memory = workerConfig.Memory * 1024
+			host.Memory = workerConfig.Memory
 		}
 		hosts = append(hosts, &host)
 	}

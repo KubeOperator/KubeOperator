@@ -1,0 +1,1 @@
+update ko_host set memory = memory / 1024;

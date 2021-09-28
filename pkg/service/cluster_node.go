@@ -586,7 +586,7 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 				return nil, err
 			}
 			newHost.CpuCore = workerConfig.Cpu
-			newHost.Memory = workerConfig.Memory * 1024
+			newHost.Memory = workerConfig.Memory
 		}
 		newHosts = append(newHosts, newHost)
 	}
