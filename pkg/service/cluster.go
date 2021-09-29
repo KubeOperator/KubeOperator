@@ -368,6 +368,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		KubePodSubnet:            creation.KubePodSubnet,
 		KubeServiceSubnet:        creation.KubeServiceSubnet,
 		MaxNodeNum:               creation.MaxNodeNum,
+		MasterScheduleType:       creation.MasterScheduleType,
 	}
 
 	nodeMask, err := getNodeCIDRMaskSize(creation.MaxNodePodNum)

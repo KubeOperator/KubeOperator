@@ -67,6 +67,7 @@ const (
 	SupportGpuName                       = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
 	NtpServerName                        = "ntp_server"
+	MasterScheduleTypeFactName           = "master_schedule_type"
 )
 
 var DefaultFacts = map[string]string{
@@ -132,4 +133,5 @@ var DefaultFacts = map[string]string{
 	SupportGpuName:                       "disable",
 	YumRepoFactName:                      "replace",
 	NtpServerName:                        "ntp1.aliyun.com",
+	MasterScheduleTypeFactName:           "enable",
 }

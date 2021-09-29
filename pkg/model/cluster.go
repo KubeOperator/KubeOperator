@@ -360,6 +360,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.EnableDnsCache != "" {
 		result[facts.EnableDnsCacheFactName] = c.Spec.EnableDnsCache
 	}
+	if c.Spec.MasterScheduleType != "" {
+		result[facts.MasterScheduleTypeFactName] = c.Spec.MasterScheduleType
+	}
 	if c.Spec.DnsCacheVersion != "" {
 		result[facts.DnsCacheVersionFactName] = c.Spec.DnsCacheVersion
 	}

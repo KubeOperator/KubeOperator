@@ -76,6 +76,7 @@ type ClusterCreate struct {
 	LbMode                   string       `json:"lbMode"`
 	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
 	KubeApiServerPort        int          `json:"kubeApiServerPort"`
+	MasterScheduleType       string       `json:"masterScheduleType"`
 
 	KubePodSubnet     string `json:"kubePodSubnet"`
 	MaxNodePodNum     int    `json:"maxNodePodNum"`
@@ -161,6 +162,7 @@ type ClusterLoadInfo struct {
 	EnableDnsCache           string `json:"enableDnsCache"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	RuntimeType              string `json:"runtimeType"`
+	MasterScheduleType       string `json:"masterScheduleType"`
 
 	KubePodSubnet         string         `json:"kubePodSubnet"`
 	KubeServiceSubnet     string         `json:"kubeServiceSubnet"`

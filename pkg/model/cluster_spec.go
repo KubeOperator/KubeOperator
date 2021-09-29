@@ -44,6 +44,8 @@ type ClusterSpec struct {
 	SupportGpu               string `json:"supportGpu"`
 	YumOperate               string `json:"yumOperate"`
 	KubeNetworkNodePrefix    int    `json:"kubeNetworkNodePrefix"`
+
+	MasterScheduleType string `json:"masterScheduleType"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {
