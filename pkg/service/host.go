@@ -524,13 +524,14 @@ func (h *hostService) GetHostMem(host *model.Host) error {
 		if err != nil {
 			return err
 		}
-		host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
+		me, _ := strconv.Atoi(strings.Trim(result, "\n"))
+		host.Memory = me * 1024
 	} else {
 		me, err := strconv.Atoi(strings.Trim(result, "\n"))
 		if err != nil {
 			return err
 		}
-		host.Memory = me / 1024
+		host.Memory = me
 	}
 	return err
 }
