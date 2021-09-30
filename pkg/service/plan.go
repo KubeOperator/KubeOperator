@@ -114,7 +114,7 @@ func (p planService) Page(num, size int, projectName string, conditions conditio
 		}
 	}
 
-	if err := d.Preload("Region").Preload("Zones").Count(&pa.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
+	if err := d.Preload("Region").Preload("Zones").Order("name asc").Count(&pa.Total).Offset((num - 1) * size).Limit(size).Find(&plans).Error; err != nil {
 		return nil, err
 	}
 	for _, p := range plans {

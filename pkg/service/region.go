@@ -99,7 +99,7 @@ func (r regionService) Page(num, size int, conditions condition.Conditions) (*pa
 		return nil, err
 	}
 
-	if err := d.Count(&p.Total).Offset((num - 1) * size).Limit(size).Find(&regions).Error; err != nil {
+	if err := d.Order("name asc").Count(&p.Total).Offset((num - 1) * size).Limit(size).Find(&regions).Error; err != nil {
 		return nil, err
 	}
 	for _, mo := range regions {
