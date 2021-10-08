@@ -123,6 +123,7 @@ func (z zoneService) Page(num, size int, conditions condition.Conditions) (*page
 		Preload("Region").
 		Preload("IpPool").
 		Preload("IpPool.Ips").
+		Order("name asc").
 		Find(&zones).
 		Error
 
