@@ -377,22 +377,22 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 		return networkType, enableDnsCache, ingressControllerType, fmt.Errorf("get daemonsets from cluster failed: %v", err.Error())
 	}
 	for _, daemonset := range daemonsets.Items {
-		if daemonset.ObjectMeta.Name == "calico-node" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "calico-node") {
 			networkType = "calico"
 		}
-		if daemonset.ObjectMeta.Name == "kube-flannel-ds" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "kube-flannel-ds") {
 			networkType = "flannel"
 		}
-		if daemonset.ObjectMeta.Name == "cilium" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "cilium") {
 			networkType = "cilium"
 		}
-		if daemonset.ObjectMeta.Name == "node-local-dns" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "node-local-dns") {
 			enableDnsCache = "enable"
 		}
-		if daemonset.ObjectMeta.Name == "nginx-ingress-controller" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "nginx-ingress-controller") {
 			ingressControllerType = "nginx"
 		}
-		if daemonset.ObjectMeta.Name == "traefik" {
+		if strings.Contains(daemonset.ObjectMeta.Name, "traefik") {
 			ingressControllerType = "traefik"
 		}
 	}
