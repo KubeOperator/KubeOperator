@@ -15,6 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -52,12 +53,14 @@ type ClusterHealthService interface {
 
 type clusterHealthService struct {
 	clusterService     ClusterService
+	clusterNodeRepo    repository.ClusterNodeRepository
 	clusterInitService ClusterInitService
 }
 
 func NewClusterHealthService() ClusterHealthService {
 	return &clusterHealthService{
 		clusterService:     NewClusterService(),
+		clusterNodeRepo:    repository.NewClusterNodeRepository(),
 		clusterInitService: NewClusterInitService(),
 	}
 }
@@ -346,17 +349,23 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 // 主节点中筛选一个存活的主机，修改为 lb_kube_apiserver_ip
 // vip 时不操作
 func (c clusterHealthService) recoverK8sAPI(m dto.Cluster, ri *dto.ClusterRecoverItem) {
+	var endpoints []kubeUtil.Host
 	ri.Method = RecoverAPIConn
-	if m.Spec.LbMode == constant.ClusterSourceExternal {
+	if m.Spec.LbMode == constant.ClusterSourceExternal || m.Cluster.Source == constant.ClusterSourceExternal {
 		ri.Result = StatusSolvedManually
 		return
 	}
-	endpoints, err := c.clusterService.GetApiServerEndpoints(m.Cluster.Name)
+	port := m.Cluster.Spec.KubeApiServerPort
+	masters, err := c.clusterNodeRepo.AllMaster(m.Cluster.ID)
 	if err != nil {
 		ri.Result = StatusFailed
-		ri.Msg = fmt.Sprintf("get cluster secret error %s", err.Error())
+		ri.Msg = fmt.Sprintf("get master error %s", err.Error())
 		return
 	}
+	for i := range masters {
+		endpoints = append(endpoints, kubeUtil.Host(fmt.Sprintf("%s:%d", masters[i].Host.Ip, port)))
+	}
+
 	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
 	if err != nil {
 		ri.Result = StatusFailed
