@@ -56,14 +56,12 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	}
 	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "http://", "", -1)
 	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "https://", "", -1)
-	if strings.Contains(clusterImport.ApiServer, ":") {
-		strs := strings.Split(clusterImport.ApiServer, ":")
-		address = strs[0]
-		port, _ = strconv.Atoi(strs[1])
-	} else {
-		address = clusterImport.ApiServer
-		port = 80
+	if !strings.Contains(clusterImport.ApiServer, ":") {
+		return fmt.Errorf("check whether apiserver(%s) has no ports", clusterImport.ApiServer)
 	}
+	strs := strings.Split(clusterImport.ApiServer, ":")
+	address = strs[0]
+	port, _ = strconv.Atoi(strs[1])
 	tx := db.DB.Begin()
 	cluster := model.Cluster{
 		Name:      clusterImport.Name,
@@ -401,15 +399,17 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
 	var clusterInfo dto.ClusterLoadInfo
-	if !strings.Contains(loadInfo.ApiServer, ":") {
-		return clusterInfo, fmt.Errorf("the api server %s doesn't meet the criteria", loadInfo.ApiServer)
+	if strings.HasSuffix(loadInfo.ApiServer, "/") {
+		loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "/", "", -1)
 	}
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "http://", "", -1)
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "https://", "", -1)
 	clusterInfo.LbMode = constant.ClusterSourceInternal
+	if !strings.Contains(loadInfo.ApiServer, ":") {
+		return clusterInfo, fmt.Errorf("check whether apiserver(%s) has no ports", loadInfo.ApiServer)
+	}
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
-	port, _ := strconv.Atoi(strings.Split(loadInfo.ApiServer, ":")[1])
-	clusterInfo.KubeApiServerPort = port
+	clusterInfo.KubeApiServerPort, _ = strconv.Atoi(strings.Split(loadInfo.ApiServer, ":")[1])
 	clusterInfo.Architectures = loadInfo.Architectures
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
