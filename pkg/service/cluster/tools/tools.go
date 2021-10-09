@@ -259,16 +259,16 @@ func waitForRunning(namespace string, deploymentName string, minReplicas int32, 
 	return nil
 }
 
-func getNodePort(namespace string, toolName string, toolVersion string, serviceName string, kubeClient *kubernetes.Clientset) error {
+func getNodePort(cluster *Cluster, toolName string, toolVersion string, serviceName string, kubeClient *kubernetes.Clientset) error {
 	logger.Log.Info("the tool is already running, now load nodeport from cluster")
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
-		d, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
+		d, err := kubeClient.CoreV1().Services(cluster.Namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
 		if len(d.Spec.Ports) != 0 {
-			if err := db.DB.Model(&model.ClusterTool{}).Where("name = ? AND version = ?", toolName, toolVersion).Updates(map[string]interface{}{"proxy_port": d.Spec.Ports[0].NodePort}).Error; err != nil {
+			if err := db.DB.Model(&model.ClusterTool{}).Where("cluster_id = ? AND name = ? AND version = ?", cluster.ID, toolName, toolVersion).Updates(map[string]interface{}{"proxy_port": fmt.Sprint(d.Spec.Ports[0].NodePort)}).Error; err != nil {
 				return true, err
 			}
 		}

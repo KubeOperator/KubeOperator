@@ -15,7 +15,8 @@ AFTER
 UPDATE
     `ko_cluster_tool`
 SET
-    `proxy_type` = "nodeport"
+    `proxy_type` = "nodeport",
+    `frame` = 1
 WHERE
     `name` = "prometheus"
     OR `name` = "kubepi";
