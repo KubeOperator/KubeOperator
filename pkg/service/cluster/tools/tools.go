@@ -259,6 +259,27 @@ func waitForRunning(namespace string, deploymentName string, minReplicas int32, 
 	return nil
 }
 
+func getNodePort(namespace string, toolName string, toolVersion string, serviceName string, kubeClient *kubernetes.Clientset) error {
+	logger.Log.Info("the tool is already running, now load nodeport from cluster")
+	kubeClient.CoreV1()
+	err := wait.Poll(5*time.Second, 10*time.Minute, func() (done bool, err error) {
+		d, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if len(d.Spec.Ports) != 0 {
+			if err := db.DB.Where("name = ? AND version = ?", toolName, toolVersion).Updates(map[string]interface{}{"proxy_port": d.Spec.Ports[0].NodePort}).Error; err != nil {
+				return true, err
+			}
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
 	logger.Log.Infof("installation and configuration successful, now waiting for %s running", statefulSetsName)
 	kubeClient.CoreV1()

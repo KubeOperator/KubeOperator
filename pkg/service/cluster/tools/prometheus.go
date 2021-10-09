@@ -70,6 +70,9 @@ func (p Prometheus) Install(toolDetail model.ClusterToolDetail) error {
 	if err := waitForRunning(p.Cluster.Namespace, constant.DefaultPrometheusDeploymentName, 1, p.Cluster.KubeClient); err != nil {
 		return err
 	}
+	if err := getNodePort(p.Cluster.Namespace, p.Tool.Name, p.Tool.Version, constant.DefaultPrometheusDeploymentName, p.Cluster.KubeClient); err != nil {
+		return err
+	}
 
 	return nil
 }
