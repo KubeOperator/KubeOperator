@@ -59,7 +59,7 @@ func (z zoneService) Get(name string) (*dto.Zone, error) {
 		zoneDTO dto.Zone
 		zone    model.Zone
 	)
-	if err := db.DB.Model(model.Zone{}).Where("name = ?", name).Preload("Region").Preload("IpPool").Preload("IpPool.Ips").Find(&zone).Error; err != nil {
+	if err := db.DB.Model(model.Zone{}).Where("name = ?", name).Preload("Region").Preload("IpPool").Preload("Credential").Preload("IpPool.Ips").Find(&zone).Error; err != nil {
 		return nil, err
 	}
 	zoneDTO.Zone = zone
@@ -81,6 +81,7 @@ func (z zoneService) Get(name string) (*dto.Zone, error) {
 		IpPool: zone.IpPool,
 	}
 	zoneDTO.IpPoolName = zone.IpPool.Name
+	zoneDTO.CredentialName = zone.Credential.Name
 	return &zoneDTO, nil
 }
 
@@ -122,6 +123,7 @@ func (z zoneService) Page(num, size int, conditions condition.Conditions) (*page
 		Limit(size).
 		Preload("Region").
 		Preload("IpPool").
+		Preload("Credential").
 		Preload("IpPool.Ips").
 		Order("name asc").
 		Find(&zones).
@@ -147,6 +149,7 @@ func (z zoneService) Page(num, size int, conditions condition.Conditions) (*page
 			IpUsed: ipUsed,
 			IpPool: mo.IpPool,
 		}
+		zoneDTO.CredentialName = mo.Credential.Name
 		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
@@ -284,6 +287,16 @@ func (z zoneService) Update(name string, update dto.ZoneUpdate) (*dto.Zone, erro
 	zone.Vars = string(vars)
 	zone.RegionID = update.RegionID
 	zone.IpPoolID = ipPool.ID
+
+	if update.CredentialName != "" {
+		credentialService := NewCredentialService()
+		credential, err := credentialService.Get(update.CredentialName)
+		if err != nil {
+			return nil, err
+		}
+		zone.CredentialID = credential.ID
+	}
+
 	if err := db.DB.Save(&zone).Error; err != nil {
 		return nil, err
 	}
