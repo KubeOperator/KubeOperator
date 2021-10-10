@@ -268,9 +268,10 @@ func getNodePort(cluster *Cluster, toolName string, toolVersion string, serviceN
 			return true, err
 		}
 		if len(d.Spec.Ports) != 0 {
-			if err := db.DB.Model(&model.ClusterTool{}).Where("cluster_id = ? AND name = ? AND version = ?", cluster.ID, toolName, toolVersion).Updates(map[string]interface{}{"proxy_port": fmt.Sprint(d.Spec.Ports[0].NodePort)}).Error; err != nil {
+			if err := db.DB.Model(&model.ClusterTool{}).Where("cluster_id = ? AND name = ? AND version = ?", cluster.ID, toolName, toolVersion).Update(map[string]interface{}{"proxy_port": fmt.Sprint(d.Spec.Ports[0].NodePort)}).Error; err != nil {
 				return true, err
 			}
+			return true, nil
 		}
 		return false, nil
 	})
