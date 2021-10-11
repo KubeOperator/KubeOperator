@@ -263,7 +263,8 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Status:       constant.ClusterWaiting,
 			Logo:         "kubepi.png",
 			Frame:        true,
-			Url:          "/proxy/kubepi/{cluster_name}/root",
+			Url:          "",
+			ProxyType:    "nodeport",
 			Architecture: supportedArchitectureAll,
 		},
 		{
@@ -282,8 +283,9 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Describe:     "监控|Monitor",
 			Status:       constant.ClusterWaiting,
 			Logo:         "prometheus.png",
-			Frame:        false,
+			Frame:        true,
 			Url:          "",
+			ProxyType:    "nodeport",
 			Architecture: supportedArchitectureAll,
 		},
 		{

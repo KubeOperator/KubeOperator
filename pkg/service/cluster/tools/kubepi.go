@@ -48,6 +48,9 @@ func (k KubePi) Install(toolDetail model.ClusterToolDetail) error {
 	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultKubePiDeploymentName, 1, k.Cluster.KubeClient); err != nil {
 		return err
 	}
+	if err := getNodePort(k.Cluster, k.Tool.Name, k.Tool.Version, constant.DefaultKubePiDeploymentName, k.Cluster.KubeClient); err != nil {
+		return err
+	}
 	return nil
 }
 
