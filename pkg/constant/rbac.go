@@ -192,6 +192,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/settings",
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
+			"/api/v1/settings/registry/change/password",
 		},
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

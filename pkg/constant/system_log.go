@@ -108,6 +108,7 @@ const (
 	DELETE_CREDENTIALS    = "删除凭证|Delete credentials"
 	CREATE_REGISTRY       = "添加仓库信息|Create registry"
 	UPDATE_REGISTRY       = "更新仓库信息|Delete registry"
+	UPDATE_NEXUS_PASSWORD = "更新 Nexus 仓库密码|Update nexus password"
 	DELETE_REGISTRY       = "删除仓库信息|Delete registry"
 	CREATE_BACKUP_ACCOUNT = "添加备份账号|Create backup account"
 	UPDATE_BACKUP_ACCOUNT = "修改备份账号信息|Update backup account information"

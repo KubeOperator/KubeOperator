@@ -35,6 +35,7 @@ type SystemSettingService interface {
 	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
 	DeleteRegistry(id string) error
+	ChangePassword(repo dto.RepoChangePassword) error
 }
 
 type systemSettingService struct {
@@ -275,10 +276,6 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 }
 
 func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
-	password, err := encrypt.StringEncrypt(creation.NexusPassword)
-	if err != nil {
-		return nil, err
-	}
 	systemRegistry := model.SystemRegistry{
 		ID:                 creation.ID,
 		Architecture:       arch,
@@ -287,7 +284,7 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
-		NexusPassword:      password,
+		NexusPassword:      creation.NexusPassword,
 	}
 	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
@@ -317,4 +314,37 @@ func (s systemSettingService) DeleteRegistry(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (u *systemSettingService) ChangePassword(ch dto.RepoChangePassword) error {
+	repo, err := u.GetRegistryByID(ch.ID)
+	if err != nil {
+		return err
+	}
+	success, err := validateOldPassword(repo, ch.Original)
+	if err != nil {
+		return err
+	}
+	if !success {
+		return errOriginalNotMatch
+	}
+	repo.NexusPassword, err = encrypt.StringEncrypt(ch.Password)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Model(&model.SystemRegistry{}).Where("id = ?", repo.ID).Update(map[string]interface{}{"nexus_password": repo.NexusPassword}).Error; err != nil {
+		return err
+	}
+	return err
+}
+
+func validateOldPassword(repo dto.SystemRegistry, password string) (bool, error) {
+	oldPassword, err := encrypt.StringDecrypt(repo.NexusPassword)
+	if err != nil {
+		return false, err
+	}
+	if oldPassword != password {
+		return false, err
+	}
+	return true, err
 }
