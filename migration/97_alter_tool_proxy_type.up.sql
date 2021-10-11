@@ -5,13 +5,6 @@ ADD
 AFTER
     `frame`;
 
-ALTER TABLE
-    `ko`.`ko_cluster_tool`
-ADD
-    COLUMN `proxy_port` VARCHAR(255) NULL
-AFTER
-    `proxy_type`;
-
 UPDATE
     `ko_cluster_tool`
 SET
