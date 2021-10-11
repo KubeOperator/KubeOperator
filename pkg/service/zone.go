@@ -125,7 +125,7 @@ func (z zoneService) Page(num, size int, conditions condition.Conditions) (*page
 		Preload("IpPool").
 		Preload("Credential").
 		Preload("IpPool.Ips").
-		Order("name asc").
+		Order("CONVERT(name using gbk) asc").
 		Find(&zones).
 		Error
 
