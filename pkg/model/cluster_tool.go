@@ -27,7 +27,6 @@ type ClusterTool struct {
 	Architecture  string `json:"architecture"`
 	HigherVersion string `json:"higher_version"`
 	ProxyType     string `json:"proxyType"`
-	ProxyPort     string `json:"proxyPort"`
 }
 
 func (c *ClusterTool) BeforeCreate() (err error) {

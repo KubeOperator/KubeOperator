@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -18,6 +19,7 @@ import (
 
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
+	GetNodePort(clusterName, toolName, toolVersion, namespace string) (dto.ClusterTool, error)
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
@@ -48,6 +50,39 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 		items = append(items, d)
 	}
 	return items, nil
+}
+
+func (c clusterToolService) GetNodePort(clusterName, toolName, toolVersion, namespace string) (dto.ClusterTool, error) {
+	var (
+		cluster model.Cluster
+		tool    dto.ClusterTool
+		svcName string
+	)
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+		return tool, err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
+		Token: cluster.Secret.KubernetesToken,
+	})
+	if err != nil {
+		return tool, err
+	}
+	switch toolName {
+	case "kubepi":
+		svcName = "kubepi"
+	case "prometheus":
+		svcName = "prometheus-server"
+	}
+	d, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
+	if err != nil {
+		return tool, err
+	}
+	if len(d.Spec.Ports) != 0 {
+		tool.NodePort = fmt.Sprint(d.Spec.Ports[0].NodePort)
+		return tool, nil
+	}
+	return tool, fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
 }
 
 func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {

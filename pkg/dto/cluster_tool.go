@@ -4,5 +4,6 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type ClusterTool struct {
 	model.ClusterTool
-	Vars map[string]interface{} `json:"vars"`
+	NodePort string                 `json:"nodePort"`
+	Vars     map[string]interface{} `json:"vars"`
 }
