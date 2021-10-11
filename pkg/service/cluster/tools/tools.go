@@ -268,6 +268,7 @@ func getNodePort(cluster *Cluster, toolName string, toolVersion string, serviceN
 			return true, err
 		}
 		if len(d.Spec.Ports) != 0 {
+			logger.Log.Info("update tool %s(%s) in cluster %s proxy_port to %s", toolName, toolVersion, cluster.ID, d.Spec.Ports[0].NodePort)
 			if err := db.DB.Model(&model.ClusterTool{}).Where("cluster_id = ? AND name = ? AND version = ?", cluster.ID, toolName, toolVersion).Update(map[string]interface{}{"proxy_port": fmt.Sprint(d.Spec.Ports[0].NodePort)}).Error; err != nil {
 				return true, err
 			}
@@ -275,10 +276,7 @@ func getNodePort(cluster *Cluster, toolName string, toolVersion string, serviceN
 		}
 		return false, nil
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
