@@ -275,6 +275,10 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 }
 
 func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
+	password, err := encrypt.StringEncrypt(creation.NexusPassword)
+	if err != nil {
+		return nil, err
+	}
 	systemRegistry := model.SystemRegistry{
 		ID:                 creation.ID,
 		Architecture:       arch,
@@ -283,10 +287,9 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
-		NexusPassword:      creation.NexusPassword,
+		NexusPassword:      password,
 	}
-	err := s.systemRegistryRepo.Save(&systemRegistry)
-	if err != nil {
+	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
 	}
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
