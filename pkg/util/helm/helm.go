@@ -12,6 +12,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -316,17 +317,29 @@ func (c Client) GetRepoIP(arch string) (string, string, int, int, error) {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
 			return "", "", 0, 0, err
 		}
-		return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, nil
+		p, err := encrypt.StringDecrypt(repo.NexusPassword)
+		if err != nil {
+			return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, fmt.Errorf("decrypt password %s failed, err: %v", p, err)
+		}
+		return repo.Hostname, p, repo.RepoPort, repo.RegistryPort, nil
 	case "arm64":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
 			return "", "", 0, 0, err
 		}
-		return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, nil
+		p, err := encrypt.StringDecrypt(repo.NexusPassword)
+		if err != nil {
+			return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, fmt.Errorf("decrypt password %s failed, err: %v", p, err)
+		}
+		return repo.Hostname, p, repo.RepoPort, repo.RegistryPort, nil
 	case "all":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
 			return "", "", 0, 0, err
 		}
-		return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, nil
+		p, err := encrypt.StringDecrypt(repo.NexusPassword)
+		if err != nil {
+			return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, fmt.Errorf("decrypt password %s failed, err: %v", p, err)
+		}
+		return repo.Hostname, p, repo.RepoPort, repo.RegistryPort, nil
 	}
 	return "", "", 0, 0, errors.New("no such architecture")
 }

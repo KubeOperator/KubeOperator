@@ -5,6 +5,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -253,6 +254,10 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 }
 
 func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
+	password, err := encrypt.StringEncrypt(creation.NexusPassword)
+	if err != nil {
+		return nil, err
+	}
 	systemRegistry := model.SystemRegistry{
 		ID:                 creation.ID,
 		Architecture:       creation.Architecture,
@@ -261,10 +266,9 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
-		NexusPassword:      creation.NexusPassword,
+		NexusPassword:      password,
 	}
-	err := s.systemRegistryRepo.Save(&systemRegistry)
-	if err != nil {
+	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
 	}
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
