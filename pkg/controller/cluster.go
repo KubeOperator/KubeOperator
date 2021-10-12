@@ -330,6 +330,16 @@ func (c ClusterController) GetToolPortBy(clusterName, namespace, toolName, toolV
 	return tool, nil
 }
 
+func (c ClusterController) PostToolSyncBy(clusterName string) (*[]dto.ClusterTool, error) {
+	cts, err := c.ClusterToolService.SyncStatus(clusterName)
+	if err != nil {
+		logger.Log.Info(fmt.Sprintf("%+v", err))
+		return nil, err
+	}
+
+	return &cts, nil
+}
+
 func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {

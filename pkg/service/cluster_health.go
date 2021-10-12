@@ -74,7 +74,7 @@ func (c clusterHealthService) HealthCheck(clusterName string) (*dto.ClusterHealt
 	}
 	results := dto.ClusterHealth{Level: StatusError}
 	results.Level = StatusError
-	if clu.Source == constant.ClusterSourceLocal {
+	if clu.Source != constant.ClusterSourceExternal {
 		sshclient, sshResult := checkHostSSHConnected(clu.Cluster)
 		results.Hooks = append(results.Hooks, sshResult)
 		if sshResult.Level == StatusError {

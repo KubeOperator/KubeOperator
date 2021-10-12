@@ -43,6 +43,7 @@ type Interface interface {
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
 	List() ([]*release.Release, error)
 	GetRepoIP(arch string) (string, string, int, int, error)
+	SyncRepoCharts(arch string) error
 }
 
 type Config struct {
@@ -176,6 +177,7 @@ func GetSettings() *cli.EnvSettings {
 
 }
 
+// 每次启用或升级的时候执行，存在 nexus 则不采取操作
 func updateRepo(arch string) error {
 	repos, err := ListRepo()
 	if err != nil {
@@ -189,70 +191,47 @@ func updateRepo(arch string) error {
 		}
 	}
 	if !flag {
-		r := repository.NewSystemSettingRepository()
-		p, err := r.Get("REGISTRY_PROTOCOL")
-		if err != nil {
-			return fmt.Errorf("load system repo failed: %v", err)
-		}
-		var c Client
-		repoIP, nexusPsw, repoPort, _, err := c.GetRepoIP(arch)
-		if err != nil {
-			return fmt.Errorf("load system repo of arch %s failed: %v", arch, err)
-		}
-		url := fmt.Sprintf("%s://%s:%d/repository/applications", p.Value, repoIP, repoPort)
-		err = addRepo("nexus", url, "admin", nexusPsw)
-		if err != nil {
-			return fmt.Errorf("add helm repo %s failed: %v", url, err)
-		}
-		logger.Log.Infof("my nexus addr is %s", url)
-	}
-	settings := GetSettings()
-	repoFile := settings.RepositoryConfig
-	repoCache := settings.RepositoryCache
-	f, err := repo.LoadFile(repoFile)
-	if err != nil {
-		return fmt.Errorf("load file of repo %s failed: %v", repoFile, err)
-	}
-	var rps []*repo.ChartRepository
-	for _, cfg := range f.Repositories {
-		r, err := repo.NewChartRepository(cfg, getter.All(settings))
-		if err != nil {
+		if err := addRepo(arch); err != nil {
 			return err
 		}
-		if repoCache != "" {
-			r.CachePath = repoCache
+		if err := updateCharts(); err != nil {
+			return err
 		}
-		rps = append(rps, r)
 	}
-	updateCharts(rps)
 	return nil
 }
 
-func updateCharts(repos []*repo.ChartRepository) {
-	logger.Log.Debug("Hang tight while we grab the latest from your chart repositories...")
-	var wg sync.WaitGroup
-	for _, re := range repos {
-		wg.Add(1)
-		go func(re *repo.ChartRepository) {
-			defer wg.Done()
-			if _, err := re.DownloadIndexFile(); err != nil {
-				logger.Log.Debugf("...Unable to get an update from the %q chart repository (%s):\n\t%s\n", re.Config.Name, re.Config.URL, err)
-			} else {
-				logger.Log.Debugf("...Successfully got an update from the %q chart repository\n", re.Config.Name)
-			}
-		}(re)
+func (c Client) SyncRepoCharts(arch string) error {
+	if err := addRepo(arch); err != nil {
+		return err
 	}
-	wg.Wait()
-	logger.Log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
+	if err := updateCharts(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func addRepo(name string, url string, username string, password string) error {
+func addRepo(arch string) error {
+	username := "admin"
+	name := "nexus"
+	repository := repository.NewSystemSettingRepository()
+	p, err := repository.Get("REGISTRY_PROTOCOL")
+	if err != nil {
+		return fmt.Errorf("load system repo failed: %v", err)
+	}
+	var c Client
+	repoIP, password, repoPort, _, err := c.GetRepoIP(arch)
+	if err != nil {
+		return fmt.Errorf("load system repo of arch %s failed: %v", arch, err)
+	}
+	url := fmt.Sprintf("%s://%s:%d/repository/applications", p.Value, repoIP, repoPort)
+	logger.Log.Infof("my helm repo url is %s", url)
+
 	settings := GetSettings()
 
 	repoFile := settings.RepositoryConfig
 
-	err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm)
-	if err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm); err != nil && !os.IsExist(err) {
 		return err
 	}
 
@@ -310,6 +289,44 @@ func addRepo(name string, url string, username string, password string) error {
 	return nil
 }
 
+func updateCharts() error {
+	logger.Log.Debug("Hang tight while we grab the latest from your chart repositories...")
+	settings := GetSettings()
+	repoFile := settings.RepositoryConfig
+	repoCache := settings.RepositoryCache
+	f, err := repo.LoadFile(repoFile)
+	if err != nil {
+		return fmt.Errorf("load file of repo %s failed: %v", repoFile, err)
+	}
+	var rps []*repo.ChartRepository
+	for _, cfg := range f.Repositories {
+		r, err := repo.NewChartRepository(cfg, getter.All(settings))
+		if err != nil {
+			return fmt.Errorf("get new chart repository failed, err: %v", err.Error())
+		}
+		if repoCache != "" {
+			r.CachePath = repoCache
+		}
+		rps = append(rps, r)
+	}
+
+	var wg sync.WaitGroup
+	for _, re := range rps {
+		wg.Add(1)
+		go func(re *repo.ChartRepository) {
+			defer wg.Done()
+			if _, err := re.DownloadIndexFile(); err != nil {
+				logger.Log.Debugf("...Unable to get an update from the %q chart repository (%s):\n\t%s\n", re.Config.Name, re.Config.URL, err)
+			} else {
+				logger.Log.Debugf("...Successfully got an update from the %q chart repository\n", re.Config.Name)
+			}
+		}(re)
+	}
+	wg.Wait()
+	logger.Log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
+	return nil
+}
+
 func (c Client) GetRepoIP(arch string) (string, string, int, int, error) {
 	var repo model.SystemRegistry
 	switch arch {
@@ -322,16 +339,7 @@ func (c Client) GetRepoIP(arch string) (string, string, int, int, error) {
 			return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, fmt.Errorf("decrypt password %s failed, err: %v", p, err)
 		}
 		return repo.Hostname, p, repo.RepoPort, repo.RegistryPort, nil
-	case "arm64":
-		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
-			return "", "", 0, 0, err
-		}
-		p, err := encrypt.StringDecrypt(repo.NexusPassword)
-		if err != nil {
-			return repo.Hostname, repo.NexusPassword, repo.RepoPort, repo.RegistryPort, fmt.Errorf("decrypt password %s failed, err: %v", p, err)
-		}
-		return repo.Hostname, p, repo.RepoPort, repo.RegistryPort, nil
-	case "all":
+	case "arm64", "all":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
 			return "", "", 0, 0, err
 		}
