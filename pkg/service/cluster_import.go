@@ -30,6 +30,7 @@ type clusterImportService struct {
 	clusterRepo               repository.ClusterRepository
 	projectRepository         repository.ProjectRepository
 	projectResourceRepository repository.ProjectResourceRepository
+	messageService            MessageService
 }
 
 func NewClusterImportService() *clusterImportService {
@@ -37,6 +38,7 @@ func NewClusterImportService() *clusterImportService {
 		clusterRepo:               repository.NewClusterRepository(),
 		projectRepository:         repository.NewProjectRepository(),
 		projectResourceRepository: repository.NewProjectResourceRepository(),
+		messageService:            NewMessageService(),
 	}
 }
 
@@ -156,6 +158,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Architecture: node.Architecture,
 			}
 			if err := tx.Create(&host).Error; err != nil {
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 				tx.Rollback()
 				return err
 			}
@@ -169,6 +172,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			}
 			if err := tx.Create(&node).Error; err != nil {
 				tx.Rollback()
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 				return err
 			}
 			clusterResource := model.ClusterResource{
@@ -178,6 +182,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			}
 			if err := tx.Create(&clusterResource).Error; err != nil {
 				tx.Rollback()
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 				return err
 			}
 			projectResource := model.ProjectResource{
@@ -187,18 +192,21 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			}
 			if err := tx.Create(&projectResource).Error; err != nil {
 				tx.Rollback()
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 				return err
 			}
 		}
 	} else {
 		if err := gatherClusterInfo(&cluster); err != nil {
 			tx.Rollback()
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 			return err
 		}
 		for _, node := range cluster.Nodes {
 			node.ClusterID = cluster.ID
 			if err := tx.Create(&node).Error; err != nil {
 				tx.Rollback()
+				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 				return fmt.Errorf("can not save node %s", err.Error())
 			}
 		}
@@ -206,6 +214,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 		return fmt.Errorf("can not update spec %s", err.Error())
 	}
 
@@ -215,10 +224,12 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	)
 	if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 		return fmt.Errorf("can find manifest version: %s", err.Error())
 	}
 	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
 	}
 	for _, tool := range cluster.PrepareTools() {
@@ -231,6 +242,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
 			tx.Rollback()
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
@@ -239,6 +251,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		istio.ClusterID = cluster.ID
 		if err := tx.Create(&istio).Error; err != nil {
 			tx.Rollback()
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 			return fmt.Errorf("can not save istio %s", err.Error())
 		}
 	}
@@ -248,9 +261,11 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {
 		tx.Rollback()
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
 		return fmt.Errorf("can not create project resource %s", err.Error())
 	}
 	tx.Commit()
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterImport, true, ""), cluster.Name, constant.ClusterImport)
 
 	hostService := NewHostService()
 	go hostService.SyncList(synchosts)
