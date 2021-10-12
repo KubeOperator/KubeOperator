@@ -191,6 +191,7 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 				_ = db.DB.Model(&model.ClusterTool{}).Updates(&tool)
 			}
 		}
+		dtoItem.ClusterTool = tool
 		backTools = append(backTools, dtoItem)
 	}
 

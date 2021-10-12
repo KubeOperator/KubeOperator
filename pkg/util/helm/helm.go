@@ -260,10 +260,6 @@ func addRepo(arch string) error {
 		return err
 	}
 
-	if f.Has(name) {
-		return errors.Errorf("repository name (%s) already exists, please specify a different name", name)
-	}
-
 	e := repo.Entry{
 		Name:                  name,
 		URL:                   url,
