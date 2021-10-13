@@ -47,7 +47,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
 	}
-	if !(cluster.Source == constant.ClusterSourceLocal) {
+	if cluster.Source == constant.ClusterSourceExternal {
 		return errors.New("CLUSTER_IS_NOT_LOCAL")
 	}
 	if cluster.Status != constant.StatusRunning && cluster.Status != constant.StatusFailed {
