@@ -46,11 +46,30 @@ func NewBackupAccountService() BackupAccountService {
 }
 
 func (b backupAccountService) Get(name string) (*dto.BackupAccount, error) {
-	var backupAccountDTO dto.BackupAccount
+	var (
+		backupAccountDTO dto.BackupAccount
+		projectResources []model.ProjectResource
+		clusterResources []model.ClusterResource
+	)
 	mo, err := b.backupAccountRepo.Get(name)
 	if err != nil {
 		return nil, err
 	}
+	if err := db.DB.Where("resource_id = ?", mo.ID).Preload("Project").Find(&projectResources).Error; err != nil {
+		return nil, err
+	}
+	if err := db.DB.Where("resource_id = ?", mo.ID).Preload("Cluster").Find(&clusterResources).Error; err != nil {
+		return nil, err
+	}
+	var projects string
+	for _, pr := range projectResources {
+		projects += (pr.Project.Name + ",")
+	}
+	var clusters string
+	for _, cr := range clusterResources {
+		clusters += (cr.Cluster.Name + ",")
+	}
+
 	vars := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
 		return nil, err
@@ -58,6 +77,8 @@ func (b backupAccountService) Get(name string) (*dto.BackupAccount, error) {
 	backupAccountDTO = dto.BackupAccount{
 		CredentialVars: vars,
 		BackupAccount:  *mo,
+		Projects:       projects,
+		Clusters:       clusters,
 	}
 	return &backupAccountDTO, nil
 }

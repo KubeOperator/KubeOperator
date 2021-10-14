@@ -12,7 +12,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/tools"
+	helm2 "github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	appv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -20,6 +22,7 @@ import (
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
 	GetNodePort(clusterName, toolName, toolVersion, namespace string) (dto.ClusterTool, error)
+	SyncStatus(clusterName string) ([]dto.ClusterTool, error)
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
@@ -83,6 +86,122 @@ func (c clusterToolService) GetNodePort(clusterName, toolName, toolVersion, name
 		return tool, nil
 	}
 	return tool, fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
+}
+
+func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, error) {
+	var (
+		cluster   model.Cluster
+		tools     []model.ClusterTool
+		backTools []dto.ClusterTool
+	)
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+		return backTools, err
+	}
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&tools).Error; err != nil {
+		return backTools, err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
+		Token: cluster.Secret.KubernetesToken,
+	})
+	if err != nil {
+		return backTools, err
+	}
+	var (
+		allDeployments  []appv1.Deployment
+		allStatefulsets []appv1.StatefulSet
+	)
+	namespaceList, err := kubeClient.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return backTools, err
+	}
+	for _, ns := range namespaceList.Items {
+		deployments, err := kubeClient.AppsV1().Deployments(ns.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return backTools, err
+		}
+		allDeployments = append(allDeployments, deployments.Items...)
+		statefulsets, err := kubeClient.AppsV1().StatefulSets(ns.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return backTools, err
+		}
+		allStatefulsets = append(allStatefulsets, statefulsets.Items...)
+	}
+	for _, tool := range tools {
+		dtoItem := dto.ClusterTool{
+			ClusterTool: tool,
+			Vars:        map[string]interface{}{},
+		}
+		isEnable := false
+		sourceName := ""
+		sourceType := "deployment"
+		switch tool.Name {
+		case "registry":
+			sourceName = constant.DefaultRegistryDeploymentName
+		case "chartmuseum":
+			sourceName = constant.DefaultChartmuseumDeploymentName
+		case "kubepi":
+			sourceName = constant.DefaultKubePiDeploymentName
+		case "kubeapps":
+			sourceName = constant.DefaultKubeappsDeploymentName
+		case "grafana":
+			sourceName = constant.DefaultGrafanaDeploymentName
+		case "prometheus":
+			sourceName = constant.DefaultPrometheusDeploymentName
+		case "logging":
+			sourceName = constant.DefaultLoggingStateSetsfulName
+			sourceType = "statefulset"
+		case "loki":
+			sourceName = constant.DefaultLokiStateSetsfulName
+			sourceType = "statefulset"
+		}
+		if sourceType == "deployment" {
+			for _, deploy := range allDeployments {
+				if deploy.ObjectMeta.Name == sourceName {
+					if deploy.Status.ReadyReplicas > 0 {
+						isEnable = true
+						tool.Status = constant.StatusRunning
+					} else {
+						tool.Status = constant.StatusWaiting
+					}
+					dtoItem.Vars["namespace"] = deploy.ObjectMeta.Namespace
+					buf, _ := json.Marshal(&dtoItem.Vars)
+					tool.Vars = string(buf)
+					_ = db.DB.Model(&model.ClusterTool{}).Updates(&tool)
+					break
+				}
+			}
+		}
+		if sourceType == "statefulset" {
+			for _, statefulset := range allStatefulsets {
+				if statefulset.ObjectMeta.Name == sourceName {
+					if statefulset.Status.ReadyReplicas > 0 {
+						isEnable = true
+						tool.Status = constant.StatusRunning
+					} else {
+						tool.Status = constant.StatusWaiting
+					}
+					dtoItem.Vars["namespace"] = statefulset.ObjectMeta.Namespace
+					buf, _ := json.Marshal(&dtoItem.Vars)
+					tool.Vars = string(buf)
+					_ = db.DB.Model(&model.ClusterTool{}).Updates(&tool)
+					break
+				}
+			}
+		}
+		if !isEnable {
+			if tool.Status != constant.StatusWaiting {
+				tool.Status = constant.StatusWaiting
+				_ = db.DB.Model(&model.ClusterTool{}).Updates(&tool)
+			}
+		}
+		dtoItem.ClusterTool = tool
+		backTools = append(backTools, dtoItem)
+	}
+
+	var h helm2.Client
+	err = h.SyncRepoCharts(cluster.Spec.Architectures)
+	return backTools, err
 }
 
 func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {

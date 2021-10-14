@@ -88,6 +88,16 @@ func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	}
 }
 
+// Search Cluster
+// @Tags clusters
+// @Summary Search cluster
+// @Description 过滤集群
+// @Accept  json
+// @Produce  json
+// @Param conditions body condition.Conditions true "conditions"
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /clusters/search [post]
 func (c ClusterController) PostSearch() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions
@@ -195,6 +205,16 @@ func (c ClusterController) PostInitBy(name string) error {
 	return c.ClusterInitService.Init(name)
 }
 
+// Load Cluster Info for import
+// @Tags clusters
+// @Summary Load cluster info
+// @Description Upgrade a cluster
+// @Param request body dto.ClusterLoad true "request"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.ClusterLoadInfo
+// @Security ApiKeyAuth
+// @Router /clusters/load [post]
 func (c ClusterController) PostLoad() (dto.ClusterLoadInfo, error) {
 	var req dto.ClusterLoad
 	var data dto.ClusterLoadInfo
@@ -330,6 +350,16 @@ func (c ClusterController) GetToolPortBy(clusterName, namespace, toolName, toolV
 	return tool, nil
 }
 
+func (c ClusterController) PostToolSyncBy(clusterName string) (*[]dto.ClusterTool, error) {
+	cts, err := c.ClusterToolService.SyncStatus(clusterName)
+	if err != nil {
+		logger.Log.Info(fmt.Sprintf("%+v", err))
+		return nil, err
+	}
+
+	return &cts, nil
+}
+
 func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {
@@ -384,6 +414,8 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 // @Tags clusters
 // @Summary Delete a cluster
 // @Description delete a cluster by name
+// @Param force query string true  "是否强制（true, false）"
+// @Param uninstall query string true  "是否卸载（true, false）"
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
@@ -402,6 +434,7 @@ func (c ClusterController) DeleteBy(name string) error {
 // @Tags clusters
 // @Summary Import a cluster
 // @Description import a cluster
+// @Param request body dto.ClusterImport true "request"
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth

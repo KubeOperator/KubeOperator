@@ -20,6 +20,7 @@ const (
 //message type
 const (
 	ClusterInstall      = "CLUSTER_INSTALL"
+	ClusterImport       = "CLUSTER_IMPORT"
 	ClusterUnInstall    = "CLUSTER_UN_INSTALL"
 	ClusterUpgrade      = "CLUSTER_UPGRADE"
 	ClusterDelete       = "CLUSTER_DELETE"

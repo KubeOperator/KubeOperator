@@ -35,3 +35,9 @@ type SystemRegistryBatchOp struct {
 	Operation string           `json:"operation" validate:"required"`
 	Items     []SystemRegistry `json:"items" validate:"required"`
 }
+
+type RepoChangePassword struct {
+	ID       string `json:"id"`
+	Password string `json:"password"`
+	Original string `json:"original"`
+}
