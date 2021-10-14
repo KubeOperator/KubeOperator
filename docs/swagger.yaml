@@ -17,6 +17,8 @@ definitions:
     properties:
       bucket:
         type: string
+      clusters:
+        type: string
       createdAt:
         type: string
       credential:
@@ -28,9 +30,7 @@ definitions:
       name:
         type: string
       projects:
-        items:
-          type: string
-        type: array
+        type: string
       status:
         type: string
       type:
@@ -42,6 +42,10 @@ definitions:
     properties:
       bucket:
         type: string
+      clusters:
+        items:
+          type: string
+        type: array
       credentialVars:
         type: object
       name:
@@ -96,6 +100,8 @@ definitions:
         type: boolean
       logId:
         type: string
+      message:
+        type: string
       multiClusterRepositories:
         items:
           $ref: '#/definitions/model.MultiClusterRepository'
@@ -108,6 +114,8 @@ definitions:
         type: integer
       preStatus:
         type: string
+      projectID:
+        type: string
       projectName:
         type: string
       provider:
@@ -116,6 +124,7 @@ definitions:
         type: string
       spec:
         $ref: '#/definitions/model.ClusterSpec'
+        type: object
       status:
         type: string
       updatedAt:
@@ -139,10 +148,12 @@ definitions:
     properties:
       backupAccount:
         $ref: '#/definitions/model.BackupAccount'
+        type: object
       clusterName:
         type: string
       file:
         $ref: '#/definitions/model.ClusterBackupFile'
+        type: object
       name:
         type: string
     required:
@@ -202,8 +213,6 @@ definitions:
         type: string
       ciliumVersion:
         type: string
-      clusterCidr:
-        type: string
       containerdStorageDIr:
         type: string
       dnsCacheVersion:
@@ -220,19 +229,37 @@ definitions:
         type: string
       ingressControllerType:
         type: string
+      kubeApiServerPort:
+        type: integer
+      kubePodSubnet:
+        type: string
       kubeProxyMode:
+        type: string
+      kubeServiceNodePortRange:
+        type: string
+      kubeServiceSubnet:
         type: string
       kubernetesAudit:
         type: string
-      maxClusterServiceNum:
+      lbKubeApiserverIp:
+        type: string
+      lbMode:
+        type: string
+      masterScheduleType:
+        type: string
+      maxNodeNum:
         type: integer
       maxNodePodNum:
         type: integer
       name:
         type: string
+      networkCidr:
+        type: string
       networkInterface:
         type: string
       networkType:
+        type: string
+      nodeportAddress:
         type: string
       nodes:
         items:
@@ -326,6 +353,13 @@ definitions:
     - names
     - resourceType
     type: object
+  dto.ClusterUpgrade:
+    properties:
+      clusterName:
+        type: string
+      version:
+        type: string
+    type: object
   dto.Credential:
     properties:
       createdAt:
@@ -402,6 +436,8 @@ definitions:
         type: string
       credentialId:
         type: string
+      credentialName:
+        type: string
       datastore:
         type: string
       gpuInfo:
@@ -441,8 +477,11 @@ definitions:
     type: object
   dto.HostCreate:
     properties:
+      cluster:
+        type: string
       credential:
         $ref: '#/definitions/dto.CredentialOfHostCreate'
+        type: object
       credentialId:
         type: string
       ip:
@@ -458,6 +497,31 @@ definitions:
     - name
     - port
     - project
+    type: object
+  dto.HostSync:
+    properties:
+      hostName:
+        type: string
+      hostStatus:
+        type: string
+    type: object
+  dto.HostUptate:
+    properties:
+      credential:
+        $ref: '#/definitions/dto.CredentialOfHostCreate'
+        type: object
+      credentialId:
+        type: string
+      ip:
+        type: string
+      name:
+        type: string
+      port:
+        type: integer
+    required:
+    - ip
+    - name
+    - port
     type: object
   dto.Ip:
     properties:
@@ -477,6 +541,7 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/model.IpPool'
+        type: object
       ipPoolId:
         type: string
       status:
@@ -568,6 +633,50 @@ definitions:
       version:
         type: string
     type: object
+  dto.Node:
+    properties:
+      clusterId:
+        type: string
+      createdAt:
+        type: string
+      dirty:
+        type: boolean
+      info:
+        type: string
+      ip:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      pre_status:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.NodeBatch:
+    properties:
+      hosts:
+        items:
+          type: string
+        type: array
+      increase:
+        type: integer
+      isForce:
+        type: boolean
+      nodes:
+        items:
+          type: string
+        type: array
+      operation:
+        type: string
+      supportGpu:
+        type: string
+    type: object
   dto.NodeCreate:
     properties:
       hostName:
@@ -650,6 +759,7 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.SessionUser'
+        type: object
     type: object
   dto.Project:
     properties:
@@ -824,8 +934,16 @@ definitions:
         type: string
       id:
         type: string
+      nexusPassword:
+        type: string
       protocol:
         type: string
+      registryHostedPort:
+        type: integer
+      registryPort:
+        type: integer
+      repoPort:
+        type: integer
       updatedAt:
         type: string
     type: object
@@ -835,12 +953,24 @@ definitions:
         type: string
       id:
         type: string
+      nexusPassword:
+        type: string
       protocol:
         type: string
+      registryHostedPort:
+        type: integer
+      registryPort:
+        type: integer
+      repoPort:
+        type: integer
     required:
     - hostname
     - id
+    - nexusPassword
     - protocol
+    - registryHostedPort
+    - registryPort
+    - repoPort
     type: object
   dto.SystemSetting:
     properties:
@@ -995,17 +1125,21 @@ definitions:
   dto.Zone:
     properties:
       _:
-        $ref: '#/definitions/model.IpPool'
+        $ref: '#/definitions/model.Credential'
+        type: object
       cloudVars:
         type: object
       createdAt:
         type: string
       credentialId:
         type: string
+      credentialName:
+        type: string
       id:
         type: string
       ipPool:
         $ref: '#/definitions/dto.IpPool'
+        type: object
       ipPoolId:
         type: string
       ipPoolName:
@@ -1046,6 +1180,8 @@ definitions:
     properties:
       cloudVars:
         type: object
+      credentialName:
+        type: string
       id:
         type: string
       ipPoolName:
@@ -1139,15 +1275,27 @@ definitions:
         type: string
       kubeRouter:
         type: string
+      kubeServiceNodePortRange:
+        type: string
       kubeServiceSubnet:
         type: string
       kubernetesAudit:
         type: string
       lbKubeApiserverIp:
         type: string
+      lbMode:
+        type: string
+      masterScheduleType:
+        type: string
+      maxNodeNum:
+        type: integer
+      networkCidr:
+        type: string
       networkInterface:
         type: string
       networkType:
+        type: string
+      nodeportAddress:
         type: string
       provider:
         type: string
@@ -1164,6 +1312,25 @@ definitions:
       workerAmount:
         type: integer
       yumOperate:
+        type: string
+    type: object
+  model.Credential:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      privateKey:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      username:
         type: string
     type: object
   model.Ip:
@@ -1386,6 +1553,23 @@ paths:
       summary: Create a backupAccount
       tags:
       - backupAccounts
+  /backupaccounts/{name}/:
+    get:
+      consumes:
+      - application/json
+      description: show a backupaccounts by name
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BackupAccount'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a backupaccounts
+      tags:
+      - backupaccounts
   /backupaccounts/search:
     post:
       consumes:
@@ -1454,8 +1638,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Backup CLuster
@@ -1476,8 +1659,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Restore CLuster
@@ -1604,6 +1786,23 @@ paths:
       summary: Import a cluster
       tags:
       - clusters
+  /clusters/name/{projectNames}:
+    get:
+      consumes:
+      - application/json
+      description: Show a cluster names of projects
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Show cluster names of projects
+      tags:
+      - clusters
   /clusters/node/{clusterName}:
     get:
       consumes:
@@ -1614,6 +1813,79 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get cluster nodes
+      tags:
+      - clusters
+  /clusters/node/{clusterName}/{nodeName}:
+    get:
+      consumes:
+      - application/json
+      description: Get cluster node details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Node'
+      security:
+      - ApiKeyAuth: []
+      summary: Get cluster node details
+      tags:
+      - clusters
+  /clusters/node/batch/{clusterName}:
+    post:
+      consumes:
+      - application/json
+      description: Batch delete or create cluster node
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NodeBatch'
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: Batch delete or create cluster node
+      tags:
+      - clusters
+  /clusters/node/recreate/{clusterName}/{node}:
+    post:
+      consumes:
+      - application/json
+      description: Recreate cluster node
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: Recreate cluster node
+      tags:
+      - clusters
+  /clusters/upgrade:
+    post:
+      consumes:
+      - application/json
+      description: Upgrade a cluster
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterUpgrade'
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: Upgrade a cluster
       tags:
       - clusters
   /configs/{regionName}:
@@ -1738,6 +2010,54 @@ paths:
       summary: Search credential
       tags:
       - credentials
+  /host:
+    patch:
+      consumes:
+      - application/json
+      description: 更新主机信息
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HostUptate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Host'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a host
+      tags:
+      - hosts
+  /host/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤主机
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Search Host
+      tags:
+      - hosts
   /hosts/:
     get:
       consumes:
@@ -1804,6 +2124,27 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show a host
+      tags:
+      - hosts
+  /hosts/sync:
+    post:
+      consumes:
+      - application/json
+      description: 同步主机状态
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HostSync'
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: Sync hosts
       tags:
       - hosts
   /hosts/template/:
@@ -2313,8 +2654,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Delete a project
