@@ -250,6 +250,34 @@ var doc = `{
                 }
             }
         },
+        "/backupaccounts/{name}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "show a backupaccounts by name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupaccounts"
+                ],
+                "summary": "Show a backupaccounts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccount"
+                        }
+                    }
+                }
+            }
+        },
         "/cluster/backup/files/": {
             "get": {
                 "security": [
@@ -308,9 +336,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -344,9 +370,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             }
         },
@@ -522,6 +546,91 @@ var doc = `{
                 "summary": "Import a cluster"
             }
         },
+        "/clusters/name/{projectNames}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show a cluster names of projects",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show cluster names of projects",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/node/batch/{clusterName}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Batch delete or create cluster node",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Batch delete or create cluster node",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NodeBatch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/clusters/node/recreate/{clusterName}/{node}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Recreate cluster node",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Recreate cluster node",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/clusters/node/{clusterName}": {
             "get": {
                 "security": [
@@ -540,6 +649,68 @@ var doc = `{
                     "clusters"
                 ],
                 "summary": "Get cluster nodes"
+            }
+        },
+        "/clusters/node/{clusterName}/{nodeName}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get cluster node details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Get cluster node details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Node"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/upgrade": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upgrade a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Upgrade a cluster",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterUpgrade"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
             }
         },
         "/clusters/{name}/": {
@@ -786,6 +957,84 @@ var doc = `{
                 "summary": "Delete a credential"
             }
         },
+        "/host": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新主机信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Update a host",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.HostUptate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Host"
+                        }
+                    }
+                }
+            }
+        },
+        "/host/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤主机",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Search Host",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
         "/hosts/": {
             "get": {
                 "security": [
@@ -848,6 +1097,40 @@ var doc = `{
                             "$ref": "#/definitions/dto.Host"
                         }
                     }
+                }
+            }
+        },
+        "/hosts/sync": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "同步主机状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Sync hosts",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.HostSync"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -1754,9 +2037,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    }
+                    "200": {}
                 }
             },
             "patch": {
@@ -3713,6 +3994,9 @@ var doc = `{
                 "bucket": {
                     "type": "string"
                 },
+                "clusters": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -3729,10 +4013,7 @@ var doc = `{
                     "type": "string"
                 },
                 "projects": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -3756,6 +4037,12 @@ var doc = `{
             "properties": {
                 "bucket": {
                     "type": "string"
+                },
+                "clusters": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "credentialVars": {
                     "type": "object"
@@ -3830,6 +4117,9 @@ var doc = `{
                 "logId": {
                     "type": "string"
                 },
+                "message": {
+                    "type": "string"
+                },
                 "multiClusterRepositories": {
                     "type": "array",
                     "items": {
@@ -3848,6 +4138,9 @@ var doc = `{
                 "preStatus": {
                     "type": "string"
                 },
+                "projectID": {
+                    "type": "string"
+                },
                 "projectName": {
                     "type": "string"
                 },
@@ -3858,6 +4151,7 @@ var doc = `{
                     "type": "string"
                 },
                 "spec": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -3897,12 +4191,14 @@ var doc = `{
             ],
             "properties": {
                 "backupAccount": {
+                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
+                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -3994,9 +4290,6 @@ var doc = `{
                 "ciliumVersion": {
                     "type": "string"
                 },
-                "clusterCidr": {
-                    "type": "string"
-                },
                 "containerdStorageDIr": {
                     "type": "string"
                 },
@@ -4021,13 +4314,34 @@ var doc = `{
                 "ingressControllerType": {
                     "type": "string"
                 },
+                "kubeApiServerPort": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
                 "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeServiceNodePortRange": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
                     "type": "string"
                 },
                 "kubernetesAudit": {
                     "type": "string"
                 },
-                "maxClusterServiceNum": {
+                "lbKubeApiserverIp": {
+                    "type": "string"
+                },
+                "lbMode": {
+                    "type": "string"
+                },
+                "masterScheduleType": {
+                    "type": "string"
+                },
+                "maxNodeNum": {
                     "type": "integer"
                 },
                 "maxNodePodNum": {
@@ -4036,10 +4350,16 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "networkCidr": {
+                    "type": "string"
+                },
                 "networkInterface": {
                     "type": "string"
                 },
                 "networkType": {
+                    "type": "string"
+                },
+                "nodeportAddress": {
                     "type": "string"
                 },
                 "nodes": {
@@ -4178,6 +4498,17 @@ var doc = `{
                 }
             }
         },
+        "dto.ClusterUpgrade": {
+            "type": "object",
+            "properties": {
+                "clusterName": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.Credential": {
             "type": "object",
             "properties": {
@@ -4293,6 +4624,9 @@ var doc = `{
                 "credentialId": {
                     "type": "string"
                 },
+                "credentialName": {
+                    "type": "string"
+                },
                 "datastore": {
                     "type": "string"
                 },
@@ -4358,7 +4692,11 @@ var doc = `{
                 "project"
             ],
             "properties": {
+                "cluster": {
+                    "type": "string"
+                },
                 "credential": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.CredentialOfHostCreate"
                 },
                 "credentialId": {
@@ -4375,6 +4713,43 @@ var doc = `{
                 },
                 "project": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.HostSync": {
+            "type": "object",
+            "properties": {
+                "hostName": {
+                    "type": "string"
+                },
+                "hostStatus": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.HostUptate": {
+            "type": "object",
+            "required": [
+                "ip",
+                "name",
+                "port"
+            ],
+            "properties": {
+                "credential": {
+                    "type": "object",
+                    "$ref": "#/definitions/dto.CredentialOfHostCreate"
+                },
+                "credentialId": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
                 }
             }
         },
@@ -4403,6 +4778,7 @@ var doc = `{
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -4545,6 +4921,73 @@ var doc = `{
                 }
             }
         },
+        "dto.Node": {
+            "type": "object",
+            "properties": {
+                "clusterId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dirty": {
+                    "type": "boolean"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pre_status": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NodeBatch": {
+            "type": "object",
+            "properties": {
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "increase": {
+                    "type": "integer"
+                },
+                "isForce": {
+                    "type": "boolean"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "supportGpu": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.NodeCreate": {
             "type": "object",
             "properties": {
@@ -4665,6 +5108,7 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -4930,8 +5374,20 @@ var doc = `{
                 "id": {
                     "type": "string"
                 },
+                "nexusPassword": {
+                    "type": "string"
+                },
                 "protocol": {
                     "type": "string"
+                },
+                "registryHostedPort": {
+                    "type": "integer"
+                },
+                "registryPort": {
+                    "type": "integer"
+                },
+                "repoPort": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -4943,7 +5399,11 @@ var doc = `{
             "required": [
                 "hostname",
                 "id",
-                "protocol"
+                "nexusPassword",
+                "protocol",
+                "registryHostedPort",
+                "registryPort",
+                "repoPort"
             ],
             "properties": {
                 "hostname": {
@@ -4952,8 +5412,20 @@ var doc = `{
                 "id": {
                     "type": "string"
                 },
+                "nexusPassword": {
+                    "type": "string"
+                },
                 "protocol": {
                     "type": "string"
+                },
+                "registryHostedPort": {
+                    "type": "integer"
+                },
+                "registryPort": {
+                    "type": "integer"
+                },
+                "repoPort": {
+                    "type": "integer"
                 }
             }
         },
@@ -5187,7 +5659,8 @@ var doc = `{
             "type": "object",
             "properties": {
                 "_": {
-                    "$ref": "#/definitions/model.IpPool"
+                    "type": "object",
+                    "$ref": "#/definitions/model.Credential"
                 },
                 "cloudVars": {
                     "type": "object"
@@ -5198,10 +5671,14 @@ var doc = `{
                 "credentialId": {
                     "type": "string"
                 },
+                "credentialName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
                 "ipPool": {
+                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {
@@ -5270,6 +5747,9 @@ var doc = `{
             "properties": {
                 "cloudVars": {
                     "type": "object"
+                },
+                "credentialName": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -5403,6 +5883,9 @@ var doc = `{
                 "kubeRouter": {
                     "type": "string"
                 },
+                "kubeServiceNodePortRange": {
+                    "type": "string"
+                },
                 "kubeServiceSubnet": {
                     "type": "string"
                 },
@@ -5412,10 +5895,25 @@ var doc = `{
                 "lbKubeApiserverIp": {
                     "type": "string"
                 },
+                "lbMode": {
+                    "type": "string"
+                },
+                "masterScheduleType": {
+                    "type": "string"
+                },
+                "maxNodeNum": {
+                    "type": "integer"
+                },
+                "networkCidr": {
+                    "type": "string"
+                },
                 "networkInterface": {
                     "type": "string"
                 },
                 "networkType": {
+                    "type": "string"
+                },
+                "nodeportAddress": {
                     "type": "string"
                 },
                 "provider": {
@@ -5440,6 +5938,35 @@ var doc = `{
                     "type": "integer"
                 },
                 "yumOperate": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Credential": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
