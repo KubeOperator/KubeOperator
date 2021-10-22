@@ -219,7 +219,7 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">提供 Web Kubectl 界面
+        <td class="features-third-td-background-style">内置 Web Kubectl 和 KubePi
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
