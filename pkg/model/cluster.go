@@ -258,7 +258,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 	return []ClusterTool{
 		{
 			Name:         "kubepi",
-			Version:      "v1.0.1",
+			Version:      "v1.1.0",
 			Describe:     "仪表盘|Dashboard",
 			Status:       constant.ClusterWaiting,
 			Logo:         "kubepi.png",

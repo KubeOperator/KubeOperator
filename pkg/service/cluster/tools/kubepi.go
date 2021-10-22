@@ -33,6 +33,7 @@ func (k KubePi) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", k.LocalHostName, k.LocalRepositoryPort, imageMap["kubepi_image_name"])
 	values["image.tag"] = imageMap["kubepi_image_tag"]
+	values["securityContext.privileged"] = true
 	str, _ := json.Marshal(&values)
 	k.Tool.Vars = string(str)
 }
