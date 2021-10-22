@@ -58,7 +58,6 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/mojocn/base64Captcha v1.3.1
@@ -70,6 +69,7 @@ require (
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/robfig/cron v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
@@ -83,17 +83,12 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
-	gitlab.com/golang-commonmark/linkify v0.0.0-20200225224916-64bca66f6ad3 // indirect
-	gitlab.com/golang-commonmark/markdown v0.0.0-20191127184510-91b5b3c99c19 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 	golang.org/x/text v0.3.6
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/ini.v1 v1.62.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v2 v2.4.0
 	helm.sh/helm/v3 v3.4.2
 	k8s.io/api v0.22.0
 	k8s.io/apiextensions-apiserver v0.19.4

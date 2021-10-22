@@ -112,9 +112,9 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			SupportGpu:               clusterImport.KoClusterInfo.SupportGpu,
 			YumOperate:               clusterImport.KoClusterInfo.YumOperate,
 
-			LbMode:            constant.ClusterSourceInternal,
-			LbKubeApiserverIp: address,
-			KubeApiServerPort: port,
+			LbMode:            clusterImport.KoClusterInfo.LbMode,
+			LbKubeApiserverIp: clusterImport.KoClusterInfo.LbKubeApiserverIp,
+			KubeApiServerPort: clusterImport.KoClusterInfo.KubeApiServerPort,
 			Architectures:     clusterImport.Architectures,
 			KubeRouter:        clusterImport.Router,
 
@@ -419,12 +419,10 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "http://", "", -1)
 	loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "https://", "", -1)
-	clusterInfo.LbMode = constant.ClusterSourceInternal
 	if !strings.Contains(loadInfo.ApiServer, ":") {
 		return clusterInfo, fmt.Errorf("check whether apiserver(%s) has no ports", loadInfo.ApiServer)
 	}
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
-	clusterInfo.KubeApiServerPort, _ = strconv.Atoi(strings.Split(loadInfo.ApiServer, ":")[1])
 	clusterInfo.Architectures = loadInfo.Architectures
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
@@ -465,6 +463,19 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	var data admConfigStruct
 	if err := json.Unmarshal(kk, &data); err != nil {
 		return clusterInfo, fmt.Errorf("kubeadm-config json unmarshall failed: %s", err.Error())
+	}
+	if strings.Contains(data.ControlPlaneEndpoint, ":") {
+		apiServerInCM := strings.Split(data.ControlPlaneEndpoint, ":")[0]
+		if apiServerInCM == "127.0.0.1" {
+			clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
+			clusterInfo.LbMode = constant.ClusterSourceInternal
+		} else {
+			clusterInfo.LbKubeApiserverIp = apiServerInCM
+			clusterInfo.LbMode = constant.ClusterSourceExternal
+		}
+		clusterInfo.KubeApiServerPort, _ = strconv.Atoi(strings.Split(data.ControlPlaneEndpoint, ":")[1])
+	} else {
+		return clusterInfo, fmt.Errorf("err controlPlaneEndpoint from cluster configmap")
 	}
 	clusterInfo.KubeServiceNodePortRange = data.ApiServer.ExtraArgs.ServiceNodePortRange
 	mask, _ := strconv.Atoi(data.Controller.ExtraArgs.NodeCidrMaskSize)
@@ -522,9 +533,10 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 }
 
 type admConfigStruct struct {
-	ApiServer  apiServerStruct  `json:"apiServer"`
-	Controller ControllerStruct `json:"controllerManager"`
-	Network    networkStruct    `json:"networking"`
+	ApiServer            apiServerStruct  `json:"apiServer"`
+	ControlPlaneEndpoint string           `json:"controlPlaneEndpoint"`
+	Controller           ControllerStruct `json:"controllerManager"`
+	Network              networkStruct    `json:"networking"`
 }
 
 type proxyConfigStruct struct {
