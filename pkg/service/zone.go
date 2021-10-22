@@ -95,12 +95,33 @@ func (z zoneService) List(conditions condition.Conditions) ([]dto.Zone, error) {
 	if err := dbUtil.WithConditions(&d, model.Zone{}, conditions); err != nil {
 		return nil, err
 	}
-	err := d.Preload("IpPool").Find(&zones).Error
+	err := d.Preload("IpPool").Preload("Region").Preload("Credential").Find(&zones).Error
 	if err != nil {
 		return zoneDTOs, err
 	}
 	for _, mo := range zones {
-		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo, RegionName: mo.Region.Name})
+		zoneDTO := new(dto.Zone)
+		m := make(map[string]interface{})
+		zoneDTO.Zone = mo
+		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+			return nil, err
+		}
+		zoneDTO.CloudVars = m
+		zoneDTO.RegionName = mo.Region.Name
+		zoneDTO.Provider = mo.Region.Provider
+		ipUsed := 0
+		for _, ip := range mo.IpPool.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
+		zoneDTO.IpPool = dto.IpPool{
+			IpUsed: ipUsed,
+			IpPool: mo.IpPool,
+		}
+		zoneDTO.CredentialName = mo.Credential.Name
+		zoneDTO.IpPoolName = mo.IpPool.Name
+		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
 	return zoneDTOs, err
 }

@@ -24,7 +24,7 @@ func GetProjectName(ctx context.Context) (string, error) {
 	session := constant.Sess.Start(ctx)
 	sessionUser := session.Get(constant.SessionUserKey)
 	if sessionUser == nil {
-		return "", errors.New("user is not login")
+		return "", nil
 	}
 	projectName := ""
 	profile, ok := sessionUser.(*dto.Profile)
