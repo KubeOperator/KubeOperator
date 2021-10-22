@@ -294,15 +294,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 ![wechat-group](https://kubeoperator.io/docs/img/wechat-group.png)
 
-### 版本说明
-
-KubeOperator 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
-
-```
-v1.0.1 是 v1.0.0 之后的Bug修复版本；
-v1.1.0 是 v1.0.0 之后的功能版本。
-```
-像其它优秀开源项目一样，KubeOperator 将每月发布一个功能版本。
 
 ### 致谢
 
