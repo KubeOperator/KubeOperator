@@ -62,7 +62,7 @@ func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
 
 type Cluster struct {
 	model.Cluster
-	writer io.Writer
+	Writer io.Writer
 	Kobe   kobe.Interface
 }
 
@@ -71,7 +71,7 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 		Cluster: cluster,
 	}
 	if writer != nil {
-		c.writer = writer[0]
+		c.Writer = writer[0]
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: c.ParseInventory(),
@@ -100,8 +100,9 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 }
 
 type ClusterAdm struct {
-	createHandlers  []Handler
-	upgradeHandlers []Handler
+	createHandlers    []Handler
+	upgradeHandlers   []Handler
+	addWorkerHandlers []Handler
 }
 
 func NewClusterAdm() *ClusterAdm {
@@ -130,6 +131,17 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureUpgradeKubernetes,
 		ca.EnsureUpdateCertificates,
 	}
+	ca.addWorkerHandlers = []Handler{
+		ca.EnsureAddWorkerTaskStart,
+		ca.EnsureAddWorkerBaseSystemConfig,
+		ca.EnsureAddWorkerContainerRuntime,
+		ca.EnsureAddWorkerKubernetesComponent,
+		ca.EnsureAddWorkerLoadBalancer,
+		ca.EnsureAddWorkerCertificates,
+		ca.EnsureAddWorkerWorker,
+		ca.EnsureAddWorkerNetwork,
+		ca.EnsureAddWorkerPost,
+	}
 	return ca
 }
 
@@ -141,6 +153,11 @@ func (ca *ClusterAdm) OnInitialize(c Cluster) (Cluster, error) {
 func (ca *ClusterAdm) OnUpgrade(c Cluster) (Cluster, error) {
 	err := ca.Upgrade(&c)
 	return c, err
+}
+
+func (ca *ClusterAdm) OnAddWorker(c Cluster, status *model.ClusterStatus) error {
+	err := ca.AddWorker(&c, status)
+	return err
 }
 
 func GetManiFestBy(name string) (dto.ClusterManifest, error) {

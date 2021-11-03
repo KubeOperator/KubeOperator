@@ -67,6 +67,10 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
+	if err := tx.Delete(&ClusterStatus{NodeClusterID: cluster.ID}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	if cluster.SecretID != "" {
 		if err := tx.Delete(&ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
 			tx.Rollback()

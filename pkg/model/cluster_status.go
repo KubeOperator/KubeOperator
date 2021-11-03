@@ -8,7 +8,8 @@ import (
 
 type ClusterStatus struct {
 	commonModel.BaseModel
-	ID                      string
+	ID                      string                   `json:"id"`
+	NodeClusterID           string                   `json:"nodeClusterID"`
 	Message                 string                   `json:"message" gorm:"type:text(65535)"`
 	Phase                   string                   `json:"phase"`
 	PrePhase                string                   `json:"prePhase"`

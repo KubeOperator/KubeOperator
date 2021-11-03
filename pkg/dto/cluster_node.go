@@ -17,6 +17,7 @@ type NodeBatch struct {
 	Increase   int      `json:"increase"`
 	Operation  string   `json:"operation"`
 	IsForce    bool     `json:"isForce"`
+	StatusID   string   `json:"statusID"`
 	SupportGpu string   `json:"supportGpu"`
 }
 

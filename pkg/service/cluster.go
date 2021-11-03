@@ -34,6 +34,7 @@ type ClusterService interface {
 	GetClusterByProject(projectNames string) ([]dto.ClusterInfo, error)
 	CheckExistence(name string) bool
 	GetStatus(name string) (dto.ClusterStatus, error)
+	GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
 	GetPlan(name string) (dto.Plan, error)
@@ -286,6 +287,20 @@ func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
 		return status, err
 	}
 	cs, err := c.clusterStatusRepo.Get(cluster.StatusID)
+	if err != nil {
+		return status, err
+	}
+	status.ClusterStatus = cs
+	return status, nil
+}
+
+func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.ClusterStatus, error) {
+	var status dto.ClusterStatus
+	node, err := c.clusterNodeRepo.Get(clusterName, nodeName)
+	if err != nil {
+		return status, err
+	}
+	cs, err := c.clusterStatusRepo.Get(node.StatusID)
 	if err != nil {
 		return status, err
 	}

@@ -99,14 +99,14 @@ func (ca *ClusterAdm) getNextUpgradeConditionName(conditionName string) string {
 
 func (ca *ClusterAdm) EnsureUpgradeTaskStart(c *Cluster) error {
 	time.Sleep(5 * time.Second)
-	writeLog("----upgrade task start----", c.writer)
+	writeLog("----upgrade task start----", c.Writer)
 	return nil
 }
 
 func (ca *ClusterAdm) EnsureBackupETCD(c *Cluster) error {
 	time.Sleep(5 * time.Second)
 	phase := backup.BackupClusterPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	time.Sleep(5 * time.Second)
@@ -126,14 +126,14 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	}
 	oldVersion := oldVars[runtimeVersionKey]
 	newVersion := newVars[runtimeVersionKey]
-	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	_, _ = fmt.Fprintf(c.Writer, "%s -> %s", oldVersion, newVersion)
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
-		_, _ = fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade")
+		_, _ = fmt.Fprintln(c.Writer, "runtime version is newest.skip upgrade")
 		return nil
 	}
 	c.Kobe.SetVar(runtimeVersionKey, newVersion)
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 
 }
 func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
@@ -148,14 +148,14 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 	var etcdVersionKey = "etcd_version"
 	oldVersion := oldVars[etcdVersionKey]
 	newVersion := newVars[etcdVersionKey]
-	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	_, _ = fmt.Fprintf(c.Writer, "%s -> %s", oldVersion, newVersion)
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
-		_, _ = fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade")
+		_, _ = fmt.Fprintln(c.Writer, "etcd version is newest.skip upgrade")
 		return nil
 	}
 	c.Kobe.SetVar(etcdVersionKey, newVersion)
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 func (ca *ClusterAdm) EnsureUpgradeKubernetes(c *Cluster) error {
 	time.Sleep(5 * time.Second)
@@ -163,12 +163,12 @@ func (ca *ClusterAdm) EnsureUpgradeKubernetes(c *Cluster) error {
 	phase := upgrade.UpgradeClusterPhase{
 		Version: c.Spec.UpgradeVersion[:index],
 	}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 
 }
 func (ca *ClusterAdm) EnsureUpdateCertificates(c *Cluster) error {
 	time.Sleep(5 * time.Second)
 	phase := prepare.CertificatesPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 
 }

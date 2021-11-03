@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"sync"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -29,7 +31,7 @@ type ClusterNodeService interface {
 	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) error
-	Recreate(clusterName string, name string) error
+	Recreate(clusterName string, batch dto.NodeBatch) error
 	Page(num, size int, isPolling, clusterName string) (*dto.NodePage, error)
 }
 
@@ -38,6 +40,8 @@ func NewClusterNodeService() ClusterNodeService {
 		ClusterService:      NewClusterService(),
 		clusterRepo:         repository.NewClusterRepository(),
 		NodeRepo:            repository.NewClusterNodeRepository(),
+		StatusRepo:          repository.NewClusterStatusRepository(),
+		StatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		HostRepo:            repository.NewHostRepository(),
 		systemSettingRepo:   repository.NewSystemSettingRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
@@ -52,6 +56,8 @@ type clusterNodeService struct {
 	ClusterService      ClusterService
 	clusterRepo         repository.ClusterRepository
 	NodeRepo            repository.ClusterNodeRepository
+	StatusRepo          repository.ClusterStatusRepository
+	StatusConditionRepo repository.ClusterStatusConditionRepository
 	HostRepo            repository.HostRepository
 	planService         PlanService
 	systemSettingRepo   repository.SystemSettingRepository
@@ -147,51 +153,6 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 	return nodesAfterSync, nil
 }
 
-func (c clusterNodeService) Recreate(clusterName, name string) error {
-	cluster, err := c.clusterRepo.Get(clusterName)
-	if err != nil {
-		return err
-	}
-	var node model.ClusterNode
-	if err = db.DB.Where("cluster_id = ? AND name = ?", cluster.ID, name).First(&node).Error; err != nil {
-		return err
-	}
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).Updates(map[string]interface{}{
-		"Status":    constant.StatusInitializing,
-		"PreStatus": constant.StatusFailed,
-		"Message":   "",
-	}).Error; err != nil {
-		return err
-	}
-	go c.recreate(&cluster, &node)
-	return nil
-}
-
-func (c clusterNodeService) recreate(cluster *model.Cluster, node *model.ClusterNode) {
-	var nodes []model.ClusterNode
-	nodes = append(nodes, *node)
-	if err := c.runAddWorkerPlaybook(cluster, nodes, "disabled"); err != nil {
-		if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).
-			Updates(map[string]interface{}{
-				"Status":    constant.StatusFailed,
-				"PreStatus": constant.ClusterInitializing,
-				"Message":   err.Error(),
-			}).Error; err != nil {
-			logger.Log.Errorf("can not update node status reason %s", err.Error())
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
-			return
-		}
-	}
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id = ?", node.ID).
-		Updates(map[string]interface{}{"Status": constant.StatusRunning, "PreStatus": constant.ClusterInitializing}).Error; err != nil {
-		logger.Log.Errorf("can not update node status reason %s", err.Error())
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
-		return
-	}
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
-	logger.Log.Info("create cluster nodes successful!")
-}
-
 func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error {
 	cluster, err := c.ClusterService.Get(clusterName)
 	if err != nil {
@@ -241,6 +202,7 @@ func prepareRemove(item dto.NodeBatch, nodesForDelete []model.ClusterNode) ([]mo
 	// notDirtyNodes 待执行脚本的节点（非强制删除的所有、强制删除时 运行状态或非脏节点）
 	logger.Log.Infof("start delete nodes")
 	for _, node := range nodesForDelete {
+
 		hostIDs = append(hostIDs, node.Host.ID)
 		hostIPs = append(hostIPs, node.Host.Ip)
 		nodeIDs = append(nodeIDs, node.ID)
@@ -367,6 +329,11 @@ func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes [
 }
 
 func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
+	if item.SupportGpu == "enable" {
+		if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update(map[string]interface{}{"SupportGpu": "enable"}).Error; err != nil {
+			return err
+		}
+	}
 	var (
 		newNodes  []model.ClusterNode
 		hostNames []string
@@ -406,11 +373,11 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		}
 		newNodes = ns
 	}
-	go c.addNodes(cluster, newNodes, item.SupportGpu)
+	go c.addNodes(cluster, newNodes)
 	return nil
 }
 
-func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.ClusterNode, SupportGpu string) {
+func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.ClusterNode) {
 	var (
 		newNodeIDs []string
 		newHostIDs []string
@@ -427,35 +394,23 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 			return
 		}
 	}
-	logger.Log.Info("start binding nodes to cluster")
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating}).Error; err != nil {
-		c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusInitializing, constant.StatusCreating, newNodeIDs, err, false)
-		return
-	}
 
-	if err := c.runAddWorkerPlaybook(cluster, newNodes, SupportGpu); err != nil {
+	if err := c.AddWorkInit(cluster.Name, newNodes); err != nil {
 		c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusFailed, constant.StatusInitializing, newNodeIDs, err, false)
 		return
 	}
-
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusRunning, "PreStatus": constant.StatusInitializing}).Error; err != nil {
-		logger.Log.Errorf("can not update node status reason %s", err.Error())
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
-	}
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
-	logger.Log.Info("create cluster nodes successful!")
 }
 
-func (c *clusterNodeService) updateNodeStatus(operation, clusterName, status, preStatus string, notDirtyNodeID []string, errMsg error, isDirty bool) {
+func (c *clusterNodeService) updateNodeStatus(operation, clusterName, status, preStatus string, nodeIDs []string, errMsg error, isDirty bool) {
 	errmsg := ""
 	if errMsg != nil {
 		errmsg = errMsg.Error()
 	}
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), clusterName, operation)
-	logger.Log.Infof("change node statu %s to %s, msg: %v", status, preStatus, errMsg)
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", notDirtyNodeID).
+	if status == constant.ClusterFailed {
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), clusterName, operation)
+	}
+	logger.Log.Infof("change node statu %s to %s, msg: %v", preStatus, status, errMsg)
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
 		Updates(map[string]interface{}{"Status": status, "PreStatus": preStatus, "Message": errmsg, "Dirty": isDirty}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
 	}
@@ -482,7 +437,8 @@ func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, n
 		allHosts = append(allHosts, &allNodes[i].Host)
 	}
 
-	if err := c.doCreateHosts(cluster, allHosts); err != nil {
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	if err := doInit(k, cluster.Plan, allHosts); err != nil {
 		if err := db.DB.Where("id in (?)", newHostIDs).Delete(&model.Host{}).Error; err != nil {
 			logger.Log.Errorf("can not delete hosts reason %s", err.Error())
 		}
@@ -662,11 +618,6 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 	return res, nil
 }
 
-func (c clusterNodeService) doCreateHosts(cluster *model.Cluster, hosts []*model.Host) error {
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	return doInit(k, cluster.Plan, hosts)
-}
-
 const removeWorkerPlaybook = "96-remove-worker.yml"
 const resetWorkerPlaybook = "97-reset-worker.yml"
 
@@ -709,54 +660,160 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	return nil
 }
 
-const addWorkerPlaybook = "91-add-worker.yml"
+func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) error {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
 
-func (c *clusterNodeService) runAddWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode, SupportGpu string) error {
+	status, err := c.StatusRepo.Get(batch.StatusID)
+	status.Phase = constant.StatusInitializing
+	status.PrePhase = constant.ClusterFailed
+	if err != nil {
+		return err
+	}
+	if len(status.ClusterStatusConditions) > 0 {
+		for i := range status.ClusterStatusConditions {
+			if status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
+				status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
+				status.ClusterStatusConditions[i].Message = ""
+				err := c.StatusConditionRepo.Save(&status.ClusterStatusConditions[i])
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
-		logger.Log.Error(err)
+		return err
 	}
 	cluster.LogId = logId
-	db.DB.Save(cluster)
-	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
+	_ = c.clusterRepo.Save(&cluster)
+
+	var nodes []model.ClusterNode
+	if err := db.DB.Model(&model.ClusterStatus{}).Where("id = ?", batch.StatusID).Update(map[string]interface{}{"Phase": constant.StatusInitializing, "PrePhase": constant.StatusFailed}).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Where("status_id = ?", batch.StatusID).Find(&nodes).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(&model.ClusterNode{}).Where("status_id = ?", batch.StatusID).
+		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusFailed}).Error; err != nil {
+		return fmt.Errorf("can not update cluster status %s", err.Error())
+	}
+	go c.doBindNodeToCluster(&cluster, &status, nodes, writer)
+	return nil
+}
+
+func (c *clusterNodeService) AddWorkInit(clusterName string, nodes []model.ClusterNode) error {
+	logger.Log.Info("start binding nodes to cluster")
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	var nodeIds []string
+	var status model.ClusterStatus
+	for _, n := range nodes {
+		nodeIds = append(nodeIds, n.ID)
+	}
+	status = model.ClusterStatus{
+		NodeClusterID:           cluster.ID,
+		Phase:                   constant.ClusterInitializing,
+		ClusterStatusConditions: []model.ClusterStatusCondition{},
+	}
+	c.StatusRepo.Save(&status)
+
+	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIds).
+		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating, "status_id": status.ID}).Error; err != nil {
+		return fmt.Errorf("can not update cluster status %s", err.Error())
+	}
+
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		return err
+	}
+	cluster.LogId = logId
+	_ = c.clusterRepo.Save(&cluster)
+
+	go c.doBindNodeToCluster(&cluster, &status, nodes, writer)
+	return nil
+}
+
+func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, status *model.ClusterStatus, nodes []model.ClusterNode, writer io.Writer) {
+	var nodeIds []string
+	k := &adm.Cluster{
+		Cluster: *cluster,
+		Writer:  writer,
+	}
 	inventory := cluster.ParseInventory()
 	for i := range inventory.Groups {
 		if inventory.Groups[i].Name == "new-worker" {
 			for _, n := range nodes {
+				nodeIds = append(nodeIds, n.ID)
 				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
 			}
 		}
 	}
-	k := kobe.NewAnsible(&kobe.Config{
+	k.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
 	})
 	for i := range facts.DefaultFacts {
-		k.SetVar(i, facts.DefaultFacts[i])
+		k.Kobe.SetVar(i, facts.DefaultFacts[i])
 	}
 	clusterVars := cluster.GetKobeVars()
 	for j, v := range clusterVars {
-		k.SetVar(j, v)
+		k.Kobe.SetVar(j, v)
 	}
-	// 给 node 添加 enable_gpu 开关
-	k.SetVar(facts.SupportGpuName, SupportGpu)
-	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	k.Kobe.SetVar(facts.SupportGpuName, cluster.Spec.SupportGpu)
+	k.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	var systemSetting model.SystemSetting
 	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
 	if systemSetting.ID != "" {
-		k.SetVar(facts.NtpServerName, systemSetting.Value)
+		k.Kobe.SetVar(facts.NtpServerName, systemSetting.Value)
 	}
 	maniFest, _ := adm.GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for j, v := range vars {
-			k.SetVar(j, v)
+			k.Kobe.SetVar(j, v)
 		}
 	}
-	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, "", writer)
-	if err != nil {
-		return err
+	ctx, cancel := context.WithCancel(context.Background())
+	statusChan := make(chan *model.ClusterStatus)
+
+	go c.doHandleResp(ctx, *k, status, statusChan)
+	for {
+		item := <-statusChan
+		// 保存进度
+		_ = c.StatusRepo.Save(status)
+		switch status.Phase {
+		case constant.StatusRunning:
+			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.ClusterRunning, constant.ClusterInitializing, nodeIds, fmt.Errorf(item.Message), false)
+			cancel()
+			return
+		case constant.StatusFailed:
+			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.ClusterFailed, constant.ClusterInitializing, nodeIds, fmt.Errorf(item.Message), false)
+			cancel()
+			return
+		}
 	}
-	return nil
+}
+
+func (c clusterNodeService) doHandleResp(ctx context.Context, cluster adm.Cluster, status *model.ClusterStatus, statusChan chan *model.ClusterStatus) {
+	ad := adm.NewClusterAdm()
+	for {
+		err := ad.OnAddWorker(cluster, status)
+		if err != nil {
+			status.Message = err.Error()
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case statusChan <- status:
+		}
+		time.Sleep(5 * time.Second)
+	}
 }
 
 // db 存在，cluster 不存在  ====>  失联

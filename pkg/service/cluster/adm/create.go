@@ -96,71 +96,71 @@ func (ca *ClusterAdm) getNextCreateConditionName(conditionName string) string {
 
 func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
 	time.Sleep(5 * time.Second)
-	writeLog("----init task start----", c.writer)
+	writeLog("----init task start----", c.Writer)
 	return nil
 }
 
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}
-	err := phase.Run(c.Kobe, c.writer)
+	err := phase.Run(c.Kobe, c.Writer)
 	return err
 }
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(c *Cluster) error {
 	phase := prepare.KubernetesComponentPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsurePrepareLoadBalancer(c *Cluster) error {
 	phase := prepare.LoadBalancerPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) error {
 	phase := prepare.CertificatesPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) error {
 	phase := initial.EtcdPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) error {
 	phase := initial.MasterPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
 	phase := initial.WorkerPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 	phase := initial.NetworkPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitHelm(c *Cluster) error {
 	phase := initial.HelmPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitMetricsServer(c *Cluster) error {
 	phase := initial.MetricsServerPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsureInitIngressController(c *Cluster) error {
 	phase := ingress.ControllerPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }
 
 func (ca *ClusterAdm) EnsurePostInit(c *Cluster) error {
 	phase := initial.PostPhase{}
-	return phase.Run(c.Kobe, c.writer)
+	return phase.Run(c.Kobe, c.Writer)
 }

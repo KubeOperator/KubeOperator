@@ -484,6 +484,23 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
+// Get Cluster Status
+// @Tags clusters
+// @Summary Get cluster node status
+// @Description Get cluster node status
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.Node
+// @Router /clusters/status/{clusterName}/{nodeName} [get]
+func (c ClusterController) GetNodeStatusBy(cluster, node string) (*dto.ClusterStatus, error) {
+	cs, err := c.ClusterService.GetNodeStatus(cluster, node)
+	if err != nil {
+		return nil, err
+	}
+	return &cs, nil
+}
+
 // Get Cluster Details
 // @Tags clusters
 // @Summary Get cluster node details
@@ -507,11 +524,17 @@ func (c ClusterController) GetNodeDetailBy(clusterName string, nodeName string) 
 // @Description Recreate cluster node
 // @Accept  json
 // @Produce  json
+// @Param request body dto.NodeBatch true "request"
 // @Security ApiKeyAuth
 // @Success 200
-// @Router /clusters/node/recreate/{clusterName}/{node} [post]
-func (c ClusterController) PostNodeRecreateBy(clusterName string, node string) error {
-	if err := c.ClusterNodeService.Recreate(clusterName, node); err != nil {
+// @Router /clusters/node/recreate/{clusterName} [post]
+func (c ClusterController) PostNodeRecreateBy(clusterName string) error {
+	var req dto.NodeBatch
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	if err := c.ClusterNodeService.Recreate(clusterName, req); err != nil {
 		return err
 	}
 	return nil
