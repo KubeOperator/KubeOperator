@@ -36,6 +36,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/zones")).HandleError(ErrorHandler).Handle(controller.NewZoneController())
 	mvc.New(AuthScope.Party("/plans")).HandleError(ErrorHandler).Handle(controller.NewPlanController())
 	mvc.New(AuthScope.Party("/settings")).HandleError(ErrorHandler).Handle(controller.NewSystemSettingController())
+	mvc.New(AuthScope.Party("/ntp")).HandleError(ErrorHandler).Handle(controller.NewNtpServerController())
 	mvc.New(AuthScope.Party("/logs")).HandleError(ErrorHandler).Handle(controller.NewSystemLogController())
 	mvc.New(AuthScope.Party("/projects")).HandleError(ErrorHandler).Handle(controller.NewProjectController())
 	mvc.New(AuthScope.Party("/clusters/istio")).HandleError(ErrorHandler).Handle(controller.NewClusterIstioController())

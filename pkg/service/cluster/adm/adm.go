@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 )
@@ -84,11 +85,9 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 		c.Kobe.SetVar(k, v)
 	}
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
-	var systemSetting model.SystemSetting
-	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
-	if systemSetting.ID != "" {
-		c.Kobe.SetVar(facts.NtpServerName, systemSetting.Value)
-	}
+	ntpServerRepo := repository.NewNtpServerRepository()
+	ntps, _ := ntpServerRepo.GetAddressStr()
+	c.Kobe.SetVar(facts.NtpServerName, ntps)
 	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()

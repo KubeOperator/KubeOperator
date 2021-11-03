@@ -115,4 +115,8 @@ const (
 	DELETE_BACKUP_ACCOUNT = "删除备份账号|Delete backup account"
 	CREATE_EMAIL          = "设置系统配置|Set system config"
 	IMPORT_LICENCE        = "导入许可证书|import licence"
+
+	CREATE_NTP = "添加 NTP|Create NTP server"
+	UPDATE_NTP = "修改 NTP|Update NTP server"
+	DELETE_NTP = "删除 NTP|DElete NTP server"
 )

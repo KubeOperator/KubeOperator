@@ -43,7 +43,7 @@ func NewClusterNodeService() ClusterNodeService {
 		StatusRepo:          repository.NewClusterStatusRepository(),
 		StatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		HostRepo:            repository.NewHostRepository(),
-		systemSettingRepo:   repository.NewSystemSettingRepository(),
+		ntpServerRepo:       repository.NewNtpServerRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		messageService:      NewMessageService(),
 		vmConfigRepo:        repository.NewVmConfigRepository(),
@@ -60,7 +60,7 @@ type clusterNodeService struct {
 	StatusConditionRepo repository.ClusterStatusConditionRepository
 	HostRepo            repository.HostRepository
 	planService         PlanService
-	systemSettingRepo   repository.SystemSettingRepository
+	ntpServerRepo       repository.NtpServerRepository
 	projectResourceRepo repository.ProjectResourceRepository
 	messageService      MessageService
 	vmConfigRepo        repository.VmConfigRepository
@@ -648,11 +648,8 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 		k.SetVar(j, v)
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
-	var systemSetting model.SystemSetting
-	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
-	if systemSetting.ID != "" {
-		k.SetVar(facts.NtpServerName, systemSetting.Value)
-	}
+	ntps, _ := c.ntpServerRepo.GetAddressStr()
+	k.SetVar(facts.NtpServerName, ntps)
 	err = phases.RunPlaybookAndGetResult(k, playbookName, "", writer)
 	if err != nil {
 		return err
@@ -767,11 +764,8 @@ func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, status 
 	}
 	k.Kobe.SetVar(facts.SupportGpuName, cluster.Spec.SupportGpu)
 	k.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
-	var systemSetting model.SystemSetting
-	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
-	if systemSetting.ID != "" {
-		k.Kobe.SetVar(facts.NtpServerName, systemSetting.Value)
-	}
+	ntps, _ := c.ntpServerRepo.GetAddressStr()
+	k.Kobe.SetVar(facts.NtpServerName, ntps)
 	maniFest, _ := adm.GetManiFestBy(cluster.Spec.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()

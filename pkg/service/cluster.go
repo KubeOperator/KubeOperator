@@ -63,6 +63,7 @@ func NewClusterService() ClusterService {
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
 		messageService:             NewMessageService(),
+		ntpServerRepo:              repository.NewNtpServerRepository(),
 	}
 }
 
@@ -79,6 +80,7 @@ type clusterService struct {
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
 	messageService             MessageService
+	ntpServerRepo              repository.NtpServerRepository
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -654,11 +656,9 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		k.SetVar(i, facts.DefaultFacts[i])
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
-	var systemSetting model.SystemSetting
-	db.DB.Model(&model.SystemSetting{}).Where(model.SystemSetting{Key: "ntp_server"}).First(&systemSetting)
-	if systemSetting.ID != "" {
-		k.SetVar(facts.NtpServerName, systemSetting.Value)
-	}
+	ntps, _ := c.ntpServerRepo.GetAddressStr()
+	k.SetVar(facts.NtpServerName, ntps)
+
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {
 		k.SetVar(key, value)

@@ -189,6 +189,8 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/ntp",
+			"/api/v1/ntp/{**}",
 			"/api/v1/settings",
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
@@ -203,6 +205,8 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/ntp",
+			"/api/v1/ntp/{**}",
 			"/api/v1/settings",
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
