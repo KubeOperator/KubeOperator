@@ -22,8 +22,8 @@ type Zone struct {
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`
 	IpPoolID     string     `json:"ipPoolId"`
 	Region       Region     `json:"-"`
-	IpPool       IpPool     `json:"_"`
-	Credential   Credential `json:"_"`
+	IpPool       IpPool     `json:"-"`
+	Credential   Credential `json:"-"`
 }
 
 func (z *Zone) BeforeCreate() (err error) {

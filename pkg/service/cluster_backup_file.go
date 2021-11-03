@@ -3,10 +3,12 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"io/ioutil"
 	"os"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -196,7 +198,12 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	}
 	admCluster := adm.NewCluster(cluster)
 	p := &backup.BackupClusterPhase{}
-	err = p.Run(admCluster.Kobe, nil)
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+	if err != nil {
+		logger.Log.Error(err)
+	}
+	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
 		logger.Log.Errorf("run cluster log failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -341,7 +348,13 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 
 	admCluster := adm.NewCluster(cluster.Cluster)
 	p := &backup.RestoreClusterPhase{}
-	err = p.Run(admCluster.Kobe, nil)
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+	if err != nil {
+		logger.Log.Error(err)
+	}
+
+	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
 		logger.Log.Errorf("restore cluster phase run failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -396,7 +409,13 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 
 		admCluster := adm.NewCluster(cluster.Cluster)
 		p := &backup.RestoreClusterPhase{}
-		err = p.Run(admCluster.Kobe, nil)
+
+		writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+		if err != nil {
+			logger.Log.Error(err)
+		}
+
+		err = p.Run(admCluster.Kobe, writer)
 		if err != nil {
 			logger.Log.Errorf("run cluster log failed, error: %s", err.Error())
 			_ = c.clusterLogService.End(&clog, false, err.Error())

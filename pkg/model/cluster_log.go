@@ -9,7 +9,7 @@ import (
 
 type ClusterLog struct {
 	common.BaseModel
-	ID        string    `json:"-"`
+	ID        string    `json:"id"`
 	ClusterID string    `json:"clusterId"`
 	Type      string    `json:"type"`
 	StartTime time.Time `json:"startTime"`
