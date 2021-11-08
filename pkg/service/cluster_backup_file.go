@@ -186,11 +186,17 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	clog.Type = constant.ClusterLogTypeBackup
 	clog.StartTime = time.Now()
 	clog.EndTime = time.Now()
+	clog.Status = constant.StatusWaiting
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	}
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+	if err != nil {
+		logger.Log.Errorf("create ansible log failed, error: %s", err.Error())
+	}
+
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
 		logger.Log.Errorf("start cluster log failed, error: %s", err.Error())
@@ -198,11 +204,6 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	}
 	admCluster := adm.NewCluster(cluster)
 	p := &backup.BackupClusterPhase{}
-
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
-	if err != nil {
-		logger.Log.Error(err)
-	}
 	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
 		logger.Log.Errorf("run cluster log failed, error: %s", err.Error())
@@ -312,11 +313,17 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	clog.Type = constant.ClusterLogTypeRestore
 	clog.StartTime = time.Now()
 	clog.EndTime = time.Now()
+	clog.Status = constant.StatusWaiting
 	err = c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 	}
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+	if err != nil {
+		logger.Log.Errorf("create ansible log failed, error: %s", err.Error())
+	}
+
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
 		logger.Log.Errorf("start cluster log failed, error: %s", err.Error())
@@ -348,11 +355,6 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 
 	admCluster := adm.NewCluster(cluster.Cluster)
 	p := &backup.RestoreClusterPhase{}
-
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
-	if err != nil {
-		logger.Log.Error(err)
-	}
 
 	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
@@ -396,11 +398,17 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		clog.Type = constant.ClusterLogTypeRestore
 		clog.StartTime = time.Now()
 		clog.EndTime = time.Now()
+		clog.Status = constant.StatusWaiting
 		err = c.clusterLogService.Save(cluster.Name, &clog)
 		if err != nil {
 			logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		}
+		writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
+		if err != nil {
+			logger.Log.Errorf("create ansible log failed, error: %s", err.Error())
+		}
+
 		err = c.clusterLogService.Start(&clog)
 		if err != nil {
 			logger.Log.Errorf("start cluster log failed, error: %s", err.Error())
@@ -409,12 +417,6 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 
 		admCluster := adm.NewCluster(cluster.Cluster)
 		p := &backup.RestoreClusterPhase{}
-
-		writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, clog.ID)
-		if err != nil {
-			logger.Log.Error(err)
-		}
-
 		err = p.Run(admCluster.Kobe, writer)
 		if err != nil {
 			logger.Log.Errorf("run cluster log failed, error: %s", err.Error())
