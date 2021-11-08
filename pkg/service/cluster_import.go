@@ -517,10 +517,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	clusterInfo.KubeProxyMode = data2.Mode
 	if len(data2.NodePortAddresses) != 0 {
-		for _, addr := range data2.NodePortAddresses {
-			clusterInfo.NodeportAddress += (addr + ",")
-		}
-		clusterInfo.NodeportAddress = clusterInfo.NodeportAddress[0:len(clusterInfo.NodeportAddress)]
+		clusterInfo.NodeportAddress = data2.NodePortAddresses
 	}
 
 	// load network
@@ -540,8 +537,8 @@ type admConfigStruct struct {
 }
 
 type proxyConfigStruct struct {
-	Mode              string   `json:"mode"`
-	NodePortAddresses []string `json:"nodePortAddresses"`
+	Mode              string `json:"mode"`
+	NodePortAddresses string `json:"nodePortAddresses"`
 }
 
 type apiServerStruct struct {
