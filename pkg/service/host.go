@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -515,14 +516,26 @@ func (h *hostService) GetHostMem(host *model.Host) error {
 		host.Status = model.Disconnect
 		return err
 	}
-	result, _, _, err := client.Exec("sudo dmidecode -t 17 | grep \"Size.*MB\" | awk '{s+=$2} END {print s}'")
+	result, stderr, _, err := client.Exec("sudo dmidecode -t 17 | grep \"Size.*MB\" | awk '{s+=$2} END {print s}'")
 	if err != nil {
 		return err
 	}
+	if len(strings.Trim(stderr, "\n")) != 0 {
+		return fmt.Errorf(stderr)
+	}
+	logger.Log.Infof("the result dmidecode(MB) exec: %s, len(result) is %d", strings.Trim(result, "\n"), len(strings.Trim(result, "\n")))
 	if len(strings.Trim(result, "\n")) == 0 {
-		result, _, _, err = client.Exec("sudo dmidecode -t 17 | grep \"Size.*GB\" | awk '{s+=$2} END {print s}'")
+		result, stderr, _, err = client.Exec("sudo dmidecode -t 17 | grep \"Size.*GB\" | awk '{s+=$2} END {print s}'")
 		if err != nil {
 			return err
+		}
+		if len(strings.Trim(stderr, "\n")) != 0 {
+			return fmt.Errorf(stderr)
+		}
+		logger.Log.Infof("the result dmidecode(GB) exec: %s, len(result) is %d", strings.Trim(result, "\n"), len(strings.Trim(result, "\n")))
+		if len(strings.Trim(result, "\n")) == 0 {
+			host.Memory = 0
+			return nil
 		}
 		me, err := strconv.Atoi(strings.Trim(result, "\n"))
 		if err != nil {
