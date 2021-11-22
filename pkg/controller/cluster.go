@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"io"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -30,6 +31,7 @@ type ClusterController struct {
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
 	BackupAccountService             service.BackupAccountService
+	KubepiClient                     kubepi.Interface
 }
 
 func NewClusterController() *ClusterController {
@@ -45,6 +47,7 @@ func NewClusterController() *ClusterController {
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
 		BackupAccountService:             service.NewBackupAccountService(),
+		KubepiClient:                     kubepi.GetClient(),
 	}
 }
 
@@ -707,4 +710,22 @@ func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterReco
 
 func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {
 	return c.BackupAccountService.ListByClusterName(name)
+}
+
+func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) {
+	secrets, err := c.ClusterService.GetSecrets(name)
+	if err != nil {
+		return nil, err
+	}
+	apiServer, err := c.ClusterService.GetApiServerEndpoint(name)
+	if err != nil {
+		return nil, err
+	}
+	opener, err := c.KubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
+	if err != nil {
+		return nil, err
+	}
+	c.Ctx.SetCookie(opener.SessionCookie)
+	return &dto.Dashboard{Url: opener.Redirect}, nil
+
 }
