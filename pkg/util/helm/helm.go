@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	helmDriver = "secrets"
+	helmDriver = "configmap"
 )
 
 func nolog(format string, v ...interface{}) {}
