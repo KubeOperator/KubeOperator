@@ -15,6 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/icza/dyno"
+	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -146,6 +147,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	}
 
 	var synchosts []dto.HostSync
+	tools := cluster.PrepareTools()
 	if clusterImport.IsKoCluster {
 		for _, node := range clusterImport.KoClusterInfo.Nodes {
 			host := model.Host{
@@ -158,8 +160,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Architecture: node.Architecture,
 			}
 			if err := tx.Create(&host).Error; err != nil {
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
-				tx.Rollback()
+				c.handlerImportError(tx, cluster.Name, err)
 				return err
 			}
 			synchosts = append(synchosts, dto.HostSync{HostName: node.Name, HostStatus: constant.StatusRunning})
@@ -171,8 +172,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Status:    constant.StatusRunning,
 			}
 			if err := tx.Create(&node).Error; err != nil {
-				tx.Rollback()
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+				c.handlerImportError(tx, cluster.Name, err)
 				return err
 			}
 			clusterResource := model.ClusterResource{
@@ -181,8 +181,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				ClusterID:    cluster.ID,
 			}
 			if err := tx.Create(&clusterResource).Error; err != nil {
-				tx.Rollback()
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+				c.handlerImportError(tx, cluster.Name, err)
 				return err
 			}
 			projectResource := model.ProjectResource{
@@ -191,58 +190,53 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				ProjectID:    project.ID,
 			}
 			if err := tx.Create(&projectResource).Error; err != nil {
-				tx.Rollback()
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+				c.handlerImportError(tx, cluster.Name, err)
 				return err
+			}
+		}
+		var (
+			manifest model.ClusterManifest
+			toolVars []model.VersionHelp
+		)
+		if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
+			c.handlerImportError(tx, cluster.Name, err)
+			return fmt.Errorf("can not find manifest version: %s", err.Error())
+		}
+		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+			c.handlerImportError(tx, cluster.Name, err)
+			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+		}
+		for i := 0; i < len(tools); i++ {
+			for _, item := range toolVars {
+				if tools[i].Name == item.Name {
+					tools[i].Version = item.Version
+					break
+				}
 			}
 		}
 	} else {
 		if err := gatherClusterInfo(&cluster); err != nil {
-			tx.Rollback()
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+			c.handlerImportError(tx, cluster.Name, err)
 			return err
 		}
 		for _, node := range cluster.Nodes {
 			node.ClusterID = cluster.ID
 			if err := tx.Create(&node).Error; err != nil {
-				tx.Rollback()
-				_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+				c.handlerImportError(tx, cluster.Name, err)
 				return fmt.Errorf("can not save node %s", err.Error())
 			}
 		}
 	}
 
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+		c.handlerImportError(tx, cluster.Name, err)
 		return fmt.Errorf("can not update spec %s", err.Error())
 	}
 
-	var (
-		manifest model.ClusterManifest
-		toolVars []model.VersionHelp
-	)
-	if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
-		return fmt.Errorf("can find manifest version: %s", err.Error())
-	}
-	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
-		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
-	}
-	for _, tool := range cluster.PrepareTools() {
-		for _, item := range toolVars {
-			if tool.Name == item.Name {
-				tool.Version = item.Version
-				break
-			}
-		}
+	for _, tool := range tools {
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
-			tx.Rollback()
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+			c.handlerImportError(tx, cluster.Name, err)
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
@@ -250,8 +244,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	for _, istio := range istios {
 		istio.ClusterID = cluster.ID
 		if err := tx.Create(&istio).Error; err != nil {
-			tx.Rollback()
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+			c.handlerImportError(tx, cluster.Name, err)
 			return fmt.Errorf("can not save istio %s", err.Error())
 		}
 	}
@@ -260,8 +253,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster.Name, constant.ClusterImport)
+		c.handlerImportError(tx, cluster.Name, err)
 		return fmt.Errorf("can not create project resource %s", err.Error())
 	}
 	tx.Commit()
@@ -272,6 +264,11 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	return nil
 }
 
+func (c clusterImportService) handlerImportError(tx *gorm.DB, cluster string, err error) {
+	tx.Rollback()
+	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster, constant.ClusterImport)
+}
+
 func gatherClusterInfo(cluster *model.Cluster) error {
 	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort))},
@@ -280,7 +277,7 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 	if err != nil {
 		return err
 	}
-	cluster.Spec.Version, err = getServerVersion(c)
+	cluster.Spec.Version, err = getServerVersion(c, false)
 	if err != nil {
 		return err
 	}
@@ -296,17 +293,20 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 			Status: constant.StatusRunning,
 		})
 	}
-	cluster.Spec.RuntimeType, cluster.Spec.EnableDnsCache, cluster.Spec.IngressControllerType, err = getInfoFromDaemonset(c)
+	cluster.Spec.NetworkType, cluster.Spec.EnableDnsCache, cluster.Spec.IngressControllerType, err = getInfoFromDaemonset(c)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func getServerVersion(client *kubernetes.Clientset) (string, error) {
+func getServerVersion(client *kubernetes.Clientset, isKoCluster bool) (string, error) {
 	v, err := client.ServerVersion()
 	if err != nil {
 		return "", fmt.Errorf("get version from cluster failed: %v", err.Error())
+	}
+	if !isKoCluster {
+		return v.GitVersion, nil
 	}
 	var manifest model.ClusterManifest
 	if err := db.DB.Where("version = ?", v.GitVersion).Order("created_at ASC").First(&manifest).Error; err != nil {
@@ -434,7 +434,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 
 	// load version
-	clusterInfo.Version, err = getServerVersion(kubeClient)
+	clusterInfo.Version, err = getServerVersion(kubeClient, true)
 	if err != nil {
 		return clusterInfo, err
 	}
