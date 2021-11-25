@@ -28,6 +28,7 @@ type CisService interface {
 	List(clusterName string) ([]dto.CisTask, error)
 	Create(clusterName string) (*dto.CisTask, error)
 	Delete(clusterName, id string) error
+	Get(clusterName, id string) (*dto.CisTaskDetail, error)
 }
 
 type cisService struct {
@@ -42,20 +43,52 @@ func NewCisService() CisService {
 	}
 }
 
-type CisSummary struct {
-	Tests []CisTest `json:"tests"`
-}
+//type CisResultList []model.CisTaskResult
+//
+//func (c CisResultList) Len() int {
+//	return len(c)
+//}
+//
+//func (c CisResultList) Less(i, j int) bool {
+//	c1 := c[i].Number
+//	c2 := c[j].Number
+//
+//	c1s := strings.Split(c1, ".")
+//	c2s := strings.Split(c2, ".")
+//
+//	var maxLen int
+//	if len(c1s) > len(c2s) {
+//		maxLen = len(c1s)
+//	} else {
+//		maxLen = len(c2s)
+//	}
+//	for i := 0; i < maxLen; i++ {
+//		a, _ := strconv.Atoi(c1s[i])
+//		b, _ := strconv.Atoi(c2s[i])
+//		if a == b {
+//			continue
+//		}
+//		return a < b
+//	}
+//	return false
+//}
+//
+//func (c CisResultList) Swap(i, j int) {
+//	c[i], c[j] = c[j], c[i]
+//
+//}
 
-type CisTest struct {
-	Results []CisResult `json:"results"`
-}
+func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
+	var cisTask model.CisTaskWithResult
+	if err := db.DB.First(&cisTask, &model.CisTaskWithResult{CisTask: model.CisTask{ID: id}}).Error; err != nil {
+		return nil, err
+	}
+	var nodeList dto.CisNodeList
+	if err := json.Unmarshal([]byte(cisTask.Result), &nodeList); err != nil {
+		return nil, err
+	}
 
-type CisResult struct {
-	TestNumber  string `json:"test_number"`
-	TestDesc    string `json:"test_desc"`
-	Remediation string `json:"remediation"`
-	Status      string `json:"status"`
-	Scored      bool   `json:"scored"`
+	return &dto.CisTaskDetail{CisTaskWithResult: cisTask, NodeList: nodeList}, nil
 }
 
 func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
@@ -71,7 +104,7 @@ func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
 		Order("created_at desc").
 		Offset((num - 1) * size).
 		Limit(size).
-		Preload("Results").
+		//Preload("Results").
 		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -178,8 +211,10 @@ func (c *cisService) Delete(clusterName, id string) error {
 }
 
 func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
-	task.Status = CisTaskStatusRunning
-	db.DB.Save(&task)
+	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
+
+	taskWithResult.Status = CisTaskStatusRunning
+	db.DB.Save(&taskWithResult)
 
 	jobId := fmt.Sprintf("kube-bench-%s", uuid.NewV4().String())
 	j := v1.Job{
@@ -275,9 +310,9 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 
 	resp, err := client.BatchV1().Jobs(constant.DefaultNamespace).Create(context.TODO(), &j, metav1.CreateOptions{})
 	if err != nil {
-		task.Message = err.Error()
-		task.Status = CisTaskStatusFailed
-		db.DB.Save(&task)
+		taskWithResult.Message = err.Error()
+		taskWithResult.Status = CisTaskStatusFailed
+		db.DB.Save(&taskWithResult)
 		return
 	}
 
@@ -300,34 +335,19 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					if err != nil {
 						return true, err
 					}
-					var summarys []CisSummary
-					err = json.Unmarshal(bs, &summarys)
-					if err != nil {
+					taskWithResult.Result = string(bs)
+					var nodeList dto.CisNodeList
+					if err := json.Unmarshal(bs, &nodeList); err != nil {
 						return true, err
 					}
-					var results []model.CisTaskResult
-					for _, summary := range summarys {
-						for _, test := range summary.Tests {
-							for _, res := range test.Results {
-								results = append(results, model.CisTaskResult{
-									ID:          uuid.NewV4().String(),
-									ClusterID:   cluster.ID,
-									CisTaskId:   task.ID,
-									Number:      res.TestNumber,
-									Desc:        res.TestDesc,
-									Remediation: res.Remediation,
-									Status:      res.Status,
-									Scored:      res.Scored,
-								})
-							}
-						}
+					for i := range nodeList {
+						taskWithResult.TotalPass += nodeList[i].TotalPass
+						taskWithResult.TotalFail += nodeList[i].TotalFail
+						taskWithResult.TotalWarn += nodeList[i].TotalWarn
+						taskWithResult.TotalInfo += nodeList[i].TotalInfo
 					}
-					task.Results = results
-					task.Status = CisTaskStatusSuccess
-					err = db.DB.Save(&task).Error
-					if err != nil {
-						logger.Log.Error(err)
-					}
+					taskWithResult.Status = CisTaskStatusSuccess
+					db.DB.Save(&taskWithResult)
 				}
 			}
 			return true, nil
@@ -335,9 +355,9 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 		return false, nil
 	})
 	if err != nil {
-		task.Message = err.Error()
-		task.Status = CisTaskStatusFailed
-		db.DB.Save(&task)
+		taskWithResult.Message = err.Error()
+		taskWithResult.Status = CisTaskStatusFailed
+		db.DB.Save(&taskWithResult)
 		return
 	}
 	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), resp.Name, metav1.DeleteOptions{})

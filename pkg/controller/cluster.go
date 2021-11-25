@@ -632,6 +632,13 @@ func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
 	return c.CisService.Delete(clusterName, id)
 }
 
+func (c ClusterController) GetCisdetailBy(clusterName string, id string) (*dto.CisTaskDetail, error) {
+	if clusterName == "" || id == "" {
+		return nil, errors.New("params is not set")
+	}
+	return c.CisService.Get(clusterName, id)
+}
+
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.START_CLUSTER_CIS_SCAN, clusterName)

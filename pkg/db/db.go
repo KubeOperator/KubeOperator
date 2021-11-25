@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	_ "github.com/go-sql-driver/mysql"
@@ -39,7 +40,10 @@ func (i *InitDBPhase) Init() error {
 	}
 
 	gorm.DefaultTableNameHandler = func(DB *gorm.DB, defaultTableName string) string {
-		return "ko_" + defaultTableName
+		if !strings.HasPrefix(defaultTableName, "ko_") {
+			return "ko_" + defaultTableName
+		}
+		return defaultTableName
 	}
 	db.SingularTable(true)
 	db.DB().SetMaxOpenConns(i.MaxOpenConns)
