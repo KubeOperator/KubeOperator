@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
+	"gopkg.in/yaml.v3"
 	"io"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -632,11 +634,57 @@ func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
 	return c.CisService.Delete(clusterName, id)
 }
 
+func (c ClusterController) GetCisdetailBy(clusterName string, id string) (*dto.CisTaskDetail, error) {
+	if clusterName == "" || id == "" {
+		return nil, errors.New("params is not set")
+	}
+	return c.CisService.Get(clusterName, id)
+}
+
+func (c ClusterController) GetCisreportBy(clusterName, id string) error {
+	format := "json"
+	if c.Ctx.URLParamExists("format") {
+		format = c.Ctx.URLParam("format")
+	}
+	var buf []byte
+	var err error
+	var t *dto.CisTaskDetail
+	t, err = c.CisService.Get(clusterName, id)
+	if err != nil {
+		return err
+	}
+	fileName := fmt.Sprintf("cis_report_%s_%s_%s.%s", t.ClusterName, t.Policy, t.ID, format)
+	c.Ctx.Header("Content-Type", "application/octet-stream")
+	c.Ctx.Header("Content-Disposition", "attachment; filename=\""+fileName+"\"")
+
+	switch format {
+	case "json":
+		buf, err = json.Marshal(t.CisReport)
+		if err != nil {
+			return err
+		}
+	case "yaml", "yml":
+		buf, err = yaml.Marshal(t.CisReport)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("can not support formater %s", format)
+	}
+	_, _ = c.Ctx.Write(buf)
+	return nil
+}
+
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
+	var req dto.CisTaskCreate
+	if err := c.Ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.START_CLUSTER_CIS_SCAN, clusterName)
 
-	return c.CisService.Create(clusterName)
+	return c.CisService.Create(clusterName, &req)
 }
 
 type Log struct {

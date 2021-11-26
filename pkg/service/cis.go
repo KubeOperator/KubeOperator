@@ -26,8 +26,9 @@ import (
 type CisService interface {
 	Page(num, size int, clusterName string) (*page.Page, error)
 	List(clusterName string) ([]dto.CisTask, error)
-	Create(clusterName string) (*dto.CisTask, error)
+	Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error)
 	Delete(clusterName, id string) error
+	Get(clusterName, id string) (*dto.CisTaskDetail, error)
 }
 
 type cisService struct {
@@ -42,20 +43,24 @@ func NewCisService() CisService {
 	}
 }
 
-type CisSummary struct {
-	Tests []CisTest `json:"tests"`
-}
+func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
+	var cisTask model.CisTaskWithResult
+	if err := db.DB.First(&cisTask, &model.CisTaskWithResult{CisTask: model.CisTask{ID: id}}).Error; err != nil {
+		return nil, err
+	}
+	var report dto.CisReport
+	if err := json.Unmarshal([]byte(cisTask.Result), &report); err != nil {
+		return nil, err
+	}
 
-type CisTest struct {
-	Results []CisResult `json:"results"`
-}
-
-type CisResult struct {
-	TestNumber  string `json:"test_number"`
-	TestDesc    string `json:"test_desc"`
-	Remediation string `json:"remediation"`
-	Status      string `json:"status"`
-	Scored      bool   `json:"scored"`
+	cls, err := c.clusterService.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	d := &dto.CisTaskDetail{CisTaskWithResult: cisTask, CisReport: report}
+	d.ClusterName = cls.Name
+	d.ClusterVersion = cls.Spec.Version
+	return d, nil
 }
 
 func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
@@ -71,7 +76,7 @@ func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
 		Order("created_at desc").
 		Offset((num - 1) * size).
 		Limit(size).
-		Preload("Results").
+		//Preload("Results").
 		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -109,7 +114,7 @@ func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
 	return dtos, nil
 }
 
-func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
+func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error) {
 	cluster, err := c.clusterRepo.Get(clusterName)
 	if err != nil {
 		return nil, err
@@ -136,6 +141,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		ClusterID: cluster.ID,
 		StartTime: time.Now(),
 		EndTime:   time.Now(),
+		Policy:    create.Policy,
 		Status:    CisTaskStatusCreating,
 	}
 	err = tx.Create(&task).Error
@@ -177,9 +183,13 @@ func (c *cisService) Delete(clusterName, id string) error {
 	return nil
 }
 
+const kubeBenchVersion = "v0.6.5"
+
 func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
-	task.Status = CisTaskStatusRunning
-	db.DB.Save(&task)
+	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
+
+	taskWithResult.Status = CisTaskStatusRunning
+	db.DB.Save(&taskWithResult)
 
 	jobId := fmt.Sprintf("kube-bench-%s", uuid.NewV4().String())
 	j := v1.Job{
@@ -195,7 +205,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1", constant.LocalRepositoryDomainName, port),
+							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:%s", constant.LocalRepositoryDomainName, port, kubeBenchVersion),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
@@ -272,12 +282,15 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 			},
 		},
 	}
+	if taskWithResult.Policy != "" && taskWithResult.Policy != "auto" {
+		j.Spec.Template.Spec.Containers[0].Command = append(j.Spec.Template.Spec.Containers[0].Command, "--benchmark", taskWithResult.Policy)
+	}
 
 	resp, err := client.BatchV1().Jobs(constant.DefaultNamespace).Create(context.TODO(), &j, metav1.CreateOptions{})
 	if err != nil {
-		task.Message = err.Error()
-		task.Status = CisTaskStatusFailed
-		db.DB.Save(&task)
+		taskWithResult.Message = err.Error()
+		taskWithResult.Status = CisTaskStatusFailed
+		db.DB.Save(&taskWithResult)
 		return
 	}
 
@@ -300,34 +313,18 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					if err != nil {
 						return true, err
 					}
-					var summarys []CisSummary
-					err = json.Unmarshal(bs, &summarys)
-					if err != nil {
+					taskWithResult.Result = string(bs)
+					var report dto.CisReport
+					if err := json.Unmarshal(bs, &report); err != nil {
 						return true, err
 					}
-					var results []model.CisTaskResult
-					for _, summary := range summarys {
-						for _, test := range summary.Tests {
-							for _, res := range test.Results {
-								results = append(results, model.CisTaskResult{
-									ID:          uuid.NewV4().String(),
-									ClusterID:   cluster.ID,
-									CisTaskId:   task.ID,
-									Number:      res.TestNumber,
-									Desc:        res.TestDesc,
-									Remediation: res.Remediation,
-									Status:      res.Status,
-									Scored:      res.Scored,
-								})
-							}
-						}
-					}
-					task.Results = results
-					task.Status = CisTaskStatusSuccess
-					err = db.DB.Save(&task).Error
-					if err != nil {
-						logger.Log.Error(err)
-					}
+					taskWithResult.TotalPass = report.Totals.TotalPass
+					taskWithResult.TotalFail = report.Totals.TotalFail
+					taskWithResult.TotalWarn = report.Totals.TotalWarn
+					taskWithResult.TotalInfo = report.Totals.TotalInfo
+					taskWithResult.Status = CisTaskStatusSuccess
+					taskWithResult.EndTime = time.Now()
+					db.DB.Save(&taskWithResult)
 				}
 			}
 			return true, nil
@@ -335,9 +332,10 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 		return false, nil
 	})
 	if err != nil {
-		task.Message = err.Error()
-		task.Status = CisTaskStatusFailed
-		db.DB.Save(&task)
+		taskWithResult.Message = err.Error()
+		taskWithResult.Status = CisTaskStatusFailed
+		taskWithResult.EndTime = time.Now()
+		db.DB.Save(&taskWithResult)
 		return
 	}
 	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), resp.Name, metav1.DeleteOptions{})
