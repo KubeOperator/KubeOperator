@@ -140,8 +140,8 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 			sourceName = constant.DefaultRegistryDeploymentName
 		case "chartmuseum":
 			sourceName = constant.DefaultChartmuseumDeploymentName
-		case "kubepi":
-			sourceName = constant.DefaultKubePiDeploymentName
+		case "gatekeeper":
+			sourceName = constant.DefaultGatekeeperDeploymentName
 		case "kubeapps":
 			sourceName = constant.DefaultKubeappsDeploymentName
 		case "grafana":
