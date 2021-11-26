@@ -26,7 +26,7 @@ import (
 type CisService interface {
 	Page(num, size int, clusterName string) (*page.Page, error)
 	List(clusterName string) ([]dto.CisTask, error)
-	Create(clusterName string) (*dto.CisTask, error)
+	Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error)
 	Delete(clusterName, id string) error
 	Get(clusterName, id string) (*dto.CisTaskDetail, error)
 }
@@ -43,52 +43,24 @@ func NewCisService() CisService {
 	}
 }
 
-//type CisResultList []model.CisTaskResult
-//
-//func (c CisResultList) Len() int {
-//	return len(c)
-//}
-//
-//func (c CisResultList) Less(i, j int) bool {
-//	c1 := c[i].Number
-//	c2 := c[j].Number
-//
-//	c1s := strings.Split(c1, ".")
-//	c2s := strings.Split(c2, ".")
-//
-//	var maxLen int
-//	if len(c1s) > len(c2s) {
-//		maxLen = len(c1s)
-//	} else {
-//		maxLen = len(c2s)
-//	}
-//	for i := 0; i < maxLen; i++ {
-//		a, _ := strconv.Atoi(c1s[i])
-//		b, _ := strconv.Atoi(c2s[i])
-//		if a == b {
-//			continue
-//		}
-//		return a < b
-//	}
-//	return false
-//}
-//
-//func (c CisResultList) Swap(i, j int) {
-//	c[i], c[j] = c[j], c[i]
-//
-//}
-
 func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
 	var cisTask model.CisTaskWithResult
 	if err := db.DB.First(&cisTask, &model.CisTaskWithResult{CisTask: model.CisTask{ID: id}}).Error; err != nil {
 		return nil, err
 	}
-	var nodeList dto.CisNodeList
-	if err := json.Unmarshal([]byte(cisTask.Result), &nodeList); err != nil {
+	var report dto.CisReport
+	if err := json.Unmarshal([]byte(cisTask.Result), &report); err != nil {
 		return nil, err
 	}
 
-	return &dto.CisTaskDetail{CisTaskWithResult: cisTask, NodeList: nodeList}, nil
+	cls, err := c.clusterService.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	d := &dto.CisTaskDetail{CisTaskWithResult: cisTask, CisReport: report}
+	d.ClusterName = cls.Name
+	d.ClusterVersion = cls.Spec.Version
+	return d, nil
 }
 
 func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
@@ -142,7 +114,7 @@ func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
 	return dtos, nil
 }
 
-func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
+func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error) {
 	cluster, err := c.clusterRepo.Get(clusterName)
 	if err != nil {
 		return nil, err
@@ -169,6 +141,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		ClusterID: cluster.ID,
 		StartTime: time.Now(),
 		EndTime:   time.Now(),
+		Policy:    create.Policy,
 		Status:    CisTaskStatusCreating,
 	}
 	err = tx.Create(&task).Error
@@ -210,6 +183,8 @@ func (c *cisService) Delete(clusterName, id string) error {
 	return nil
 }
 
+const kubeBenchVersion = "v0.6.5"
+
 func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
 	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
 
@@ -230,7 +205,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1", constant.LocalRepositoryDomainName, port),
+							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:%s", constant.LocalRepositoryDomainName, port, kubeBenchVersion),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
@@ -307,6 +282,9 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 			},
 		},
 	}
+	if taskWithResult.Policy != "" && taskWithResult.Policy != "auto" {
+		j.Spec.Template.Spec.Containers[0].Command = append(j.Spec.Template.Spec.Containers[0].Command, "--benchmark", taskWithResult.Policy)
+	}
 
 	resp, err := client.BatchV1().Jobs(constant.DefaultNamespace).Create(context.TODO(), &j, metav1.CreateOptions{})
 	if err != nil {
@@ -336,17 +314,16 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 						return true, err
 					}
 					taskWithResult.Result = string(bs)
-					var nodeList dto.CisNodeList
-					if err := json.Unmarshal(bs, &nodeList); err != nil {
+					var report dto.CisReport
+					if err := json.Unmarshal(bs, &report); err != nil {
 						return true, err
 					}
-					for i := range nodeList {
-						taskWithResult.TotalPass += nodeList[i].TotalPass
-						taskWithResult.TotalFail += nodeList[i].TotalFail
-						taskWithResult.TotalWarn += nodeList[i].TotalWarn
-						taskWithResult.TotalInfo += nodeList[i].TotalInfo
-					}
+					taskWithResult.TotalPass = report.Totals.TotalPass
+					taskWithResult.TotalFail = report.Totals.TotalFail
+					taskWithResult.TotalWarn = report.Totals.TotalWarn
+					taskWithResult.TotalInfo = report.Totals.TotalInfo
 					taskWithResult.Status = CisTaskStatusSuccess
+					taskWithResult.EndTime = time.Now()
 					db.DB.Save(&taskWithResult)
 				}
 			}
@@ -357,6 +334,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 	if err != nil {
 		taskWithResult.Message = err.Error()
 		taskWithResult.Status = CisTaskStatusFailed
+		taskWithResult.EndTime = time.Now()
 		db.DB.Save(&taskWithResult)
 		return
 	}

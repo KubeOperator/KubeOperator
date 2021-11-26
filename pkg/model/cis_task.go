@@ -9,20 +9,22 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+
+
 type CisTask struct {
 	common.BaseModel
 	ID        string    `json:"id"`
 	ClusterID string    `json:"clusterId"`
 	StartTime time.Time `json:"startTime"`
 	EndTime   time.Time `json:"endTime"`
+	Policy    string    `json:"policy"`
 	Message   string    `json:"message" gorm:"type:text(65535)"`
 	//Results   []CisTaskResult `json:"results"`
-	Status string `json:"status"`
-
-	TotalPass int `json:"totalPass"`
-	TotalFail int `json:"totalFail"`
-	TotalWarn int `json:"totalWarn"`
-	TotalInfo int `json:"totalInfo"`
+	Status    string `json:"status"`
+	TotalPass int    `json:"totalPass"`
+	TotalFail int    `json:"totalFail"`
+	TotalWarn int    `json:"totalWarn"`
+	TotalInfo int    `json:"totalInfo"`
 }
 
 func (c *CisTask) BeforeCreate() (err error) {

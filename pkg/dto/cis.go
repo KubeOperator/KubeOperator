@@ -13,19 +13,33 @@ type CisBatch struct {
 	Operation string
 }
 
+type CisTaskCreate struct {
+	Policy string `json:"policy"`
+}
+
 type CisTaskDetail struct {
 	ClusterName    string `json:"clusterName"`
 	ClusterVersion string `json:"clusterVersion"`
 	model.CisTaskWithResult
-	NodeList CisNodeList `json:"nodeList"`
+	CisReport CisReport `json:"cisReport"`
 }
 
+type CisReport struct {
+	Controls CisControlList `json:"Controls"`
+	Totals   CisTotals      `json:"Totals"`
+}
 
-type CisNodeList []CisNode
+type CisControlList []CisControl
 type CisTestList []CisTest
 type CisResultList []CisResult
 
-type CisNode struct {
+type CisTotals struct {
+	TotalPass int `json:"total_pass"`
+	TotalFail int `json:"total_fail"`
+	TotalWarn int `json:"total_warn"`
+	TotalInfo int `json:"total_info"`
+}
+type CisControl struct {
 	Id        string      `json:"id"`
 	Version   string      `json:"version"`
 	Text      string      `json:"text"`
