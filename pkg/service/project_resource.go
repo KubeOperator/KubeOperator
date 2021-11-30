@@ -113,7 +113,7 @@ func (p projectResourceService) List(projectName string, resourceType string) (*
 		switch resourceType {
 		case constant.ResourceHost:
 			var hosts []model.Host
-			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
+			err = db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Order("name").Find(&hosts).Error
 			if err != nil {
 				return nil, err
 			}

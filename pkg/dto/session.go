@@ -16,6 +16,7 @@ type SessionUser struct {
 	Language       string   `json:"language"`
 	IsActive       bool     `json:"isActive"`
 	IsAdmin        bool     `json:"isAdmin"`
+	IsSuper        bool     `json:"isSuper"`
 	Roles          []string `json:"roles"`
 	CurrentProject string   `json:"currentProject"`
 }

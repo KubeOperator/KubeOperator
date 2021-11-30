@@ -34,13 +34,15 @@ func NewUserController() *UserController {
 func (u *UserController) Get() (*page.Page, error) {
 
 	p, _ := u.Ctx.Values().GetBool("page")
+	sessionUser := u.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
 	if p {
 		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return u.UserService.Page(num, size, condition.TODO())
+		return u.UserService.Page(num, size, user, condition.TODO())
 	} else {
 		var p page.Page
-		items, err := u.UserService.List(condition.TODO())
+		items, err := u.UserService.List(user, condition.TODO())
 		if err != nil {
 			return &p, err
 		}
@@ -68,13 +70,16 @@ func (u *UserController) PostSearch() (*page.Page, error) {
 		}
 	}
 	p, _ := u.Ctx.Values().GetBool("page")
+	sessionUser := u.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+
 	if p {
 		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return u.UserService.Page(num, size, conditions)
+		return u.UserService.Page(num, size, user, conditions)
 	} else {
 		var p page.Page
-		items, err := u.UserService.List(conditions)
+		items, err := u.UserService.List(user, conditions)
 		if err != nil {
 			return &p, err
 		}
@@ -114,10 +119,13 @@ func (u *UserController) Post() (*dto.User, error) {
 		return nil, err
 	}
 
+	sessionUser := u.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+
 	operator := u.Ctx.Values().GetString("operator")
 	kolog.Save(operator, constant.CREATE_USER, req.Name)
 
-	return u.UserService.Create(req)
+	return u.UserService.Create(user.IsSuper, req)
 }
 
 // Delete User
@@ -158,7 +166,11 @@ func (u *UserController) PatchBy(name string) (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.UserService.Update(name, req)
+
+	sessionUser := u.Ctx.Values().Get("user")
+	sessions, _ := sessionUser.(dto.SessionUser)
+
+	user, err := u.UserService.Update(name, sessions.IsSuper, req)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +228,10 @@ func (u *UserController) PostChangePassword() error {
 	if err != nil {
 		return err
 	}
-	err = u.UserService.ChangePassword(req)
+	sessionUser := u.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+
+	err = u.UserService.ChangePassword(user.IsSuper, req)
 	if err != nil {
 		return err
 	}

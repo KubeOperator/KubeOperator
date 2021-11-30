@@ -35,13 +35,13 @@ var (
 
 type UserService interface {
 	Get(name string) (*dto.User, error)
-	List(conditions condition.Conditions) ([]dto.User, error)
-	Create(creation dto.UserCreate) (*dto.User, error)
-	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
+	List(user dto.SessionUser, conditions condition.Conditions) ([]dto.User, error)
+	Create(isSuper bool, creation dto.UserCreate) (*dto.User, error)
+	Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error)
 	Delete(name string) error
-	Update(name string, update dto.UserUpdate) (*dto.User, error)
+	Update(name string, isSuper bool, update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
-	ChangePassword(ch dto.UserChangePassword) error
+	ChangePassword(isSuper bool, ch dto.UserChangePassword) error
 	UserAuth(name string, password string) (user *model.User, err error)
 	ResetPassword(fp dto.UserForgotPassword) error
 }
@@ -71,7 +71,7 @@ func (u *userService) Get(name string) (*dto.User, error) {
 	return &d, nil
 }
 
-func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) {
+func (u *userService) List(user dto.SessionUser, conditions condition.Conditions) ([]dto.User, error) {
 	var userDTOS []dto.User
 	var mos []model.User
 	d := db.DB.Model(model.User{})
@@ -79,10 +79,19 @@ func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) 
 
 		return nil, err
 	}
-	if err := d.Order("name").
-		Preload("CurrentProject").
-		Find(&mos).Error; err != nil {
-		return nil, err
+	if user.IsSuper {
+		if err := d.Order("name").
+			Preload("CurrentProject").
+			Find(&mos).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Where("is_admin = ? OR name = ?", false, user.Name).
+			Order("name").
+			Preload("CurrentProject").
+			Find(&mos).Error; err != nil {
+			return nil, err
+		}
 	}
 	for _, mo := range mos {
 		userDTOS = append(userDTOS, toUserDTO(mo))
@@ -90,7 +99,7 @@ func (u *userService) List(conditions condition.Conditions) ([]dto.User, error) 
 	return userDTOS, nil
 }
 
-func (u *userService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {
+func (u *userService) Page(num, size int, user dto.SessionUser, conditions condition.Conditions) (*page.Page, error) {
 	var (
 		p        page.Page
 		userDTOs []dto.User
@@ -100,15 +109,29 @@ func (u *userService) Page(num, size int, conditions condition.Conditions) (*pag
 	if err := dbUtil.WithConditions(&d, model.User{}, conditions); err != nil {
 		return nil, err
 	}
-	if err := d.
-		Count(&p.Total).
-		Order("name").
-		Offset((num - 1) * size).
-		Limit(size).
-		Preload("CurrentProject").
-		Find(&mos).Error; err != nil {
-		return nil, err
+	if user.IsSuper {
+		if err := d.
+			Count(&p.Total).
+			Order("name").
+			Offset((num - 1) * size).
+			Limit(size).
+			Preload("CurrentProject").
+			Find(&mos).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.
+			Where("is_admin = ? OR name = ?", false, user.Name).
+			Count(&p.Total).
+			Order("name").
+			Offset((num - 1) * size).
+			Limit(size).
+			Preload("CurrentProject").
+			Find(&mos).Error; err != nil {
+			return nil, err
+		}
 	}
+
 	for _, mo := range mos {
 		userDTOs = append(userDTOs, toUserDTO(mo))
 	}
@@ -116,7 +139,7 @@ func (u *userService) Page(num, size int, conditions condition.Conditions) (*pag
 	return &p, nil
 }
 
-func (u *userService) Create(creation dto.UserCreate) (*dto.User, error) {
+func (u *userService) Create(isSuper bool, creation dto.UserCreate) (*dto.User, error) {
 
 	if creation.Name == creation.Password {
 		return nil, errNamePwdFailed
@@ -146,7 +169,11 @@ func (u *userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		IsActive: true,
 		Language: model.ZH,
 		IsAdmin:  strings.ToLower(creation.Role) == constant.SystemRoleAdmin,
+		IsSuper:  false,
 		Type:     constant.Local,
+	}
+	if !isSuper {
+		user.IsAdmin = false
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
@@ -180,7 +207,7 @@ func (u *userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	return &d, err
 }
 
-func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, error) {
+func (u *userService) Update(name string, isSuper bool, update dto.UserUpdate) (*dto.User, error) {
 	var mo model.User
 	if err := db.DB.Where(model.User{Name: name}).First(&mo).Error; err != nil {
 		return nil, err
@@ -192,8 +219,10 @@ func (u *userService) Update(name string, update dto.UserUpdate) (*dto.User, err
 		mo.Language = update.Language
 	}
 
-	if update.Role != "" {
-		mo.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
+	if isSuper {
+		if update.Role != "" {
+			mo.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
+		}
 	}
 
 	if update.Status != "" {
@@ -231,21 +260,24 @@ func (u *userService) Batch(op dto.UserOp) error {
 	return u.userRepo.Batch(op.Operation, deleteItems)
 }
 
-func (u *userService) ChangePassword(ch dto.UserChangePassword) error {
+func (u *userService) ChangePassword(isSuper bool, ch dto.UserChangePassword) error {
 	user, err := u.userRepo.Get(ch.Name)
 	if err != nil {
 		return err
 	}
-	success, err := user.ValidateOldPassword(ch.Original)
-	if err != nil {
-		return err
+	if !isSuper {
+		success, err := user.ValidateOldPassword(ch.Original)
+		if err != nil {
+			return err
+		}
+		if !success {
+			return errOriginalNotMatch
+		}
+		if ch.Password == user.Name {
+			return errNamePwdFailed
+		}
 	}
-	if !success {
-		return errOriginalNotMatch
-	}
-	if ch.Password == user.Name {
-		return errNamePwdFailed
-	}
+
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
 	if err != nil {
 		return err
@@ -356,7 +388,11 @@ func toUserDTO(user model.User) dto.User {
 	u := dto.User{User: user}
 	u.Role = func() string {
 		if u.IsAdmin {
-			return constant.SystemRoleAdmin
+			if u.IsSuper {
+				return constant.SystemRoleSuperAdmin
+			} else {
+				return constant.SystemRoleAdmin
+			}
 		}
 		return constant.SystemRoleUser
 	}()

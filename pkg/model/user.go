@@ -29,6 +29,7 @@ type User struct {
 	Email            string  `json:"email" gorm:"type:varchar(256);not null;unique"`
 	Language         string  `json:"language" gorm:"type:varchar(64)"`
 	IsAdmin          bool    `json:"-" gorm:"type:boolean;default:false"`
+	IsSuper          bool    `json:"-" gorm:"type:boolean;default:false"`
 	IsActive         bool    `json:"-" gorm:"type:boolean;default:true"`
 	Type             string  `json:"type" gorm:"type:varchar(64)"`
 }
