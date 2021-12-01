@@ -34,7 +34,10 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 FROM ubuntu:20.10
 ARG GOARCH
 
-RUN apt-get update && apt -y upgrade  && apt-get -y install wget curl git iputils-ping
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list && \
+    apt-get update && \
+    apt -y upgrade && \
+    apt-get -y install wget curl git iputils-ping
 RUN setcap cap_net_raw=+ep /bin/ping
 
 WORKDIR /usr/local/bin
