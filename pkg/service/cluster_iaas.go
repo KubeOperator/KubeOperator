@@ -224,6 +224,9 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 		zoneMap := map[string]interface{}{}
 		_ = json.Unmarshal([]byte(zone.Vars), &zoneMap)
 		zoneMap["key"] = formatZoneName(zone.Name)
+		if zoneMap["datastore"] != nil {
+			zoneMap["stores"] = formatDatastores(zoneMap["datastore"].([]interface{}))
+		}
 		zonesVars = append(zonesVars, zoneMap)
 	}
 	hostsStr, _ := json.Marshal(parseHosts(hosts, plan))
@@ -276,6 +279,7 @@ func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interf
 		hMap["ip"] = h.Ip
 		hMap["zone"] = zoneVars
 		hMap["datastore"] = h.Datastore
+		hMap["datastoreKey"] = lang.GetStringKey(h.Datastore)
 		results = append(results, hMap)
 	}
 	return results
@@ -414,6 +418,14 @@ func formatZoneName(name string) string {
 		return lang.Pinyin(name)
 	}
 	return name
+}
+
+func formatDatastores(datastores []interface{}) map[string]string {
+	result := make(map[string]string)
+	for _, datastore := range datastores {
+		result[datastore.(string)] = lang.GetStringKey(datastore.(string))
+	}
+	return result
 }
 
 func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host) error {

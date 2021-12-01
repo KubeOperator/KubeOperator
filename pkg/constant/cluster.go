@@ -55,7 +55,7 @@ const (
 	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
 	DefaultRegistryIngress    = "registry." + DefaultIngress
 	DefaultDashboardIngress   = "dashboard." + DefaultIngress
-	DefaultKubePiIngress      = "kubepi." + DefaultIngress
+	DefaultGatekeeperIngress  = "gatekeeper." + DefaultIngress
 	DefaultKubeappsIngress    = "kubeapps." + DefaultIngress
 
 	ChartmuseumChartName    = "nexus/chartmuseum"
@@ -65,13 +65,13 @@ const (
 	LokiChartName           = "nexus/loki-stack"
 	GrafanaChartName        = "nexus/grafana"
 	DashboardChartName      = "nexus/kubernetes-dashboard"
-	KubePiChartName         = "nexus/kubepi"
+	GatekeeperChartName     = "nexus/gatekeeper"
 	KubeappsChartName       = "nexus/kubeapps"
 
 	DefaultRegistryServiceName    = "registry-docker-registry"
 	DefaultChartmuseumServiceName = "chartmuseum-chartmuseum"
 	DefaultDashboardServiceName   = "dashboard-kubernetes-dashboard"
-	DefaultKubePiServiceName      = "kubepi"
+	DefaultGatekeeperServiceName  = "gatekeeper-webhook-service"
 	DefaultLoggingServiceName     = "elasticsearch-master"
 	DefaultLokiServiceName        = "loki"
 	DefaultGrafanaServiceName     = "grafana"
@@ -81,7 +81,7 @@ const (
 	DefaultRegistryIngressName    = "docker-registry-ingress"
 	DefaultChartmuseumIngressName = "chartmuseum-ingress"
 	DefaultDashboardIngressName   = "dashboard-ingress"
-	DefaultKubePiIngressName      = "kubepi-ingress"
+	DefaultGatekeeperIngressName  = "gatekeeper-ingress"
 	DefaultLoggingIngressName     = "logging-ingress"
 	DefaultLokiIngressName        = "loki-ingress"
 	DefaultGrafanaIngressName     = "grafana-ingress"
@@ -91,7 +91,7 @@ const (
 	DefaultRegistryDeploymentName    = "registry-docker-registry"
 	DefaultChartmuseumDeploymentName = "chartmuseum-chartmuseum"
 	DefaultDashboardDeploymentName   = "dashboard-kubernetes-dashboard"
-	DefaultKubePiDeploymentName      = "kubepi"
+	DefaultGatekeeperDeploymentName  = "gatekeeper-controller-manager"
 	DefaultKubeappsDeploymentName    = "kubeapps"
 	DefaultLoggingStateSetsfulName   = "elasticsearch-master"
 	DefaultLokiStateSetsfulName      = "loki"

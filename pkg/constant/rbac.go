@@ -12,8 +12,9 @@ const (
 )
 
 const (
-	SystemRoleAdmin = "admin"
-	SystemRoleUser  = "user"
+	SystemRoleSuperAdmin = "super_admin"
+	SystemRoleAdmin      = "admin"
+	SystemRoleUser       = "user"
 )
 
 const (

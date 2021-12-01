@@ -1,7 +1,10 @@
 package lang
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"github.com/mozillazg/go-pinyin"
+	"regexp"
 	"unicode"
 )
 
@@ -27,4 +30,12 @@ func CountChinese(val string) int {
 		}
 	}
 	return count
+}
+
+func GetStringKey(val string) string {
+	sha := sha1.New()
+	sha.Write([]byte(val))
+	result := hex.EncodeToString(sha.Sum([]byte("")))
+	reg := regexp.MustCompile(`[0-9]`)
+	return reg.ReplaceAllString(result, "")
 }

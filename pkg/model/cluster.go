@@ -261,14 +261,14 @@ func (c Cluster) PrepareIstios() []ClusterIstio {
 func (c Cluster) PrepareTools() []ClusterTool {
 	return []ClusterTool{
 		{
-			Name:         "kubepi",
-			Version:      "v1.1.0",
-			Describe:     "仪表盘|Dashboard",
+			Name:         "gatekeeper",
+			Version:      "v3.7.0",
+			Describe:     "OPA GateKeeper|OPA GateKeeper",
 			Status:       constant.ClusterWaiting,
-			Logo:         "kubepi.png",
-			Frame:        true,
+			Logo:         "gateKeeper.jpg",
+			Frame:        false,
 			Url:          "",
-			ProxyType:    "nodeport",
+			ProxyType:    "",
 			Architecture: supportedArchitectureAll,
 		},
 		{

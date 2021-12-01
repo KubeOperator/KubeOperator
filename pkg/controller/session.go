@@ -2,9 +2,10 @@ package controller
 
 import (
 	"errors"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/jinzhu/gorm"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -160,6 +161,7 @@ func toSessionUser(u model.User) dto.SessionUser {
 		Language:       u.Language,
 		IsActive:       u.IsActive,
 		IsAdmin:        u.IsAdmin,
+		IsSuper:        u.IsSuper,
 		CurrentProject: u.CurrentProject.Name,
 	}
 }
