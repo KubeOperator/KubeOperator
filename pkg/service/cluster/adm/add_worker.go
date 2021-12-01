@@ -1,15 +1,17 @@
 package adm
 
 import (
-	"fmt"
+	"encoding/json"
 	"reflect"
 	"runtime"
 	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/storage"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 )
 
@@ -20,7 +22,6 @@ func (ca *ClusterAdm) AddWorker(c *Cluster, status *model.ClusterStatus) error {
 		f := ca.getAddWorkerHandler(condition.Name)
 		err := f(c)
 		if err != nil {
-			fmt.Printf("走到这里是确实出现了问题，这是我的err %s \n", err.Error())
 			ca.setAddCondition(status, model.ClusterStatusCondition{
 				Name:          condition.Name,
 				Status:        constant.ConditionFalse,
@@ -166,5 +167,40 @@ func (ca *ClusterAdm) EnsureAddWorkerNetwork(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsureAddWorkerPost(c *Cluster) error {
 	phase := initial.AddWorkerPostPhase{}
+	return phase.Run(c.Kobe, c.Writer)
+}
+
+func (ca *ClusterAdm) EnsureAddWorkerStorage(c *Cluster) error {
+	var provisoners []model.ClusterStorageProvisioner
+	phase := storage.AddWorkerStoragePhase{
+		AddWorker:                     true,
+		EnableNfsProvisioner:          "disable",
+		NfsVersion:                    "4",
+		EnableGfsProvisioner:          "disable",
+		EnableExternalCephProvisioner: "disable",
+	}
+	_ = db.DB.Where("status = ?", constant.StatusRunning).Find(&provisoners).Error
+	for _, p := range provisoners {
+		switch p.Type {
+		case "nfs":
+			phase.EnableNfsProvisioner = "enable"
+			if phase.NfsVersion == "3" {
+				continue
+			}
+			var vars map[string]string
+			if err := json.Unmarshal([]byte(p.Vars), &vars); err != nil {
+				continue
+			}
+			if _, ok := vars["storage_nfs_server_version"]; ok {
+				phase.NfsVersion = vars["storage_nfs_server_version"]
+			}
+		case "gfs":
+			phase.EnableGfsProvisioner = "enable"
+			continue
+		case "external-ceph":
+			phase.EnableExternalCephProvisioner = "enable"
+			continue
+		}
+	}
 	return phase.Run(c.Kobe, c.Writer)
 }

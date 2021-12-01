@@ -140,6 +140,7 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureAddWorkerWorker,
 		ca.EnsureAddWorkerNetwork,
 		ca.EnsureAddWorkerPost,
+		ca.EnsureAddWorkerStorage,
 	}
 	return ca
 }
