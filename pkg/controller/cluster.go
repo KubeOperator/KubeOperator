@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"gopkg.in/yaml.v3"
 	"io"
+	"net/http"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -773,7 +774,15 @@ func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) 
 	if err != nil {
 		return nil, err
 	}
-	c.Ctx.SetCookie(opener.SessionCookie)
+	c.Ctx.SetCookie(&http.Cookie{
+		Name:     opener.SessionCookie.Name,
+		Value:    opener.SessionCookie.Value,
+		Path:     opener.SessionCookie.Path,
+		Expires:  opener.SessionCookie.Expires,
+		HttpOnly: opener.SessionCookie.HttpOnly,
+		SameSite: opener.SessionCookie.SameSite,
+		MaxAge:   opener.SessionCookie.MaxAge,
+	})
 	return &dto.Dashboard{Url: opener.Redirect}, nil
 
 }
