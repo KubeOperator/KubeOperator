@@ -34,7 +34,7 @@ type ClusterController struct {
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
 	BackupAccountService             service.BackupAccountService
-	KubepiClient                     kubepi.Interface
+	SystemSettingService             service.SystemSettingService
 }
 
 func NewClusterController() *ClusterController {
@@ -50,7 +50,7 @@ func NewClusterController() *ClusterController {
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
 		BackupAccountService:             service.NewBackupAccountService(),
-		KubepiClient:                     kubepi.GetClient(),
+		SystemSettingService:             service.NewSystemSettingService(),
 	}
 }
 
@@ -762,6 +762,10 @@ func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccoun
 }
 
 func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) {
+	ss, err := c.SystemSettingService.ListByTab("KUBEPI")
+	if err != nil {
+		return nil, err
+	}
 	secrets, err := c.ClusterService.GetSecrets(name)
 	if err != nil {
 		return nil, err
@@ -770,7 +774,15 @@ func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) 
 	if err != nil {
 		return nil, err
 	}
-	opener, err := c.KubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
+	kubepiClient := kubepi.GetClient()
+	if _, ok := ss.Vars["KUBEPI_USERNAME"]; ok {
+		username := ss.Vars["KUBEPI_USERNAME"]
+		password := ss.Vars["KUBEPI_PASSWORD"]
+		if username != "" && password != "" {
+			kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
+		}
+	}
+	opener, err := kubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
 	if err != nil {
 		return nil, err
 	}
