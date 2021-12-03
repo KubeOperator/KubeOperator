@@ -14,15 +14,18 @@ import (
 var client Interface
 var once sync.Once
 
-func GetClient() Interface {
+func GetClient(ops ...Option) Interface {
 	once.Do(func() {
 		client = NewKubePi()
 	})
+
+	client.SetOptions(ops...)
 	return client
 }
 
 type Interface interface {
 	Open(name, apiServer, token string) (Opener, error)
+	SetOptions(...Option)
 }
 
 type KubePi struct {
@@ -34,13 +37,29 @@ type KubePi struct {
 	mutex         sync.Mutex
 }
 
+func (k *KubePi) SetOptions(ops ...Option) {
+	for _, o := range ops {
+		o(k)
+	}
+}
+
+type Option func(pi *KubePi)
+
+func WithUsernameAndPassword(username string, password string) Option {
+	return func(pi *KubePi) {
+		pi.Username = username
+		pi.Password = password
+	}
+}
+
 func NewKubePi() *KubePi {
-	return &KubePi{
+	kp := &KubePi{
 		Username: viper.GetString("kubepi.username"),
 		Password: viper.GetString("kubepi.password"),
 		Host:     viper.GetString("kubepi.host"),
 		Port:     viper.GetInt("kubepi.port"),
 	}
+	return kp
 }
 
 type kubePiCluster struct {
