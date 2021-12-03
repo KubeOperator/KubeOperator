@@ -7,9 +7,13 @@ import (
 
 type Theme struct {
 	common.BaseModel
-	ID         string `json:"-" gorm:"type:varchar(64)"`
-	SystemName string `json:"systemName"`
-	Logo       string `json:"logo" gorm:"type:text"`
+	ID           string `json:"-" gorm:"type:varchar(64)"`
+	SystemName   string `json:"systemName"`
+	LoginImage   string `json:"loginImage"`
+	Logo         string `json:"logo"`
+	LogoWithText string `json:"logoWithText"`
+	Icon         string `json:"icon"`
+	LogoAbout    string `json:"logoAbout"`
 }
 
 func (c *Theme) BeforeCreate() (err error) {
