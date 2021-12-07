@@ -52,10 +52,15 @@ func WithUsernameAndPassword(username string, password string) Option {
 	}
 }
 
+const (
+	DefaultKubePiUsername = "admin"
+	DefaultKubePiPassword = "kubepi"
+)
+
 func NewKubePi() *KubePi {
 	kp := &KubePi{
-		Username: viper.GetString("kubepi.username"),
-		Password: viper.GetString("kubepi.password"),
+		Username: DefaultKubePiUsername,
+		Password: DefaultKubePiPassword,
 		Host:     viper.GetString("kubepi.host"),
 		Port:     viper.GetInt("kubepi.port"),
 	}
