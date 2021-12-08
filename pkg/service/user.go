@@ -221,7 +221,7 @@ func (u *userService) Update(name string, isSuper bool, update dto.UserUpdate) (
 
 	if isSuper {
 		if update.Role != "" {
-			mo.IsAdmin = strings.ToLower(update.Role) == constant.SystemRoleAdmin
+			mo.IsAdmin = (strings.ToLower(update.Role) == constant.SystemRoleAdmin || strings.ToLower(update.Role) == constant.SystemRoleSuperAdmin)
 		}
 	}
 
