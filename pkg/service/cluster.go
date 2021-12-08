@@ -805,5 +805,10 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(bf), nil
+	configStr := string(bf)
+
+	lbAddr := fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort)
+	newStr := strings.ReplaceAll(configStr, "127.0.0.1:8443", lbAddr)
+
+	return newStr, nil
 }
