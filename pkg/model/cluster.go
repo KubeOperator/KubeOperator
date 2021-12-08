@@ -265,7 +265,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Version:      "v3.7.0",
 			Describe:     "OPA GateKeeper|OPA GateKeeper",
 			Status:       constant.ClusterWaiting,
-			Logo:         "gateKeeper.jpg",
+			Logo:         "gatekeeper.jpg",
 			Frame:        false,
 			Url:          "",
 			ProxyType:    "",
