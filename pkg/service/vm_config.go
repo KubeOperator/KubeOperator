@@ -101,7 +101,7 @@ func (v vmConfigService) Batch(op dto.VmConfigOp) error {
 func (v vmConfigService) Create(creation dto.VmConfigCreate) (*dto.VmConfig, error) {
 
 	old, err := v.vmConfigRepo.Get(creation.Name)
-	if !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 	if old.ID != "" {
