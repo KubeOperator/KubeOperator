@@ -47,15 +47,24 @@ type Option func(pi *KubePi)
 
 func WithUsernameAndPassword(username string, password string) Option {
 	return func(pi *KubePi) {
+		// 如果修改了用户 重新登录
+		if pi.Username != username {
+			pi.sessionCookie = nil
+		}
 		pi.Username = username
 		pi.Password = password
 	}
 }
 
+const (
+	DefaultKubePiUsername = "admin"
+	DefaultKubePiPassword = "kubepi"
+)
+
 func NewKubePi() *KubePi {
 	kp := &KubePi{
-		Username: viper.GetString("kubepi.username"),
-		Password: viper.GetString("kubepi.password"),
+		Username: DefaultKubePiUsername,
+		Password: DefaultKubePiPassword,
 		Host:     viper.GetString("kubepi.host"),
 		Port:     viper.GetInt("kubepi.port"),
 	}
