@@ -47,6 +47,10 @@ type Option func(pi *KubePi)
 
 func WithUsernameAndPassword(username string, password string) Option {
 	return func(pi *KubePi) {
+		// 如果修改了用户 重新登录
+		if pi.Username != username {
+			pi.sessionCookie = nil
+		}
 		pi.Username = username
 		pi.Password = password
 	}
