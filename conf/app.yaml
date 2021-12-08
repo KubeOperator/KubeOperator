@@ -3,31 +3,39 @@ bind:
   port: 8080
 logging:
   level: info
+  out_put: fileAndStd
+  max_age: 2592000
+  rotation: 86400
 db:
-  host: mysql
+  host: localhost
   port: 3306
   user: root
-  password: KubeOperator@admin123
+  password: U08BAQEBAQHNm6g24wOpMgv34sNpwR5aBVdvFeSE9+6bydHO/WZLvZXlX9rxiY4V
   name: ko
   max_open_conns: 200
   max_idle_conns: 10
 jwt:
   secret: iXDgDaEYBzIzustW
   exp: 480
-helm:
-  repo:
-    name: nexus
-    url: http://nexus:8081/repository/helm
-    username: admin
-    password: admin123
+job:
+  timeout: 60
 kobe:
-  host: kobe
+  host: localhost
   port: 8080
 kotf:
-  host: kotf
+  host: localhost
   port: 8080
-grafana:
-  host: grafana
-  port: 3000
+webkubectl:
+  host: webkubectl
+  port: 8080
+kubepi:
+  host: localhost
+  port: 80
   username: admin
-  password: admin
+  password: kubepi
+cron:
+  enable: true
+encrypt:
+  multilevel:
+    enable: false
+  key: KubeOperator@202
