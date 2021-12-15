@@ -42,6 +42,8 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 	values["initChownData.image.tag"] = imageMap["busybox_image_tag"]
 	values["downloadDashboardsImage.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["curl_image_name"])
 	values["downloadDashboardsImage.tag"] = imageMap["curl_image_tag"]
+	values["testFramework.image"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["bats_image_name"])
+	values["testFramework.tag"] = imageMap["bats_image_tag"]
 
 	if isInstall {
 		values["grafana\\.ini.server.root_url"] = "%(protocol)s://%(domain)s:%(http_port)s/proxy/grafana/" + g.Cluster.Name + "/"
