@@ -13,6 +13,7 @@ type ClusterImport struct {
 
 type clusterInfo struct {
 	Name                     string `json:"name"`
+	NodeNameRule             string `json:"nodeNameRule"`
 	Version                  string `json:"version" binding:"required"`
 	Provider                 string `json:"provider"`
 	NetworkType              string `json:"networkType"`

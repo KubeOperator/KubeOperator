@@ -350,8 +350,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	logger.Log.WithFields(logrus.Fields{"cluster_creation": string(loginfo)}).Debugf("start to create the cluster %s", creation.Name)
 
 	cluster := model.Cluster{
-		Name:   creation.Name,
-		Source: constant.ClusterSourceLocal,
+		Name:         creation.Name,
+		NodeNameRule: creation.NodeNameRule,
+		Source:       constant.ClusterSourceLocal,
 	}
 	spec := model.ClusterSpec{
 		RuntimeType:              creation.RuntimeType,
@@ -458,17 +459,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				ClusterID: cluster.ID,
 				Role:      nc.Role,
 			}
-			switch n.Role {
-			case constant.NodeRoleNameMaster:
-				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
-				if len(firstMasterIP) == 0 {
-					firstMasterIP = n.Host.Ip
-				}
-				masterNo++
-			case constant.NodeRoleNameWorker:
-				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
-				workerNo++
-			}
 
 			var host model.Host
 			if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("name = ?", nc.HostName).First(&host).Error; err != nil {
@@ -489,6 +479,22 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			if err := tx.Create(&clusterResource).Error; err != nil {
 				tx.Rollback()
 				return nil, fmt.Errorf("can bind host %s to cluster", nc.HostName)
+			}
+
+			if cluster.NodeNameRule == constant.NodeNameRuleDefault {
+				switch n.Role {
+				case constant.NodeRoleNameMaster:
+					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
+					if len(firstMasterIP) == 0 {
+						firstMasterIP = n.Host.Ip
+					}
+					masterNo++
+				case constant.NodeRoleNameWorker:
+					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
+					workerNo++
+				}
+			} else {
+				n.Name = host.Ip
 			}
 
 			n.HostID = host.ID

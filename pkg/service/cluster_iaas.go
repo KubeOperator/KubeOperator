@@ -129,10 +129,14 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 			no = workerNum
 		}
 		node := model.ClusterNode{
-			Name:      fmt.Sprintf("%s-%s-%d", cluster.Name, role, no),
 			HostID:    host.ID,
 			ClusterID: cluster.ID,
 			Role:      role,
+		}
+		if cluster.NodeNameRule == constant.NodeNameRuleDefault {
+			node.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, role, no)
+		} else {
+			node.Name = host.Ip
 		}
 		nodes = append(nodes, &node)
 	}

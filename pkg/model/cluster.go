@@ -17,6 +17,7 @@ type Cluster struct {
 	common.BaseModel
 	ID                       string                   `json:"-"`
 	Name                     string                   `json:"name" gorm:"not null;unique"`
+	NodeNameRule             string                   `json:"nodeNameRule"`
 	Source                   string                   `json:"source"`
 	SpecID                   string                   `json:"-"`
 	SecretID                 string                   `json:"-"`
@@ -469,13 +470,13 @@ func (c Cluster) ParseInventory() *api.Inventory {
 				lbhosts = append(lbhosts, node.Name)
 			}
 			if i == 0 {
-				hosts = append(hosts, node.ToKobeHost("master"))
+				hosts = append(hosts, node.ToKobeHost(c.NodeNameRule, "master"))
 				i = 1
 			} else {
-				hosts = append(hosts, node.ToKobeHost("backup"))
+				hosts = append(hosts, node.ToKobeHost(c.NodeNameRule, "backup"))
 			}
 		} else {
-			hosts = append(hosts, node.ToKobeHost("internal"))
+			hosts = append(hosts, node.ToKobeHost(c.NodeNameRule, "internal"))
 		}
 	}
 	if len(masters) > 0 {

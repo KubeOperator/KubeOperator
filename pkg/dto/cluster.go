@@ -44,6 +44,7 @@ type NodeCreate struct {
 
 type ClusterCreate struct {
 	Name                     string       `json:"name" binding:"required"`
+	NodeNameRule             string       `json:"nodeNameRule" binding:"required"`
 	Version                  string       `json:"version" binding:"required"`
 	Provider                 string       `json:"provider"`
 	Plan                     string       `json:"plan"`
@@ -149,6 +150,7 @@ type ClusterLoad struct {
 
 type ClusterLoadInfo struct {
 	Name                     string `json:"name"`
+	NodeNameRule             string `json:"nodeNameRule"`
 	Version                  string `json:"version"`
 	Architectures            string `json:"architectures"`
 	LbMode                   string `json:"lbMode"`

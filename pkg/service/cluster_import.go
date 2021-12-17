@@ -67,9 +67,10 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	port, _ = strconv.Atoi(strs[1])
 	tx := db.DB.Begin()
 	cluster := model.Cluster{
-		Name:      clusterImport.Name,
-		ProjectID: project.ID,
-		Source:    constant.ClusterSourceExternal,
+		Name:         clusterImport.Name,
+		ProjectID:    project.ID,
+		NodeNameRule: clusterImport.KoClusterInfo.NodeNameRule,
+		Source:       constant.ClusterSourceExternal,
 		Status: model.ClusterStatus{
 			Phase: constant.ClusterRunning,
 		},
@@ -149,6 +150,8 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	var synchosts []dto.HostSync
 	tools := cluster.PrepareTools()
 	if clusterImport.IsKoCluster {
+		masterNum := 0
+		workerNum := 0
 		for _, node := range clusterImport.KoClusterInfo.Nodes {
 			host := model.Host{
 				Name:         node.Name,
@@ -159,10 +162,24 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Status:       constant.StatusInitializing,
 				Architecture: node.Architecture,
 			}
+			if clusterImport.KoClusterInfo.NodeNameRule == constant.NodeNameRuleDefault {
+				host.Name = node.Name
+			} else {
+				no := 0
+				if node.Role == constant.NodeRoleNameMaster {
+					masterNum++
+					no = masterNum
+				} else {
+					workerNum++
+					no = workerNum
+				}
+				host.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, node.Role, no)
+			}
 			if err := tx.Create(&host).Error; err != nil {
 				c.handlerImportError(tx, cluster.Name, err)
 				return err
 			}
+
 			synchosts = append(synchosts, dto.HostSync{HostName: node.Name, HostStatus: constant.StatusRunning})
 			node := model.ClusterNode{
 				Name:      node.Name,
@@ -341,20 +358,18 @@ func getKubeNodes(isKoImport bool, client *kubernetes.Clientset) ([]dto.NodesFro
 					clusterName = strings.Split(node.ObjectMeta.Name, "-master")[0]
 				} else if strings.Contains(node.ObjectMeta.Name, "-worker") {
 					clusterName = strings.Split(node.ObjectMeta.Name, "-worker")[0]
-				} else {
-					return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
 				}
 			} else {
 				if strings.Contains(node.ObjectMeta.Name, "-master") {
 					if clusterName != strings.Split(node.ObjectMeta.Name, "-master")[0] {
-						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+						clusterName = ""
 					}
 				} else if strings.Contains(node.ObjectMeta.Name, "-worker") {
 					if clusterName != strings.Split(node.ObjectMeta.Name, "-worker")[0] {
-						return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+						clusterName = ""
 					}
 				} else {
-					return k8sNodes, runtimeType, clusterName, fmt.Errorf("the cluster node %s does not meet the import conditions ", node.ObjectMeta.Name)
+					clusterName = ""
 				}
 			}
 		}
@@ -443,6 +458,12 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.Nodes, clusterInfo.RuntimeType, clusterInfo.Name, err = getKubeNodes(true, kubeClient)
 	if err != nil {
 		return clusterInfo, err
+	}
+	if len(clusterInfo.Name) == 0 {
+		clusterInfo.Name = loadInfo.Name
+		clusterInfo.NodeNameRule = constant.NodeNameRuleIP
+	} else {
+		clusterInfo.NodeNameRule = constant.NodeNameRuleDefault
 	}
 
 	// load kubeadm-config

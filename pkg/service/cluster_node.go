@@ -476,13 +476,21 @@ func (c clusterNodeService) createNodeModels(cluster *model.Cluster, currentNode
 	}
 	for _, host := range hosts {
 		var name string
-		for i := 1; i < len(currentNodes)+len(hosts); i++ {
-			name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, i)
+		if cluster.NodeNameRule == constant.NodeNameRuleDefault {
+			for i := 1; i < len(currentNodes)+len(hosts); i++ {
+				name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, i)
+				if _, ok := hash[name]; ok {
+					continue
+				}
+				hash[name] = nil
+				break
+			}
+		} else {
+			name = host.Ip
 			if _, ok := hash[name]; ok {
 				continue
 			}
 			hash[name] = nil
-			break
 		}
 		n := model.ClusterNode{
 			Name:      name,

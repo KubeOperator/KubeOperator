@@ -64,7 +64,7 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 	return &registry, nil
 }
 
-func (n ClusterNode) ToKobeHost(role string) *api.Host {
+func (n ClusterNode) ToKobeHost(nodeNameRule string, role string) *api.Host {
 	if err := n.Host.GetHostConfig(); err != nil {
 		logger.Log.Errorf("get host config err, err: %s", err.Error())
 	}
@@ -77,8 +77,6 @@ func (n ClusterNode) ToKobeHost(role string) *api.Host {
 
 	r, _ := n.GetRegistry(n.Host.Architecture)
 	apiHost := api.Host{
-		Ip:         n.Host.Ip,
-		Name:       n.Name,
 		Port:       int32(n.Host.Port),
 		User:       n.Host.Credential.Username,
 		Password:   n.Host.Credential.Password,
@@ -92,6 +90,12 @@ func (n ClusterNode) ToKobeHost(role string) *api.Host {
 			"registry_port":        fmt.Sprintf("%v", r.RegistryPort),
 			"registry_hosted_port": fmt.Sprintf("%v", r.RegistryHostedPort),
 		},
+	}
+	if nodeNameRule == constant.NodeNameRuleDefault {
+		apiHost.Ip = n.Host.Ip
+		apiHost.Name = n.Name
+	} else {
+		apiHost.Name = n.Host.Ip
 	}
 	if role == constant.LbModeInternal {
 		return &apiHost
