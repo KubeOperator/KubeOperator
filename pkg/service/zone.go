@@ -425,11 +425,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	regionVars["datacenter"] = region.Datacenter
 	if region.Provider == constant.VSphere {
 		zoneVars := creation.CloudVars.(map[string]interface{})
-		if zoneVars["cluster"] != nil {
-			regionVars["cluster"] = zoneVars["cluster"]
-		}
-		if zoneVars["resourcePool"] != nil {
-			regionVars["resourcePool"] = zoneVars["resourcePool"]
+		//if zoneVars["cluster"] != nil {
+		//	regionVars["cluster"] = zoneVars["cluster"]
+		//}
+		if zoneVars["resource"] != nil {
+			regionVars["resource"] = zoneVars["resource"]
 		}
 		if zoneVars["datastore"] != nil {
 			regionVars["datastore"] = zoneVars["datastore"]

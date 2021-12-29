@@ -326,32 +326,25 @@ func (v *vSphereClient) UploadImage() error {
 	}
 	f.SetDatacenter(datacenter)
 
-	var resourcePool *object.ResourcePool
+	//var resourcePool *object.ResourcePool
+	resourcePoolPath := v.Vars["resource"].(string)
+	resourcePool, err := f.ResourcePool(ctx, resourcePoolPath)
+	if err != nil {
+		return err
+	}
 	var host *object.HostSystem
+	hosts, err := f.HostSystemList(ctx, "*")
+	if err != nil {
+		return err
+	}
 	resourceType := v.Vars["resourceType"].(string)
 	if resourceType == "host" {
-		hostPath := "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/" + v.Vars["hostSystem"].(string)
-		host, err := f.HostSystem(ctx, hostPath)
-		if err != nil {
-			return err
-		}
-		resourcePool, err = host.ResourcePool(ctx)
-		if err != nil {
-			return err
+		for _, value := range hosts {
+			if value.Name() == v.Vars["hostSystem"].(string) {
+				host = value
+			}
 		}
 	} else {
-		resourcePoolPath := v.Vars["resourcePool"].(string)
-		if v.Vars["resourcePool"].(string) == "Resources" {
-			resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
-		}
-		resourcePool, err = f.ResourcePool(ctx, resourcePoolPath)
-		if err != nil {
-			return err
-		}
-		hosts, err := f.HostSystemList(ctx, "*")
-		if err != nil {
-			return err
-		}
 		host = hosts[0]
 	}
 	var datastoreName string
