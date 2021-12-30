@@ -42,6 +42,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/clusters/istio")).HandleError(ErrorHandler).Handle(controller.NewClusterIstioController())
 	mvc.New(AuthScope.Party("/backupaccounts")).HandleError(ErrorHandler).Handle(controller.NewBackupAccountController())
 	mvc.New(AuthScope.Party("/clusters/backup")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupStrategyController())
+	mvc.New(AuthScope.Party("/clusters/monitor")).HandleError(ErrorHandler).Handle(controller.NewMonitorController())
 	mvc.New(AuthScope.Party("/license")).Handle(ErrorHandler).Handle(controller.NewLicenseController())
 	mvc.New(AuthScope.Party("/clusters/backup/files")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupFileController())
 	mvc.New(AuthScope.Party("/manifests")).HandleError(ErrorHandler).Handle(controller.NewManifestController())

@@ -21,7 +21,7 @@ import (
 
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
-	GetNodePort(clusterName, toolName, toolVersion, namespace string) (dto.ClusterTool, error)
+	GetNodePort(clusterName, toolName string) (string, error)
 	SyncStatus(clusterName string) ([]dto.ClusterTool, error)
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
@@ -55,37 +55,44 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 	return items, nil
 }
 
-func (c clusterToolService) GetNodePort(clusterName, toolName, toolVersion, namespace string) (dto.ClusterTool, error) {
+func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, error) {
 	var (
-		cluster model.Cluster
-		tool    dto.ClusterTool
-		svcName string
+		cluster   model.Cluster
+		tool      model.ClusterTool
+		svcName   string
+		namespace string
 	)
 	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
-		return tool, err
+		return "", err
+	}
+	if err := db.DB.Where("name = ?", toolName).First(&tool).Error; err != nil {
+		return "", err
+	}
+
+	valueMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(tool.Vars), &valueMap)
+	if _, ok := valueMap["namespace"]; ok {
+		namespace = fmt.Sprint(valueMap["namespace"])
 	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
 		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
-		return tool, err
+		return "", err
 	}
 	switch toolName {
-	case "kubepi":
-		svcName = "kubepi"
 	case "prometheus":
 		svcName = "prometheus-server"
 	}
 	d, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
 	if err != nil {
-		return tool, err
+		return "", err
 	}
 	if len(d.Spec.Ports) != 0 {
-		tool.NodePort = fmt.Sprint(d.Spec.Ports[0].NodePort)
-		return tool, nil
+		return fmt.Sprintf("http://%s:%v", cluster.Spec.KubeRouter, d.Spec.Ports[0].NodePort), nil
 	}
-	return tool, fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
+	return "", fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
 }
 
 func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, error) {

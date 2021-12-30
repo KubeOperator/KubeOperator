@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
-	"gopkg.in/yaml.v3"
 	"io"
 	"net/http"
+
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
+	"gopkg.in/yaml.v3"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -347,13 +348,13 @@ func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, err
 	return cts, nil
 }
 
-func (c ClusterController) GetToolPortBy(clusterName, namespace, toolName, toolVersion string) (dto.ClusterTool, error) {
-	tool, err := c.ClusterToolService.GetNodePort(clusterName, toolName, toolVersion, namespace)
+func (c ClusterController) GetToolPortBy(clusterName, toolName string) (string, error) {
+	endPoint, err := c.ClusterToolService.GetNodePort(clusterName, toolName)
 	if err != nil {
 		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return tool, err
+		return endPoint, err
 	}
-	return tool, nil
+	return endPoint, nil
 }
 
 func (c ClusterController) PostToolSyncBy(clusterName string) (*[]dto.ClusterTool, error) {
