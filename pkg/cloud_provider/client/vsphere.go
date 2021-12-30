@@ -60,49 +60,72 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer v.Client.CloseIdleConnections()
 	client := v.Client.Client
+	todo := context.TODO()
+
+	f := find.NewFinder(client, true)
+	dc, err := f.Datacenter(todo, v.Vars["datacenter"].(string))
+	if err != nil {
+		return nil, err
+	}
+	f.SetDatacenter(dc)
+
+	pools, err := f.ResourcePoolListAll(todo, "*")
+	if err != nil {
+		return nil, err
+	}
+	resourcePools := make([]string, len(pools))
+	for i, value := range pools {
+		resourcePools[i] = value.InventoryPath
+	}
+
+	dss, err := f.DatastoreList(todo, "*")
+	if err != nil {
+		return nil, err
+	}
+	datastores := make([]string, len(dss))
+	for i, value := range dss {
+		datastores[i] = value.Name()
+	}
+
+	nws, err := f.NetworkList(todo, "*")
+	if err != nil {
+		return nil, err
+	}
+	networks := make([]string, len(nws))
+	for i, value := range nws {
+		networks[i], _ = v.getNetworkName(value.Reference())
+	}
+
+	hs, err := f.HostSystemList(todo, "*")
+	if err != nil {
+		return nil, err
+	}
+	hosts := make([]string, len(hs))
+	for i, value := range hs {
+		hosts[i] = value.Name()
+	}
+
 	var result []interface{}
-
-	m := view.NewManager(client)
-
-	view, err := m.CreateContainerView(context.TODO(), client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
-	if err != nil {
-		return result, err
-	}
-	var clusters []mo.ClusterComputeResource
-	err = view.Retrieve(context.TODO(), []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent", "host"}, &clusters)
-	if err != nil {
-		return result, err
-	}
-
-	pc := property.DefaultCollector(client)
-	for _, d := range clusters {
-
-		var host mo.ManagedEntity
-		if err := pc.RetrieveOne(context.TODO(), *d.Parent, []string{"name", "parent"}, &host); err != nil {
-			return result, err
-		}
-		var datacenter mo.ManagedEntity
-		if err := pc.RetrieveOne(context.TODO(), *host.Parent, []string{"name"}, &datacenter); err != nil {
-			return result, err
-		}
-		if datacenter.Name != v.Vars["datacenter"] {
-			continue
-		}
-		clusterData := make(map[string]interface{})
-		clusterData["cluster"] = d.ManagedEntity.Name
-		networks, _ := v.GetNetwork(d.ComputeResource.Network)
-		clusterData["networks"] = networks
-		datastores, _ := v.GetDatastore(d.ComputeResource.Datastore)
-		clusterData["datastores"] = datastores
-		resourcePools, _ := v.GetResourcePools(*d.ComputeResource.ResourcePool)
-		clusterData["resourcePools"] = resourcePools
-		hosts, _ := v.getHosts(d.Host)
-		clusterData["hosts"] = hosts
-		result = append(result, clusterData)
-	}
+	clusterData := make(map[string]interface{})
+	clusterData["networks"] = networks
+	clusterData["datastores"] = datastores
+	clusterData["resourcePools"] = resourcePools
+	clusterData["hosts"] = hosts
+	result = append(result, clusterData)
 
 	return result, nil
+}
+
+func (v *vSphereClient) getNetworkName(ref types.ManagedObjectReference) (string, error) {
+	pc := property.DefaultCollector(v.Client.Client)
+	ns := mo.Network{}
+	err := pc.RetrieveOne(context.TODO(), ref, []string{"summary", "name"}, &ns)
+	if err != nil {
+		return "", err
+	}
+	return ns.Name, nil
 }
 
 func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
@@ -303,32 +326,25 @@ func (v *vSphereClient) UploadImage() error {
 	}
 	f.SetDatacenter(datacenter)
 
-	var resourcePool *object.ResourcePool
+	//var resourcePool *object.ResourcePool
+	resourcePoolPath := v.Vars["resource"].(string)
+	resourcePool, err := f.ResourcePool(ctx, resourcePoolPath)
+	if err != nil {
+		return err
+	}
 	var host *object.HostSystem
+	hosts, err := f.HostSystemList(ctx, "*")
+	if err != nil {
+		return err
+	}
 	resourceType := v.Vars["resourceType"].(string)
 	if resourceType == "host" {
-		hostPath := "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/" + v.Vars["hostSystem"].(string)
-		host, err := f.HostSystem(ctx, hostPath)
-		if err != nil {
-			return err
-		}
-		resourcePool, err = host.ResourcePool(ctx)
-		if err != nil {
-			return err
+		for _, value := range hosts {
+			if value.Name() == v.Vars["hostSystem"].(string) {
+				host = value
+			}
 		}
 	} else {
-		resourcePoolPath := v.Vars["resourcePool"].(string)
-		if v.Vars["resourcePool"].(string) == "Resources" {
-			resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
-		}
-		resourcePool, err = f.ResourcePool(ctx, resourcePoolPath)
-		if err != nil {
-			return err
-		}
-		hosts, err := f.HostSystemList(ctx, "*")
-		if err != nil {
-			return err
-		}
 		host = hosts[0]
 	}
 	var datastoreName string
