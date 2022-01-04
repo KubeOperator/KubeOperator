@@ -38,6 +38,9 @@ func (c *ClusterEvent) Run() {
 			continue
 		}
 		endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
+		if err != nil {
+			continue
+		}
 		if cluster.Status == constant.ClusterRunning {
 			client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 				Token: secret.KubernetesToken,

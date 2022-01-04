@@ -101,6 +101,9 @@ func (h HostController) Post() (*dto.Host, error) {
 	}
 
 	repos, err := h.SystemSettingService.GetLocalIPs()
+	if err != nil {
+		return nil, err
+	}
 	isExit := false
 	for _, repo := range repos {
 		if repo.Hostname == req.Ip {

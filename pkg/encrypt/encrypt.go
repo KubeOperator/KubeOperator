@@ -49,7 +49,7 @@ func (c *InitEncryptPhase) Init() error {
 			return err
 		}
 		str := string(bs)
-		str = strings.TrimPrefix(str, "\n")
+		_ = strings.TrimPrefix(str, "\n")
 
 		viper.Set("encrypt.key", string(bs))
 	}

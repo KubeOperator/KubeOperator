@@ -358,9 +358,8 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 		newNodes  []model.ClusterNode
 		hostNames []string
 	)
-	for _, host := range item.Hosts {
-		hostNames = append(hostNames, host)
-	}
+
+	hostNames = append(hostNames, item.Hosts...)
 
 	log.Info("start create cluster nodes")
 	switch cluster.Spec.Provider {
@@ -411,7 +410,7 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		log.Info("cluster-plan start add hosts, update hosts status and infos")
-		c.updataHostInfo(cluster, newNodeIDs, newHostIDs)
+		_ = c.updataHostInfo(cluster, newNodeIDs, newHostIDs)
 	}
 	log.Info("start binding nodes to cluster")
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).

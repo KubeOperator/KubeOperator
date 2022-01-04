@@ -3,12 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"math"
-	"net"
 	"time"
-
-	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
-	"github.com/pkg/errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -376,36 +371,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	return &dto.Cluster{Cluster: cluster}, nil
 }
 
-func getServiceCIDRAndNodeCIDRMaskSize(clusterCIDR string, maxClusterServiceNum int, maxNodePodNum int) (string, int, error) {
-	if maxClusterServiceNum <= 0 || maxNodePodNum <= 0 {
-		return "", 0, errors.New("maxClusterServiceNum or maxNodePodNum must more than 0")
-	}
-	_, svcSubnetCIDR, err := net.ParseCIDR(clusterCIDR)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "ParseCIDR error")
-	}
-
-	size := ipaddr.RangeSize(svcSubnetCIDR)
-	if size < int64(maxClusterServiceNum) {
-		return "", 0, errors.New("clusterCIDR IP size is less than maxClusterServiceNum")
-	}
-	lastIP, err := ipaddr.GetIndexedIP(svcSubnetCIDR, int(size-1))
-	if err != nil {
-		return "", 0, errors.Wrap(err, "get last IP error")
-	}
-
-	maskSize := int(math.Ceil(math.Log2(float64(maxClusterServiceNum))))
-	_, serviceCidr, _ := net.ParseCIDR(fmt.Sprintf("%s/%d", lastIP.String(), 32-maskSize))
-
-	nodeCidrOccupy := math.Ceil(math.Log2(float64(maxNodePodNum)))
-	nodeCIDRMaskSize := 32 - int(nodeCidrOccupy)
-	ones, _ := svcSubnetCIDR.Mask.Size()
-	if ones > nodeCIDRMaskSize {
-		return "", 0, errors.New("clusterCIDR IP size is less than maxNodePodNum")
-	}
-	return serviceCidr.String(), nodeCIDRMaskSize, nil
-}
-
 func (c *clusterService) Delete(name string, force bool) error {
 	cluster, err := c.Get(name)
 	if err != nil {
@@ -534,7 +499,6 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-	return
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {

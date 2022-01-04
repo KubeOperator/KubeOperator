@@ -27,7 +27,7 @@ func Tr(ctx context.Context, validate *validator.Validate, err error) error {
 			return name
 		})
 		trans, _ := uni.GetTranslator(lang)
-		zhtrans.RegisterDefaultTranslations(validate, trans)
+		_ = zhtrans.RegisterDefaultTranslations(validate, trans)
 		errs := err.(validator.ValidationErrors)
 		return errors.New(removeStructName(errs.Translate(trans)))
 	} else {
@@ -37,7 +37,7 @@ func Tr(ctx context.Context, validate *validator.Validate, err error) error {
 			return name
 		})
 		trans, _ := uni.GetTranslator(lang)
-		entrans.RegisterDefaultTranslations(validate, trans)
+		_ = entrans.RegisterDefaultTranslations(validate, trans)
 		errs := err.(validator.ValidationErrors)
 		return errors.New(removeStructName(errs.Translate(trans)))
 	}

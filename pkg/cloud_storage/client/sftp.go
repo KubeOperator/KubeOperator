@@ -78,7 +78,7 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	dstFile.Write(ff)
+	_, _ = dstFile.Write(ff)
 	return true, nil
 }
 

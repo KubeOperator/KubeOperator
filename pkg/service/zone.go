@@ -431,11 +431,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			result, err = client.Upload(constant.FusionComputeOvfLocal, constant.FusionComputeOvfName)
+			_, err = client.Upload(constant.FusionComputeOvfLocal, constant.FusionComputeOvfName)
 			if err != nil {
 				return err
 			}
-			result, err = client.Upload(constant.FusionComputeVhdLocal, constant.FusionComputeVhdName)
+			_, err = client.Upload(constant.FusionComputeVhdLocal, constant.FusionComputeVhdName)
 			if err != nil {
 				return err
 			}

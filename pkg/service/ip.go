@@ -145,10 +145,8 @@ func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
 	switch update.Operation {
 	case "LOCK":
 		ip.Status = constant.IpLock
-		break
 	case "UNLOCK":
 		ip.Status = constant.IpAvailable
-		break
 	default:
 		break
 	}
