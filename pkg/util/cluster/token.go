@@ -19,7 +19,7 @@ func GetClusterToken(client ssh.Interface) (string, error) {
 	result := ""
 	if err := wait.Poll(5*time.Second, 1*time.Minute, func() (done bool, err error) {
 		buf, err := client.CombinedOutput(cmd)
-		if err != nil || len(buf) < 0 {
+		if err != nil || len(buf) == 0 {
 			log.Error("can not get kubernetes token ,retry after 5 second")
 			return false, nil
 		}

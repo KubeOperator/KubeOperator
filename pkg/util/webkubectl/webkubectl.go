@@ -39,5 +39,5 @@ func GetConnectToken(name string, apiServer string, token string) (string, error
 			return "", errors.New(r.Message)
 		}
 	}
-	return "", errors.New(string(resp.StatusCode))
+	return "", errors.New(fmt.Sprint(resp.StatusCode))
 }
