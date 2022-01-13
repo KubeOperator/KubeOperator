@@ -24,6 +24,11 @@ func NewLicenseController() *LicenseController {
 func (l *LicenseController) Get() (*dto.License, error) {
 	return l.LicenseService.Get()
 }
+
+func (l *LicenseController) GetHw() (*dto.License, error) {
+	return l.LicenseService.GetHw()
+}
+
 func (l *LicenseController) Post() (*dto.License, error) {
 	f, _, err := l.Ctx.FormFile("file")
 	if err != nil {

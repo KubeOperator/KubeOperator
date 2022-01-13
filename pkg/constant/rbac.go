@@ -72,6 +72,7 @@ var SystemRules = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/license",
+			"/api/v1/license/hw",
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
 			"/api/v1/settings",

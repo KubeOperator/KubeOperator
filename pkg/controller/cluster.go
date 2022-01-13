@@ -99,31 +99,6 @@ func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) 
 	return &cs, nil
 }
 
-// Create Cluster
-// @Tags clusters
-// @Summary Create a cluster
-// @Description Create a cluster
-// @Param request body dto.ClusterCreate true "request"
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} dto.Cluster
-// @Security ApiKeyAuth
-// @Router /clusters/ [post]
-func (c ClusterController) Post() (*dto.Cluster, error) {
-	var req dto.ClusterCreate
-	err := c.Ctx.ReadJSON(&req)
-	if err != nil {
-		return nil, err
-	}
-	item, err := c.ClusterService.Create(req)
-	if err != nil {
-		return nil, err
-	}
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_CLUSTER, req.Name)
-	return item, nil
-}
-
 func (c ClusterController) PostInitBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.INIT_CLUSTER, name)

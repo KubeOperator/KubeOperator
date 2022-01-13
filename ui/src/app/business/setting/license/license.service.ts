@@ -12,12 +12,16 @@ export class LicenseService {
     }
 
     baseUrl = '/api/v1/license';
+    baseHwUrl = '/api/v1/license/hw';
 
     licenseQueue = new Subject<License>();
     $licenseQueue = this.licenseQueue.asObservable();
 
     get(): Observable<License> {
         return this.http.get<License>(this.baseUrl);
+    }
+    gethw(): Observable<License> {
+        return this.http.get<License>(this.baseHwUrl);
     }
 
 

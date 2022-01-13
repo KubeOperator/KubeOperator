@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/license"
@@ -10,6 +11,7 @@ import (
 type LicenseService interface {
 	Save(content string) (*dto.License, error)
 	Get() (*dto.License, error)
+	GetHw() (*dto.License, error)
 }
 
 type licenseService struct {
@@ -47,7 +49,7 @@ func (l *licenseService) Get() (*dto.License, error) {
 	var ls dto.License
 	lc, err := l.licenseRepo.Get()
 	if err != nil {
-		return nil, licenseNotFound
+		return &ls, licenseNotFound
 	}
 	if lc.ID == "" {
 		return &ls, nil
@@ -55,6 +57,25 @@ func (l *licenseService) Get() (*dto.License, error) {
 	resp, err := license.Parse(lc.Content)
 	if err != nil {
 		return nil, formatLicenseError
+	}
+	ls = resp.License
+	ls.Status = resp.Status
+	ls.Message = resp.Message
+	return &ls, err
+}
+
+func (l *licenseService) GetHw() (*dto.License, error) {
+	var ls dto.License
+	lc, err := l.licenseRepo.GetHw()
+	if err != nil {
+		return &ls, licenseNotFound
+	}
+	if lc.ID == "" {
+		return &ls, nil
+	}
+	resp, err := license.Parse(lc.Content)
+	if err != nil {
+		return &ls, formatLicenseError
 	}
 	ls = resp.License
 	ls.Status = resp.Status

@@ -8,6 +8,7 @@ import (
 type LicenseRepository interface {
 	Save(content string) error
 	Get() (model.License, error)
+	GetHw() (model.License, error)
 }
 
 func NewLicenseRepository() LicenseRepository {
@@ -29,6 +30,15 @@ func (l licenseRepository) Save(content string) error {
 }
 
 func (l licenseRepository) Get() (model.License, error) {
+	var license model.License
+	err := db.DB.Where("content LIKE ?", "fit2cloud%").First(&license).Error
+	if err != nil {
+		return license, err
+	}
+	return license, nil
+}
+
+func (l licenseRepository) GetHw() (model.License, error) {
 	var license model.License
 	err := db.DB.First(&license).Error
 	if err != nil {

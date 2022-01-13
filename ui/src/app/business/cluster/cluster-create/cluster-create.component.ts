@@ -10,6 +10,8 @@ import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from '../../manifest/manifest.service';
 import {SystemService} from '../../setting/system.service';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {AlertLevels} from '../../../layout/common-alert/alert';
 
 
 @Component({
@@ -54,6 +56,7 @@ export class ClusterCreateComponent implements OnInit {
     constructor(private service: ClusterService,
                 private hostService: HostService,
                 private planService: PlanService,
+                private commonAlertService: CommonAlertService,
                 private route: ActivatedRoute,
                 private settingService: SystemService,
                 private manifestService: ManifestService) {
@@ -254,6 +257,9 @@ export class ClusterCreateComponent implements OnInit {
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();
+        }, error => {
+            this.opened = false;
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 

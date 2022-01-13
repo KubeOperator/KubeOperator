@@ -43,7 +43,7 @@ export class LicenseComponent implements OnInit {
     }
 
     refresh() {
-        this.licenseService.get().subscribe(data => {
+        this.licenseService.gethw().subscribe(data => {
             this.license = data;
             if ( this.license.status !== '') {
                 this.licenseStatus = this.license.status;

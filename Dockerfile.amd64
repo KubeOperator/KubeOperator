@@ -73,6 +73,7 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
 
 WORKDIR /usr/local/bin
 
+RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
 RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_amd64 && chmod +x encrypt_linux_amd64
 
 WORKDIR /tmp
