@@ -31,11 +31,10 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM ubuntu:20.10
+FROM ubuntu:20.04
 ARG GOARCH
 
-RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list && \
-    apt-get update && \
+RUN apt-get update && \
     apt -y upgrade && \
     apt-get -y install wget curl git iputils-ping
 RUN setcap cap_net_raw=+ep /bin/ping
