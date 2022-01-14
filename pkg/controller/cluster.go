@@ -6,10 +6,12 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -132,6 +134,12 @@ func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStoragePr
 	if err != nil {
 		return nil, err
 	}
+	validate := validator.New()
+	validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern)
+	if err := validate.Struct(req); err != nil {
+		return nil, err
+	}
+
 	p, err := c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
 	if err != nil {
 		return nil, err
@@ -148,6 +156,12 @@ func (c ClusterController) PostProvisionerSyncBy(name string) error {
 	if err != nil {
 		return err
 	}
+	validate := validator.New()
+	validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern)
+	if err := validate.Struct(req); err != nil {
+		return err
+	}
+
 	if err := c.ClusterStorageProvisionerService.SyncStorageProvisioner(name, req); err != nil {
 		return err
 	}
@@ -273,6 +287,12 @@ func (c ClusterController) PostImport() error {
 	var req dto.ClusterImport
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
 

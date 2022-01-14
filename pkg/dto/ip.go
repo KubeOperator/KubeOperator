@@ -8,13 +8,13 @@ type Ip struct {
 }
 
 type IpCreate struct {
-	IpStart    string `json:"ipStart"`
-	IpEnd      string `json:"ipEnd"`
+	IpStart    string `json:"ipStart" validate:"required,koip"`
+	IpEnd      string `json:"ipEnd" validate:"required,koip"`
 	Subnet     string `json:"subnet"`
 	Gateway    string `json:"gateway"`
 	DNS1       string `json:"dns1"`
 	DNS2       string `json:"dns2"`
-	IpPoolName string `json:"ipPoolName"`
+	IpPoolName string `json:"ipPoolName" validate:"required"`
 }
 
 type IpOp struct {

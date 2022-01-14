@@ -12,8 +12,8 @@ type VmConfigOp struct {
 }
 
 type VmConfigCreate struct {
-	Name     string `json:"name" validate:"required"`
-	Provider string `json:"provider"`
+	Name     string `json:"name" validate:"kovmconfig,required,max=30"`
+	Provider string `json:"provider" validate:"-"`
 	Cpu      int    `json:"cpu" validate:"min=1,max=1000,required" en:"CPU" zh:"CPU"`
 	Memory   int    `json:"memory"  validate:"min=1,max=1000,required" en:"Memory" zh:"内存"`
 }

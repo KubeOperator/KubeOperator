@@ -8,6 +8,7 @@ import {CommonAlertService} from '../../../../layout/common-alert/common-alert.s
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import * as ipaddr from 'ipaddr.js';
+import {IpPattern} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-ip-pool-create',
@@ -23,6 +24,7 @@ export class IpPoolCreateComponent extends BaseModelDirective<IpPool> implements
     namePattern = NamePattern;
     isSubmitGoing = false;
     networkValid = false;
+    ipPattern = IpPattern;
 
     constructor(private ipPoolService: IpPoolService,
                 private modalAlertService: ModalAlertService,

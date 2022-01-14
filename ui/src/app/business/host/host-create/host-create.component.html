@@ -9,11 +9,12 @@
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_IP"|translate}}</label>
-                <input clrInput [size]="32" name="ip" [(ngModel)]="item.ip" required/>
+                <input clrInput [size]="32" pattern="{{ipPattern}}" name="ip" [(ngModel)]="item.ip" required/>
+                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_PORT"|translate}}</label>
-                <input clrInput type="number" [size]="32" name="port" [(ngModel)]="item.port" required/>
+                <input clrInput type="number" [size]="32" oninput="if(value<0 || value > 65535)value=65535" name="port" [(ngModel)]="item.port" required/>
             </clr-input-container>
             <clr-select-container>
                 <label>{{"APP_CREDENTIAL"|translate}}</label>

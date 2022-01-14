@@ -8,8 +8,8 @@ type Region struct {
 }
 
 type RegionCreate struct {
-	Name       string      `json:"name" validate:"required"`
-	Provider   string      `json:"provider" validate:"required"`
+	Name       string      `json:"name" validate:"koname,required"`
+	Provider   string      `json:"provider" validate:"oneof=OpenStack vSphere FusionCompute"`
 	RegionVars interface{} `json:"regionVars" validate:"required"`
 	Datacenter string      `json:"datacenter" validate:"required"`
 }

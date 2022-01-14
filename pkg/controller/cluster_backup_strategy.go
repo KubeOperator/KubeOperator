@@ -5,7 +5,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	"github.com/KubeOperator/KubeOperator/pkg/util/validator_error"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -55,11 +54,10 @@ func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrat
 		return nil, err
 	}
 	validate := validator.New()
-	validator_error.RegisterTagNameFunc(c.Ctx, validate)
-	err = validate.Struct(req)
-	if err != nil {
-		return nil, validator_error.Tr(c.Ctx, validate, err)
+	if err := validate.Struct(req); err != nil {
+		return nil, err
 	}
+
 	cb, err := c.CLusterBackupStrategyService.Save(req)
 	if err != nil {
 		return nil, err

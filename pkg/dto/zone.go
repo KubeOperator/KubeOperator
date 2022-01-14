@@ -12,12 +12,12 @@ type Zone struct {
 }
 
 type ZoneCreate struct {
-	Name         string      `json:"name" validate:"required"`
+	Name         string      `json:"name" validate:"koname,required"`
 	CloudVars    interface{} `json:"cloudVars" validate:"required"`
 	RegionID     string      `json:"regionID" validate:"required"`
 	RegionName   string      `json:"regionName" validate:"required"`
-	CredentialId string      `json:"credentialId"`
-	IpPoolName   string      `json:"ipPoolName"`
+	CredentialId string      `json:"credentialId" validate:"required"`
+	IpPoolName   string      `json:"ipPoolName" validate:"required"`
 }
 
 type ZoneOp struct {

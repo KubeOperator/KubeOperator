@@ -22,17 +22,17 @@
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_IP_START'|translate}}</label>
-                <input clrInput size=45 type="text" [(ngModel)]="item.ipStart" name="ipStart"
+                <input clrInput size=45 pattern="{{ipPattern}}" type="text" [(ngModel)]="item.ipStart" name="ipStart"
                        required>
-                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
                 <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
 
             <clr-input-container>
                 <label>{{'APP_IP_END'|translate}}</label>
-                <input clrInput size=45 type="text" [(ngModel)]="item.ipEnd" name="ipEnd"
+                <input clrInput size=45 pattern="{{ipPattern}}" type="text" [(ngModel)]="item.ipEnd" name="ipEnd"
                        required>
-                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
                 <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
 

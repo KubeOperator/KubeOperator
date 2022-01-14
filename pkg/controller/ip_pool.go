@@ -2,7 +2,9 @@ package controller
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -65,8 +67,9 @@ func (i IpPoolController) Post() (*dto.IpPool, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
 	item, _ := i.IpPoolService.Get(req.Name)
@@ -87,8 +90,8 @@ func (i IpPoolController) PostBatch() error {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
 	return i.IpPoolService.Batch(req)

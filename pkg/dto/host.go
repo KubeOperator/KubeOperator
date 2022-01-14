@@ -13,9 +13,9 @@ type Host struct {
 }
 
 type HostCreate struct {
-	Name         string `json:"name" validate:"required"`
-	Ip           string `json:"ip" validate:"required"`
-	Port         int    `json:"port" validate:"required"`
+	Name         string `json:"name" validate:"required,max=30"`
+	Ip           string `json:"ip" validate:"required,koip"`
+	Port         int    `json:"port" validate:"required,gte=1,lte=65535"`
 	CredentialID string `json:"credentialId" validate:"required"`
 }
 

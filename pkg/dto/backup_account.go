@@ -8,7 +8,7 @@ type BackupAccount struct {
 }
 
 type BackupAccountOp struct {
-	Operation string          `json:"operation" validate:"required"`
+	Operation string          `json:"operation" validate:"koname,required"`
 	Items     []BackupAccount `json:"items" validate:"required"`
 }
 
@@ -16,7 +16,7 @@ type BackupAccountRequest struct {
 	Name           string      `json:"name" validate:"required"`
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string      `json:"bucket" validate:"required"`
-	Type           string      `json:"type" validate:"required"`
+	Type           string      `json:"type" validate:"oneof=OSS S3 AZURE SFTP"`
 }
 
 type CloudStorageRequest struct {

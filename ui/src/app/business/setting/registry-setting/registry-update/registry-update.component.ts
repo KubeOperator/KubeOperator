@@ -7,6 +7,7 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {RegistryService} from '../registry.service';
+import {IpPattern} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-registry-update',
@@ -18,6 +19,7 @@ export class RegistryUpdateComponent implements OnInit {
     item = new Registry();
     opened = false;
     isSubmitGoing = false;
+    ipPattern = IpPattern;
 
     @ViewChild('registryUpdateForm') registryForm: NgForm;
     @Output() update = new EventEmitter();

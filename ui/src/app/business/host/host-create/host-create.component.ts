@@ -9,6 +9,7 @@ import {ModalAlertService} from '../../../shared/common-component/modal-alert/mo
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
+import {IpPattern} from '../../../constant/pattern';
 
 @Component({
     selector: 'app-host-create',
@@ -20,6 +21,7 @@ export class HostCreateComponent extends BaseModelDirective<Host> implements OnI
     opened = false;
     isSubmitGoing = false;
     item: HostCreateRequest = new HostCreateRequest();
+    ipPattern = IpPattern;
     credentials: Credential[] = [];
     @ViewChild('hostForm') hostForm: NgForm;
     @Output() created = new EventEmitter();

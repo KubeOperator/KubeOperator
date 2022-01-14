@@ -15,7 +15,7 @@ type ProjectMemberOP struct {
 
 type ProjectMemberCreate struct {
 	ProjectName string `json:"projectName" validate:"required"`
-	Role        string `json:"role" validate:"required"`
+	Role        string `json:"role" validate:"oneof=CLUSTER_MANAGER PROJECT_MANAGER"`
 	Username    string `json:"username" validate:"required"`
 }
 

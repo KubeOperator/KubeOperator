@@ -5,6 +5,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -116,6 +117,12 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 	if err != nil {
 		return nil, err
 	}
+	validate := validator.New()
+	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.Struct(req); err != nil {
+		return nil, err
+	}
+
 	item, _ := s.SystemSettingService.GetRegistryByArch(req.Architecture)
 	if item.ID != "" {
 		return nil, RegistryAlreadyExistsErr
@@ -134,8 +141,8 @@ func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegist
 		return nil, err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
 

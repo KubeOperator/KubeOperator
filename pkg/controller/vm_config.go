@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -66,10 +67,9 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validator_error.RegisterTagNameFunc(v.Ctx, validate)
-	err = validate.Struct(req)
-	if err != nil {
-		return nil, validator_error.Tr(v.Ctx, validate, err)
+	validate.RegisterValidation("kovmconfig", koregexp.CheckVmConfigPattern)
+	if err := validate.Struct(req); err != nil {
+		return nil, err
 	}
 
 	operator := v.Ctx.Values().GetString("operator")

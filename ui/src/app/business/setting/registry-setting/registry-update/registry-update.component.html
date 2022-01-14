@@ -21,7 +21,7 @@
             <clr-input-container>
                 <label>{{'APP_REGISTRY_IP'|translate}}</label>
                 <input clrInput [size]="32" name="hostname" [(ngModel)]="item.hostname" size=45 required
-                       pattern="^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$"
+                       pattern="{{ipPattern}}"
                        required/>
                 <clr-control-error>{{'APP_IP_INVALID'|translate}}</clr-control-error>
             </clr-input-container>

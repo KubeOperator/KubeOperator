@@ -8,15 +8,15 @@ type ClusterStorageProvisioner struct {
 }
 
 type ClusterStorageProvisionerCreation struct {
-	Name string                 `json:"name"`
-	Type string                 `json:"type"`
-	Vars map[string]interface{} `json:"vars"`
+	Name string                 `json:"name" validate:"commonname,required"`
+	Type string                 `json:"type" validate:"required"`
+	Vars map[string]interface{} `json:"vars" validate:"-"`
 }
 
 type ClusterStorageProvisionerSync struct {
-	Name   string `json:"name"`
-	Type   string `json:"type"`
-	Status string `json:"status"`
+	Name   string `json:"name" validate:"commonname,required"`
+	Type   string `json:"type" validate:"required"`
+	Status string `json:"status" validate:"-"`
 }
 
 type ClusterStorageProvisionerBatch struct {

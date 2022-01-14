@@ -57,7 +57,7 @@ export class ProjectCreateComponent extends BaseModelDirective<Project> implemen
             this.onCancel();
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-            window.location.reload();
+            // window.location.reload();
         }, error => {
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

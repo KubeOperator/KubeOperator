@@ -12,19 +12,19 @@ type CredentialPage struct {
 }
 
 type CredentialCreate struct {
-	Name       string `json:"name" validate:"required"`
+	Name       string `json:"name" validate:"koname,required,max=30"`
 	Username   string `json:"username" validate:"required"`
-	Password   string
-	PrivateKey string
+	Password   string `json:"password" validate:"-"`
+	PrivateKey string `json:"privateKey" validate:"-"`
 	Type       string `json:"type" validate:"required"`
 }
 
 type CredentialUpdate struct {
 	ID         string `json:"id" validate:"required"`
-	Name       string `json:"name" validate:"required"`
+	Name       string `json:"name" validate:"koname,required,max=30"`
 	Username   string `json:"username" validate:"required"`
-	Password   string
-	PrivateKey string
+	Password   string `json:"password" validate:"-"`
+	PrivateKey string `json:"privateKey" validate:"-"`
 	Type       string `json:"type" validate:"required"`
 }
 

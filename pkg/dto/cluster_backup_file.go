@@ -7,10 +7,10 @@ type ClusterBackupFile struct {
 }
 
 type ClusterBackupFileCreate struct {
-	ClusterName             string `json:"clusterName" validate:"required"`
-	Name                    string `json:"name"`
+	ClusterName             string `json:"clusterName" validate:"clustername,required"`
+	Name                    string `json:"name" validate:"required"`
 	ClusterBackupStrategyID string `json:"clusterBackupStrategyId" validate:"required"`
-	Folder                  string `json:"folder"`
+	Folder                  string `json:"folder" validate:"required"`
 }
 
 type ClusterBackupFileOp struct {
@@ -19,8 +19,8 @@ type ClusterBackupFileOp struct {
 }
 
 type ClusterBackupFileRestore struct {
-	ClusterName   string                  `json:"clusterName" validate:"required"`
+	ClusterName   string                  `json:"clusterName" validate:"clustername,required"`
 	Name          string                  `json:"name" validate:"required"`
-	File          model.ClusterBackupFile `json:"file"`
-	BackupAccount model.BackupAccount     `json:"backupAccount"`
+	File          model.ClusterBackupFile `json:"file" validate:"-"`
+	BackupAccount model.BackupAccount     `json:"backupAccount" validate:"-"`
 }

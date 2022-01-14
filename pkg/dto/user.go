@@ -7,10 +7,10 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	IsAdmin  bool   `json:"isAdmin" binding:"required"`
+	Name     string `json:"name" validate:"required,max=30"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"kopassword,required"`
+	IsAdmin  bool   `json:"isAdmin" validate:"required"`
 }
 
 type UserPage struct {
@@ -20,10 +20,10 @@ type UserPage struct {
 
 type UserUpdate struct {
 	ID       string `json:"id"`
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	IsActive bool   `json:"isActive"`
-	IsAdmin  bool   `json:"isAdmin" binding:"required"`
+	Name     string `json:"name" validate:"required,max=30"`
+	Email    string `json:"email" validate:"required"`
+	IsActive bool   `json:"isActive" validate:"required"`
+	IsAdmin  bool   `json:"isAdmin" validate:"required"`
 }
 
 type UserOp struct {
@@ -32,10 +32,10 @@ type UserOp struct {
 }
 
 type UserChangePassword struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Original string `json:"original"`
+	ID       string `json:"id" validate:"-"`
+	Name     string `json:"name" validate:"required,min=6"`
+	Password string `json:"password" validate:"kopassword,required,max=30,min=6"`
+	Original string `json:"original" validate:"kopassword,required,max=30,min=6"`
 }
 
 type UserForgotPassword struct {

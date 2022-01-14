@@ -13,7 +13,7 @@ type Plan struct {
 }
 
 type PlanCreate struct {
-	Name           string      `json:"name" validate:"required"`
+	Name           string      `json:"name" validate:"koname,required"`
 	Zones          []string    `json:"zones" validate:"required"`
 	PlanVars       interface{} `json:"planVars" validate:"required"`
 	DeployTemplate string      `json:"deployTemplate" validate:"required"`

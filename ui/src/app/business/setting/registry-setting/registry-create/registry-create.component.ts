@@ -7,6 +7,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
+import {IpPattern} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-registry-create',
@@ -16,6 +17,7 @@ import {TranslateService} from '@ngx-translate/core';
 export class RegistryCreateComponent extends BaseModelDirective<Registry> implements OnInit {
     opened = false;
     isSubmitGoing = false;
+    ipPattern = IpPattern;
 
     item: RegistryCreateRequest = new RegistryCreateRequest();
     registries: Registry[] = [];

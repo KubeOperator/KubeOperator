@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -70,8 +71,8 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
 
@@ -113,8 +114,8 @@ func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 		return dto.Credential{}, err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return dto.Credential{}, err
 	}
 

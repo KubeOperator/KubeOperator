@@ -7,9 +7,9 @@ type Project struct {
 }
 
 type ProjectCreate struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
-	UserName    string `json:"userName" validate:"required"`
+	Name        string `json:"name" validate:"koname,required,max=30"`
+	Description string `json:"description" validate:"max=255"`
+	UserName    string `json:"userName"`
 }
 
 type ProjectUpdate struct {

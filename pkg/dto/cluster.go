@@ -39,37 +39,37 @@ type NodeCreate struct {
 }
 
 type ClusterCreate struct {
-	Name                    string       `json:"name" binding:"required"`
-	Version                 string       `json:"version" binding:"required"`
-	Provider                string       `json:"provider"`
-	Plan                    string       `json:"plan"`
-	WorkerAmount            int          `json:"workerAmount"`
-	NetworkType             string       `json:"networkType"`
-	CiliumVersion           string       `json:"ciliumVersion"`
-	CiliumTunnelMode        string       `json:"ciliumTunnelMode"`
-	CiliumNativeRoutingCidr string       `json:"ciliumNativeRoutingCidr"`
-	RuntimeType             string       `json:"runtimeType"`
-	DockerStorageDIr        string       `json:"dockerStorageDIr"`
-	ContainerdStorageDIr    string       `json:"containerdStorageDIr"`
-	FlannelBackend          string       `json:"flannelBackend"`
-	CalicoIpv4poolIpip      string       `json:"calicoIpv4PoolIpip"`
-	KubeProxyMode           string       `json:"kubeProxyMode"`
-	NodeportAddress         string       `json:"nodeportAddress"`
-	EnableDnsCache          string       `json:"enableDnsCache"`
-	DnsCacheVersion         string       `json:"dnsCacheVersion"`
-	IngressControllerType   string       `json:"ingressControllerType"`
-	Architectures           string       `json:"architectures"`
-	KubernetesAudit         string       `json:"kubernetesAudit"`
-	DockerSubnet            string       `json:"dockerSubnet"`
-	Nodes                   []NodeCreate `json:"nodes"`
-	ProjectName             string       `json:"projectName"`
-	HelmVersion             string       `json:"helmVersion"`
-	NetworkInterface        string       `json:"networkInterface"`
-	SupportGpu              string       `json:"supportGpu"`
-	YumOperate              string       `json:"yumOperate"`
-	ClusterCIDR             string       `json:"clusterCidr"`
-	ServiceCIDR             string       `json:"serviceCidr"`
-	MaxPodNum               int          `json:"maxPodNum"`
+	Name                    string       `json:"name" validate:"clustername,required"`
+	Version                 string       `json:"version" validate:"required"`
+	Provider                string       `json:"provider" validate:"oneof=bareMetal plan"`
+	Plan                    string       `json:"plan" validate:"-"`
+	WorkerAmount            int          `json:"workerAmount" validate:"-"`
+	NetworkType             string       `json:"networkType" validate:"oneof=flannel calico cilium"`
+	CiliumVersion           string       `json:"ciliumVersion" validate:"-"`
+	CiliumTunnelMode        string       `json:"ciliumTunnelMode" validate:"-"`
+	CiliumNativeRoutingCidr string       `json:"ciliumNativeRoutingCidr" validate:"-"`
+	RuntimeType             string       `json:"runtimeType" validate:"oneof=docker containerd"`
+	DockerStorageDIr        string       `json:"dockerStorageDIr" validate:"-"`
+	ContainerdStorageDIr    string       `json:"containerdStorageDIr" validate:"-"`
+	FlannelBackend          string       `json:"flannelBackend" validate:"-"`
+	CalicoIpv4poolIpip      string       `json:"calicoIpv4PoolIpip" validate:"-"`
+	KubeProxyMode           string       `json:"kubeProxyMode" validate:"oneof=iptables ipvs"`
+	NodeportAddress         string       `json:"nodeportAddress" validate:"-"`
+	EnableDnsCache          string       `json:"enableDnsCache" validate:"oneof=enable disable"`
+	DnsCacheVersion         string       `json:"dnsCacheVersion" validate:"-"`
+	IngressControllerType   string       `json:"ingressControllerType" validate:"oneof=nginx traefik"`
+	Architectures           string       `json:"architectures" validate:"oneof=arm64 amd64 all"`
+	KubernetesAudit         string       `json:"kubernetesAudit" validate:"oneof=enable disable"`
+	DockerSubnet            string       `json:"dockerSubnet" validate:"required"`
+	Nodes                   []NodeCreate `json:"nodes" validate:"-"`
+	ProjectName             string       `json:"projectName" validate:"required"`
+	HelmVersion             string       `json:"helmVersion" validate:"oneof=v2 v3"`
+	NetworkInterface        string       `json:"networkInterface" validate:"-"`
+	SupportGpu              string       `json:"supportGpu" validate:"oneof=enable disable"`
+	YumOperate              string       `json:"yumOperate" validate:"oneof=replace coexist no"`
+	ClusterCIDR             string       `json:"clusterCidr" validate:"required"`
+	ServiceCIDR             string       `json:"serviceCidr" validate:"required"`
+	MaxPodNum               int          `json:"maxPodNum" validate:"required"`
 }
 
 type ClusterBatch struct {

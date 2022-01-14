@@ -5,6 +5,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -97,8 +98,8 @@ func (b BackupFileController) PostBackup() error {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
 	err = b.ClusterBackupFileService.Backup(req)
@@ -133,8 +134,8 @@ func (b BackupFileController) PostRestore() error {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
 	err = b.ClusterBackupFileService.Restore(req)
