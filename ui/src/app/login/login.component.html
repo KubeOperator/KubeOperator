@@ -34,11 +34,6 @@
             <app-modal-alert></app-modal-alert>
             <button type="submit" class="btn btn-primary" (click)="login()"
                     [disabled]="loginForm.invalid">{{'APP_LOGIN'|translate}}</button>
-            <div>
-                <br>
-                <a style="position: absolute;right: 12%" (click)="forgotPassword()"
-                   class="more-info-link">{{ '忘记密码' | translate }}</a>
-            </div>
         </div>
     </form>
 </div>

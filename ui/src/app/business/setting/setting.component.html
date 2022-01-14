@@ -19,7 +19,7 @@
             <a class="nav-link" routerLink="backupAccounts"
                routerLinkActive="active">{{ 'APP_BACKUP' | translate}}</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="hasLicense">
             <a class="nav-link" routerLink="email"
                routerLinkActive="active">{{ 'APP_MSG_EMAIL' | translate}}</a>
         </li>

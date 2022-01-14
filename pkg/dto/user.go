@@ -8,9 +8,9 @@ type User struct {
 
 type UserCreate struct {
 	Name     string `json:"name" validate:"required,max=30"`
-	Email    string `json:"email" validate:"required"`
+	Email    string `json:"email" validate:"-"`
 	Password string `json:"password" validate:"kopassword,required"`
-	IsAdmin  bool   `json:"isAdmin" validate:"required"`
+	IsAdmin  bool   `json:"isAdmin" validate:"-"`
 }
 
 type UserPage struct {
@@ -21,9 +21,9 @@ type UserPage struct {
 type UserUpdate struct {
 	ID       string `json:"id"`
 	Name     string `json:"name" validate:"required,max=30"`
-	Email    string `json:"email" validate:"required"`
-	IsActive bool   `json:"isActive" validate:"required"`
-	IsAdmin  bool   `json:"isAdmin" validate:"required"`
+	Email    string `json:"email" validate:"-"`
+	IsActive bool   `json:"isActive" validate:"-"`
+	IsAdmin  bool   `json:"isAdmin" validate:"-"`
 }
 
 type UserOp struct {

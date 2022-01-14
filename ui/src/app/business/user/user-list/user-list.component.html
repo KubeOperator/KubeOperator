@@ -5,11 +5,6 @@
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
-                    [disabled]="selected.length!==1">
-                <clr-icon shape="note"></clr-icon>
-                {{"APP_EDIT"|translate}}
-            </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
@@ -17,7 +12,6 @@
         </div>
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
-    <clr-dg-column>{{'APP_EMAIL'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_USER_TYPE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_ENABLE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_USER_ADMIN'|translate}}</clr-dg-column>
@@ -25,7 +19,6 @@
 
     <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
-        <clr-dg-cell>{{item.email | emailShow}}</clr-dg-cell>
         <clr-dg-cell>{{item.type | userType}}</clr-dg-cell>
         <clr-dg-cell>
             <input clrToggle type="checkbox" name="supper" [(ngModel)]="item.isActive" (change)="updateUser(item)"/>
