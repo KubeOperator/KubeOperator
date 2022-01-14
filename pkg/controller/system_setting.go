@@ -118,7 +118,9 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.RegisterValidation("koip", koregexp.CheckIpPattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -141,7 +143,9 @@ func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegist
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.RegisterValidation("koip", koregexp.CheckIpPattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}

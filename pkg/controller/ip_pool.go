@@ -67,8 +67,12 @@ func (i IpPoolController) Post() (*dto.IpPool, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
-	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.RegisterValidation("koip", koregexp.CheckIpPattern); err != nil {
+		return nil, err
+	}
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -87,11 +91,6 @@ func (i IpPoolController) PostBatch() error {
 	var req dto.IpPoolOp
 	err := i.Ctx.ReadJSON(&req)
 	if err != nil {
-		return err
-	}
-	validate := validator.New()
-	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
-	if err := validate.Struct(req); err != nil {
 		return err
 	}
 	return i.IpPoolService.Batch(req)

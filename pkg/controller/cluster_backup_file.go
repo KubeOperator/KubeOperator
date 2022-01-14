@@ -98,7 +98,10 @@ func (b BackupFileController) PostBackup() error {
 		return err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+
+	if err := validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern); err != nil {
+		return err
+	}
 	if err := validate.Struct(req); err != nil {
 		return err
 	}
@@ -134,7 +137,9 @@ func (b BackupFileController) PostRestore() error {
 		return err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+	if err := validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern); err != nil {
+		return err
+	}
 	if err := validate.Struct(req); err != nil {
 		return err
 	}

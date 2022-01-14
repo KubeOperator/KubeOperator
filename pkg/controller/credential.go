@@ -71,7 +71,9 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -114,7 +116,9 @@ func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 		return dto.Credential{}, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return dto.Credential{}, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return dto.Credential{}, err
 	}

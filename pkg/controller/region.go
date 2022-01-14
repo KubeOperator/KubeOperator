@@ -80,7 +80,9 @@ func (r RegionController) Post() (*dto.Region, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}

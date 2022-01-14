@@ -80,7 +80,9 @@ func (u UserController) Post() (*dto.User, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern)
+	if err := validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -171,7 +173,9 @@ func (u UserController) PostChangePassword() error {
 		return err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern)
+	if err := validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern); err != nil {
+		return err
+	}
 	if err := validate.Struct(req); err != nil {
 		return err
 	}

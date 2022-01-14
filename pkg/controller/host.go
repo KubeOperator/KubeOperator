@@ -96,7 +96,9 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koip", koregexp.CheckIpPattern)
+	if err := validate.RegisterValidation("koip", koregexp.CheckIpPattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}

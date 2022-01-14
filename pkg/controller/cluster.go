@@ -135,7 +135,9 @@ func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStoragePr
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern)
+	if err := validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -157,7 +159,9 @@ func (c ClusterController) PostProvisionerSyncBy(name string) error {
 		return err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern)
+	if err := validate.RegisterValidation("commonname", koregexp.CheckCommonNamePattern); err != nil {
+		return err
+	}
 	if err := validate.Struct(req); err != nil {
 		return err
 	}
@@ -290,8 +294,12 @@ func (c ClusterController) PostImport() error {
 		return err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("koname", koregexp.CheckNamePattern)
-	validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern)
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return err
+	}
+	if err := validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern); err != nil {
+		return err
+	}
 	if err := validate.Struct(req); err != nil {
 		return err
 	}

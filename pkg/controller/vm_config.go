@@ -67,7 +67,9 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 		return nil, err
 	}
 	validate := validator.New()
-	validate.RegisterValidation("kovmconfig", koregexp.CheckVmConfigPattern)
+	if err := validate.RegisterValidation("kovmconfig", koregexp.CheckVmConfigPattern); err != nil {
+		return nil, err
+	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
