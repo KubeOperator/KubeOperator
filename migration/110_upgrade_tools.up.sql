@@ -68,7 +68,7 @@ VALUES
         '6.19.0',
         'all',
         NULL,
-        '{"grafana_image_name":"grafana/grafana","grafana_image_tag":"8.3.1","bats_image_name":"bats/bats","bats_image_tag":"v1.4.1","busybox_image_name":"busybox","busybox_image_tag":"1.31.1","curl_image_name":"curlimages/curl","curl_image_tag":"7.73.0"}',
+        '{"grafana_image_name":"grafana/grafana","grafana_image_tag":"8.3.1","busybox_image_name":"kubeoperator/busybox","busybox_image_tag":"1.31.1","curl_image_name":"curlimages/curl","curl_image_tag":"7.73.0"}',
         date_add(now(), interval 8 HOUR),
         date_add(now(), interval 8 HOUR)
     );
@@ -76,7 +76,7 @@ VALUES
 UPDATE
     `ko`.`ko_cluster_tool_detail`
 SET
-    vars = '{"grafana_image_name":"grafana/grafana","grafana_image_tag":"7.3.3","bats_image_name":"bats/bats","bats_image_tag":"v1.1.0","busybox_image_name":"kubeoperator/busybox","busybox_image_tag":"1.28","curl_image_name":"curlimages/curl","curl_image_tag":"7.73.0"}'
+    vars = '{"grafana_image_name":"grafana/grafana","grafana_image_tag":"7.3.3","busybox_image_name":"kubeoperator/busybox","busybox_image_tag":"1.28","curl_image_name":"curlimages/curl","curl_image_tag":"7.73.0"}'
 WHERE
     name = 'grafana'
     AND version = 'v7.3.3';

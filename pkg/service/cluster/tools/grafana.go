@@ -42,37 +42,34 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 	values["initChownData.image.tag"] = imageMap["busybox_image_tag"]
 	values["downloadDashboardsImage.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["curl_image_name"])
 	values["downloadDashboardsImage.tag"] = imageMap["curl_image_tag"]
-	values["testFramework.image"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["bats_image_name"])
-	values["testFramework.tag"] = imageMap["bats_image_tag"]
 
 	if isInstall {
 		values["grafana\\.ini.server.root_url"] = "%(protocol)s://%(domain)s:%(http_port)s/proxy/grafana/" + g.Cluster.Name + "/"
 		values["grafana\\.ini.server.serve_from_sub_path"] = true
 
-		values["datasources.'datasources\\.yaml'.apiVersion"] = 1
+		values["datasources.datasources\\.yaml.apiVersion"] = 1
 
 		if len(g.prometheusNs) != 0 {
-			values["datasources.'datasources\\.yaml'.datasources[0].name"] = "MYDS_Prometheus"
-			values["datasources.'datasources\\.yaml'.datasources[0].type"] = "prometheus"
-			values["datasources.'datasources\\.yaml'.datasources[0].url"] = "http://prometheus-server." + g.prometheusNs
-			values["datasources.'datasources\\.yaml'.datasources[0].access"] = "proxy"
-			values["datasources.'datasources\\.yaml'.datasources[0].isDefault"] = true
+			values["datasources.datasources\\.yaml.datasources[0].name"] = "MYDS_Prometheus"
+			values["datasources.datasources\\.yaml.datasources[0].type"] = "prometheus"
+			values["datasources.datasources\\.yaml.datasources[0].url"] = "http://prometheus-server." + g.prometheusNs
+			values["datasources.datasources\\.yaml.datasources[0].access"] = "proxy"
+			values["datasources.datasources\\.yaml.datasources[0].isDefault"] = true
 		}
 		if len(g.lokiNs) != 0 {
-			values["datasources.'datasources\\.yaml'.datasources[1].name"] = "Loki"
-			values["datasources.'datasources\\.yaml'.datasources[1].type"] = "loki"
-			values["datasources.'datasources\\.yaml'.datasources[1].url"] = "http://loki." + g.lokiNs + ":3100"
-			values["datasources.'datasources\\.yaml'.datasources[1].access"] = "proxy"
+			values["datasources.datasources\\.yaml.datasources[1].name"] = "Loki"
+			values["datasources.datasources\\.yaml.datasources[1].type"] = "loki"
+			values["datasources.datasources\\.yaml.datasources[1].url"] = "http://loki." + g.lokiNs + ":3100"
+			values["datasources.datasources\\.yaml.datasources[1].access"] = "proxy"
 		}
 
-		values["dashboardProviders.'dashboardproviders\\.yaml'.apiVersion"] = 1
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].name"] = "default"
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].orgId"] = 1
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].folder"] = ""
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].type"] = "file"
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].disableDeletion"] = false
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].editable"] = true
-		values["dashboardProviders.'dashboardproviders\\.yaml'.providers[0].options.path"] = "/var/lib/grafana/dashboards/default"
+		values["dashboardProviders.dashboardproviders\\.yaml.apiVersion"] = 1
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].name"] = "default"
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].orgId"] = 1
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].type"] = "file"
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].disableDeletion"] = false
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].editable"] = true
+		values["dashboardProviders.dashboardproviders\\.yaml.providers[0].options.path"] = "/var/lib/grafana/dashboards/default"
 		values["dashboards.default.custom-dashboard.file"] = "dashboards/custom-dashboard.json"
 
 		if _, ok := values["persistence.size"]; ok {
