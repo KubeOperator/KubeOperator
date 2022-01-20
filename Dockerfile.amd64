@@ -31,7 +31,8 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM alpine:3.14.0
+FROM alpine:3.15.0
+ARG GOARCH
 
 RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
     ALPINE_GLIBC_PACKAGE_VERSION="2.33-r0" && \
