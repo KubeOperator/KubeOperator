@@ -6,13 +6,6 @@
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" readonly/>
             </clr-input-container>
-            <clr-input-container>
-                <label>{{"APP_EMAIL"|translate}}</label>
-                <input clrInput [size]="32" name="email" [(ngModel)]="itemEmail"
-                       [email]="true"
-                       required/>
-                <clr-control-error>{{'APP_EMAIL_ERROR_MSG'|translate}}</clr-control-error>
-            </clr-input-container>
         </form>
         <app-modal-alert></app-modal-alert>
     </div>

@@ -17,7 +17,6 @@ export class UserUpdateComponent extends BaseModelDirective<User> implements OnI
 
     opened = false;
     item: User = new User();
-    itemEmail: string = '';
     isSubmitGoing = false;
     @ViewChild('userForm') userFrom: NgForm;
 
@@ -42,13 +41,11 @@ export class UserUpdateComponent extends BaseModelDirective<User> implements OnI
     }
 
     onCancel() {
-        this.itemEmail = '';
         this.opened = false;
         this.userFrom.resetForm();
     }
 
     onSubmit() {
-        this.item.email = this.itemEmail;
         this.isSubmitGoing = true;
         this.userService.update(this.item.name, this.item).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
@@ -59,6 +56,5 @@ export class UserUpdateComponent extends BaseModelDirective<User> implements OnI
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
-        this.itemEmail = '';
     }
 }
