@@ -6,6 +6,8 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/spf13/viper"
 )
 
 type Registry struct {
@@ -33,7 +35,9 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 	_ = json.Unmarshal([]byte(r.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalHostName, r.LocalRepositoryPort, imageMap["registry_image_name"])
 	values["image.tag"] = imageMap["registry_image_tag"]
-	values["secrets.htpasswd"] = "admin:$2y$05$xOL4vcb.1gGpKBHzW0Vv0O4KV0kOAHLXkXBPHtZFAswoW.hYVGzOy"
+
+	password, _ := encrypt.StringDecrypt(viper.GetString("repository.htpasswd"))
+	values["secrets.htpasswd"] = password
 
 	if isInstall {
 		if _, ok := values["persistence.size"]; ok {

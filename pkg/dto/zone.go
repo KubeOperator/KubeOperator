@@ -12,12 +12,12 @@ type Zone struct {
 }
 
 type ZoneCreate struct {
-	Name         string      `json:"name" validate:"koname,required"`
-	CloudVars    interface{} `json:"cloudVars" validate:"required"`
-	RegionID     string      `json:"regionID" validate:"required"`
-	RegionName   string      `json:"regionName" validate:"required"`
-	CredentialId string      `json:"credentialId" validate:"required"`
-	IpPoolName   string      `json:"ipPoolName" validate:"required"`
+	Name         string                 `json:"name" validate:"koname,required"`
+	CloudVars    map[string]interface{} `json:"cloudVars" validate:"required"`
+	RegionID     string                 `json:"regionID" validate:"required"`
+	RegionName   string                 `json:"regionName" validate:"required"`
+	CredentialId string                 `json:"credentialId" validate:"required"`
+	IpPoolName   string                 `json:"ipPoolName" validate:"required"`
 }
 
 type ZoneOp struct {
@@ -30,17 +30,16 @@ type CloudZoneResponse struct {
 }
 
 type CloudZoneRequest struct {
-	CloudVars  interface{} `json:"cloudVars" validate:"required"`
-	Datacenter string      `json:"datacenter"`
-	RegionName string      `json:"RegionName"`
+	CloudVars  map[string]interface{} `json:"cloudVars" validate:"required"`
+	RegionName string                 `json:"RegionName"`
 }
 
 type ZoneUpdate struct {
-	ID         string      `json:"id" validate:"required"`
-	Name       string      `json:"name" validate:"required"`
-	CloudVars  interface{} `json:"cloudVars" validate:"required"`
-	RegionID   string      `json:"regionID" validate:"required"`
-	IpPoolName string      `json:"ipPoolName" validate:"required"`
+	ID         string                 `json:"id" validate:"required"`
+	Name       string                 `json:"name" validate:"required"`
+	CloudVars  map[string]interface{} `json:"cloudVars" validate:"required"`
+	RegionID   string                 `json:"regionID" validate:"required"`
+	IpPoolName string                 `json:"ipPoolName" validate:"required"`
 }
 
 type CloudDatastore struct {

@@ -35,7 +35,6 @@ export class ZoneUpdateRequest extends BaseRequest {
 export class CloudZoneRequest extends BaseRequest {
     cloudVars: {} = {};
     regionName: string;
-    datacenter: string;
 }
 
 export class CloudZone {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -10,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -73,12 +75,26 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 			}
 			page.Items = result
 		case constant.ResourceBackupAccount:
-			var result []model.BackupAccount
+			var (
+				result            []model.BackupAccount
+				resultAfterHandle []model.BackupAccount
+			)
 			err = db.DB.Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
 				return nil, err
 			}
-			page.Items = result
+			for _, bac := range result {
+				vars := make(map[string]interface{})
+				if err := json.Unmarshal([]byte(bac.Credential), &vars); err != nil {
+					return nil, err
+				}
+				encrypt.DeleteVarsDecrypt("ahead", encryptBackupKeys, vars)
+
+				varsAfterHandle, _ := json.Marshal(vars)
+				bac.Credential = string(varsAfterHandle)
+				resultAfterHandle = append(resultAfterHandle, bac)
+			}
+			page.Items = resultAfterHandle
 		default:
 			return nil, err
 		}
@@ -111,7 +127,7 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 			}
 			resourceId = plan.ID
 		case constant.ResourceBackupAccount:
-			plan, err := NewBackupAccountService().Get(item.ResourceName)
+			plan, err := NewBackupAccountService().GetAfterDecrypt(item.ResourceName)
 			if err != nil {
 				return err
 			}

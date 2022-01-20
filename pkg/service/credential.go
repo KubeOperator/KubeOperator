@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -44,7 +45,13 @@ func (c credentialService) Get(name string) (dto.Credential, error) {
 	if err != nil {
 		return credentialDTO, err
 	}
-	credentialDTO.Credential = mo
+	credentialDTO = dto.Credential{
+		ID:        mo.ID,
+		Name:      mo.Name,
+		Type:      mo.Type,
+		Username:  mo.Username,
+		CreatedAt: mo.CreatedAt,
+	}
 	return credentialDTO, err
 }
 
@@ -54,7 +61,13 @@ func (c credentialService) GetById(id string) (dto.Credential, error) {
 	if err != nil {
 		return credentialDTO, err
 	}
-	credentialDTO.Credential = mo
+	credentialDTO = dto.Credential{
+		ID:        mo.ID,
+		Name:      mo.Name,
+		Type:      mo.Type,
+		Username:  mo.Username,
+		CreatedAt: mo.CreatedAt,
+	}
 	return credentialDTO, err
 }
 
@@ -65,8 +78,13 @@ func (c credentialService) List() ([]dto.Credential, error) {
 		return credentialDTOS, err
 	}
 	for _, mo := range mos {
-		var credentialDTO dto.Credential
-		credentialDTO.Credential = mo
+		var credentialDTO = dto.Credential{
+			ID:        mo.ID,
+			Name:      mo.Name,
+			Type:      mo.Type,
+			Username:  mo.Username,
+			CreatedAt: mo.CreatedAt,
+		}
 		credentialDTOS = append(credentialDTOS, credentialDTO)
 	}
 	return credentialDTOS, err
@@ -82,8 +100,13 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		var credentailDTO dto.Credential
-		credentailDTO.Credential = mo
+		var credentailDTO = dto.Credential{
+			ID:        mo.ID,
+			Name:      mo.Name,
+			Type:      mo.Type,
+			Username:  mo.Username,
+			CreatedAt: mo.CreatedAt,
+		}
 		credentialDTOS = append(credentialDTOS, credentailDTO)
 	}
 	page.Total = total
@@ -94,7 +117,7 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
 
 	old, _ := c.Get(creation.Name)
-	if old.ID != "" {
+	if old.Name != "" {
 		return nil, errors.New(CredentialNameExist)
 	}
 	password, err := encrypt.StringEncrypt(creation.Password)
@@ -114,7 +137,7 @@ func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credentia
 	if err != nil {
 		return nil, err
 	}
-	return &dto.Credential{Credential: credential}, nil
+	return &dto.Credential{Name: credential.Name, Username: credential.Username, Type: credential.Type, CreatedAt: credential.CreatedAt}, nil
 }
 
 func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
@@ -136,7 +159,7 @@ func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, 
 	if err != nil {
 		return dto.Credential{}, err
 	}
-	return dto.Credential{Credential: credential}, nil
+	return dto.Credential{Name: credential.Name, Username: credential.Username, Type: credential.Type, CreatedAt: credential.CreatedAt}, nil
 }
 
 func (c credentialService) Delete(name string) error {

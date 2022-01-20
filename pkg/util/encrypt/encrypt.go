@@ -7,8 +7,10 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/spf13/viper"
 	"io"
+	"strings"
+
+	"github.com/spf13/viper"
 )
 
 func padding(plaintext []byte, blockSize int) []byte {
@@ -108,4 +110,65 @@ func isSaltPass(pass []byte) bool {
 		}
 	}
 	return true
+}
+
+func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	for key, value := range vars {
+		if operation == "ahead" {
+			if strings.Contains(str, key) {
+				passwd, ok := value.(string)
+				if ok {
+					passwdEncrypt, _ := StringEncrypt(passwd)
+					vars[key] = passwdEncrypt
+				}
+			}
+		} else {
+			if strings.Contains(key, str) {
+				passwd, ok := value.(string)
+				if ok {
+					passwdEncrypt, _ := StringEncrypt(passwd)
+					vars[key] = passwdEncrypt
+				}
+			}
+		}
+	}
+	return vars
+}
+
+func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	for key, value := range vars {
+		if operation == "ahead" {
+			if strings.Contains(str, key) {
+				passwd, ok := value.(string)
+				if ok {
+					passwdDecrypt, _ := StringDecrypt(passwd)
+					vars[key] = passwdDecrypt
+				}
+			}
+		} else {
+			if strings.Contains(key, str) {
+				passwd, ok := value.(string)
+				if ok {
+					passwdDecrypt, _ := StringDecrypt(passwd)
+					vars[key] = passwdDecrypt
+				}
+			}
+		}
+	}
+	return vars
+}
+
+func DeleteVarsDecrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	for key := range vars {
+		if operation == "ahead" {
+			if strings.Contains(str, key) {
+				delete(vars, key)
+			}
+		} else {
+			if strings.Contains(key, str) {
+				delete(vars, key)
+			}
+		}
+	}
+	return vars
 }

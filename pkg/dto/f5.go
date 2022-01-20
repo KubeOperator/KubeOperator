@@ -8,14 +8,7 @@ type F5Setting struct {
 	ClusterName string `json:"clusterName"`
 }
 
-type F5SettingCreate struct {
-	Vars map[string]string `json:"vars" validate:"required"`
-}
-
-type F5SettingUpdate struct {
-	Vars map[string]string `json:"vars" validate:"required"`
-}
-
 type F5SettingResult struct {
-	Vars map[string]string `json:"vars" validate:"required"`
+	model.F5Setting
+	ClusterName string `json:"clusterName"`
 }

@@ -29,8 +29,6 @@ const (
 	StatusInitializing  = "Initializing"
 	StatusTerminating   = "Terminating"
 	StatusWaiting       = "Waiting"
-
-	DefaultPassword = "kubeoperator@admin123"
 )
 
 var (

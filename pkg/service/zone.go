@@ -18,6 +18,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 var (
@@ -43,7 +44,7 @@ type zoneService struct {
 	zoneRepo             repository.ZoneRepository
 	regionRepo           repository.RegionRepository
 	systemSettingService SystemSettingService
-	ipPoolService        IpPoolService
+	ipPoolService        IPPoolService
 }
 
 func NewZoneService() ZoneService {
@@ -51,7 +52,7 @@ func NewZoneService() ZoneService {
 		zoneRepo:             repository.NewZoneRepository(),
 		systemSettingService: NewSystemSettingService(),
 		regionRepo:           repository.NewRegionRepository(),
-		ipPoolService:        NewIpPoolService(),
+		ipPoolService:        NewIPPoolService(),
 	}
 }
 
@@ -61,6 +62,15 @@ func (z zoneService) Get(name string) (dto.Zone, error) {
 	if err != nil {
 		return zoneDTO, err
 	}
+
+	m := make(map[string]interface{})
+	_ = json.Unmarshal([]byte(mo.Vars), &m)
+	for key := range m {
+		if strings.Contains(strings.ToLower(key), "nfsPassword") {
+			delete(m, key)
+		}
+	}
+
 	zoneDTO.Zone = mo
 	return zoneDTO, err
 }
@@ -72,7 +82,16 @@ func (z zoneService) List() ([]dto.Zone, error) {
 		return zoneDTOs, err
 	}
 	for _, mo := range mos {
-		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo, RegionName: mo.Region.Name})
+		m := make(map[string]interface{})
+		_ = json.Unmarshal([]byte(mo.Vars), &m)
+		for key := range m {
+			if strings.Contains(strings.ToLower(key), "nfsPassword") {
+				delete(m, key)
+			}
+		}
+		mo.Vars = ""
+
+		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo, RegionName: mo.Region.Name, CloudVars: m})
 	}
 	return zoneDTOs, err
 }
@@ -91,6 +110,9 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
 			return page, err
 		}
+		encrypt.DeleteVarsDecrypt("ahead", "nfsPassword", m)
+		mo.Vars = ""
+
 		zoneDTO.CloudVars = m
 		zoneDTO.RegionName = mo.Region.Name
 		zoneDTO.Provider = mo.Region.Provider
@@ -127,13 +149,15 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		return nil, fmt.Errorf("Can't find local ip from system setting, err %s", err.Error())
 	}
 
+	encrypt.VarsEncrypt("ahead", "nfsPassword", creation.CloudVars)
+
 	old, _ := z.Get(creation.Name)
 	if old.ID != "" {
 		return nil, errors.New(ZoneNameExist)
 	}
 
-	param := creation.CloudVars.(map[string]interface{})
-	region, err := NewRegionService().Get(creation.RegionName)
+	param := creation.CloudVars
+	region, err := NewRegionService().GetAfterDecrypt(creation.RegionName)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +181,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	}
 
 	if region.Provider == constant.VSphere {
-		regionVars := region.RegionVars.(map[string]interface{})
+		regionVars := region.RegionVars
 		regionVars["datacenter"] = region.Datacenter
 		cloudClient := cloud_provider.NewCloudClient(regionVars)
 		err = cloudClient.CreateDefaultFolder()
@@ -198,6 +222,9 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	encrypt.VarsDecrypt("ahead", "nfsPassword", creation.CloudVars)
+
 	if param["templateType"] != nil && param["templateType"].(string) == "default" {
 		go z.uploadZoneImage(creation)
 	}
@@ -205,8 +232,9 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 }
 
 func (z zoneService) Update(update dto.ZoneUpdate) (*dto.Zone, error) {
+	encrypt.VarsEncrypt("ahead", "nfsPassword", update.CloudVars)
 
-	param := update.CloudVars.(map[string]interface{})
+	param := update.CloudVars
 	ipPool, err := z.ipPoolService.Get(update.IpPoolName)
 	if err != nil {
 		return nil, err
@@ -261,8 +289,17 @@ func (z zoneService) Batch(op dto.ZoneOp) error {
 }
 
 func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error) {
-	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
 	var result []interface{}
+	region, err := z.regionRepo.Get(creation.RegionName)
+	if err != nil {
+		return result, err
+	}
+	var vars map[string]interface{}
+	_ = json.Unmarshal([]byte(region.Vars), &vars)
+	encrypt.VarsDecrypt("after", "password", vars)
+	vars["datacenter"] = region.Datacenter
+
+	cloudClient := cloud_provider.NewCloudClient(vars)
 	if cloudClient != nil {
 		result, err := cloudClient.ListClusters()
 		if err != nil {
@@ -284,17 +321,17 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 		if err != nil {
 			return result, err
 		}
-		creation.Datacenter = region.Datacenter
 		m := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(region.Vars), &m); err != nil {
 			return result, err
 		}
-		vars := creation.CloudVars.(map[string]interface{})
-		m["cluster"] = vars["cluster"].(string)
+		encrypt.VarsDecrypt("after", "password", m)
+
+		m["cluster"] = creation.CloudVars["cluster"].(string)
 		m["datacenter"] = region.Datacenter
 		clientVars = m
 	} else {
-		clientVars = creation.CloudVars.(map[string]interface{})
+		clientVars = creation.CloudVars
 	}
 	cloudClient := cloud_provider.NewCloudClient(clientVars)
 
@@ -330,7 +367,7 @@ func (z zoneService) uploadZoneImage(creation dto.ZoneCreate) {
 }
 
 func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
-	region, err := NewRegionService().Get(creation.RegionName)
+	region, err := NewRegionService().GetAfterDecrypt(creation.RegionName)
 	if err != nil {
 		return err
 	}
@@ -340,10 +377,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	}
 	ip := repo.Hostname
 
-	regionVars := region.RegionVars.(map[string]interface{})
+	regionVars := region.RegionVars
+	encrypt.VarsDecrypt("after", "nfsPassword", regionVars)
 	regionVars["datacenter"] = region.Datacenter
 	if region.Provider == constant.VSphere {
-		zoneVars := creation.CloudVars.(map[string]interface{})
+		zoneVars := creation.CloudVars
 		if zoneVars["cluster"] != nil {
 			regionVars["cluster"] = zoneVars["cluster"]
 		}
@@ -363,7 +401,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip)
 	}
 	if region.Provider == constant.FusionCompute {
-		zoneVars := creation.CloudVars.(map[string]interface{})
+		zoneVars := creation.CloudVars
 		if zoneVars["cluster"] != nil {
 			regionVars["cluster"] = zoneVars["cluster"]
 		}
@@ -385,7 +423,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			return nil
 		}
 		if region.Provider == constant.FusionCompute {
-			zoneVars := creation.CloudVars.(map[string]interface{})
+			zoneVars := creation.CloudVars
 			nfsVars := make(map[string]interface{})
 			nfsVars["type"] = "SFTP"
 			nfsVars["address"] = zoneVars["nfsAddress"]
@@ -474,17 +512,16 @@ func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudD
 		if err != nil {
 			return result, err
 		}
-		creation.Datacenter = region.Datacenter
 		m := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(region.Vars), &m); err != nil {
 			return result, err
 		}
-		vars := creation.CloudVars.(map[string]interface{})
-		m["cluster"] = vars["cluster"].(string)
+		encrypt.VarsDecrypt("after", "nfsPassword", m)
+		m["cluster"] = creation.CloudVars["cluster"].(string)
 		m["datacenter"] = region.Datacenter
 		clientVars = m
 	} else {
-		clientVars = creation.CloudVars.(map[string]interface{})
+		clientVars = creation.CloudVars
 	}
 	cloudClient := cloud_provider.NewCloudClient(clientVars)
 	datastores, err := cloudClient.ListDatastores()

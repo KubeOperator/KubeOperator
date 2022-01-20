@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"sort"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -11,7 +13,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/mitchellh/mapstructure"
-	"sort"
 )
 
 var (
@@ -163,13 +164,13 @@ func (p planService) Batch(op dto.PlanOp) error {
 }
 
 func (p planService) GetConfigs(regionName string) ([]dto.PlanVmConfig, error) {
-	region, err := NewRegionService().Get(regionName)
+	region, err := NewRegionService().GetAfterDecrypt(regionName)
 	if err != nil {
 		return nil, err
 	}
 	var configs []dto.PlanVmConfig
 	if region.Provider == constant.OpenStack {
-		vars := region.RegionVars.(map[string]interface{})
+		vars := region.RegionVars
 		vars["datacenter"] = region.Datacenter
 		cloudClient := cloud_provider.NewCloudClient(vars)
 		result, err := cloudClient.ListFlavors()

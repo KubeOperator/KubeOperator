@@ -10,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/tools"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
@@ -45,6 +46,8 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 		d := dto.ClusterTool{ClusterTool: m}
 		d.Vars = map[string]interface{}{}
 		_ = json.Unmarshal([]byte(m.Vars), &d.Vars)
+		encrypt.DeleteVarsDecrypt("after", "adminPassword", d.Vars)
+
 		items = append(items, d)
 	}
 	return items, nil
@@ -91,6 +94,8 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 		return tool, err
 	}
 
+	encrypt.VarsEncrypt("after", "adminPassword", tool.Vars)
+
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
@@ -132,6 +137,8 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	if err != nil {
 		return tool, err
 	}
+
+	encrypt.VarsEncrypt("after", "adminPassword", tool.Vars)
 
 	var toolDetail model.ClusterToolDetail
 	if err := db.DB.Where("name = ? AND version = ?", tool.Name, tool.HigherVersion).Find(&toolDetail).Error; err != nil {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 type Grafana struct {
@@ -35,6 +36,11 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(g.Tool.Vars), &values)
+
+	passwd, _ := values["adminPassword"].(string)
+	passwdEncrypt, _ := encrypt.StringDecrypt(passwd)
+	values["adminPassword"] = passwdEncrypt
+
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["grafana_image_name"])
 	values["image.tag"] = imageMap["grafana_image_tag"]
 	values["initChownData.enabled"] = true

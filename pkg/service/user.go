@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"math/rand"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -35,7 +36,6 @@ type UserService interface {
 	Create(creation dto.UserCreate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Update(update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) error
 	UserAuth(name string, password string) (user *model.User, err error)
@@ -60,19 +60,37 @@ func (u userService) Get(name string) (dto.User, error) {
 	if err != nil {
 		return userDTO, err
 	}
-	userDTO.User = mo
+	userDTO = dto.User{
+		ID:        mo.ID,
+		Name:      mo.Name,
+		Email:     mo.Email,
+		IsActive:  mo.IsActive,
+		Language:  mo.Language,
+		IsAdmin:   mo.IsAdmin,
+		Type:      mo.Type,
+		CreatedAt: mo.CreatedAt,
+	}
 	return userDTO, err
 }
 
 func (u userService) List() ([]dto.User, error) {
-
 	var userDTOS []dto.User
 	mos, err := u.userRepo.List()
 	if err != nil {
 		return userDTOS, err
 	}
 	for _, mo := range mos {
-		userDTOS = append(userDTOS, dto.User{User: mo})
+		user := dto.User{
+			ID:        mo.ID,
+			Name:      mo.Name,
+			Email:     mo.Email,
+			IsActive:  mo.IsActive,
+			Language:  mo.Language,
+			IsAdmin:   mo.IsAdmin,
+			Type:      mo.Type,
+			CreatedAt: mo.CreatedAt,
+		}
+		userDTOS = append(userDTOS, user)
 	}
 	return userDTOS, err
 }
@@ -110,35 +128,22 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &dto.User{User: user}, err
-}
 
-func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
-
-	old, err := u.Get(update.Name)
-	if err != nil {
-		return nil, err
+	userDTO := dto.User{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		IsActive:  user.IsActive,
+		Language:  user.Language,
+		IsAdmin:   user.IsAdmin,
+		Type:      user.Type,
+		CreatedAt: user.CreatedAt,
 	}
 
-	user := model.User{
-		ID:       old.ID,
-		Name:     update.Name,
-		Email:    update.Email,
-		IsActive: update.IsActive,
-		IsAdmin:  update.IsAdmin,
-		Type:     constant.Local,
-		Password: old.Password,
-		Language: model.ZH,
-	}
-	err = u.userRepo.Save(&user)
-	if err != nil {
-		return nil, err
-	}
-	return &dto.User{User: user}, err
+	return &userDTO, err
 }
 
 func (u userService) Page(num, size int) (page.Page, error) {
-
 	var page page.Page
 	var userDTOs []dto.User
 	total, mos, err := u.userRepo.Page(num, size)
@@ -146,7 +151,17 @@ func (u userService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		userDTOs = append(userDTOs, dto.User{User: mo})
+		user := dto.User{
+			ID:        mo.ID,
+			Name:      mo.Name,
+			Email:     mo.Email,
+			IsActive:  mo.IsActive,
+			Language:  mo.Language,
+			IsAdmin:   mo.IsAdmin,
+			Type:      mo.Type,
+			CreatedAt: mo.CreatedAt,
+		}
+		userDTOs = append(userDTOs, user)
 	}
 	page.Total = total
 	page.Items = userDTOs
@@ -249,12 +264,8 @@ func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
 	if user.Email != fp.Email {
 		return EmailNotMatch
 	}
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	b := make([]rune, 6)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	password := string(b)
+
+	password := GetPasswd()
 	user.Password, err = encrypt.StringEncrypt(password)
 	if err != nil {
 		return err
@@ -287,4 +298,20 @@ func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
 		return err
 	}
 	return nil
+}
+
+func GetPasswd() string {
+	rand.Seed(time.Now().UnixNano())
+	lenNum := rand.Intn(5)
+
+	var numbers = []rune("0123456789")
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	b := make([]rune, 8)
+	for j := 0; j < lenNum; j++ {
+		b[j] = numbers[rand.Intn(len(numbers))]
+	}
+	for k := lenNum; k < 8; k++ {
+		b[k] = letters[rand.Intn(len(letters))]
+	}
+	return (string(b))
 }

@@ -1,9 +1,13 @@
 package dto
 
-import "github.com/KubeOperator/KubeOperator/pkg/model"
+import "time"
 
 type Credential struct {
-	model.Credential
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Username  string    `json:"username" gorm:"type:varchar(64)"`
+	Type      string    `json:"type" gorm:"type:varchar(64)"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type CredentialPage struct {

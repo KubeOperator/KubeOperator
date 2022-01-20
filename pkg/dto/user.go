@@ -1,9 +1,16 @@
 package dto
 
-import "github.com/KubeOperator/KubeOperator/pkg/model"
+import "time"
 
 type User struct {
-	model.User
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	IsActive  bool      `json:"isActive"`
+	Language  string    `json:"language"`
+	IsAdmin   bool      `json:"isAdmin"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type UserCreate struct {

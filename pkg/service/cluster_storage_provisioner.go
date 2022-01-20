@@ -15,6 +15,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,13 +23,14 @@ import (
 )
 
 const (
-	oceanStor           = "10-plugin-cluster-storage-oceanstor.yml"
-	externalCephStorage = "10-plugin-cluster-storage-external-ceph.yml"
-	NfsStorage          = "10-plugin-cluster-storage-nfs.yml"
-	rookCephStorage     = "10-plugin-cluster-storage-rook-ceph.yml"
-	vsphereStorage      = "10-plugin-cluster-storage-vsphere.yml"
-	cinderStorage       = "10-plugin-cluster-storage-cinder.yml"
-	glusterfsStorage    = "10-plugin-cluster-storage-glusterfs.yml"
+	oceanStor              = "10-plugin-cluster-storage-oceanstor.yml"
+	externalCephStorage    = "10-plugin-cluster-storage-external-ceph.yml"
+	NfsStorage             = "10-plugin-cluster-storage-nfs.yml"
+	rookCephStorage        = "10-plugin-cluster-storage-rook-ceph.yml"
+	vsphereStorage         = "10-plugin-cluster-storage-vsphere.yml"
+	cinderStorage          = "10-plugin-cluster-storage-cinder.yml"
+	glusterfsStorage       = "10-plugin-cluster-storage-glusterfs.yml"
+	encryptProvisionerKeys = "cinder_password, oceanstor_password, vc_password"
 )
 
 type ClusterStorageProvisionerService interface {
@@ -77,6 +79,8 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 
 		var vars map[string]interface{}
 		_ = json.Unmarshal([]byte(p.Vars), &vars)
+		encrypt.DeleteVarsDecrypt("ahead", encryptProvisionerKeys, vars)
+
 		clusterStorageProvisionerDTOS = append(clusterStorageProvisionerDTOS, dto.ClusterStorageProvisioner{
 			ClusterStorageProvisioner: p,
 			Vars:                      vars,
@@ -102,6 +106,8 @@ func (c clusterStorageProvisionerService) BatchStorageProvisioner(clusterName st
 }
 
 func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName string, creation dto.ClusterStorageProvisionerCreation) (dto.ClusterStorageProvisioner, error) {
+	encrypt.VarsEncrypt("ahead", encryptProvisionerKeys, creation.Vars)
+
 	vars, _ := json.Marshal(creation.Vars)
 	var dp dto.ClusterStorageProvisioner
 	p := model.ClusterStorageProvisioner{
@@ -585,6 +591,8 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, clust
 			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
 		}
 	}
+
+	encrypt.VarsDecrypt("ahead", encryptProvisionerKeys, commonVars)
 	for k, v := range commonVars {
 		if v != nil {
 			admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))

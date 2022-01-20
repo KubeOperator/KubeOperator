@@ -101,9 +101,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.regions.forEach(region => {
             if (region.name === this.item.regionName) {
                 this.region = region;
-                this.region.regionVars = JSON.parse(this.region.vars);
-                this.cloudZoneRequest.cloudVars = JSON.parse(this.region.vars);
-                this.cloudZoneRequest.cloudVars['datacenter'] = this.region.datacenter;
+                this.cloudZoneRequest.regionName = this.region.name;
                 this.item.regionID = region.id;
             }
         });

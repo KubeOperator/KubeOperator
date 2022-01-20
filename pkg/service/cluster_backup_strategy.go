@@ -51,7 +51,7 @@ func (c cLusterBackupStrategyService) Get(clusterName string) (*dto.ClusterBacku
 }
 
 func (c cLusterBackupStrategyService) Save(creation dto.ClusterBackupStrategyRequest) (*dto.ClusterBackupStrategy, error) {
-	backupAccount, err := c.backupAccountService.Get(creation.BackupAccountName)
+	backupAccount, err := c.backupAccountService.GetAfterDecrypt(creation.BackupAccountName)
 	if err != nil {
 		return nil, err
 	}
