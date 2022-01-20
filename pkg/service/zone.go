@@ -44,7 +44,7 @@ type zoneService struct {
 	zoneRepo             repository.ZoneRepository
 	regionRepo           repository.RegionRepository
 	systemSettingService SystemSettingService
-	ipPoolService        IPPoolService
+	ipPoolService        IpPoolService
 }
 
 func NewZoneService() ZoneService {
@@ -52,7 +52,7 @@ func NewZoneService() ZoneService {
 		zoneRepo:             repository.NewZoneRepository(),
 		systemSettingService: NewSystemSettingService(),
 		regionRepo:           repository.NewRegionRepository(),
-		ipPoolService:        NewIPPoolService(),
+		ipPoolService:        NewIpPoolService(),
 	}
 }
 
