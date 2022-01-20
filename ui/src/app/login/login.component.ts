@@ -24,7 +24,6 @@ export class LoginComponent implements OnInit {
     isError = false;
     theme: Theme;
     captcha: Captcha = new Captcha();
-    hasCode = false;
 
     constructor(private router: Router,
                 private themeService: ThemeService,
@@ -40,7 +39,7 @@ export class LoginComponent implements OnInit {
             this.loginCredential.language = 'zh-CN';
         }
         this.loadTheme();
-        this.checkLoginFailedNum();
+        this.createCaptcha();
     }
 
     reset() {
@@ -64,23 +63,10 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
             this.router.navigateByUrl(CommonRoutes.KO_ROOT);
-            localStorage.removeItem('loginErrorNum');
         }, error => this.handleError(error));
     }
 
     handleError(error: any) {
-        this.isError = true;
-        if (localStorage.getItem('loginErrorNum') != null) {
-            const loginErrorNum = Number(localStorage.getItem('loginErrorNum'));
-            if (loginErrorNum >= 3) {
-                this.createCaptcha();
-            } else {
-                const newNum = loginErrorNum + 1;
-                localStorage.setItem('loginErrorNum', newNum.toString());
-            }
-        } else {
-            localStorage.setItem('loginErrorNum', '1');
-        }
         switch (error.status) {
             case 504:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
@@ -96,19 +82,9 @@ export class LoginComponent implements OnInit {
     createCaptcha() {
         this.sessionService.getCode().subscribe(res => {
             this.captcha = res;
-            this.hasCode = true;
         }, error => {
             this.message = this.translateService.instant(error.msg);
         });
-    }
-
-    checkLoginFailedNum() {
-        if (localStorage.getItem('loginErrorNum') != null) {
-            const loginErrorNum = Number(localStorage.getItem('loginErrorNum'));
-            if (loginErrorNum >= 3) {
-                this.createCaptcha();
-            }
-        }
     }
 
     forgotPassword() {

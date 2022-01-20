@@ -9,7 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/captcha"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 	"github.com/spf13/viper"
 )
@@ -39,37 +39,31 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	if err := s.Ctx.ReadJSON(&aul); err != nil {
 		return nil, err
 	}
-	if aul.CaptchaId != "" {
-		err := captcha.VerifyCode(aul.CaptchaId, aul.Code)
-		if err != nil {
-			return nil, err
-		}
+
+	validate := validator.New()
+	if err := validate.Struct(aul); err != nil {
+		return nil, err
 	}
-	var profile *dto.Profile
-	switch aul.AuthMethod {
-	case constant.AuthMethodJWT:
-		p, err := s.checkSessionLogin(aul.Username, aul.Password, true)
-		if err != nil {
-			return nil, err
-		}
-		profile = p
-	default:
-		p, err := s.checkSessionLogin(aul.Username, aul.Password, false)
-		if err != nil {
-			return nil, err
-		}
-		profile = p
-		sId := s.Ctx.GetCookie(constant.CookieNameForSessionID)
-		if sId != "" {
-			s.Ctx.RemoveCookie(constant.CookieNameForSessionID)
-		}
-		session := constant.Sess.Start(s.Ctx)
-		session.Set(constant.SessionUserKey, profile)
+
+	err := captcha.VerifyCode(aul.CaptchaId, aul.Code)
+	if err != nil {
+		return nil, err
 	}
+
+	p, err := s.checkSessionLogin(aul.Username, aul.Password, false)
+	if err != nil {
+		return nil, err
+	}
+	sId := s.Ctx.GetCookie(constant.CookieNameForSessionID)
+	if sId != "" {
+		s.Ctx.RemoveCookie(constant.CookieNameForSessionID)
+	}
+	session := constant.Sess.Start(s.Ctx)
+	session.Set(constant.SessionUserKey, p)
 
 	go kolog.Save(aul.Username, constant.LOGIN, "-")
 
-	return profile, nil
+	return p, nil
 }
 
 // Logout
@@ -100,15 +94,12 @@ func (s *SessionController) checkSessionLogin(username string, password string, 
 	if err != nil {
 		return nil, err
 	}
+
 	resp := &dto.Profile{}
 	resp.User = toSessionUser(*u)
-	if jwt {
-		token, err := createToken(toSessionUser(*u))
-		if err != nil {
-			return nil, err
-		}
-		resp.Token = token
-	}
+	exp := viper.GetInt("jwt.exp")
+	resp.Timeout = time.Now().Add(time.Minute * time.Duration(exp))
+
 	return resp, err
 }
 
@@ -121,24 +112,4 @@ func toSessionUser(u model.User) dto.SessionUser {
 		IsActive: u.IsActive,
 		IsAdmin:  u.IsAdmin,
 	}
-}
-
-func createToken(user dto.SessionUser) (string, error) {
-	exp := viper.GetInt("jwt.exp")
-	secretKey := []byte(viper.GetString("jwt.secret"))
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name":     user.Name,
-		"email":    user.Email,
-		"userId":   user.UserId,
-		"isActive": user.IsActive,
-		"language": user.Language,
-		"isAdmin":  user.IsAdmin,
-		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(time.Minute * time.Duration(exp)).Unix(),
-	})
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, err
 }

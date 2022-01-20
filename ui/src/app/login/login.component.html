@@ -22,8 +22,8 @@
                        [(ngModel)]="loginCredential.password" required autocomplete/>
             </clr-input-container>
             <div>
-                <img width="120" src="{{captcha.image}}" (click)="createCaptcha()" *ngIf="hasCode">
-                <clr-input-container *ngIf="hasCode" style="width: 120px;">
+                <img width="120" src="{{captcha.image}}" (click)="createCaptcha()">
+                <clr-input-container style="width: 120px;">
                     <input type="text" size="20" name="code" clrInput [(ngModel)]="loginCredential.code"
                            required/>
                 </clr-input-container>

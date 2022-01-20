@@ -1,12 +1,14 @@
 package dto
 
+import "time"
+
 type LoginCredential struct {
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	Language   string `json:"language"`
-	CaptchaId  string `json:"captchaId"`
-	Code       string `json:"code"`
-	AuthMethod string `json:"authMethod"`
+	Username   string `json:"username" validate:"required"`
+	Password   string `json:"password" validate:"required"`
+	Language   string `json:"language" validate:"required"`
+	CaptchaId  string `json:"captchaId" validate:"required"`
+	Code       string `json:"code" validate:"required"`
+	AuthMethod string `json:"authMethod" validate:"-"`
 }
 
 type SessionUser struct {
@@ -19,8 +21,9 @@ type SessionUser struct {
 }
 
 type Profile struct {
-	User  SessionUser `json:"user"`
-	Token string      `json:"token,omitempty"`
+	User    SessionUser `json:"user"`
+	Timeout time.Time   `json:"timeout"`
+	Token   string      `json:"token,omitempty"`
 }
 
 type Captcha struct {

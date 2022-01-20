@@ -60,9 +60,7 @@ func (u userRepository) Save(item *model.User) error {
 }
 
 func (u userRepository) Delete(name string) error {
-	var user model.User
-	user.Name = name
-	return db.DB.Delete(&user).Error
+	return db.DB.Where("name = ?", name).Delete(&model.User{}).Error
 }
 
 func (u userRepository) Batch(operation string, items []model.User) error {
