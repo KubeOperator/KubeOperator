@@ -20,10 +20,6 @@ import {LoggingComponent} from './business/cluster/cluster-detail/logging/loggin
 import {IstioComponent} from './business/cluster/cluster-detail/istio/istio.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
 import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
-import {RegionComponent} from './business/deploy-plan/region/region.component';
-import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component';
-import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
-import {PlanComponent} from './business/deploy-plan/plan/plan.component';
 import {StorageProvisionerComponent} from './business/cluster/cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 import {RepositoryComponent} from './business/cluster/cluster-detail/repository/repository.component';
 import {ChartmuseumComponent} from './business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component';
@@ -49,7 +45,6 @@ import {UserSubscribeComponent} from './business/message-center/user-subscribe/u
 import {MailboxComponent} from './business/message-center/mailbox/mailbox.component';
 import {ClusterLoggerComponent} from './business/cluster/cluster-logger/cluster-logger.component';
 import {MessageComponent} from './business/setting/message/message.component';
-import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.component';
 import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-grade/cluster-grade.component';
 import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
@@ -62,9 +57,6 @@ import {MultiClusterRelationComponent} from './business/multi-cluster/multi-clus
 import {MultiClusterLogComponent} from './business/multi-cluster/multi-cluster-repository-detail/multi-cluster-log/multi-cluster-log.component';
 import {MultiClusterSettingComponent} from './business/multi-cluster/multi-cluster-repository-detail/multi-cluster-setting/multi-cluster-setting.component';
 import {SystemLogComponent} from './business/system-log/system-log.component';
-import {IpPoolComponent} from './business/deploy-plan/ip-pool/ip-pool.component';
-import {IpComponent} from './business/deploy-plan/ip-pool/ip/ip.component';
-import {IpPoolRoutingResolverService} from './business/deploy-plan/ip-pool/ip-pool-routing-resolver.service';
 import {RegistrySettingComponent} from './business/setting/registry-setting/registry-setting.component';
 
 const routes: Routes = [
@@ -175,26 +167,6 @@ const routes: Routes = [
                 ]
             },
             {
-                path: 'deploy',
-                component: DeployPlanComponent,
-                canActivate: [AdminAuthService],
-                children: [
-                    {path: '', redirectTo: 'region', pathMatch: 'full'},
-                    {path: 'region', component: RegionComponent},
-                    {path: 'zone', component: ZoneComponent},
-                    {path: 'plan', component: PlanComponent},
-                    {path: 'vm-config', component: VmConfigComponent},
-                    {
-                        path: 'ip-pool',
-                        component: IpPoolComponent,
-                    },
-                    {
-                        path: 'ip-pool/:name',
-                        component: IpComponent,
-                        resolve: {ipPool: IpPoolRoutingResolverService},
-                    }
-                ]
-            }, {
                 path: 'manifests',
                 component: ManifestComponent,
                 canActivate: [AdminAuthService],

@@ -23,15 +23,6 @@ func NewVmConfigController() *VmConfigController {
 	}
 }
 
-// List VmConfigs
-// @Tags vmConfigs
-// @Summary Show all vmConfigs
-// @Description Show vmConfigs
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} page.Page
-// @Security ApiKeyAuth
-// @Router /vm/configs/ [get]
 func (v VmConfigController) Get() (page.Page, error) {
 	pa, _ := v.Ctx.Values().GetBool("page")
 	if pa {
@@ -50,16 +41,6 @@ func (v VmConfigController) Get() (page.Page, error) {
 	}
 }
 
-// Create VmConfig
-// @Tags vmConfigs
-// @Summary Create a VmConfig
-// @Description create a VmConfig
-// @Accept  json
-// @Produce  json
-// @Param request body dto.VmConfigCreate true "request"
-// @Success 200 {object} dto.VmConfig
-// @Security ApiKeyAuth
-// @Router /vm/config/ [post]
 func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	var req dto.VmConfigCreate
 	err := v.Ctx.ReadJSON(&req)
@@ -80,16 +61,6 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	return v.VmConfigService.Create(req)
 }
 
-// Update VmConfig
-// @Tags vmConfigs
-// @Summary Update a vmConfig
-// @Description Update a vmConfig
-// @Accept  json
-// @Produce  json
-// @Param request body dto.VmConfigUpdate true "request"
-// @Success 200 {object} dto.VmConfig
-// @Security ApiKeyAuth
-// @Router /vm/config/{name}/ [patch]
 func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	var req dto.VmConfigUpdate
 	err := v.Ctx.ReadJSON(&req)

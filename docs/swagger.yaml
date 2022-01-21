@@ -9,6 +9,7 @@ definitions:
       credential:
         type: string
       credentialVars:
+        additionalProperties: true
         type: object
       name:
         type: string
@@ -24,16 +25,21 @@ definitions:
       bucket:
         type: string
       credentialVars:
+        additionalProperties: true
         type: object
       name:
         type: string
       type:
+        enum:
+        - OSS
+        - S3
+        - AZURE
+        - SFTP
         type: string
     required:
     - bucket
     - credentialVars
     - name
-    - type
     type: object
   dto.Cluster:
     properties:
@@ -81,6 +87,8 @@ definitions:
     required:
     - clusterBackupStrategyId
     - clusterName
+    - folder
+    - name
     type: object
   dto.ClusterBackupFileRestore:
     properties:
@@ -126,74 +134,20 @@ definitions:
       clusterName:
         type: string
       cron:
+        maximum: 300
+        minimum: 1
         type: integer
       id:
         type: string
       saveNum:
+        maximum: 100
+        minimum: 1
         type: integer
       status:
         type: string
     required:
     - backupAccountName
     - clusterName
-    type: object
-  dto.ClusterCreate:
-    properties:
-      architectures:
-        type: string
-      calicoIpv4PoolIpip:
-        type: string
-      clusterCidr:
-        type: string
-      containerdStorageDIr:
-        type: string
-      dockerStorageDIr:
-        type: string
-      dockerSubnet:
-        type: string
-      flannelBackend:
-        type: string
-      helmVersion:
-        type: string
-      ingressControllerType:
-        type: string
-      kubeProxyMode:
-        type: string
-      kubernetesAudit:
-        type: string
-      maxClusterServiceNum:
-        type: integer
-      maxNodePodNum:
-        type: integer
-      name:
-        type: string
-      networkInterface:
-        type: string
-      networkType:
-        type: string
-      nodes:
-        items:
-          $ref: '#/definitions/dto.NodeCreate'
-        type: array
-      plan:
-        type: string
-      projectName:
-        type: string
-      provider:
-        type: string
-      runtimeType:
-        type: string
-      supportGpu:
-        type: string
-      version:
-        type: string
-      workerAmount:
-        type: integer
-      yumOperate:
-        type: string
-    required:
-    - name
-    - version
     type: object
   dto.Credential:
     properties:
@@ -203,13 +157,7 @@ definitions:
         type: string
       name:
         type: string
-      password:
-        type: string
-      privateKey:
-        type: string
       type:
-        type: string
-      updatedAt:
         type: string
       username:
         type: string
@@ -217,6 +165,7 @@ definitions:
   dto.CredentialCreate:
     properties:
       name:
+        maxLength: 30
         type: string
       password:
         type: string
@@ -236,6 +185,7 @@ definitions:
       id:
         type: string
       name:
+        maxLength: 30
         type: string
       password:
         type: string
@@ -309,103 +259,17 @@ definitions:
       ip:
         type: string
       name:
+        maxLength: 30
         type: string
       port:
+        maximum: 65535
+        minimum: 1
         type: integer
     required:
     - credentialId
     - ip
     - name
     - port
-    type: object
-  dto.Ip:
-    properties:
-      address:
-        type: string
-      clusterId:
-        type: string
-      createdAt:
-        type: string
-      dns1:
-        type: string
-      dns2:
-        type: string
-      gateway:
-        type: string
-      id:
-        type: string
-      ipPool:
-        $ref: '#/definitions/model.IpPool'
-      ipPoolId:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  dto.IpCreate:
-    properties:
-      dns1:
-        type: string
-      dns2:
-        type: string
-      gateway:
-        type: string
-      ipEnd:
-        type: string
-      ipPoolName:
-        type: string
-      ipStart:
-        type: string
-      subnet:
-        type: string
-    type: object
-  dto.IpPool:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      ipUsed:
-        type: integer
-      ips:
-        items:
-          $ref: '#/definitions/model.Ip'
-        type: array
-      name:
-        type: string
-      subnet:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  dto.IpPoolCreate:
-    properties:
-      description:
-        type: string
-      dns1:
-        type: string
-      dns2:
-        type: string
-      gateway:
-        type: string
-      ipEnd:
-        type: string
-      ipStart:
-        type: string
-      name:
-        type: string
-      subnet:
-        type: string
-    type: object
-  dto.IpUpdate:
-    properties:
-      address:
-        type: string
-      operation:
-        type: string
     type: object
   dto.LoginCredential:
     properties:
@@ -421,67 +285,17 @@ definitions:
         type: string
       username:
         type: string
-    type: object
-  dto.NodeCreate:
-    properties:
-      hostName:
-        type: string
-      role:
-        type: string
-    type: object
-  dto.Plan:
-    properties:
-      createdAt:
-        type: string
-      deployTemplate:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      planVars:
-        type: object
-      regionId:
-        type: string
-      regionName:
-        type: string
-      updatedAt:
-        type: string
-      vars:
-        type: string
-      zoneNames:
-        items:
-          type: string
-        type: array
-    type: object
-  dto.PlanCreate:
-    properties:
-      deployTemplate:
-        type: string
-      name:
-        type: string
-      planVars:
-        type: object
-      projects:
-        items:
-          type: string
-        type: array
-      region:
-        type: string
-      zones:
-        items:
-          type: string
-        type: array
     required:
-    - deployTemplate
-    - name
-    - planVars
-    - projects
-    - region
-    - zones
+    - captchaId
+    - code
+    - language
+    - password
+    - username
     type: object
   dto.Profile:
     properties:
+      timeout:
+        type: string
       token:
         type: string
       user:
@@ -503,14 +317,15 @@ definitions:
   dto.ProjectCreate:
     properties:
       description:
+        maxLength: 255
         type: string
       name:
+        maxLength: 30
         type: string
       userName:
         type: string
     required:
     - name
-    - userName
     type: object
   dto.ProjectMember:
     properties:
@@ -534,12 +349,14 @@ definitions:
       projectName:
         type: string
       role:
+        enum:
+        - CLUSTER_MANAGER
+        - PROJECT_MANAGER
         type: string
       username:
         type: string
     required:
     - projectName
-    - role
     - username
     type: object
   dto.ProjectUpdate:
@@ -552,41 +369,6 @@ definitions:
         type: string
     required:
     - name
-    type: object
-  dto.Region:
-    properties:
-      createdAt:
-        type: string
-      datacenter:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      provider:
-        type: string
-      regionVars:
-        type: object
-      updatedAt:
-        type: string
-      vars:
-        type: string
-    type: object
-  dto.RegionCreate:
-    properties:
-      datacenter:
-        type: string
-      name:
-        type: string
-      provider:
-        type: string
-      regionVars:
-        type: object
-    required:
-    - datacenter
-    - name
-    - provider
-    - regionVars
     type: object
   dto.SessionUser:
     properties:
@@ -619,11 +401,7 @@ definitions:
         type: string
       name:
         type: string
-      password:
-        type: string
       type:
-        type: string
-      updatedAt:
         type: string
     type: object
   dto.UserCreate:
@@ -633,19 +411,16 @@ definitions:
       isAdmin:
         type: boolean
       name:
+        maxLength: 30
         type: string
       password:
         type: string
     required:
-    - email
-    - isAdmin
     - name
     - password
     type: object
   dto.UserUpdate:
     properties:
-      email:
-        type: string
       id:
         type: string
       isActive:
@@ -653,111 +428,10 @@ definitions:
       isAdmin:
         type: boolean
       name:
+        maxLength: 30
         type: string
     required:
-    - email
-    - isAdmin
     - name
-    type: object
-  dto.VmConfig:
-    properties:
-      cpu:
-        type: integer
-      createdAt:
-        type: string
-      disk:
-        type: integer
-      memory:
-        type: integer
-      name:
-        type: string
-      provider:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  dto.VmConfigCreate:
-    properties:
-      cpu:
-        type: integer
-      memory:
-        type: integer
-      name:
-        type: string
-      provider:
-        type: string
-    required:
-    - cpu
-    - memory
-    - name
-    type: object
-  dto.VmConfigUpdate:
-    properties:
-      cpu:
-        type: integer
-      memory:
-        type: integer
-      name:
-        type: string
-      provider:
-        type: string
-    required:
-    - cpu
-    - memory
-    - name
-    type: object
-  dto.Zone:
-    properties:
-      _:
-        $ref: '#/definitions/model.IpPool'
-      cloudVars:
-        type: object
-      createdAt:
-        type: string
-      credentialId:
-        type: string
-      id:
-        type: string
-      ipPool:
-        $ref: '#/definitions/dto.IpPool'
-      ipPoolId:
-        type: string
-      ipPoolName:
-        type: string
-      name:
-        type: string
-      provider:
-        type: string
-      regionID:
-        type: string
-      regionName:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-      vars:
-        type: string
-    type: object
-  dto.ZoneCreate:
-    properties:
-      cloudVars:
-        type: object
-      credentialId:
-        type: string
-      ipPoolName:
-        type: string
-      name:
-        type: string
-      regionID:
-        type: string
-      regionName:
-        type: string
-    required:
-    - cloudVars
-    - name
-    - regionID
-    - regionName
     type: object
   model.BackupAccount:
     properties:
@@ -799,13 +473,23 @@ definitions:
         type: string
       calicoIpv4PoolIpip:
         type: string
+      ciliumNativeRoutingCidr:
+        type: string
+      ciliumTunnelMode:
+        type: string
+      ciliumVersion:
+        type: string
       containerdStorageDir:
         type: string
       createdAt:
         type: string
+      dnsCacheVersion:
+        type: string
       docker_subnet:
         type: string
       dockerStorageDir:
+        type: string
+      enableDnsCache:
         type: string
       flannelBackend:
         type: string
@@ -835,6 +519,8 @@ definitions:
         type: string
       networkType:
         type: string
+      nodeportAddress:
+        type: string
       provider:
         type: string
       runtimeType:
@@ -850,48 +536,6 @@ definitions:
       workerAmount:
         type: integer
       yumOperate:
-        type: string
-    type: object
-  model.Ip:
-    properties:
-      address:
-        type: string
-      clusterId:
-        type: string
-      createdAt:
-        type: string
-      dns1:
-        type: string
-      dns2:
-        type: string
-      gateway:
-        type: string
-      id:
-        type: string
-      ipPoolId:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  model.IpPool:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      ips:
-        items:
-          $ref: '#/definitions/model.Ip'
-        type: array
-      name:
-        type: string
-      subnet:
-        type: string
-      updatedAt:
         type: string
     type: object
   model.MultiClusterRepository:
@@ -944,8 +588,7 @@ definitions:
     type: object
   page.Page:
     properties:
-      items:
-        type: object
+      items: {}
       total:
         type: integer
     type: object
@@ -967,6 +610,7 @@ paths:
       description: Logout
       produces:
       - application/json
+      responses: {}
       summary: Logout
       tags:
       - auth
@@ -1058,14 +702,15 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
@@ -1113,6 +758,7 @@ paths:
       description: delete a BackupFile by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a BackupFile
@@ -1220,29 +866,6 @@ paths:
       summary: Show all clusters
       tags:
       - clusters
-    post:
-      consumes:
-      - application/json
-      description: Create a cluster
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ClusterCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Cluster'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a cluster
-      tags:
-      - clusters
   /clusters/{name}/:
     delete:
       consumes:
@@ -1250,6 +873,7 @@ paths:
       description: delete a cluster by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a cluster
@@ -1278,6 +902,7 @@ paths:
       description: import a cluster
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Import a cluster
@@ -1290,6 +915,7 @@ paths:
       description: Get cluster nodes
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Get cluster nodes
@@ -1382,6 +1008,7 @@ paths:
       description: delete a host by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a host
@@ -1410,6 +1037,7 @@ paths:
       description: download template file for import hosts
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Download Host Template File
@@ -1422,132 +1050,12 @@ paths:
       description: Upload File for import hosts
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Upload File for import
       tags:
       - hosts
-  /ippools/:
-    get:
-      consumes:
-      - application/json
-      description: Show hosts
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all hosts
-      tags:
-      - ippools
-    post:
-      consumes:
-      - application/json
-      description: create a IpPool
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.IpPoolCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.IpPool'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a IpPool
-      tags:
-      - ippools
-  /ippools/{name}:
-    get:
-      consumes:
-      - application/json
-      description: get a IpPool
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.IpPool'
-      security:
-      - ApiKeyAuth: []
-      summary: Get IpPool
-      tags:
-      - ippools
-  /ippools/{name}/ips:
-    patch:
-      consumes:
-      - application/json
-      description: Update a Ip
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.IpUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Ip'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a Ip
-      tags:
-      - ips
-    post:
-      consumes:
-      - application/json
-      description: create a Ip
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.IpCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Ip'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a Ip
-      tags:
-      - ips
-  /ippools/{name}/ips/:
-    get:
-      consumes:
-      - application/json
-      description: Show ips by ipPoolName
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show ips by ipPoolName
-      tags:
-      - ips
   /logs/:
     get:
       consumes:
@@ -1565,74 +1073,6 @@ paths:
       summary: Show all system_logs
       tags:
       - system_logs
-  /plans/:
-    get:
-      consumes:
-      - application/json
-      description: Show plans
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all plans
-      tags:
-      - plans
-    post:
-      consumes:
-      - application/json
-      description: create a plan
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.PlanCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Plan'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a plan
-      tags:
-      - plans
-  /plans/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a plan by name
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a plan
-      tags:
-      - plans
-    get:
-      consumes:
-      - application/json
-      description: show a plan by name
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Plan'
-      security:
-      - ApiKeyAuth: []
-      summary: Show a Plan
-      tags:
-      - plans
   /project/members/:
     get:
       consumes:
@@ -1737,6 +1177,7 @@ paths:
       description: delete a  project by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a project
@@ -1781,74 +1222,6 @@ paths:
       summary: Update a project
       tags:
       - projects
-  /regions/:
-    get:
-      consumes:
-      - application/json
-      description: Show regions
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all regions
-      tags:
-      - regions
-    post:
-      consumes:
-      - application/json
-      description: create a region
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RegionCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Region'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a region
-      tags:
-      - regions
-  /regions/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a region by name
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a region
-      tags:
-      - regions
-    get:
-      consumes:
-      - application/json
-      description: show a region by name
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Region'
-      security:
-      - ApiKeyAuth: []
-      summary: Show a Region
-      tags:
-      - regions
   /users/:
     get:
       consumes:
@@ -1896,6 +1269,7 @@ paths:
       description: delete a user by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a user
@@ -1940,139 +1314,6 @@ paths:
       summary: Update a user
       tags:
       - users
-  /vm/config/:
-    post:
-      consumes:
-      - application/json
-      description: create a VmConfig
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.VmConfigCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VmConfig'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a VmConfig
-      tags:
-      - vmConfigs
-  /vm/config/{name}/:
-    patch:
-      consumes:
-      - application/json
-      description: Update a vmConfig
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.VmConfigUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VmConfig'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a vmConfig
-      tags:
-      - vmConfigs
-  /vm/configs/:
-    get:
-      consumes:
-      - application/json
-      description: Show vmConfigs
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all vmConfigs
-      tags:
-      - vmConfigs
-  /zones/:
-    get:
-      consumes:
-      - application/json
-      description: Show zones
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all zones
-      tags:
-      - zones
-    post:
-      consumes:
-      - application/json
-      description: create a zone
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ZoneCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Zone'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a zone
-      tags:
-      - zones
-  /zones/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a zone by name
-      produces:
-      - application/json
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a zone
-      tags:
-      - zones
-    get:
-      consumes:
-      - application/json
-      description: show a zone by name
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Zone'
-      security:
-      - ApiKeyAuth: []
-      summary: Show a zone
-      tags:
-      - zones
 securityDefinitions:
   ApiKeyAuth:
     in: header

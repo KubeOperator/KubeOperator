@@ -22,15 +22,6 @@ func NewRegionController() *RegionController {
 	}
 }
 
-// List Region
-// @Tags regions
-// @Summary Show all regions
-// @Description Show regions
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} page.Page
-// @Security ApiKeyAuth
-// @Router /regions/ [get]
 func (r RegionController) Get() (page.Page, error) {
 
 	p, _ := r.Ctx.Values().GetBool("page")
@@ -50,29 +41,10 @@ func (r RegionController) Get() (page.Page, error) {
 	}
 }
 
-// Get Region
-// @Tags regions
-// @Summary Show a Region
-// @Description show a region by name
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} dto.Region
-// @Security ApiKeyAuth
-// @Router /regions/{name}/ [get]
 func (r RegionController) GetBy(name string) (dto.Region, error) {
 	return r.RegionService.Get(name)
 }
 
-// Create Region
-// @Tags regions
-// @Summary Create a region
-// @Description create a region
-// @Accept  json
-// @Produce  json
-// @Param request body dto.RegionCreate true "request"
-// @Success 200 {object} dto.Region
-// @Security ApiKeyAuth
-// @Router /regions/ [post]
 func (r RegionController) Post() (*dto.Region, error) {
 	var req dto.RegionCreate
 	err := r.Ctx.ReadJSON(&req)
@@ -93,14 +65,6 @@ func (r RegionController) Post() (*dto.Region, error) {
 	return r.RegionService.Create(req)
 }
 
-// Delete Region
-// @Tags regions
-// @Summary Delete a region
-// @Description delete a region by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /regions/{name}/ [delete]
 func (r RegionController) Delete(name string) error {
 	operator := r.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_REGION, name)

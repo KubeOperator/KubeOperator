@@ -20,15 +20,6 @@ func NewIpController() *IpController {
 	}
 }
 
-// List IP
-// @Tags ips
-// @Summary Show ips by ipPoolName
-// @Description Show ips by ipPoolName
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} page.Page
-// @Security ApiKeyAuth
-// @Router /ippools/{name}/ips/ [get]
 func (i IpController) Get() (page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	ipPoolName := i.Ctx.Params().GetString("name")
@@ -41,16 +32,6 @@ func (i IpController) Get() (page.Page, error) {
 	}
 }
 
-// Create Ip
-// @Tags ips
-// @Summary Create a Ip
-// @Description create a Ip
-// @Accept  json
-// @Produce  json
-// @Param request body dto.IpCreate true "request"
-// @Success 200 {object} dto.Ip
-// @Security ApiKeyAuth
-// @Router /ippools/{name}/ips [post]
 func (i IpController) Post() error {
 	var req dto.IpCreate
 	err := i.Ctx.ReadJSON(&req)
@@ -79,16 +60,6 @@ func (i IpController) PostBatch() error {
 	return i.IpService.Batch(req)
 }
 
-// Update Ip
-// @Tags ips
-// @Summary Update a Ip
-// @Description Update a Ip
-// @Accept  json
-// @Produce  json
-// @Param request body dto.IpUpdate true "request"
-// @Success 200 {object} dto.Ip
-// @Security ApiKeyAuth
-// @Router /ippools/{name}/ips  [patch]
 func (i IpController) Patch() (*dto.Ip, error) {
 	var req dto.IpUpdate
 	err := i.Ctx.ReadJSON(&req)

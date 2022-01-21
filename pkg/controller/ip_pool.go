@@ -23,15 +23,6 @@ func NewIpPoolController() *IpPoolController {
 	}
 }
 
-// List IpPool
-// @Tags ippools
-// @Summary Show all hosts
-// @Description Show hosts
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} page.Page
-// @Security ApiKeyAuth
-// @Router /ippools/ [get]
 func (i IpPoolController) Get() (page.Page, error) {
 	p, _ := i.Ctx.Values().GetBool("page")
 	if p {
@@ -50,16 +41,6 @@ func (i IpPoolController) Get() (page.Page, error) {
 	}
 }
 
-// Create IpPool
-// @Tags ippools
-// @Summary Create a IpPool
-// @Description create a IpPool
-// @Accept  json
-// @Produce  json
-// @Param request body dto.IpPoolCreate true "request"
-// @Success 200 {object} dto.IpPool
-// @Security ApiKeyAuth
-// @Router /ippools/ [post]
 func (i IpPoolController) Post() (*dto.IpPool, error) {
 	var req dto.IpPoolCreate
 	err := i.Ctx.ReadJSON(&req)
@@ -96,15 +77,6 @@ func (i IpPoolController) PostBatch() error {
 	return i.IpPoolService.Batch(req)
 }
 
-// Get IpPool
-// @Tags ippools
-// @Summary Get IpPool
-// @Description get a IpPool
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} dto.IpPool
-// @Security ApiKeyAuth
-// @Router /ippools/{name} [get]
 func (i IpPoolController) GetBy(name string) (dto.IpPool, error) {
 	return i.IpPoolService.Get(name)
 }

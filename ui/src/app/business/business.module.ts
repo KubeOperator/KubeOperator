@@ -5,7 +5,6 @@ import {SettingModule} from './setting/setting.module';
 import {HostModule} from './host/host.module';
 import {SharedModule} from '../shared/shared.module';
 import {RouterModule} from '@angular/router';
-import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
 import {ProjectModule} from './project/project.module';
 import {MessageCenterModule} from './message-center/message-center.module';
 import {UserModule} from './user/user.module';
@@ -23,7 +22,6 @@ import {SystemLogModule} from './system-log/system-log.module';
         HostModule,
         SharedModule,
         RouterModule,
-        DeployPlanModule,
         ProjectModule,
         MessageCenterModule,
         MultiClusterModule,
@@ -36,7 +34,6 @@ import {SystemLogModule} from './system-log/system-log.module';
         ManifestModule,
         SettingModule,
         HostModule,
-        DeployPlanModule,
         MessageCenterModule,
         SystemLogModule,
     ]

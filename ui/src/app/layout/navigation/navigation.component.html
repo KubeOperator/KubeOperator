@@ -7,10 +7,6 @@
         <clr-icon shape="host" clrVerticalNavIcon></clr-icon>
         {{ 'APP_HOST' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/deploy">
-        <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
-        {{ 'APP_DEPLOY_PLAN' | translate }}
-    </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin && hasLicense" routerLink="/multicluster">
         <clr-icon shape="data-cluster" clrVerticalNavIcon></clr-icon>
         {{'APP_MULTI_CLUSTER'|translate}}
