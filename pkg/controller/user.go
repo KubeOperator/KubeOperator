@@ -93,6 +93,38 @@ func (u UserController) Post() (*dto.User, error) {
 	return u.UserService.Create(req)
 }
 
+// Update User
+// @Tags users
+// @Summary Update a user
+// @Description Update a user
+// @Accept  json
+// @Produce  json
+// @Param request body dto.UserUpdate true "request"
+// @Success 200 {object} dto.User
+// @Security ApiKeyAuth
+// @Router /users/{name}/ [patch]
+func (u UserController) PatchBy(name string) (*dto.User, error) {
+	var req dto.UserUpdate
+	err := u.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	user, err := u.UserService.Update(req)
+	if err != nil {
+		return nil, err
+	}
+
+	operator := u.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPDATE_USER, name)
+
+	return user, err
+}
+
 // Delete User
 // @Tags users
 // @Summary Delete a user

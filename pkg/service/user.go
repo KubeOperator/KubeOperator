@@ -34,6 +34,7 @@ type UserService interface {
 	Get(name string) (dto.User, error)
 	List() ([]dto.User, error)
 	Create(creation dto.UserCreate) (*dto.User, error)
+	Update(update dto.UserUpdate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Batch(op dto.UserOp) error
@@ -166,6 +167,36 @@ func (u userService) Page(num, size int) (page.Page, error) {
 	page.Total = total
 	page.Items = userDTOs
 	return page, err
+}
+
+func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
+	old, err := u.Get(update.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	user := model.User{
+		ID:       old.ID,
+		Name:     update.Name,
+		IsActive: update.IsActive,
+		IsAdmin:  update.IsAdmin,
+	}
+	if err = u.userRepo.Save(&user); err != nil {
+		return nil, err
+	}
+
+	userDTO := dto.User{
+		ID:        old.ID,
+		Name:      old.Name,
+		Email:     old.Email,
+		IsActive:  old.IsActive,
+		Language:  old.Language,
+		IsAdmin:   old.IsAdmin,
+		Type:      old.Type,
+		CreatedAt: old.CreatedAt,
+	}
+
+	return &userDTO, err
 }
 
 func (u userService) Delete(name string) error {
