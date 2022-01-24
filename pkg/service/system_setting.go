@@ -12,7 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
-	"github.com/KubeOperator/KubeOperator/pkg/util/message/client"
 	"github.com/jinzhu/gorm"
 )
 
@@ -143,21 +142,10 @@ func (s systemSettingService) CheckSettingByType(tabName string, creation dto.Sy
 		vars["RECEIVERS"] = vars["DING_TALK_TEST_USER"]
 		vars["TITLE"] = "KubeOperator测试消息"
 		vars["CONTENT"] = "此邮件由 KubeOperator 发送，用于测试消息发送"
-	} else if tabName == constant.WorkWeiXin {
-		vars["type"] = constant.WorkWeiXin
-		vars["CONTENT"] = "此邮件由 KubeOperator 发送，用于测试消息发送"
-		vars["RECEIVERS"] = vars["WORK_WEIXIN_TEST_USER"]
 	}
 	c, err := message.NewMessageClient(vars)
 	if err != nil {
 		return err
-	}
-	if tabName == constant.WorkWeiXin {
-		token, err := client.GetToken(vars)
-		if err != nil {
-			return err
-		}
-		vars["TOKEN"] = token
 	}
 	err = c.SendMessage(vars)
 	if err != nil {

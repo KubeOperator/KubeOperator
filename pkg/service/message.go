@@ -10,7 +10,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/message"
-	"github.com/KubeOperator/KubeOperator/pkg/util/message/client"
 	"github.com/jinzhu/gorm"
 )
 
@@ -213,16 +212,6 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 				_ = userMsgRepo.Save(&msg)
 				log.Errorf("send message failed,create client error: %v\n", err.Error())
 				continue
-			}
-			if msg.SendType == constant.WorkWeiXin {
-				token, err := client.GetToken(vars)
-				if err != nil {
-					msg.SendStatus = constant.SendFailed
-					_ = userMsgRepo.Save(&msg)
-					log.Errorf("send message failed, get token error: %v\n", err.Error())
-					continue
-				}
-				vars["TOKEN"] = token
 			}
 			vars["type"] = msg.SendType
 			vars["TITLE"] = Tr(msg.Message.Title)
