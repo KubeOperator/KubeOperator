@@ -2,6 +2,7 @@ package captcha
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/mojocn/base64Captcha"
 )
@@ -22,10 +23,10 @@ func VerifyCode(codeId string, code string) error {
 
 func CreateCaptcha() (*dto.Captcha, error) {
 	var driverString base64Captcha.DriverString
-	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnm"
+	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM"
 	driverString.Width = 120
 	driverString.Height = 50
-	driverString.NoiseCount = 0
+	driverString.NoiseCount = 5
 	driverString.Length = 4
 	driverString.Fonts = []string{"wqy-microhei.ttc"}
 	driver := driverString.ConvertFonts()
