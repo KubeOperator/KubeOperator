@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/plugin/xpack"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/KubeOperator/KubeOperator/pkg/server/hook"
+	"github.com/KubeOperator/KubeOperator/pkg/session"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
 )
@@ -55,6 +56,7 @@ func Phases() []Phase {
 func Start() error {
 	config.Init()
 	logger.Init()
+	session.Init()
 	var log = logger.Default
 	phases := Phases()
 	for _, phase := range phases {

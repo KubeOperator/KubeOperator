@@ -67,6 +67,7 @@ export class LoginComponent implements OnInit {
     }
 
     handleError(error: any) {
+        this.isError = true
         switch (error.status) {
             case 504:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
@@ -77,6 +78,7 @@ export class LoginComponent implements OnInit {
             default:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_UNKNOWN_ERROR') + `${error.status}`;
         }
+        this.createCaptcha();
     }
 
     createCaptcha() {

@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/session"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -119,6 +120,17 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 		return nil, err
 	}
 
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				if value.User.Name == req.Name {
+					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+				}
+			}
+		}
+	}
+
 	operator := u.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.UPDATE_USER, name)
 
@@ -135,6 +147,18 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 // @Router /users/{name}/ [delete]
 func (u UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
+
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				if value.User.Name == name {
+					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+				}
+			}
+		}
+	}
+
 	kolog.Save(operator, constant.DELETE_USER, name)
 
 	return u.UserService.Delete(name)
@@ -154,6 +178,19 @@ func (u UserController) PostBatch() error {
 	err = u.UserService.Batch(req)
 	if err != nil {
 		return err
+	}
+
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				for _, userItem := range req.Items {
+					if value.User.Name == userItem.Name {
+						session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+					}
+				}
+			}
+		}
 	}
 
 	operator := u.Ctx.Values().GetString("operator")
@@ -182,6 +219,17 @@ func (u UserController) PostChangePassword() error {
 	err = u.UserService.ChangePassword(req)
 	if err != nil {
 		return err
+	}
+
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				if value.User.Name == req.Name {
+					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+				}
+			}
+		}
 	}
 
 	operator := u.Ctx.Values().GetString("operator")

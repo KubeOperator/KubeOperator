@@ -1,17 +1,15 @@
 package controller
 
 import (
-	"time"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/session"
 	"github.com/KubeOperator/KubeOperator/pkg/util/captcha"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
-	"github.com/spf13/viper"
 )
 
 type SessionController struct {
@@ -54,12 +52,25 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	sId := s.Ctx.GetCookie(constant.CookieNameForSessionID)
 	if sId != "" {
 		s.Ctx.RemoveCookie(constant.CookieNameForSessionID)
 	}
-	session := constant.Sess.Start(s.Ctx)
-	session.Set(constant.SessionUserKey, p)
+
+	var sessionID = session.GloablSessionMgr.StartSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
+
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				if value.User.UserId == p.User.UserId {
+					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+				}
+			}
+		}
+	}
+	session.GloablSessionMgr.SetSessionVal(sessionID, constant.SessionUserKey, p)
 
 	go kolog.Save(aul.Username, constant.LOGIN, "-")
 
@@ -74,16 +85,8 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 // @Produce  json
 // @Router /auth/session/ [delete]
 func (s *SessionController) Delete() error {
-	session := constant.Sess.Start(s.Ctx)
-
 	operator := ""
-	mapxx := session.GetAll()
-	if value, ok := mapxx[constant.SessionUserKey]; ok {
-		if user, isUser := value.(*dto.Profile); isUser {
-			operator = user.User.Name
-		}
-	}
-	session.Delete(constant.SessionUserKey)
+	session.GloablSessionMgr.EndSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
 
 	go kolog.Save(operator, constant.LOGOUT, "-")
 	return nil
@@ -97,8 +100,6 @@ func (s *SessionController) checkSessionLogin(username string, password string, 
 
 	resp := &dto.Profile{}
 	resp.User = toSessionUser(*u)
-	exp := viper.GetInt("jwt.exp")
-	resp.Timeout = time.Now().Add(time.Minute * time.Duration(exp))
 
 	return resp, err
 }

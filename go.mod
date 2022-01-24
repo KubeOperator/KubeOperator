@@ -11,14 +11,12 @@ require (
 	github.com/KubeOperator/kotf v0.1.2
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
 	github.com/aws/aws-sdk-go v1.33.18
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/spdystream v0.0.0-20170912183627-bc6354cbbc29 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
@@ -42,7 +40,6 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/jade v1.1.4 // indirect
-	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
 	github.com/iris-contrib/schema v0.0.6 // indirect
 	github.com/iris-contrib/swagger/v12 v12.0.1
 	github.com/jinzhu/gorm v1.9.12

@@ -12,11 +12,11 @@ import (
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/session"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -123,22 +123,19 @@ func goSaveLogs(askParam, clusterName, operator, deleteConstant, createConstant 
 }
 
 func getOperator(ctx context.Context) string {
-	var u dto.SessionUser
-	j := ctx.Values().Get("jwt")
-	if j != nil {
-		j := j.(*jwt.Token)
-		foobar := j.Claims.(jwt.MapClaims)
-		js, _ := json.Marshal(foobar)
-		_ = json.Unmarshal(js, &u)
-	} else {
-		session := constant.Sess.Start(ctx)
-		sessionUser := session.Get(constant.SessionUserKey)
-		if sessionUser == nil {
-			ctx.StatusCode(http.StatusUnauthorized)
-			ctx.StopExecution()
-			return ""
-		}
-		u = sessionUser.(*dto.Profile).User
+	var sessionID = session.GloablSessionMgr.CheckCookieValid(ctx.ResponseWriter(), ctx.Request())
+	if sessionID == "" {
+		return ""
 	}
-	return u.Name
+
+	u, ok := session.GloablSessionMgr.GetSessionVal(sessionID, constant.SessionUserKey)
+	if !ok {
+		return ""
+	}
+
+	user, ok := u.(*dto.Profile)
+	if !ok {
+		return ""
+	}
+	return user.User.Name
 }
