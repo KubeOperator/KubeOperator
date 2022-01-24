@@ -9,13 +9,13 @@ type ClusterStorageProvisioner struct {
 
 type ClusterStorageProvisionerCreation struct {
 	Name string                 `json:"name" validate:"commonname,required"`
-	Type string                 `json:"type" validate:"required"`
+	Type string                 `json:"type" validate:"oneof=nfs external-ceph rook-ceph cinder vsphere glusterfs oceanstor"`
 	Vars map[string]interface{} `json:"vars" validate:"-"`
 }
 
 type ClusterStorageProvisionerSync struct {
 	Name   string `json:"name" validate:"commonname,required"`
-	Type   string `json:"type" validate:"required"`
+	Type   string `json:"type" validate:"oneof=nfs external-ceph rook-ceph cinder vsphere glusterfs oceanstor"`
 	Status string `json:"status" validate:"-"`
 }
 

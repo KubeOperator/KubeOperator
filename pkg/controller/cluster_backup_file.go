@@ -32,7 +32,7 @@ func NewClusterBackupFileController() *BackupFileController {
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /cluster/backup/files/ [get]
+// @Router /clusters/backup/files/ [get]
 func (b BackupFileController) Get() (*page.Page, error) {
 	num, _ := b.Ctx.Values().GetInt(constant.PageNumQueryKey)
 	size, _ := b.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -47,7 +47,7 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-// @Router /cluster/backup/files/{name}/ [delete]
+// @Router /clusters/backup/files/{name}/ [delete]
 func (b BackupFileController) DeleteBy(name string) error {
 	operator := b.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_RECOVERY_LIST, name)
@@ -90,7 +90,7 @@ func (b BackupFileController) PostBatch() error {
 // @Param request body dto.ClusterBackupFileCreate true "request"
 // @Success 200
 // @Security ApiKeyAuth
-// @Router /cluster/backup/files/backup/ [post]
+// @Router /clusters/backup/files/backup/ [post]
 func (b BackupFileController) PostBackup() error {
 	var req dto.ClusterBackupFileCreate
 	err := b.Ctx.ReadJSON(&req)
@@ -129,7 +129,7 @@ func (b BackupFileController) PostBackup() error {
 // @Param request body dto.ClusterBackupFileRestore true "request"
 // @Success 200
 // @Security ApiKeyAuth
-// @Router /cluster/backup/files/restore/ [post]
+// @Router /clusters/backup/files/restore/ [post]
 func (b BackupFileController) PostRestore() error {
 	var req dto.ClusterBackupFileRestore
 	err := b.Ctx.ReadJSON(&req)

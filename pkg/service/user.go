@@ -168,13 +168,7 @@ func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
 		return nil, err
 	}
 
-	user := model.User{
-		ID:       old.ID,
-		Name:     update.Name,
-		IsActive: update.IsActive,
-		IsAdmin:  update.IsAdmin,
-	}
-	if err = u.userRepo.Save(&user); err != nil {
+	if err := db.DB.Model(&model.User{}).Where("id = ?", old.ID).Updates(map[string]interface{}{"IsActive": update.IsActive, "IsAdmin": update.IsAdmin}).Error; err != nil {
 		return nil, err
 	}
 
