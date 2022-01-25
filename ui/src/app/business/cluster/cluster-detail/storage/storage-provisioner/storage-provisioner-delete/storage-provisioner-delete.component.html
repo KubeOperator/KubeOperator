@@ -3,7 +3,7 @@
     <div class="modal-body">
         <p *ngIf="items.length > 0 && items[0].type !=='rook-ceph'">{{"APP_DEFAULT_DELETE_WARNING"|translate}}</p>
         <span *ngIf="items.length > 0 && items[0].type ==='rook-ceph'"> {{"APP_DELETE_STORAGE_PROVISIONER_ROOK"|translate}}
-            <a href="https://rook.io/docs/rook/v1.5/ceph-teardown.html" target="_blank">https://rook.io/docs/rook/v1.5/ceph-teardown.html</a>
+            <a href="https://rook.io/docs/rook/v1.5/ceph-teardown.html" target="_blank" rel="noreferrer noopener">https://rook.io/docs/rook/v1.5/ceph-teardown.html</a>
         </span>
         <app-modal-alert></app-modal-alert>
     </div>

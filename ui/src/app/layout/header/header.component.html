@@ -39,8 +39,8 @@
                 <clr-icon shape="caret down"></clr-icon>
             </button>
             <clr-dropdown-menu [clrPosition]="'bottom-right'">
-                <a href="/swagger/index.html"  target="_blank" clrDropdownItem (click)="openSwagger()">REST API</a>
-                <a href="https://kubeoperator.io/docs/" target="_blank" clrDropdownItem>{{'APP_DOCUMENTATION'|translate}}</a>
+                <a href="/swagger/index.html"  target="_blank" rel="noreferrer noopener" clrDropdownItem (click)="openSwagger()">REST API</a>
+                <a href="https://kubeoperator.io/docs/" target="_blank" rel="noreferrer noopener" clrDropdownItem>{{'APP_DOCUMENTATION'|translate}}</a>
                 <a href="javascript:void(0)" clrDropdownItem (click)="openAbout()">{{'APP_ABOUT'|translate}}</a>
             </clr-dropdown-menu>
         </clr-dropdown>
