@@ -4,7 +4,7 @@
     <clr-dg-column>{{'APP_STATUS'|translate}}</clr-dg-column>
 
 
-    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row  *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a href="javascript:void(0)" (click)="onDetail(item)">{{item.gitCommitId}}</a></clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
         <clr-dg-cell>{{item.status|translate}}</clr-dg-cell>

@@ -17,7 +17,7 @@
     <clr-dg-column>{{"APP_RECLAIM_POLICY"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_VOLUME_BINDING_MODE"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_CREATED_DATE"|translate}}</clr-dg-column>
-    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row  *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.metadata.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.provisioner}}</clr-dg-cell>
         <clr-dg-cell>{{item.reclaimPolicy}}</clr-dg-cell>

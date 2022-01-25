@@ -14,7 +14,7 @@
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
 
-    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row  *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.clusterName}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
