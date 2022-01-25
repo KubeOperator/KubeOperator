@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
@@ -88,6 +90,9 @@ func (u UserController) Post() (*dto.User, error) {
 	}
 	if err := validate.Struct(req); err != nil {
 		return nil, err
+	}
+	if req.Password == reverseString(req.Name) || req.Password == req.Name {
+		return nil, errors.New("NAME_PASSWORD_SAME_FAILED")
 	}
 
 	operator := u.Ctx.Values().GetString("operator")
@@ -219,6 +224,11 @@ func (u UserController) PostChangePassword() error {
 	if err := validate.Struct(req); err != nil {
 		return err
 	}
+
+	if req.Password == reverseString(req.Name) || req.Password == req.Name || req.Password == req.Original {
+		return errors.New("NAME_PASSWORD_SAME_FAILED")
+	}
+
 	err = u.UserService.ChangePassword(req)
 	if err != nil {
 		return err
@@ -239,4 +249,14 @@ func (u UserController) PostChangePassword() error {
 	go kolog.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
 
 	return err
+}
+
+func reverseString(s string) string {
+	runes := []rune(s)
+
+	for from, to := 0, len(runes)-1; from < to; from, to = from+1, to-1 {
+		runes[from], runes[to] = runes[to], runes[from]
+	}
+
+	return string(runes)
 }

@@ -40,7 +40,7 @@ LDAP_CAN_NOT_UPDATE: "The ldap user cannot be edited!"
 VERIFY_CODE_FAILED: "Verification code error"
 EMAIL_DISABLE: "Mail settings are disabled! Please contact the administrator"
 EMAIL_NOT_MATCH: "Email match failed！"
-NAME_PASSWORD_SAME_FAILED: "Username cannot be the same as password"
+NAME_PASSWORD_SAME_FAILED: "The password strength does not meet system requirements"
 NAME_PASSWORD_ERROR: "wrong user name or password"
 EMAIL_EXIST: "Email already exists"
 
