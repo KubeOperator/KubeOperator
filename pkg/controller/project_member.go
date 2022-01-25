@@ -27,10 +27,13 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Description Show projectMembers by projectName
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
+// @Param  project  header  string  true "project name"
 // @Form projectName
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/members/ [get]
+// @Router /project/members [get]
 func (p ProjectMemberController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	projectName := p.Ctx.Values().GetString("project")

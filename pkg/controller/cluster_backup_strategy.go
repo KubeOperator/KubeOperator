@@ -26,9 +26,10 @@ func NewClusterBackupStrategyController() *ClusterBackupStrategyController {
 // @Description Get Cluster Backup Strategy
 // @Accept  json
 // @Produce  json
+// @Param  clusterName  path  string  true "cluster name"
 // @Success 200 {object} dto.ClusterBackupStrategy
 // @Security ApiKeyAuth
-// @Router /cluster/backup/strategy/{clusterName}/ [get]
+// @Router /clusters/backup/strategy/{clusterName}/ [get]
 func (c ClusterBackupStrategyController) GetStrategyBy(clusterName string) (*dto.ClusterBackupStrategy, error) {
 	cb, err := c.CLusterBackupStrategyService.Get(clusterName)
 	if err != nil {
@@ -46,7 +47,7 @@ func (c ClusterBackupStrategyController) GetStrategyBy(clusterName string) (*dto
 // @Param request body dto.ClusterBackupStrategyRequest true "request"
 // @Success 200 {object} dto.ClusterBackupStrategy
 // @Security ApiKeyAuth
-// @Router /cluster/backup/strategy/ [post]
+// @Router /clusters/backup/strategy/ [post]
 func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrategy, error) {
 	var req dto.ClusterBackupStrategyRequest
 	err := c.Ctx.ReadJSON(&req)

@@ -57,6 +57,7 @@ const (
 	CREATE_HOST    = "添加主机|Create host"
 	SYNC_HOST_LIST = "主机同步|Sync host"
 	DELETE_HOST    = "删除主机|Delete host"
+	UPLOAD_HOST    = "导入主机|Upload host"
 
 	CREATE_REGION    = "添加区域|Create region"
 	DELETE_REGION    = "删除区域|Delete region"

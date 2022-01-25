@@ -81,69 +81,6 @@ var doc = `{
             }
         },
         "/backupAccounts/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Show backupAccounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "backupAccounts"
-                ],
-                "summary": "Show all backupAccounts",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/page.Page"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "create a backupAccount",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "backupAccounts"
-                ],
-                "summary": "Create a backupAccount",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.BackupAccountRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BackupAccount"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "security": [
                     {
@@ -182,14 +119,14 @@ var doc = `{
                 }
             }
         },
-        "/backupAccounts/{name}/": {
-            "delete": {
+        "/backupAccounts/batch": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete credential list",
                 "consumes": [
                     "application/json"
                 ],
@@ -199,9 +136,137 @@ var doc = `{
                 "tags": [
                     "credentials"
                 ],
-                "summary": "Delete a credential",
+                "summary": "Delete credential list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CredentialBatchOp"
+                        }
+                    }
+                ],
                 "responses": {}
-            },
+            }
+        },
+        "/backupaccounts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show backupAccounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Show all backupAccounts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/backupaccounts/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create a backupAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Create a backupAccount",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccount"
+                        }
+                    }
+                }
+            }
+        },
+        "/backupaccounts/batch": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete  backupAccount list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "backupAccounts"
+                ],
+                "summary": "Delete backupAccount list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BackupAccountOp"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/backupaccounts/{name}/": {
             "patch": {
                 "security": [
                     {
@@ -240,7 +305,35 @@ var doc = `{
                 }
             }
         },
-        "/cluster/backup/files/": {
+        "/clusters/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show clusters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show all clusters",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/backup/files/": {
             "get": {
                 "security": [
                     {
@@ -258,6 +351,29 @@ var doc = `{
                     "backupFiles"
                 ],
                 "summary": "Show all backupFiles",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "clusterName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -268,7 +384,7 @@ var doc = `{
                 }
             }
         },
-        "/cluster/backup/files/backup/": {
+        "/clusters/backup/files/backup/": {
             "post": {
                 "security": [
                     {
@@ -304,7 +420,7 @@ var doc = `{
                 }
             }
         },
-        "/cluster/backup/files/restore/": {
+        "/clusters/backup/files/restore/": {
             "post": {
                 "security": [
                     {
@@ -340,7 +456,7 @@ var doc = `{
                 }
             }
         },
-        "/cluster/backup/files/{name}/": {
+        "/clusters/backup/files/{name}/": {
             "delete": {
                 "security": [
                     {
@@ -358,10 +474,19 @@ var doc = `{
                     "backupFiles"
                 ],
                 "summary": "Delete a BackupFile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "backup file name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         },
-        "/cluster/backup/strategy/": {
+        "/clusters/backup/strategy/": {
             "post": {
                 "security": [
                     {
@@ -400,7 +525,7 @@ var doc = `{
                 }
             }
         },
-        "/cluster/backup/strategy/{clusterName}/": {
+        "/clusters/backup/strategy/{clusterName}/": {
             "get": {
                 "security": [
                     {
@@ -418,6 +543,15 @@ var doc = `{
                     "backupStrategy"
                 ],
                 "summary": "Get Cluster Backup Strategy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -428,14 +562,14 @@ var doc = `{
                 }
             }
         },
-        "/clusters/": {
-            "get": {
+        "/clusters/batch": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show clusters",
+                "description": "delete cluster list",
                 "consumes": [
                     "application/json"
                 ],
@@ -445,15 +579,26 @@ var doc = `{
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Show all clusters",
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                "summary": "Delete cluster list",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "is force",
+                        "name": "force",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/page.Page"
+                            "$ref": "#/definitions/dto.ClusterBatch"
                         }
                     }
-                }
+                ],
+                "responses": {}
             }
         },
         "/clusters/import/": {
@@ -524,25 +669,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete a cluster by name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "clusters"
-                ],
-                "summary": "Delete a cluster",
-                "responses": {}
             }
         },
         "/credentials/": {
@@ -563,6 +689,22 @@ var doc = `{
                     "credentials"
                 ],
                 "summary": "Show all credentials",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -628,6 +770,22 @@ var doc = `{
                     "hosts"
                 ],
                 "summary": "Show all hosts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -662,6 +820,45 @@ var doc = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.HostCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Host"
+                        }
+                    }
+                }
+            }
+        },
+        "/hosts/batch": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete host list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "delete host list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.HostOp"
                         }
                     }
                 ],
@@ -735,6 +932,15 @@ var doc = `{
                     "hosts"
                 ],
                 "summary": "Show a host",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "host name",
+                        "name": "pageNum",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -743,25 +949,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete a host by name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "hosts"
-                ],
-                "summary": "Delete a host",
-                "responses": {}
             }
         },
         "/logs/": {
@@ -792,7 +979,7 @@ var doc = `{
                 }
             }
         },
-        "/project/members/": {
+        "/project/members": {
             "get": {
                 "security": [
                     {
@@ -810,6 +997,29 @@ var doc = `{
                     "projectMembers"
                 ],
                 "summary": "Show projectMembers by projectName",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "project name",
+                        "name": "project",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -818,7 +1028,9 @@ var doc = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/project/members/": {
             "post": {
                 "security": [
                     {
@@ -857,7 +1069,7 @@ var doc = `{
                 }
             }
         },
-        "/project/resource/": {
+        "/project/resources": {
             "get": {
                 "security": [
                     {
@@ -875,6 +1087,40 @@ var doc = `{
                     "projectResources"
                 ],
                 "summary": "Show projectResources by projectName and resourceType",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "HOST",
+                            "BACKUP_ACCOUNT"
+                        ],
+                        "type": "string",
+                        "description": "resourceType enums",
+                        "name": "resourceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "project name",
+                        "name": "project",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -903,6 +1149,22 @@ var doc = `{
                     "projects"
                 ],
                 "summary": "Show all projects",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -950,6 +1212,38 @@ var doc = `{
                 }
             }
         },
+        "/projects/batch": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete  project list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Delete project list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProjectOp"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/projects/{name}/": {
             "get": {
                 "security": [
@@ -968,6 +1262,15 @@ var doc = `{
                     "projects"
                 ],
                 "summary": "Show a project",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -976,25 +1279,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete a  project by name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projects"
-                ],
-                "summary": "Delete a project",
-                "responses": {}
             },
             "patch": {
                 "security": [
@@ -1022,6 +1306,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/dto.ProjectUpdate"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "project name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1052,6 +1343,22 @@ var doc = `{
                     "users"
                 ],
                 "summary": "Show all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1099,6 +1406,38 @@ var doc = `{
                 }
             }
         },
+        "/users/batch": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete user list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete user list",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserOp"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/users/{name}/": {
             "get": {
                 "security": [
@@ -1125,25 +1464,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete a user by name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Delete a user",
-                "responses": {}
             },
             "patch": {
                 "security": [
@@ -1211,6 +1531,24 @@ var doc = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BackupAccountOp": {
+            "type": "object",
+            "required": [
+                "items",
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.BackupAccount"
+                    }
+                },
+                "operation": {
                     "type": "string"
                 }
             }
@@ -1400,6 +1738,24 @@ var doc = `{
                     "minimum": 1
                 },
                 "status": {
+                    "type": "string",
+                    "enum": [
+                        "ENABLE",
+                        "DISABLE"
+                    ]
+                }
+            }
+        },
+        "dto.ClusterBatch": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Cluster"
+                    }
+                },
+                "operation": {
                     "type": "string"
                 }
             }
@@ -1420,6 +1776,24 @@ var doc = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CredentialBatchOp": {
+            "type": "object",
+            "required": [
+                "items",
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Credential"
+                    }
+                },
+                "operation": {
                     "type": "string"
                 }
             }
@@ -1583,6 +1957,24 @@ var doc = `{
                 }
             }
         },
+        "dto.HostOp": {
+            "type": "object",
+            "required": [
+                "items",
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Host"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.LoginCredential": {
             "type": "object",
             "required": [
@@ -1616,9 +2008,6 @@ var doc = `{
         "dto.Profile": {
             "type": "object",
             "properties": {
-                "timeout": {
-                    "type": "string"
-                },
                 "token": {
                     "type": "string"
                 },
@@ -1714,6 +2103,24 @@ var doc = `{
                 }
             }
         },
+        "dto.ProjectOp": {
+            "type": "object",
+            "required": [
+                "items",
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Project"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ProjectUpdate": {
             "type": "object",
             "required": [
@@ -1801,6 +2208,20 @@ var doc = `{
                     "maxLength": 30
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserOp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.User"
+                    }
+                },
+                "operation": {
                     "type": "string"
                 }
             }

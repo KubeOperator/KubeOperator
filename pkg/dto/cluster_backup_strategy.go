@@ -14,5 +14,5 @@ type ClusterBackupStrategyRequest struct {
 	SaveNum           int    `json:"saveNum"  validate:"gte=1,lte=100" en:"Keep Copies" zh:"保留份数"`
 	BackupAccountName string `json:"backupAccountName" validate:"required"`
 	ClusterName       string `json:"clusterName" validate:"required"`
-	Status            string `json:"status" validate:"-"`
+	Status            string `json:"status" validate:"oneof=ENABLE DISABLE"`
 }

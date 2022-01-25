@@ -28,11 +28,12 @@ func NewCredentialController() *CredentialController {
 // @Description Show credentials
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /credentials/ [get]
 func (c CredentialController) Get() (page.Page, error) {
-
 	p, _ := c.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
@@ -84,14 +85,6 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 	return c.CredentialService.Create(req)
 }
 
-// Delete Credential
-// @Tags credentials
-// @Summary Delete a credential
-// @Description delete a  credential by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /backupAccounts/{name}/ [delete]
 func (c CredentialController) Delete(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_CREDENTIALS, name)
@@ -129,6 +122,15 @@ func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 	return c.CredentialService.Update(req)
 }
 
+// Delete Credentials
+// @Tags credentials
+// @Summary Delete credential list
+// @Description delete credential list
+// @Accept  json
+// @Produce  json
+// @Param request body dto.CredentialBatchOp true "request"
+// @Security ApiKeyAuth
+// @Router /backupAccounts/batch [post]
 func (c CredentialController) PostBatch() error {
 	var req dto.CredentialBatchOp
 	err := c.Ctx.ReadJSON(&req)
@@ -136,8 +138,7 @@ func (c CredentialController) PostBatch() error {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	if err = validate.Struct(req); err != nil {
 		return err
 	}
 	err = c.CredentialService.Batch(req)

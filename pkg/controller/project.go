@@ -28,6 +28,8 @@ func NewProjectController() *ProjectController {
 // @Description Show projects
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /projects/ [get]
@@ -63,6 +65,7 @@ func (p ProjectController) Get() (page.Page, error) {
 // @Description show a project by name
 // @Accept  json
 // @Produce  json
+// @Param  name  path  int  true "page number"
 // @Success 200 {object} dto.Project
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [get]
@@ -111,6 +114,7 @@ func (p ProjectController) Post() (*dto.Project, error) {
 // @Accept  json
 // @Produce  json
 // @Param request body dto.ProjectUpdate true "request"
+// @Param  name  path  string  true "project name"
 // @Success 200 {object} dto.Project
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [patch]
@@ -136,14 +140,6 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	return &result, nil
 }
 
-// Delete Project
-// @Tags projects
-// @Summary Delete a project
-// @Description delete a  project by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /projects/{name}/ [delete]
 func (p ProjectController) Delete(name string) error {
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_PROJECT, name)
@@ -151,6 +147,15 @@ func (p ProjectController) Delete(name string) error {
 	return p.ProjectService.Delete(name)
 }
 
+// Delete Projects
+// @Tags projects
+// @Summary Delete project list
+// @Description delete  project list
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ProjectOp true "request"
+// @Security ApiKeyAuth
+// @Router /projects/batch [post]
 func (p ProjectController) PostBatch() error {
 	var req dto.ProjectOp
 	err := p.Ctx.ReadJSON(&req)

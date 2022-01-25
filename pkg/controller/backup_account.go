@@ -28,11 +28,12 @@ func NewBackupAccountController() *BackupAccountController {
 // @Description Show backupAccounts
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /backupAccounts/ [get]
+// @Router /backupaccounts [get]
 func (b BackupAccountController) Get() (page.Page, error) {
-
 	pg, _ := b.Ctx.Values().GetBool("page")
 	if pg {
 		num, _ := b.Ctx.Values().GetInt(constant.PageNumQueryKey)
@@ -60,7 +61,7 @@ func (b BackupAccountController) Get() (page.Page, error) {
 // @Param request body dto.BackupAccountRequest true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
-// @Router /backupAccounts/ [post]
+// @Router /backupaccounts/ [post]
 func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 	var req dto.BackupAccountRequest
 	err := b.Ctx.ReadJSON(&req)
@@ -81,6 +82,15 @@ func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 	return b.BackupAccountService.Create(req)
 }
 
+// Delete BackupAccounts
+// @Tags backupAccounts
+// @Summary Delete backupAccount list
+// @Description delete  backupAccount list
+// @Accept  json
+// @Produce  json
+// @Param request body dto.BackupAccountOp true "request"
+// @Security ApiKeyAuth
+// @Router /backupaccounts/batch [post]
 func (b BackupAccountController) PostBatch() error {
 	var req dto.BackupAccountOp
 	err := b.Ctx.ReadJSON(&req)
@@ -116,7 +126,7 @@ func (b BackupAccountController) PostBatch() error {
 // @Param request body dto.BackupAccountRequest true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
-// @Router /backupAccounts/{name}/ [patch]
+// @Router /backupaccounts/{name}/ [patch]
 func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error) {
 	var req dto.BackupAccountRequest
 	err := b.Ctx.ReadJSON(&req)
@@ -135,14 +145,6 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 	return b.BackupAccountService.Update(req)
 }
 
-// Delete BackupAccount
-// @Tags backupAccounts
-// @Summary Delete a backupAccount
-// @Description delete a  backupAccount by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /backupAccounts/{name}/ [delete]
 func (b BackupAccountController) Delete(name string) error {
 	operator := b.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_BACKUP_ACCOUNT, name)

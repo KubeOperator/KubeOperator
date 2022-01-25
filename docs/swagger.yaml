@@ -20,6 +20,18 @@ definitions:
       updatedAt:
         type: string
     type: object
+  dto.BackupAccountOp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.BackupAccount'
+        type: array
+      operation:
+        type: string
+    required:
+    - items
+    - operation
+    type: object
   dto.BackupAccountRequest:
     properties:
       bucket:
@@ -144,10 +156,22 @@ definitions:
         minimum: 1
         type: integer
       status:
+        enum:
+        - ENABLE
+        - DISABLE
         type: string
     required:
     - backupAccountName
     - clusterName
+    type: object
+  dto.ClusterBatch:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.Cluster'
+        type: array
+      operation:
+        type: string
     type: object
   dto.Credential:
     properties:
@@ -161,6 +185,18 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  dto.CredentialBatchOp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.Credential'
+        type: array
+      operation:
+        type: string
+    required:
+    - items
+    - operation
     type: object
   dto.CredentialCreate:
     properties:
@@ -271,6 +307,18 @@ definitions:
     - name
     - port
     type: object
+  dto.HostOp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.Host'
+        type: array
+      operation:
+        type: string
+    required:
+    - items
+    - operation
+    type: object
   dto.LoginCredential:
     properties:
       authMethod:
@@ -294,8 +342,6 @@ definitions:
     type: object
   dto.Profile:
     properties:
-      timeout:
-        type: string
       token:
         type: string
       user:
@@ -359,6 +405,18 @@ definitions:
     - projectName
     - username
     type: object
+  dto.ProjectOp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.Project'
+        type: array
+      operation:
+        type: string
+    required:
+    - items
+    - operation
+    type: object
   dto.ProjectUpdate:
     properties:
       description:
@@ -418,6 +476,15 @@ definitions:
     required:
     - name
     - password
+    type: object
+  dto.UserOp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.User'
+        type: array
+      operation:
+        type: string
     type: object
   dto.UserUpdate:
     properties:
@@ -636,22 +703,6 @@ paths:
       tags:
       - auth
   /backupAccounts/:
-    get:
-      consumes:
-      - application/json
-      description: Show backupAccounts
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all backupAccounts
-      tags:
-      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -675,6 +726,55 @@ paths:
       summary: Update a credential
       tags:
       - credentials
+  /backupAccounts/batch:
+    post:
+      consumes:
+      - application/json
+      description: delete credential list
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CredentialBatchOp'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete credential list
+      tags:
+      - credentials
+  /backupaccounts:
+    get:
+      consumes:
+      - application/json
+      description: Show backupAccounts
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all backupAccounts
+      tags:
+      - backupAccounts
+  /backupaccounts/:
     post:
       consumes:
       - application/json
@@ -698,19 +798,7 @@ paths:
       summary: Create a backupAccount
       tags:
       - backupAccounts
-  /backupAccounts/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a  credential by name
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a credential
-      tags:
-      - credentials
+  /backupaccounts/{name}/:
     patch:
       consumes:
       - application/json
@@ -734,11 +822,81 @@ paths:
       summary: Update a backupAccount
       tags:
       - backupAccounts
-  /cluster/backup/files/:
+  /backupaccounts/batch:
+    post:
+      consumes:
+      - application/json
+      description: delete  backupAccount list
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BackupAccountOp'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete backupAccount list
+      tags:
+      - backupAccounts
+  /clusters/:
+    get:
+      consumes:
+      - application/json
+      description: Show clusters
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all clusters
+      tags:
+      - clusters
+  /clusters/{name}/:
+    get:
+      consumes:
+      - application/json
+      description: Show a cluster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a cluster
+      tags:
+      - clusters
+  /clusters/backup/files/:
     get:
       consumes:
       - application/json
       description: Show backupFiles
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: cluster name
+        in: query
+        name: clusterName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -751,11 +909,17 @@ paths:
       summary: Show all backupFiles
       tags:
       - backupFiles
-  /cluster/backup/files/{name}/:
+  /clusters/backup/files/{name}/:
     delete:
       consumes:
       - application/json
       description: delete a BackupFile by name
+      parameters:
+      - description: backup file name
+        in: query
+        name: name
+        required: true
+        type: integer
       produces:
       - application/json
       responses: {}
@@ -764,7 +928,7 @@ paths:
       summary: Delete a BackupFile
       tags:
       - backupFiles
-  /cluster/backup/files/backup/:
+  /clusters/backup/files/backup/:
     post:
       consumes:
       - application/json
@@ -786,7 +950,7 @@ paths:
       summary: Backup CLuster
       tags:
       - backupFiles
-  /cluster/backup/files/restore/:
+  /clusters/backup/files/restore/:
     post:
       consumes:
       - application/json
@@ -808,7 +972,7 @@ paths:
       summary: Restore CLuster
       tags:
       - backupFiles
-  /cluster/backup/strategy/:
+  /clusters/backup/strategy/:
     post:
       consumes:
       - application/json
@@ -832,11 +996,17 @@ paths:
       summary: Create a Backup Strategy
       tags:
       - backupStrategy
-  /cluster/backup/strategy/{clusterName}/:
+  /clusters/backup/strategy/{clusterName}/:
     get:
       consumes:
       - application/json
       description: Get Cluster Backup Strategy
+      parameters:
+      - description: cluster name
+        in: path
+        name: clusterName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -849,50 +1019,29 @@ paths:
       summary: Get Cluster Backup Strategy
       tags:
       - backupStrategy
-  /clusters/:
-    get:
+  /clusters/batch:
+    post:
       consumes:
       - application/json
-      description: Show clusters
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/page.Page'
-      security:
-      - ApiKeyAuth: []
-      summary: Show all clusters
-      tags:
-      - clusters
-  /clusters/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a cluster by name
+      description: delete cluster list
+      parameters:
+      - description: is force
+        in: query
+        name: force
+        required: true
+        type: boolean
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterBatch'
       produces:
       - application/json
       responses: {}
       security:
       - ApiKeyAuth: []
-      summary: Delete a cluster
-      tags:
-      - clusters
-    get:
-      consumes:
-      - application/json
-      description: Show a cluster
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Cluster'
-      security:
-      - ApiKeyAuth: []
-      summary: Show a cluster
+      summary: Delete cluster list
       tags:
       - clusters
   /clusters/import/:
@@ -926,6 +1075,17 @@ paths:
       consumes:
       - application/json
       description: Show credentials
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -966,6 +1126,17 @@ paths:
       consumes:
       - application/json
       description: Show hosts
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1002,22 +1173,16 @@ paths:
       tags:
       - hosts
   /hosts/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a host by name
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a host
-      tags:
-      - hosts
     get:
       consumes:
       - application/json
       description: show a host by name
+      parameters:
+      - description: host name
+        in: path
+        name: pageNum
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1028,6 +1193,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show a host
+      tags:
+      - hosts
+  /hosts/batch:
+    post:
+      consumes:
+      - application/json
+      description: delete host list
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HostOp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Host'
+      security:
+      - ApiKeyAuth: []
+      summary: delete host list
       tags:
       - hosts
   /hosts/template/:
@@ -1073,11 +1262,27 @@ paths:
       summary: Show all system_logs
       tags:
       - system_logs
-  /project/members/:
+  /project/members:
     get:
       consumes:
       - application/json
       description: Show projectMembers by projectName
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: project name
+        in: header
+        name: project
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1090,6 +1295,7 @@ paths:
       summary: Show projectMembers by projectName
       tags:
       - projectMembers
+  /project/members/:
     post:
       consumes:
       - application/json
@@ -1113,11 +1319,35 @@ paths:
       summary: Create a projectMember
       tags:
       - projectMembers
-  /project/resource/:
+  /project/resources:
     get:
       consumes:
       - application/json
       description: Show projectResources by projectName and resourceType
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: resourceType enums
+        enum:
+        - HOST
+        - BACKUP_ACCOUNT
+        in: query
+        name: resourceType
+        required: true
+        type: string
+      - description: project name
+        in: header
+        name: project
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1135,6 +1365,17 @@ paths:
       consumes:
       - application/json
       description: Show projects
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1171,22 +1412,16 @@ paths:
       tags:
       - projects
   /projects/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a  project by name
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a project
-      tags:
-      - projects
     get:
       consumes:
       - application/json
       description: show a project by name
+      parameters:
+      - description: page number
+        in: path
+        name: name
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1210,6 +1445,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.ProjectUpdate'
+      - description: project name
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1222,11 +1462,42 @@ paths:
       summary: Update a project
       tags:
       - projects
+  /projects/batch:
+    post:
+      consumes:
+      - application/json
+      description: delete  project list
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProjectOp'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete project list
+      tags:
+      - projects
   /users/:
     get:
       consumes:
       - application/json
       description: Show users
+      parameters:
+      - description: page number
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1263,18 +1534,6 @@ paths:
       tags:
       - users
   /users/{name}/:
-    delete:
-      consumes:
-      - application/json
-      description: delete a user by name
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a user
-      tags:
-      - users
     get:
       consumes:
       - application/json
@@ -1312,6 +1571,26 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update a user
+      tags:
+      - users
+  /users/batch:
+    post:
+      consumes:
+      - application/json
+      description: delete user list
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserOp'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user list
       tags:
       - users
 securityDefinitions:

@@ -27,10 +27,13 @@ func NewProjectResourceController() *ProjectResourceController {
 // @Description Show projectResources by projectName and resourceType
 // @Accept  json
 // @Produce  json
-// @Form projectName string , resourceType string
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
+// @Param  resourceType  query  string  true "resourceType enums"  Enums(HOST, BACKUP_ACCOUNT)
+// @Param  project  header  string  true "project name"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /project/resource/ [get]
+// @Router /project/resources [get]
 func (p ProjectResourceController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")

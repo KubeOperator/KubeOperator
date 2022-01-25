@@ -19,6 +19,18 @@ var SystemRules = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/projects",
+			"/api/v1/logs",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{SystemRoleAdmin, SystemRoleUser},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
 			"/api/v1/hosts",
 			"/api/v1/clusters",
 			"/api/v1/clusters/{**}",
@@ -29,11 +41,10 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/message/{**}/{**}",
 			"/api/v1/events/npd/{**}/{**}",
 			"/api/v1/users/change/password",
-			"/api/v1/logs",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
-			AuthorizedRoles: []string{SystemRoleAdmin, SystemRoleUser},
+			AuthorizedRoles: []string{SystemRoleAdmin},
 			AllowAnyone:     false,
 		},
 	},
@@ -76,7 +87,6 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/settings/{**}",
 			"/api/v1/settings/{**}/{**}",
 			"/api/v1/settings",
-			"/api/v1/projects",
 			"/api/v1/projects/{**}",
 			"/api/v1/project/{**}",
 			"/api/v1/manifests",
@@ -91,7 +101,7 @@ var SystemRules = loader.AdvancedRules{
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
-			AuthorizedRoles: []string{SystemRoleAdmin, SystemRoleUser},
+			AuthorizedRoles: []string{SystemRoleAdmin},
 			AllowAnyone:     false,
 		},
 	},

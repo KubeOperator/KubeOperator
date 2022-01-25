@@ -263,14 +263,6 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 	return &cts, nil
 }
 
-// Delete Cluster
-// @Tags clusters
-// @Summary Delete a cluster
-// @Description delete a cluster by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /clusters/{name}/ [delete]
 func (c ClusterController) Delete(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	force, _ := c.Ctx.Values().GetBool("force")
@@ -310,6 +302,16 @@ func (c ClusterController) PostImport() error {
 	return c.ClusterImportService.Import(req)
 }
 
+// Delete Clusters
+// @Tags clusters
+// @Summary Delete cluster list
+// @Description delete cluster list
+// @Accept  json
+// @Produce  json
+// @Param  force  query  bool  true "is force"
+// @Param request body dto.ClusterBatch true "request"
+// @Security ApiKeyAuth
+// @Router /clusters/batch [post]
 func (c ClusterController) PostBatch() error {
 	var batch dto.ClusterBatch
 	if err := c.Ctx.ReadJSON(&batch); err != nil {

@@ -38,11 +38,12 @@ func NewHostController() *HostController {
 // @Description Show hosts
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /hosts/ [get]
 func (h HostController) Get() (page.Page, error) {
-
 	p, _ := h.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
@@ -67,6 +68,7 @@ func (h HostController) Get() (page.Page, error) {
 // @Description show a host by name
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  path  string  true "host name"
 // @Success 200 {object} dto.Host
 // @Security ApiKeyAuth
 // @Router /hosts/{name}/ [get]
@@ -131,14 +133,6 @@ func (h HostController) Post() (*dto.Host, error) {
 	return &item, nil
 }
 
-// Delete Host
-// @Tags hosts
-// @Summary Delete a host
-// @Description delete a host by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /hosts/{name}/ [delete]
 func (h HostController) DeleteBy(name string) error {
 	operator := h.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_HOST, name)
@@ -163,6 +157,16 @@ func (h HostController) PostSync() error {
 	return h.HostService.SyncList(req)
 }
 
+// Delete Hosts
+// @Tags hosts
+// @Summary delete host list
+// @Description delete host list
+// @Accept  json
+// @Produce  json
+// @Param request body dto.HostOp true "request"
+// @Success 200 {object} dto.Host
+// @Security ApiKeyAuth
+// @Router /hosts/batch [post]
 func (h HostController) PostBatch() error {
 	var req dto.HostOp
 	err := h.Ctx.ReadJSON(&req)
@@ -227,5 +231,9 @@ func (h HostController) PostUpload() error {
 		return err
 	}
 	defer f.Close()
+
+	operator := h.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPLOAD_HOST, "-")
+
 	return h.HostService.ImportHosts(bs)
 }

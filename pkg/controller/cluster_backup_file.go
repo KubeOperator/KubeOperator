@@ -30,6 +30,9 @@ func NewClusterBackupFileController() *BackupFileController {
 // @Description Show backupFiles
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
+// @Param  clusterName  query  string  true "cluster name"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /clusters/backup/files/ [get]
@@ -46,6 +49,7 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Description delete a BackupFile by name
 // @Accept  json
 // @Produce  json
+// @Param  name  query  int  true "backup file name"
 // @Security ApiKeyAuth
 // @Router /clusters/backup/files/{name}/ [delete]
 func (b BackupFileController) DeleteBy(name string) error {

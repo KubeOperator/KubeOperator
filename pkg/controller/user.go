@@ -29,6 +29,8 @@ func NewUserController() *UserController {
 // @Description Show users
 // @Accept  json
 // @Produce  json
+// @Param  pageNum  query  int  true "page number"
+// @Param  pageSize  query  int  true "page size"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /users/ [get]
@@ -137,14 +139,6 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	return user, err
 }
 
-// Delete User
-// @Tags users
-// @Summary Delete a user
-// @Description delete a user by name
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /users/{name}/ [delete]
 func (u UserController) DeleteBy(name string) error {
 	operator := u.Ctx.Values().GetString("operator")
 
@@ -164,6 +158,15 @@ func (u UserController) DeleteBy(name string) error {
 	return u.UserService.Delete(name)
 }
 
+// Delete Users
+// @Tags users
+// @Summary Delete user list
+// @Description delete user list
+// @Accept  json
+// @Produce  json
+// @Param request body dto.UserOp true "request"
+// @Security ApiKeyAuth
+// @Router /users/batch [post]
 func (u UserController) PostBatch() error {
 	var req dto.UserOp
 	err := u.Ctx.ReadJSON(&req)
