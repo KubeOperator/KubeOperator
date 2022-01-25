@@ -4,7 +4,7 @@
         <form clrForm #userForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" readonly/>
+                <label>{{item.name}}</label>
             </clr-input-container>
         </form>
         <app-modal-alert></app-modal-alert>

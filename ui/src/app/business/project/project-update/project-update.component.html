@@ -4,8 +4,7 @@
         <form clrForm #projectForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}:</label>
-                <input clrInput size=45 maxlength="25" type="text" [(ngModel)]="item.name" readonly
-                       name="name" required>
+                <label>{{item.name}}</label>
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_DESCRIPTION'|translate}}:</label>
