@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"io/ioutil"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -222,15 +223,16 @@ func (h HostController) GetTemplate() error {
 // @Security ApiKeyAuth
 // @Router /hosts/upload/ [post]
 func (h HostController) PostUpload() error {
-	f, _, err := h.Ctx.FormFile("file")
+	f, handler, err := h.Ctx.FormFile("file")
 	if err != nil {
 		return err
 	}
 
-	if sizeInterface, ok := f.(Size); ok {
-		if sizeInterface.Size() > 10485760 {
-			return errors.New("APP_HOST_IMPORT_FILE_SIZE_ERROR")
-		}
+	if handler.Size > 10485760 {
+		return errors.New("APP_HOST_IMPORT_FILE_SIZE_ERROR")
+	}
+	if !strings.HasSuffix(handler.Filename, ".xls") && !strings.HasSuffix(handler.Filename, ".xlsx") {
+		return errors.New("APP_HOST_IMPORT_FILE_FORMAT_ERROR")
 	}
 
 	bs, err := ioutil.ReadAll(f)
@@ -243,8 +245,4 @@ func (h HostController) PostUpload() error {
 	go kolog.Save(operator, constant.UPLOAD_HOST, "-")
 
 	return h.HostService.ImportHosts(bs)
-}
-
-type Size interface {
-	Size() int64
 }
