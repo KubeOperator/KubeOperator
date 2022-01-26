@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from './login.component';
 import {CoreModule} from '../core/core.module';
 import {SharedModule} from '../shared/shared.module';
-import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 
 
 @NgModule({
-  declarations: [LoginComponent, ForgotPasswordComponent],
+  declarations: [LoginComponent, ResetPasswordComponent],
     imports: [
         CommonModule,
         CoreModule,

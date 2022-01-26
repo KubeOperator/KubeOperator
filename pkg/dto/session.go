@@ -16,6 +16,7 @@ type SessionUser struct {
 	Language string `json:"language"`
 	IsActive bool   `json:"isActive"`
 	IsAdmin  bool   `json:"isAdmin"`
+	IsFirst  bool   `json:"isFirst"`
 }
 
 type Profile struct {

@@ -31,6 +31,7 @@ HOST_IMPORT_FAILED_SAVE: "主机 %s 保存失败，原因：%s"
 #user
 PASSWORD_NOT_MATCH: "密码错误"
 ORIGINAL_NOT_MATCH: "原密码错误"
+TOO_MANY_FAILURES: "失败次数过多，请三分钟后重试！"
 USER_IS_NOT_ACTIVE: "用户未启用！请联系管理员！"
 USER_NOT_FOUND: "无此用户！"
 ADMIN_CAN_NOT_DELETE: "默认 admin 用户不能被删除！"

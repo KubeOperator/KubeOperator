@@ -579,6 +579,7 @@
   "APP_LICENSE_EXPIRED_MSG": "Your KubeOperator license is about to expire",
   "NAMESPACE_INVALID": "namespace name does not meet the specification",
   "PROVISIONER_DELETE_FAILED": "This storage provider is already bound to the storage class and cannot be deleted!",
+  "FIRST_LOGIN_RESET": "User login for the first time, please reset the password!",
   "RESET_PWD": "Reset Password",
   "RESET_PWD_HELPER": "Please enter the email address",
   "RESET_PWD_SUCCESS": "Password reset successfully! Please check mail",

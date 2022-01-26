@@ -8,7 +8,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {Theme} from '../business/setting/theme/theme';
 import {ThemeService} from '../business/setting/theme/theme.service';
 import {Captcha} from '../shared/auth/session-user';
-import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './reset-password/reset-password.component';
 
 @Component({
     selector: 'app-login',
@@ -19,9 +19,10 @@ export class LoginComponent implements OnInit {
 
     @ViewChild('loginForm', {static: true}) loginForm: NgForm;
     @Input() loginCredential: LoginCredential = new LoginCredential();
-    @ViewChild(ForgotPasswordComponent, {static: true}) forgotPwdDialog: ForgotPasswordComponent;
+    @ViewChild(ResetPasswordComponent, {static: true}) resetPwdDialog: ResetPasswordComponent;
     message: string;
     isError = false;
+    isFirst = false;
     theme: Theme;
     captcha: Captcha = new Captcha();
 
@@ -59,11 +60,19 @@ export class LoginComponent implements OnInit {
         this.loginCredential.captchaId = this.captcha.captchaId;
         this.sessionService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
+            if (res.user.isFirst) {
+                this.resetOpen()
+            } else {
+              this.router.navigateByUrl(CommonRoutes.KO_ROOT);
+            }
             this.sessionService.cacheProfile(res);
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
-            this.router.navigateByUrl(CommonRoutes.KO_ROOT);
         }, error => this.handleError(error));
+    }
+
+    resetOpen() {
+        this.resetPwdDialog.open(this.loginCredential.username, this.loginCredential.password);
     }
 
     handleError(error: any) {
@@ -87,9 +96,5 @@ export class LoginComponent implements OnInit {
         }, error => {
             this.message = this.translateService.instant(error.msg);
         });
-    }
-
-    forgotPassword() {
-        this.forgotPwdDialog.open();
     }
 }

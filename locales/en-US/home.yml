@@ -32,6 +32,7 @@ HOST_IMPORT_FAILED_SAVE: "Failed to save host %s, reason:%s"
 #user
 PASSWORD_NOT_MATCH: "The password is incorrect"
 ORIGINAL_NOT_MATCH: "The original password is incorrect"
+TOO_MANY_FAILURES: "Too many failed attempts. Please try again three minutes later！"
 USER_IS_NOT_ACTIVE: "The user is not enabled! Please contact the administrator!"
 USER_NOT_FOUND: "No such user！"
 ADMIN_CAN_NOT_DELETE: "The default admin user cannot be deleted!"

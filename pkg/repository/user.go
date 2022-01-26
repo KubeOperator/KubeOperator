@@ -55,7 +55,7 @@ func (u userRepository) Save(item *model.User) error {
 	if db.DB.NewRecord(item) {
 		return db.DB.Create(&item).Error
 	} else {
-		return db.DB.Model(&model.User{}).Update(&item).Error
+		return db.DB.Save(&item).Error
 	}
 }
 

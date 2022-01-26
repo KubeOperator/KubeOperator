@@ -112,5 +112,6 @@ func toSessionUser(u model.User) dto.SessionUser {
 		Language: u.Language,
 		IsActive: u.IsActive,
 		IsAdmin:  u.IsAdmin,
+		IsFirst:  u.IsFirst,
 	}
 }

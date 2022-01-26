@@ -31,6 +31,17 @@ var SystemRules = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/users/change/password",
+		},
+		Method: []string{"POST"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{SystemRoleAdmin, SystemRoleUser},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
 			"/api/v1/hosts",
 			"/api/v1/clusters",
 			"/api/v1/clusters/{**}",
@@ -40,7 +51,6 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/message/{**}",
 			"/api/v1/message/{**}/{**}",
 			"/api/v1/events/npd/{**}/{**}",
-			"/api/v1/users/change/password",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

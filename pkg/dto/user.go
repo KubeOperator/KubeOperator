@@ -38,7 +38,6 @@ type UserOp struct {
 }
 
 type UserChangePassword struct {
-	ID       string `json:"id" validate:"-"`
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"kopassword,required,max=30,min=8"`
 	Original string `json:"original" validate:"kopassword,required,max=30,min=8"`

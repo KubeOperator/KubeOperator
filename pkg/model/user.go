@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
@@ -31,6 +30,8 @@ type User struct {
 	Language string `json:"language" gorm:"type:varchar(64)"`
 	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
 	Type     string `json:"type" gorm:"type:varchar(64)"`
+	IsFirst  bool   `json:"isFirst" gorm:"type:boolean;default:true"`
+	ErrCount int    `json:"errCount" gorm:"type:int(64)"`
 }
 
 type Token struct {
@@ -106,15 +107,4 @@ func (u *User) BeforeUpdate() (err error) {
 		return errors.New(LdapCanNotUpdate)
 	}
 	return err
-}
-
-func (u *User) ValidateOldPassword(password string) (bool, error) {
-	oldPassword, err := encrypt.StringDecrypt(u.Password)
-	if err != nil {
-		return false, err
-	}
-	if oldPassword != password {
-		return false, err
-	}
-	return true, err
 }

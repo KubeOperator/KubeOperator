@@ -213,10 +213,10 @@ func (u UserController) PostBatch() error {
 
 func (u UserController) PostChangePassword() error {
 	var req dto.UserChangePassword
-	err := u.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := u.Ctx.ReadJSON(&req); err != nil {
 		return err
 	}
+
 	validate := validator.New()
 	if err := validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern); err != nil {
 		return err
@@ -229,26 +229,28 @@ func (u UserController) PostChangePassword() error {
 		return errors.New("NAME_PASSWORD_SAME_FAILED")
 	}
 
-	err = u.UserService.ChangePassword(req)
+	isFirstLogin, err := u.UserService.ChangePassword(req)
 	if err != nil {
 		return err
 	}
 
-	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
-	for _, onlineSessionID := range onlineSessionIDList {
-		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
-			if value, ok := userInfo.(*dto.Profile); ok {
-				if value.User.Name == req.Name {
-					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+	if !isFirstLogin {
+		var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+		for _, onlineSessionID := range onlineSessionIDList {
+			if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+				if value, ok := userInfo.(*dto.Profile); ok {
+					if value.User.Name == req.Name {
+						session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+					}
 				}
 			}
 		}
+
+		operator := u.Ctx.Values().GetString("operator")
+		go kolog.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
 	}
 
-	operator := u.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
-
-	return err
+	return nil
 }
 
 func reverseString(s string) string {

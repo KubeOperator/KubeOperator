@@ -248,7 +248,8 @@ CREATE TABLE IF NOT EXISTS `ko_user` (
   `language` varchar(64) DEFAULT NULL,
   `is_admin` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `email` (`email`)
 );
 
 CREATE TABLE IF NOT EXISTS `ko_volume` (

@@ -587,6 +587,7 @@
   "APP_LICENSE_EXPIRED_MSG": "你的 KubeOperator 许可证即将过期",
   "NAMESPACE_INVALID": "namespace名称不符合规范",
   "PROVISIONER_DELETE_FAILED": "此存储提供商已经绑定到存储类，不能删除！",
+  "FIRST_LOGIN_RESET": "用户初次登陆，请重新设置密码！",
   "RESET_PWD": "重置密码",
   "RESET_PWD_HELPER": "请输入接收邮件的邮箱",
   "RESET_PWD_SUCCESS": "重置密码成功！请检查邮件",

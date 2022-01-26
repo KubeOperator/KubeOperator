@@ -37,7 +37,7 @@ type UserService interface {
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Batch(op dto.UserOp) error
-	ChangePassword(ch dto.UserChangePassword) error
+	ChangePassword(ch dto.UserChangePassword) (bool, error)
 	UserAuth(name string, password string) (user *model.User, err error)
 	ResetPassword(fp dto.UserForgotPassword) error
 }
@@ -201,30 +201,31 @@ func (u userService) Batch(op dto.UserOp) error {
 	return u.userRepo.Batch(op.Operation, deleteItems)
 }
 
-func (u userService) ChangePassword(ch dto.UserChangePassword) error {
+func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
+	isFirstLogin := false
 	user, err := u.userRepo.Get(ch.Name)
 	if err != nil {
-		return err
+		return isFirstLogin, err
 	}
-	success, err := user.ValidateOldPassword(ch.Original)
-	if err != nil {
-		return err
+	if user.IsFirst {
+		isFirstLogin = true
+		user.IsFirst = false
 	}
-	if !success {
-		return OriginalNotMatch
+
+	success, err := validateOldPassword(user, ch.Original)
+	if !success || err != nil {
+		return isFirstLogin, err
 	}
-	if ch.Password == user.Name {
-		return NamePwdFailed
-	}
+
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
 	if err != nil {
-		return err
+		return isFirstLogin, err
 	}
-	err = u.userRepo.Save(&user)
-	if err != nil {
-		return err
+
+	if err = u.userRepo.Save(&user); err != nil {
+		return isFirstLogin, err
 	}
-	return err
+	return isFirstLogin, err
 }
 
 func (u userService) UserAuth(name string, password string) (user *model.User, err error) {
@@ -260,12 +261,9 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 			return nil, err
 		}
 	} else {
-		uPassword, err := encrypt.StringDecrypt(dbUser.Password)
-		if err != nil {
+		success, err := validateOldPassword(dbUser, password)
+		if !success || err != nil {
 			return nil, err
-		}
-		if uPassword != password {
-			return nil, NameOrPasswordErr
 		}
 	}
 	return &dbUser, nil
@@ -332,4 +330,24 @@ func GetPasswd() string {
 		b[k] = letters[rand.Intn(len(letters))]
 	}
 	return (string(b))
+}
+
+func validateOldPassword(user model.User, password string) (bool, error) {
+	if !user.UpdatedAt.Before(time.Now().Add(-1*time.Minute)) && user.ErrCount > 4 {
+		return false, errors.New("TOO_MANY_FAILURES")
+	}
+
+	oldPassword, err := encrypt.StringDecrypt(user.Password)
+	if err != nil {
+		return false, err
+	}
+	if oldPassword != password {
+		if user.UpdatedAt.Before(time.Now().Add(-1 * time.Minute)) {
+			_ = db.DB.Model(&model.User{}).Where("id = ?", user.ID).Update("err_count", 1)
+		} else {
+			_ = db.DB.Model(&model.User{}).Where("id = ?", user.ID).Update("err_count", gorm.Expr("err_count + 1"))
+		}
+		return false, NameOrPasswordErr
+	}
+	return true, err
 }

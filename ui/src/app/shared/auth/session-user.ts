@@ -6,6 +6,7 @@ export class SessionUser {
     email: string;
     language: string;
     isAdmin: boolean;
+    isFirst: boolean;
 }
 
 export class Profile {
