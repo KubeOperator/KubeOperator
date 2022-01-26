@@ -20,8 +20,7 @@ var doc = `{
         "termsOfService": "http://kubeoperator.io",
         "contact": {
             "name": "Fit2cloud Support",
-            "url": "https://www.fit2cloud.com",
-            "email": "support@fit2cloud.com"
+            "url": "https://www.fit2cloud.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -2148,6 +2147,9 @@ var doc = `{
                     "type": "boolean"
                 },
                 "isAdmin": {
+                    "type": "boolean"
+                },
+                "isFirst": {
                     "type": "boolean"
                 },
                 "language": {

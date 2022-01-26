@@ -4,11 +4,12 @@ package main
 //go:generate swag init
 
 import (
+	"log"
+
 	_ "github.com/KubeOperator/KubeOperator/docs"
 	"github.com/KubeOperator/KubeOperator/pkg/server"
 	_ "golang.org/x/text/message"
 	_ "golang.org/x/text/message/catalog"
-	"log"
 )
 
 // @title KubeOperator Restful API
@@ -16,7 +17,6 @@ import (
 // @termsOfService http://kubeoperator.io
 // @contact.name Fit2cloud Support
 // @contact.url https://www.fit2cloud.com
-// @contact.email support@fit2cloud.com
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /api/v1

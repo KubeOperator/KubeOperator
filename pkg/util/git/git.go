@@ -2,13 +2,14 @@ package git
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"k8s.io/kubernetes/third_party/forked/etcd237/pkg/fileutil"
-	"time"
 )
 
 type Credential struct {
@@ -76,7 +77,7 @@ func PushRepository(path string, auth transport.AuthMethod) error {
 	_, err = workTree.Commit("Update by KubeOperator", &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "KubeOperator",
-			Email: "support@fit2cloud.com",
+			Email: "",
 			When:  time.Now(),
 		},
 	})

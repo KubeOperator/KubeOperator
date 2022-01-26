@@ -436,6 +436,8 @@ definitions:
         type: boolean
       isAdmin:
         type: boolean
+      isFirst:
+        type: boolean
       language:
         type: string
       name:
@@ -661,7 +663,6 @@ definitions:
     type: object
 info:
   contact:
-    email: support@fit2cloud.com
     name: Fit2cloud Support
     url: https://www.fit2cloud.com
   license:
