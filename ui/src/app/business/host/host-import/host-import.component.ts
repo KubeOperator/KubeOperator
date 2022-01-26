@@ -39,17 +39,6 @@ export class HostImportComponent implements OnInit {
     }
 
     onSubmit() {
-        const startIndex = this.file.name.lastIndexOf('.');
-        if (startIndex !== -1) {
-            const fileType = this.file.name.substring(startIndex + 1, this.file.name.length).toLowerCase();
-            if (fileType !== 'xlsx') {
-                this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
-                return;
-            }
-        } else {
-            this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
-            return;
-        }
         const formData = new FormData();
         formData.append('file', this.file);
         this.isSubmitGoing = true;
@@ -65,7 +54,24 @@ export class HostImportComponent implements OnInit {
     }
 
     upload(e) {
+        let file = e.target.files[0]
+        if (file.size > 10485760) {
+            this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_SIZE_ERROR'), AlertLevels.ERROR);
+            return;
+        }
+        if (!this.endWith(file.name, 'xlsx') && !this.endWith(file.name, 'xls')) {
+            this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
+            return;
+        }
+
         this.file = e.target.files[0];
+    }
+
+    endWith(str, suffix) {
+        if(str == null || str == "" || suffix.length == 0 || suffix.length > str.length) {
+            return false;
+        }
+        return str.substring(str.length - suffix.length) == suffix;
     }
 
     download() {

@@ -226,6 +226,13 @@ func (h HostController) PostUpload() error {
 	if err != nil {
 		return err
 	}
+
+	if sizeInterface, ok := f.(Size); ok {
+		if sizeInterface.Size() > 10485760 {
+			return errors.New("APP_HOST_IMPORT_FILE_SIZE_ERROR")
+		}
+	}
+
 	bs, err := ioutil.ReadAll(f)
 	if err != nil {
 		return err
@@ -236,4 +243,8 @@ func (h HostController) PostUpload() error {
 	go kolog.Save(operator, constant.UPLOAD_HOST, "-")
 
 	return h.HostService.ImportHosts(bs)
+}
+
+type Size interface {
+	Size() int64
 }
