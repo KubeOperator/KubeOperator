@@ -382,23 +382,6 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) error {
 	return nil
 }
 
-func (c ClusterController) GetWebkubectlBy(clusterName string) (*dto.WebkubectlToken, error) {
-	tk, err := c.ClusterService.GetWebkubectlToken(clusterName)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tk, nil
-}
-
-func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, error) {
-	sec, err := c.ClusterService.GetSecrets(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	return &sec, nil
-}
-
 func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
 	ls, err := c.ClusterLogService.List(clusterName)
 	if err != nil {

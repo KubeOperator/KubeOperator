@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 type ClusterSecretRepository interface {
@@ -25,10 +26,40 @@ func (c clusterSecretRepository) Get(id string) (model.ClusterSecret, error) {
 	if err := db.DB.First(&status).Error; err != nil {
 		return status, err
 	}
+
+	if len(status.KubeadmToken) != 0 {
+		admToken, err := encrypt.StringDecrypt(status.KubeadmToken)
+		if err != nil {
+			return status, err
+		}
+		status.KubeadmToken = admToken
+	}
+	if len(status.KubernetesToken) != 0 {
+		token, err := encrypt.StringDecrypt(status.KubernetesToken)
+		if err != nil {
+			return status, err
+		}
+		status.KubernetesToken = token
+	}
 	return status, nil
 }
 
 func (c clusterSecretRepository) Save(status *model.ClusterSecret) error {
+	if len(status.KubeadmToken) != 0 {
+		admToken, err := encrypt.StringEncrypt(status.KubeadmToken)
+		if err != nil {
+			return err
+		}
+		status.KubeadmToken = admToken
+	}
+	if len(status.KubernetesToken) != 0 {
+		token, err := encrypt.StringEncrypt(status.KubernetesToken)
+		if err != nil {
+			return err
+		}
+		status.KubernetesToken = token
+	}
+
 	if db.DB.NewRecord(status) {
 		if err := db.DB.Create(&status).Error; err != nil {
 			return err

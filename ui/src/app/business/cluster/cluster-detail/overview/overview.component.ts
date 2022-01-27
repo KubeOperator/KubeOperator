@@ -92,9 +92,5 @@ export class OverviewComponent implements OnInit {
             this.cpuUsagePercent = (this.cpuUsage / this.cpuTotal) * 100;
         });
     }
-
-    downloadKubeConfig() {
-        window.open(`/api/v1/clusters/kubeconfig/${this.currentCluster.name}`, '_blank');
-    }
 }
 

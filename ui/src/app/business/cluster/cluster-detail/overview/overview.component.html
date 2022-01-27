@@ -120,11 +120,6 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer" *ngIf="currentCluster.source==='local'">
-                <button class="btn btn-sm" (click)="downloadKubeConfig()">{{'APP_DOWNLOAD'|translate}}KubeConfig
-                </button>
-            </div>
         </div>
     </div>
 </div>
-<app-webkubectl [currentCluster]="currentCluster"></app-webkubectl>
