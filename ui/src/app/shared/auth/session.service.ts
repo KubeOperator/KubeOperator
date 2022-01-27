@@ -31,23 +31,11 @@ export class SessionService {
         return this.http.get<Captcha>(this.codeUrl);
     }
 
-    cacheProfile(profile: Profile) {
-        sessionStorage.setItem(queryKey, JSON.stringify(profile));
-    }
-
-    getCacheProfile(): Profile {
-        const profile = sessionStorage.getItem(queryKey);
-        if (profile !== null) {
-            return JSON.parse(profile);
-        }
-        return null;
-    }
-
     clear() {
         sessionStorage.removeItem(queryKey);
     }
 
     getProfile(): Observable<Profile> {
-        return this.http.get<Profile>(this.profileUrl);
+        return this.http.get<Profile>(this.sessionUrl);
     }
 }

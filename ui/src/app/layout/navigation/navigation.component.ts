@@ -18,8 +18,9 @@ export class NavigationComponent implements OnInit {
 
     ngOnInit(): void {
         this.hasLicense = this.businessLicenseService.licenseValid;
-        const profile = this.sessionService.getCacheProfile();
-        this.user = profile.user;
+        this.sessionService.getProfile().subscribe(res => {
+            this.user = res.user;
+        })
     }
 
 }

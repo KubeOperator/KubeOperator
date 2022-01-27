@@ -34,10 +34,11 @@ export class ProjectCreateComponent extends BaseModelDirective<Project> implemen
     }
 
     ngOnInit(): void {
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-        }
+        this.sessionService.getProfile().subscribe(res => {
+            if (res != null) {
+                this.user = res.user;
+            }
+        })
     }
 
     open() {

@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -21,6 +23,22 @@ func NewSessionController() *SessionController {
 	return &SessionController{
 		UserService: service.NewUserService(),
 	}
+}
+
+func (s *SessionController) Get() (*dto.Profile, error) {
+	var sessionID = session.GloablSessionMgr.CheckCookieValid(s.Ctx.ResponseWriter(), s.Ctx.Request())
+	if len(sessionID) == 0 {
+		return nil, errors.New("session invalid !")
+	}
+
+	u, ok := session.GloablSessionMgr.GetSessionVal(sessionID, constant.SessionUserKey)
+	if !ok {
+		session.GloablSessionMgr.EndSessionBy(sessionID)
+		return nil, errors.New("session invalid !")
+	}
+
+	user, _ := u.(*dto.Profile)
+	return user, nil
 }
 
 // Login

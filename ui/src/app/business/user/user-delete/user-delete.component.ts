@@ -30,10 +30,9 @@ export class UserDeleteComponent extends BaseModelDirective<User> implements OnI
     }
 
     ngOnInit(): void {
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-        }
+        this.sessionService.getProfile().subscribe(res => {
+            this.user = res.user;
+        })
     }
 
     open(items) {

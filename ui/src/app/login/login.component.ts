@@ -65,7 +65,6 @@ export class LoginComponent implements OnInit {
             } else {
               this.router.navigateByUrl(CommonRoutes.KO_ROOT);
             }
-            this.sessionService.cacheProfile(res);
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
         }, error => this.handleError(error));

@@ -41,8 +41,9 @@ export class ProjectResourceListComponent extends BaseModelDirective<ProjectReso
             this.currentProject = data.project;
             this.resourceType = ResourceTypes.Host;
             this.pageBy();
-            const p = this.sessionService.getCacheProfile();
-            this.user = p.user;
+            this.sessionService.getProfile().subscribe(res => {
+                this.user = res.user;
+            })
             if (!this.user.isAdmin) {
                 this.projectMemberService.getByUser(this.user.name, this.currentProject.name).subscribe(res => {
                     this.currentMember = res;

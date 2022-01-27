@@ -24,14 +24,15 @@ export class AuthUserService implements CanActivate, CanActivateChild {
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
         Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
         return new Observable<boolean>((observer) => {
-            const p = this.sessionService.getCacheProfile();
-            if (p != null) {
-                observer.next(true);
-                observer.complete();
-            } else {
-                this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
-                this.router.navigateByUrl(CommonRoutes.LOGIN).then();
-            }
+            this.sessionService.getProfile().subscribe(res => {
+                if (res != null) {
+                    observer.next(true);
+                    observer.complete();
+                } else {
+                    this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
+                    this.router.navigateByUrl(CommonRoutes.LOGIN).then();
+                }
+            })
         });
     }
 

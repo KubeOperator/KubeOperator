@@ -31,8 +31,9 @@ export class ProjectListComponent extends BaseModelDirective<Project> implements
 
     ngOnInit(): void {
         super.ngOnInit();
-        const profile = this.sessionService.getCacheProfile();
-        this.user = profile.user;
+        this.sessionService.getProfile().subscribe(res => {
+            this.user = res.user;
+        })
     }
 
     onUpdate(item: Project) {

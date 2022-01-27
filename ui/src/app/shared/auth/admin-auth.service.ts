@@ -24,14 +24,15 @@ export class AdminAuthService implements CanActivateChild, CanActivate {
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
         Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
         return new Observable<boolean>((observer) => {
-            const p = this.sessionService.getCacheProfile();
-            if (p != null && p.user.isAdmin) {
-                observer.next(true);
-                observer.complete();
-            } else {
-                this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
-                this.router.navigateByUrl(CommonRoutes.KO_ROOT).then();
-            }
+            this.sessionService.getProfile().subscribe(res => {
+                if (res != null && res.user.isAdmin) {
+                    observer.next(true);
+                    observer.complete();
+                } else {
+                    this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
+                    this.router.navigateByUrl(CommonRoutes.KO_ROOT).then();
+                }
+            })
         });
     }
 

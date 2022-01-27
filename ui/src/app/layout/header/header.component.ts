@@ -48,17 +48,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     getProfile() {
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-            this.hasLicense = this.businessLicenseService.licenseValid;
-            if (this.hasLicense) {
-                this.listUnreadMsg(this.user.name);
-                this.timer = setInterval(() => {
+        this.sessionService.getProfile().subscribe(res => {
+            if (res != null) {
+                this.user = res.user;
+                this.hasLicense = this.businessLicenseService.licenseValid;
+                if (this.hasLicense) {
                     this.listUnreadMsg(this.user.name);
-                }, 60000);
+                    this.timer = setInterval(() => {
+                        this.listUnreadMsg(this.user.name);
+                    }, 60000);
+                }
             }
-        }
+        })
     }
 
     ngOnDestroy() {
