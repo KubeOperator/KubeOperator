@@ -5,10 +5,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Azure/azure-storage-blob-go/azblob"
 	"io/ioutil"
 	"net/url"
 	"os"
+
+	"github.com/Azure/azure-storage-blob-go/azblob"
 )
 
 type azureClient struct {
@@ -124,7 +125,7 @@ func (azure azureClient) Download(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	err = ioutil.WriteFile(target, downloadedData.Bytes(), 0775)
+	err = ioutil.WriteFile(target, downloadedData.Bytes(), 0750)
 	if err != nil {
 		return false, err
 	}

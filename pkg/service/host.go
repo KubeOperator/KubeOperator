@@ -458,7 +458,7 @@ func (h hostService) ImportHosts(file []byte) error {
 		return err
 	}
 	defer f.Close()
-	err = ioutil.WriteFile("./import.xlsx", file, 0775)
+	err = ioutil.WriteFile("./import.xlsx", file, 0750)
 	if err != nil {
 		return err
 	}

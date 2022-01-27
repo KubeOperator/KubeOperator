@@ -360,7 +360,7 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(targetPath, file, 0775)
+	err = ioutil.WriteFile(targetPath, file, 0750)
 	if err != nil {
 		return err
 	}
