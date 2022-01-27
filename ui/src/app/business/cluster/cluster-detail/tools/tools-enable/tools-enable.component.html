@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
     <h3 class="modal-title">{{'APP_ENABLE'|translate}}{{"APP_TOOLS"|translate}}</h3>
     <div class="modal-body modal-height">
-        <form clrForm #itemForm='ngForm'>
+        <form autocomplete="off" clrForm #itemForm='ngForm'>
             <div *ngIf="item.name === 'chartmuseum'">
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>

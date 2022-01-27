@@ -1,5 +1,5 @@
 <div>
-    <form clrForm #emailForm="ngForm">
+    <form autocomplete="off" clrForm #emailForm="ngForm">
         <clr-input-container>
             <label>{{'APP_SMTP_ADDRESS'|translate}}</label>
             <input clrInput name="smtp_address" [(ngModel)]="item.vars['SMTP_ADDRESS']" size=45

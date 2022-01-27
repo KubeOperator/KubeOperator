@@ -28,7 +28,7 @@
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid || !isParamsValid">
         <ng-template clrPageTitle>{{'APP_REGION_PARAM_CONFIG'|translate}}</ng-template>
-        <form clrForm #paramsForm='ngForm'>
+        <form autocomplete="off" clrForm #paramsForm='ngForm'>
             <div *ngIf="item.provider === 'FusionCompute'">
                 <clr-input-container>
                     <label>{{'APP_FUSION_COMPUTE_SERVER'|translate}}</label>

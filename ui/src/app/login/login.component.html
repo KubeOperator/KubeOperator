@@ -1,5 +1,5 @@
 <div class="login-wrapper background">
-    <form class="login" #loginForm="ngForm">
+    <form autocomplete="off" class="login" #loginForm="ngForm">
         <section class="title">
             <h3 class="welcome">{{'APP_LOGIN_TITLE_WELCOME'|translate}}</h3>
             <span *ngIf="!theme||!theme.systemName">

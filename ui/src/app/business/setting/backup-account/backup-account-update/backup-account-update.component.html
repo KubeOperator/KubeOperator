@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{'APP_UPDATE_BACKUP_ACCOUNT'|translate}}</h3>
 
     <div class="modal-body modal-height">
-        <form clrForm #backupAccountForm="ngForm">
+        <form autocomplete="off" clrForm #backupAccountForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}</label>
                 <label>{{item.name}}</label>

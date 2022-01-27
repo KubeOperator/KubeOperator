@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{'APP_ADD_BACKUP_ACCOUNT'|translate}}</h3>
 
     <div class="modal-body modal-height">
-        <form clrForm #backupAccountForm="ngForm">
+        <form autocomplete="off" clrForm #backupAccountForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}</label>
                 <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name" pattern="{{namePattern}}"

@@ -2,7 +2,7 @@
     <clr-spinner></clr-spinner>
 </div>
 <div *ngIf="loading">
-    <form clrForm #F5config="ngForm" >
+    <form autocomplete="off" clrForm #F5config="ngForm" >
             <clr-input-container>
                 <label>{{'APP_F5_URL'|translate}}</label>
                 <input clrInput placeholder="https://172.16.10.100" name="url" size="25" [(ngModel)]="item.url" required/>

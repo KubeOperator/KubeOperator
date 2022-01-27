@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
     <h3 class="modal-title">{{"APP_ADD"|translate}}{{"APP_STORAGE_CLASS"|translate}}</h3>
     <div class="modal-body">
-        <form clrForm #itemForm='ngForm'>
+        <form autocomplete="off" clrForm #itemForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="34" name="name"

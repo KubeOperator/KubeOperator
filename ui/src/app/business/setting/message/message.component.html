@@ -3,7 +3,7 @@
     <clr-tab>
         <button clrTabLink (click)="changeTab('WORK_WEIXIN')">{{'APP_WORK_WEIXIN_TAB'|translate}}</button>
         <clr-tab-content *clrIfActive>
-            <form clrForm #wechatForm="ngForm">
+            <form autocomplete="off" clrForm #wechatForm="ngForm">
                 <clr-input-container>
                     <label>corpid</label>
                     <input clrInput type="password" name="weixin_corp_id" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_ID']" size=45

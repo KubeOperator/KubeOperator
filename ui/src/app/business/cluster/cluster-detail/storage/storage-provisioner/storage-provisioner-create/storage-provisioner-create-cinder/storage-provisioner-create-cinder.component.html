@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
     <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
     <div class="modal-body">
-        <form clrForm #nfsForm='ngForm'>
+        <form autocomplete="off" clrForm #nfsForm='ngForm'>
             <clr-input-container>
                 <label>Identity</label>
                 <input clrInput [(ngModel)]="item.vars['cinder_auth_url']" placeholder="eg: http://128.110.154.166/identity" name="cinder_auth_url" size="34" required>
