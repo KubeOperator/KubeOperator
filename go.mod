@@ -8,7 +8,6 @@ require (
 	github.com/CloudyKit/jet/v3 v3.0.1 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.1.2
-	github.com/KubeOperator/kotf v0.1.2
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible

@@ -17,8 +17,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
-	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
 )
 
 type ClusterIaasService interface {
@@ -63,19 +61,6 @@ func (c clusterIaasService) Init(name string) error {
 	}
 	err = c.hostRepo.BatchSave(hosts)
 	if err != nil {
-		return err
-	}
-
-	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
-	err = doInit(k, plan, hosts)
-	if err != nil {
-		for i := range hosts {
-			hosts[i].ClusterID = ""
-			_ = db.DB.Delete(&hosts[i])
-		}
-		return err
-	}
-	if err := c.hostRepo.BatchSave(hosts); err != nil {
 		return err
 	}
 
@@ -210,108 +195,6 @@ func getHostRole(name string) string {
 	return constant.NodeRoleNameWorker
 }
 
-func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
-	var zonesVars []map[string]interface{}
-	for _, zone := range plan.Zones {
-		zoneMap := map[string]interface{}{}
-		_ = json.Unmarshal([]byte(zone.Vars), &zoneMap)
-		zoneMap["key"] = formatZoneName(zone.Name)
-		zonesVars = append(zonesVars, zoneMap)
-	}
-	hostsStr, _ := json.Marshal(parseHosts(hosts, plan))
-	cloudRegion := map[string]interface{}{
-		"datacenter": plan.Region.Datacenter,
-		"zones":      zonesVars,
-	}
-	cloudRegionStr, _ := json.Marshal(&cloudRegion)
-	res, err := k.Init(plan.Region.Provider, plan.Region.Vars, string(cloudRegionStr), string(hostsStr))
-	if err != nil {
-		return err
-	}
-	if !res.Success {
-		return errors.New(res.GetOutput())
-	}
-	_, err = k.Apply()
-	if err != nil {
-		return err
-	}
-	for i := range hosts {
-		hosts[i].Status = constant.ClusterRunning
-	}
-	return nil
-}
-
-func parseHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
-	switch plan.Region.Provider {
-	case constant.VSphere:
-		return parseVsphereHosts(hosts, plan)
-	case constant.OpenStack:
-		return parseOpenstackHosts(hosts, plan)
-	case constant.FusionCompute:
-		return parseFusionComputeHosts(hosts, plan)
-	}
-
-	return []map[string]interface{}{}
-}
-
-func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
-	var results []map[string]interface{}
-	for _, h := range hosts {
-		var zoneVars map[string]interface{}
-		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
-		zoneVars["key"] = formatZoneName(h.Zone.Name)
-		hMap := map[string]interface{}{}
-		hMap["name"] = h.Name
-		hMap["shortName"] = h.Name
-		hMap["cpu"] = h.CpuCore
-		hMap["memory"] = h.Memory
-		hMap["ip"] = h.Ip
-		hMap["zone"] = zoneVars
-		hMap["datastore"] = h.Datastore
-		results = append(results, hMap)
-	}
-	return results
-}
-
-func parseFusionComputeHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
-	var results []map[string]interface{}
-	for _, h := range hosts {
-		var zoneVars map[string]interface{}
-		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
-		zoneVars["key"] = formatZoneName(h.Zone.Name)
-		hMap := map[string]interface{}{}
-		hMap["name"] = h.Name
-		hMap["shortName"] = h.Name
-		hMap["cpu"] = h.CpuCore
-		hMap["memory"] = h.Memory
-		hMap["ip"] = h.Ip
-		hMap["zone"] = zoneVars
-		hMap["datastore"] = h.Datastore
-		results = append(results, hMap)
-	}
-	return results
-}
-
-func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
-	var results []map[string]interface{}
-	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
-	for _, h := range hosts {
-		var zoneVars map[string]interface{}
-		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
-		zoneVars["key"] = formatZoneName(h.Zone.Name)
-		role := getHostRole(h.Name)
-		hMap := map[string]interface{}{}
-		hMap["name"] = h.Name
-		hMap["shortName"] = h.Name
-		hMap["ip"] = h.Ip
-		hMap["model"] = planVars[fmt.Sprintf("%sModel", role)]
-		hMap["zone"] = zoneVars
-		results = append(results, hMap)
-	}
-	return results
-}
-
 func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*model.Host {
 	groupMap := map[*model.Zone][]*model.Host{}
 	for i := range hosts {
@@ -393,13 +276,6 @@ func exists(ip string, pool []string) bool {
 		}
 	}
 	return false
-}
-
-func formatZoneName(name string) string {
-	if lang.CountChinese(name) > 0 {
-		return lang.Pinyin(name)
-	}
-	return name
 }
 
 func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host) error {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -19,7 +18,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -267,45 +265,7 @@ func (c clusterNodeService) batchDelete(cluster *model.Cluster, currentNodes []m
 func (c *clusterNodeService) removeNodes(cluster *model.Cluster, currentNodes, notDirtyNodes []model.ClusterNode, hostIDs, hostIPs, nodeIDs []string) {
 	tx := db.DB.Begin()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		var p model.Plan
-		if err := tx.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
-			c.updateNodeStatus(nodeIDs, err.Error(), false)
-			log.Errorf("can not load plan err %s", err.Error())
-		}
-		planDTO, err := c.planService.Get(p.Name)
-		if err != nil {
-			c.updateNodeStatus(nodeIDs, err.Error(), false)
-			log.Errorf("can not load plan err %s", err.Error())
-		}
-		cluster.Plan = planDTO.Plan
-
-		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
-			c.updateNodeStatus(nodeIDs, err.Error(), false)
-			log.Errorf("delete node failed error %s", err.Error())
-		}
-		if err := c.destroyHosts(cluster, currentNodes, notDirtyNodes); err != nil {
-			log.Error(err)
-		}
-		log.Info("delete all nodes successful! now start updata cluster datas")
-
-		if err := tx.Where("id in (?)", hostIDs).
-			Delete(&model.Host{}).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(nodeIDs, err.Error(), true)
-			log.Errorf("can not update hosts clusterID reason %s", err.Error())
-		}
-		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
-			Delete(&model.ProjectResource{}).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(nodeIDs, err.Error(), true)
-			log.Errorf("can not delete project resource reason %s", err.Error())
-		}
-		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
-			Update("status", constant.IpAvailable).Error; err != nil {
-			tx.Rollback()
-			c.updateNodeStatus(nodeIDs, err.Error(), true)
-			log.Errorf("can not update ip pool reason %s", err.Error())
-		}
+		return
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes); err != nil {
 			c.updateNodeStatus(nodeIDs, err.Error(), false)
@@ -334,23 +294,6 @@ func (c *clusterNodeService) updateNodeStatus(notDirtyNodeIDs []string, errMsg s
 		Updates(map[string]interface{}{"Status": constant.ClusterFailed, "Message": errMsg, "Dirty": isDirty}).Error; err != nil {
 		log.Errorf("can not update node status %s", err.Error())
 	}
-}
-
-func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes []model.ClusterNode, deleteNodes []model.ClusterNode) error {
-	var aliveHosts []*model.Host
-	for i := range currentNodes {
-		alive := true
-		for k := range deleteNodes {
-			if currentNodes[i].Name == deleteNodes[k].Name {
-				alive = false
-			}
-		}
-		if alive {
-			aliveHosts = append(aliveHosts, &currentNodes[i].Host)
-		}
-	}
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	return doInit(k, cluster.Plan, aliveHosts)
 }
 
 func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
@@ -399,18 +342,13 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 }
 
 func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.ClusterNode) {
-	var (
-		newNodeIDs []string
-		newHostIDs []string
-	)
+	var newNodeIDs []string
 	for _, n := range newNodes {
 		newNodeIDs = append(newNodeIDs, n.ID)
-		newHostIDs = append(newHostIDs, n.Host.ID)
 	}
 
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		log.Info("cluster-plan start add hosts, update hosts status and infos")
-		_ = c.updataHostInfo(cluster, newNodeIDs, newHostIDs)
+		return
 	}
 	log.Info("start binding nodes to cluster")
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
@@ -430,56 +368,6 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 		log.Errorf("can not update node status reason %s", err.Error())
 	}
 	log.Info("create cluster nodes successful!")
-}
-
-// 添加主机、修改主机状态及相关信息
-func (c clusterNodeService) updataHostInfo(cluster *model.Cluster, newNodeIDs, newHostIDs []string) error {
-	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-		Updates(map[string]interface{}{"Status": constant.StatusCreating}).Error; err != nil {
-		log.Errorf("can not update node status reason %s", err.Error())
-		return err
-	}
-	var allNodes []model.ClusterNode
-	if err := db.DB.Where("cluster_id = ?", cluster.ID).
-		Preload("Host").
-		Preload("Host.Credential").
-		Preload("Host.Zone").Find(&allNodes).Error; err != nil {
-		log.Errorf("can not load all nodes %s", err.Error())
-		return err
-	}
-
-	var allHosts []*model.Host
-	for i := range allNodes {
-		allHosts = append(allHosts, &allNodes[i].Host)
-	}
-
-	if err := c.doCreateHosts(cluster, allHosts); err != nil {
-		if err := db.DB.Where("id in (?)", newHostIDs).Delete(&model.Host{}).Error; err != nil {
-			log.Errorf("can not delete hosts reason %s", err.Error())
-		}
-		if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", newNodeIDs).
-			Updates(map[string]interface{}{
-				"Status":  constant.StatusFailed,
-				"Message": fmt.Errorf("can not create hosts reason %s", err.Error()),
-				"HostID":  "",
-			}).Error; err != nil {
-			log.Errorf("can not update node status reason %s", err.Error())
-		}
-		return err
-	}
-	wg := sync.WaitGroup{}
-	for _, h := range allHosts {
-		wg.Add(1)
-		go func(ho *model.Host) {
-			_, err := c.hostService.Sync(ho.Name)
-			if err != nil {
-				log.Errorf("sync host %s status error %s", ho.Name, err.Error())
-			}
-			defer wg.Done()
-		}(h)
-	}
-	wg.Wait()
-	return nil
 }
 
 func (c clusterNodeService) createNodeModels(cluster *model.Cluster, currentNodes []model.ClusterNode, hosts []model.Host) ([]model.ClusterNode, error) {
@@ -621,11 +509,6 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		return hs
 	}()
 	return res, nil
-}
-
-func (c clusterNodeService) doCreateHosts(cluster *model.Cluster, hosts []*model.Host) error {
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	return doInit(k, cluster.Plan, hosts)
 }
 
 const deleteWorkerPlaybook = "96-remove-worker.yml"

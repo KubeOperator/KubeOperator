@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"io"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -9,8 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
-	"io"
-	"time"
 )
 
 type ClusterInitService interface {
@@ -75,16 +76,7 @@ func (c clusterInitService) Init(name string) error {
 
 func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 	if len(cluster.Nodes) < 1 {
-		cluster.Status.Phase = constant.ClusterCreating
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		err := c.clusterIaasService.Init(cluster.Name)
-		if err != nil {
-			cluster.Status.Phase = constant.ClusterFailed
-			cluster.Status.Message = err.Error()
-			_ = c.clusterStatusRepo.Save(&cluster.Status)
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
-			return
-		}
+		return
 	}
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())

@@ -23,11 +23,12 @@ func VerifyCode(codeId string, code string) error {
 
 func CreateCaptcha() (*dto.Captcha, error) {
 	var driverString base64Captcha.DriverString
-	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM"
+	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnm"
 	driverString.Width = 120
 	driverString.Height = 50
-	driverString.NoiseCount = 5
+	driverString.NoiseCount = 0
 	driverString.Length = 4
+	driverString.ShowLineOptions = 6
 	driverString.Fonts = []string{"wqy-microhei.ttc"}
 	driver := driverString.ConvertFonts()
 	c := base64Captcha.NewCaptcha(driver, store)
