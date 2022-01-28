@@ -3,6 +3,12 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strconv"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
@@ -18,11 +24,6 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	uuid "github.com/satori/go.uuid"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strconv"
 )
 
 var (
@@ -381,7 +382,7 @@ func (v *openStackClient) UploadImage() error {
 			return create.Err
 		}
 
-		imageData, err := os.Open(constant.OpenStackImageLocalPath)
+		imageData, err := os.OpenFile(constant.OpenStackImageLocalPath, os.O_RDONLY, 0750)
 		if err != nil {
 			return err
 		}

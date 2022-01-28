@@ -7,19 +7,20 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/util/hash"
-	"github.com/go-playground/validator/v10"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"net"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/hash"
+	"github.com/go-playground/validator/v10"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 var log = logger.Default
@@ -218,7 +219,7 @@ func (s *SSH) CopyFile(src, dst string) error {
 	}
 	defer sftpClient.Close()
 
-	srcFile, err := os.Open(src)
+	srcFile, err := os.OpenFile(src, os.O_RDONLY, 0750)
 
 	if err != nil {
 		return fmt.Errorf("open file error:%s:%s", src, err)

@@ -14,7 +14,7 @@ func Sha256WithFile(filename string) (string, error) {
 }
 
 func SumWithFile(h hash.Hash, filename string) (string, error) {
-	f, err := os.Open(filename)
+	f, err := os.OpenFile(filename, os.O_RDONLY, 0750)
 	if err != nil {
 		return "", err
 	}

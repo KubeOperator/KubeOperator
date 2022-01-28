@@ -95,7 +95,7 @@ func (azure azureClient) Upload(src, target string) (bool, error) {
 		return false, err
 	}
 	blobURL := containerURL.NewBlockBlobURL(target)
-	file, err := os.Open(src)
+	file, err := os.OpenFile(src, os.O_RDONLY, 0750)
 	if err != nil {
 		return false, err
 	}

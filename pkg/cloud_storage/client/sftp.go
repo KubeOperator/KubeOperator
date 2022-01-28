@@ -3,14 +3,15 @@ package client
 import (
 	"errors"
 	"fmt"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
 	"os"
 	"path"
 	"strconv"
 	"time"
+
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 type sftpClient struct {
@@ -49,7 +50,7 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 		return false, err
 	}
 	defer sftpC.Close()
-	srcFile, err := os.Open(src)
+	srcFile, err := os.OpenFile(src, os.O_RDONLY, 0750)
 	if err != nil {
 		return false, err
 	}

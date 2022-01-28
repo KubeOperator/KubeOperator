@@ -2,13 +2,14 @@ package client
 
 import (
 	"errors"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"os"
 )
 
 type s3Client struct {
@@ -118,7 +119,7 @@ func (s3C s3Client) Upload(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	file, err := os.Open(src)
+	file, err := os.OpenFile(src, os.O_RDONLY, 0750)
 	if err != nil {
 		return false, err
 	}
