@@ -14,7 +14,7 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name     string `json:"name" validate:"required,max=30"`
+	Name     string `json:"name" validate:"koname,required,max=30"`
 	Email    string `json:"email" validate:"-"`
 	Password string `json:"password" validate:"kopassword,required"`
 	IsAdmin  bool   `json:"isAdmin" validate:"-"`

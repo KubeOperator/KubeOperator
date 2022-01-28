@@ -88,6 +88,10 @@ func (u UserController) Post() (*dto.User, error) {
 	if err := validate.RegisterValidation("kopassword", koregexp.CheckPasswordPattern); err != nil {
 		return nil, err
 	}
+	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
+		return nil, err
+	}
+
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
