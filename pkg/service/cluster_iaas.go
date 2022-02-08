@@ -197,6 +197,9 @@ func getHostRole(name string) string {
 
 func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*model.Host {
 	groupMap := map[*model.Zone][]*model.Host{}
+	if len(zones) == 0 {
+		return groupMap
+	}
 	for i := range hosts {
 		hash := i % len(zones)
 		groupMap[&zones[hash]] = append(groupMap[&zones[hash]], hosts[i])
