@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"math/rand"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -13,7 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
-	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/jinzhu/gorm"
 )
 
@@ -39,7 +37,6 @@ type UserService interface {
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) (bool, error)
 	UserAuth(name string, password string) (user *model.User, err error)
-	ResetPassword(fp dto.UserForgotPassword) error
 }
 
 type userService struct {
@@ -267,69 +264,6 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 		}
 	}
 	return &dbUser, nil
-}
-
-func (u userService) ResetPassword(fp dto.UserForgotPassword) error {
-	user, err := u.userRepo.Get(fp.Username)
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return UserNotFound
-		}
-		return err
-	}
-	if user.Email != fp.Email {
-		return EmailNotMatch
-	}
-
-	password := GetPasswd()
-	user.Password, err = encrypt.StringEncrypt(password)
-	if err != nil {
-		return err
-	}
-	systemSetting, err := NewSystemSettingService().ListByTab("EMAIL")
-	if err != nil {
-		return err
-	}
-	if systemSetting.Vars == nil || systemSetting.Vars["EMAIL_STATUS"] != "ENABLE" {
-		return EmailDisable
-	}
-	vars := make(map[string]interface{})
-	vars["type"] = "EMAIL"
-	for k, value := range systemSetting.Vars {
-		vars[k] = value
-	}
-	mClient, err := message.NewMessageClient(vars)
-	if err != nil {
-		return err
-	}
-	vars["TITLE"] = "重置密码"
-	vars["CONTENT"] = user.Name + "您的密码被重置为" + password
-	vars["RECEIVERS"] = fp.Email
-	err = mClient.SendMessage(vars)
-	if err != nil {
-		return err
-	}
-	err = u.userRepo.Save(&user)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func GetPasswd() string {
-	rand.Seed(time.Now().UnixNano())
-	lenNum := rand.Intn(5)
-
-	var numbers = []rune("0123456789")
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	b := make([]rune, 8)
-	for j := 0; j < lenNum; j++ {
-		b[j] = numbers[rand.Intn(len(numbers))]
-	}
-	for k := lenNum; k < 8; k++ {
-		b[k] = letters[rand.Intn(len(letters))]
-	}
-	return (string(b))
 }
 
 func validateOldPassword(user model.User, password string) (bool, error) {
