@@ -2,12 +2,14 @@ package license
 
 import (
 	"encoding/json"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"errors"
 	"io/ioutil"
 	"os/exec"
 	"path"
 	"runtime"
 	"strings"
+
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type Response struct {
@@ -17,6 +19,9 @@ type Response struct {
 }
 
 func Parse(content string) (*Response, error) {
+	if checkIllegal(content) {
+		return nil, errors.New("license contains invalid characters!")
+	}
 	fs, err := ioutil.ReadDir("/usr/local/bin")
 
 	if err != nil {
@@ -47,4 +52,13 @@ func Parse(content string) (*Response, error) {
 		return nil, err
 	}
 	return &resp, nil
+}
+
+func checkIllegal(cmdName string) bool {
+	if strings.Contains(cmdName, "&") || strings.Contains(cmdName, "|") || strings.Contains(cmdName, ";") ||
+		strings.Contains(cmdName, "$") || strings.Contains(cmdName, "'") || strings.Contains(cmdName, "`") ||
+		strings.Contains(cmdName, "(") || strings.Contains(cmdName, ")") || strings.Contains(cmdName, "\"") {
+		return true
+	}
+	return false
 }
