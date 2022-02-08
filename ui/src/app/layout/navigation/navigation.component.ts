@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {SessionService} from "../../shared/auth/session.service";
 import {SessionUser} from "../../shared/auth/session-user";
 import {BusinessLicenseService} from '../../shared/service/business-license.service';
+import {Router} from '@angular/router';
+import {CommonRoutes} from '../../constant/route';
 
 @Component({
     selector: 'app-navigation',
@@ -10,7 +12,7 @@ import {BusinessLicenseService} from '../../shared/service/business-license.serv
 })
 export class NavigationComponent implements OnInit {
 
-    constructor(private businessLicenseService: BusinessLicenseService, private sessionService: SessionService) {
+    constructor(private businessLicenseService: BusinessLicenseService, private router: Router, private sessionService: SessionService) {
     }
 
     hasLicense = false;
@@ -20,6 +22,9 @@ export class NavigationComponent implements OnInit {
         this.hasLicense = this.businessLicenseService.licenseValid;
         this.sessionService.getProfile().subscribe(res => {
             this.user = res.user;
+        }, error => {
+            this.sessionService.clear();
+            this.router.navigateByUrl(CommonRoutes.LOGIN).then();
         })
     }
 

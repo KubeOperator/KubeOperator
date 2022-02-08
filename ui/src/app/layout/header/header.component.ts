@@ -59,6 +59,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
                     }, 60000);
                 }
             }
+        }, error => {
+            this.sessionService.clear();
+            this.router.navigateByUrl(CommonRoutes.LOGIN).then();
         })
     }
 

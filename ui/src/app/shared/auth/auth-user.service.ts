@@ -32,6 +32,9 @@ export class AuthUserService implements CanActivate, CanActivateChild {
                     this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
                     this.router.navigateByUrl(CommonRoutes.LOGIN).then();
                 }
+            }, error => {
+                this.sessionService.clear();
+                this.router.navigateByUrl(CommonRoutes.LOGIN).then();
             })
         });
     }

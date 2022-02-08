@@ -10,6 +10,8 @@ import {SessionService} from "../../../shared/auth/session.service";
 import {SessionUser} from "../../../shared/auth/session-user";
 import {ProjectMemberService} from "../project-member/project-member.service";
 import {ProjectMember} from "../project-member/project-member";
+import {Router} from '@angular/router';
+import {CommonRoutes} from '../../../constant/route';
 
 @Component({
     selector: 'app-project-list',
@@ -19,7 +21,7 @@ import {ProjectMember} from "../project-member/project-member";
 export class ProjectListComponent extends BaseModelDirective<Project> implements OnInit {
 
 
-    constructor(private projectService: ProjectService,
+    constructor(private projectService: ProjectService, private router: Router,
                 private permissionService: PermissionService,
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService,
@@ -33,6 +35,9 @@ export class ProjectListComponent extends BaseModelDirective<Project> implements
         super.ngOnInit();
         this.sessionService.getProfile().subscribe(res => {
             this.user = res.user;
+        }, error => {
+            this.sessionService.clear();
+            this.router.navigateByUrl(CommonRoutes.LOGIN).then();
         })
     }
 

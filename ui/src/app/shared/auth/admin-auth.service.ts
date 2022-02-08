@@ -32,6 +32,9 @@ export class AdminAuthService implements CanActivateChild, CanActivate {
                     this.modalAlertService.showAlert('no profile', AlertLevels.ERROR);
                     this.router.navigateByUrl(CommonRoutes.KO_ROOT).then();
                 }
+            }, error => {
+                this.sessionService.clear();
+                this.router.navigateByUrl(CommonRoutes.LOGIN).then();
             })
         });
     }
