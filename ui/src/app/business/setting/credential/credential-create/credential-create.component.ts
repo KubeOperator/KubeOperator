@@ -44,6 +44,9 @@ export class CredentialCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.credentialForm.invalid) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.service.create(this.item).subscribe(data => {
             this.opened = false;

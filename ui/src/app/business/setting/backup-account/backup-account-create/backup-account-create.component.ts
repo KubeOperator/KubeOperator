@@ -67,6 +67,9 @@ export class BackupAccountCreateComponent extends BaseModelDirective<BackupAccou
     }
 
     onSubmit() {
+        if (this.backupAccountForm.invalid) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.backupAccountService.create(this.item).subscribe(res => {
             this.isSubmitGoing = false;

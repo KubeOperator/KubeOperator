@@ -96,6 +96,9 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
     }
 
     onSubmit() {
+        if (this.userForm.invalid || !this.isValid) {
+            return;
+        }
         if (this.item.name === this.item.password) {
             this.modalAlertService.showAlert(this.translateService.instant('USERNAME_PWD_INVALID'), AlertLevels.ERROR);
             return;

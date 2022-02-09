@@ -43,6 +43,9 @@ export class RegistryUpdateComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.registryForm.invalid) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.service.updateRegistryBy(this.item.architecture, this.item).subscribe(data => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);

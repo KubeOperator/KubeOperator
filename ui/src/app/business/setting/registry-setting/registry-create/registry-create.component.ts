@@ -47,6 +47,9 @@ export class RegistryCreateComponent extends BaseModelDirective<Registry> implem
     }
 
     onSubmit() {
+        if (this.registryForm.invalid) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.registryService.create(this.item).subscribe(data => {
             this.opened = false;

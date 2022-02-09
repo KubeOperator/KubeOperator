@@ -54,6 +54,9 @@ export class HostCreateComponent extends BaseModelDirective<Host> implements OnI
     }
 
     onSubmit() {
+        if (this.hostForm.invalid) {
+            return;
+        }
         this.isSubmitGoing = true;
         this.hostService.create(this.item).subscribe(data => {
             this.isSubmitGoing = false;

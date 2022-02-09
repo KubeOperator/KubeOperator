@@ -186,8 +186,6 @@ func (b backupAccountService) Batch(op dto.BackupAccountOp) error {
 
 func (b backupAccountService) GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error) {
 	vars := request.CredentialVars
-	encrypt.VarsDecrypt("ahead", encryptBackupKeys, vars)
-
 	vars["type"] = request.Type
 	client, err := cloud_storage.NewCloudStorageClient(vars)
 	if err != nil {
@@ -198,8 +196,6 @@ func (b backupAccountService) GetBuckets(request dto.CloudStorageRequest) ([]int
 
 func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error {
 	vars := create.CredentialVars
-	encrypt.VarsDecrypt("ahead", encryptBackupKeys, vars)
-
 	vars["type"] = create.Type
 	vars["bucket"] = create.Bucket
 	client, err := cloud_storage.NewCloudStorageClient(vars)
