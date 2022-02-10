@@ -49,7 +49,7 @@ func (mgr *SessionMgr) StartSession(w http.ResponseWriter, r *http.Request) stri
 		mValues:           make(map[interface{}]interface{}),
 	}
 	mgr.mSessions[newSessionID] = session
-	cookie := http.Cookie{Name: mgr.mCookieName, Value: newSessionID, Path: "/", HttpOnly: true, MaxAge: int(mgr.mMaxLifeTime)}
+	cookie := http.Cookie{Name: mgr.mCookieName, Value: newSessionID, Path: "/", HttpOnly: true, MaxAge: 0}
 	http.SetCookie(w, &cookie)
 
 	return newSessionID

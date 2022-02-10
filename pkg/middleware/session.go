@@ -3,7 +3,6 @@ package middleware
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -26,12 +25,6 @@ func SessionMiddleware(ctx context.Context) {
 
 	user, ok := u.(*dto.Profile)
 	if ok {
-		if session.GloablSessionMgr.GetLastAccessTime(sessionID).Add(time.Second * 3600).Before(time.Now()) {
-			session.GloablSessionMgr.EndSessionBy(sessionID)
-			errorHandler(ctx, errors.New("token timeout !"))
-			return
-		}
-
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("operator", user.User.Name)
 		ctx.Next()
