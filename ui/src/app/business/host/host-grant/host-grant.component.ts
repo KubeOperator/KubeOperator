@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Output, EventEmitter, OnInit} from '@angular/core';
 import {ProjectService} from '../../project/project.service';
 import {Host, Project} from '../host';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
@@ -21,6 +21,7 @@ export class HostGrantComponent implements OnInit {
     hosts: Host[] = [];
     isSubmitGoing = false;
     resourceType: string = 'HOST';
+    @Output() granted = new EventEmitter();
 
     constructor(
         private projectResourceService: ProjectResourceService,
@@ -82,6 +83,7 @@ export class HostGrantComponent implements OnInit {
             
             this.projectResourceService.batch('create', items, this.projects[this.projectIndex].name).subscribe(res => {
                 this.isSubmitGoing = false;
+                this.granted.emit();
                 this.onCancel();
                 this.commonAlertService.showAlert(this.translateService.instant('APP_GRANT_SUCCESS'), AlertLevels.SUCCESS);
             }, error => {

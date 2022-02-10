@@ -10,6 +10,6 @@
         <app-host-status-detail></app-host-status-detail>
         <app-host-import (import)="refresh()"></app-host-import>
         <app-host-sync (sync)="refresh()"></app-host-sync>
-        <app-host-grant></app-host-grant>
+        <app-host-grant (granted)="refresh()"></app-host-grant>
     </div>
 </div>
