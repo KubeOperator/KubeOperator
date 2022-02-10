@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -235,6 +236,12 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}
+	admToken, err := encrypt.StringEncrypt(secret.KubeadmToken)
+	if err != nil {
+		return nil, fmt.Errorf("encrypt admtoken falied, err: %v", err)
+	}
+	secret.KubeadmToken = admToken
+
 	tx := db.DB.Begin()
 	if err := tx.Create(&spec).Error; err != nil {
 		tx.Rollback()

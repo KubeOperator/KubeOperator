@@ -59,7 +59,7 @@ type ClusterCreate struct {
 	DnsCacheVersion         string       `json:"dnsCacheVersion" validate:"-"`
 	IngressControllerType   string       `json:"ingressControllerType" validate:"oneof=nginx traefik"`
 	Architectures           string       `json:"architectures" validate:"oneof=arm64 amd64 all"`
-	KubernetesAudit         string       `json:"kubernetesAudit" validate:"oneof=enable disable"`
+	KubernetesAudit         string       `json:"kubernetesAudit" validate:"oneof=yes no"`
 	DockerSubnet            string       `json:"dockerSubnet" validate:"required"`
 	Nodes                   []NodeCreate `json:"nodes" validate:"-"`
 	ProjectName             string       `json:"projectName" validate:"required"`
