@@ -67,6 +67,7 @@ export class ProjectResourceListComponent extends BaseModelDirective<ProjectReso
         this.loading = true;
         this.projectResourceService.pageBy(this.page, this.size, this.currentProject.name, this.resourceType).subscribe(res => {
             this.items = res.items;
+            this.total = res.total;
             this.loading = false;
         }, error => {
             this.loading = false;

@@ -54,6 +54,7 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
         this.loading = true;
         this.projectMemberService.page(this.page, this.size, this.currentProject.name).subscribe(res => {
             this.items = res.items;
+            this.total = res.total;
             this.loading = false;
         }, error => {
             this.loading = false;

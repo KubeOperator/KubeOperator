@@ -33,7 +33,7 @@
     </clr-dg-row>
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
-                           (clrDgPageChange)="refresh()">
+                           (clrDgPageChange)="pageBy()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
             {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_USER"|translate}}
         </clr-dg-pagination>
