@@ -25,6 +25,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/project/{**}/{**}",
 
 			"/api/v1/backupaccounts",
+			"/api/v1/backupaccounts/{**}",
 			"/api/v1/license",
 			"/api/v1/license/hw",
 			"/api/v1/settings/{**}",
@@ -109,6 +110,7 @@ var SystemRules = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/projects",
 			"/api/v1/backupaccounts",
+			"/api/v1/backupaccounts/{**}",
 			"/api/v1/license",
 			"/api/v1/settings/{**}/{**}",
 			"/api/v1/settings/{**}",
@@ -154,6 +156,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/ippools/{**}/{**}/{**}",
 
 			"/api/v1/credentials",
+			"/api/v1/credentials/{**}",
 			"/api/v1/message/{**}",
 			"/api/v1/message/{**}/{**}",
 		},

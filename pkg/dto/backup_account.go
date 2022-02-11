@@ -8,7 +8,7 @@ type BackupAccount struct {
 }
 
 type BackupAccountOp struct {
-	Operation string          `json:"operation" validate:"koname,required"`
+	Operation string          `json:"operation" validate:"required"`
 	Items     []BackupAccount `json:"items" validate:"required"`
 }
 
