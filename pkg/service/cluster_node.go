@@ -282,10 +282,11 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
 			return
 		}
+		tx := db.DB.Begin()
 		if len(notDirtyNodes) != 0 {
 			if err := c.runDeleteWorkerPlaybook(cluster, notDirtyNodes, resetWorkerPlaybook); err != nil {
 				// 未执行 reset 的脏节点直接删除
-				if err := db.DB.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
+				if err := tx.Where("id in (?)", dirtyNodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 					logger.Log.Errorf("delete node failed, err: %v", err)
 				}
 				// 执行 reset 失败的节点，返回错误信息
@@ -293,15 +294,24 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 				for _, node := range notDirtyNodes {
 					notDirtyNodeIDs = append(notDirtyNodeIDs, node.ID)
 				}
+				tx.Rollback()
 				c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, notDirtyNodeIDs, err, true)
 				return
 			}
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
-		if err := db.DB.Model(&model.Host{}).Where("id in (?)", hostIDs).Update(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
+		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).Update(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
+			tx.Rollback()
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
+		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
+			Delete(&model.ClusterResource{}).Error; err != nil {
+			tx.Rollback()
+			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			return
+		}
+		tx.Commit()
 	}
 	if err := db.DB.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
 		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)

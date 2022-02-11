@@ -162,7 +162,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Status:       constant.StatusInitializing,
 				Architecture: node.Architecture,
 			}
-			if clusterImport.KoClusterInfo.NodeNameRule == constant.NodeNameRuleDefault {
+			if clusterImport.KoClusterInfo.NodeNameRule == constant.NodeNameRuleIP {
 				host.Name = node.Name
 			} else {
 				no := 0

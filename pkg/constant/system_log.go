@@ -103,9 +103,9 @@ const (
 	DISABLE_VERSION = "停用ko版本|Disable ko version"
 
 	// 系统设置
-	CREATE_CREDENTIALS    = "添加凭证|Create credentials"
-	UPDATE_CREDENTIALS    = "修改凭证信息|Update credential information"
-	DELETE_CREDENTIALS    = "删除凭证|Delete credentials"
+	CREATE_CREDENTIALS    = "添加凭据|Create credentials"
+	UPDATE_CREDENTIALS    = "修改凭据信息|Update credential information"
+	DELETE_CREDENTIALS    = "删除凭据|Delete credentials"
 	CREATE_REGISTRY       = "添加仓库信息|Create registry"
 	UPDATE_REGISTRY       = "更新仓库信息|Delete registry"
 	UPDATE_NEXUS_PASSWORD = "更新 Nexus 仓库密码|Update nexus password"
