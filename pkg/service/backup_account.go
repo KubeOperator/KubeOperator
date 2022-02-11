@@ -343,19 +343,24 @@ func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error 
 	if err != nil {
 		return err
 	}
+	fileName := constant.DefaultFireName
+	if create.Type == "MINIO" {
+		fileName = constant.MinIoFileName
+	}
+
 	file, err := os.Create(constant.DefaultFireName)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	success, err := client.Upload(constant.DefaultFireName, constant.DefaultFireName)
+	success, err := client.Upload(constant.DefaultFireName, fileName)
 	if err != nil {
 		return err
 	}
 	if !success {
 		return errors.New(CheckFailed)
 	} else {
-		deleteSuccess, err := client.Delete(constant.DefaultFireName)
+		deleteSuccess, err := client.Delete(fileName)
 		if err != nil {
 			return err
 		}

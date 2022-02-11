@@ -31,5 +31,8 @@ func NewCloudStorageClient(vars map[string]interface{}) (CloudStorageClient, err
 	if vars["type"] == constant.Sftp {
 		return client.NewSftpClient(vars)
 	}
+	if vars["type"] == constant.MinIo {
+		return client.NewMinIoClient(vars)
+	}
 	return nil, errors.New(NotSupport)
 }

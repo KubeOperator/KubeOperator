@@ -55,11 +55,11 @@ require (
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
 	github.com/kataras/iris/v12 v12.1.8
-	github.com/klauspost/compress v1.11.13 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.6 // indirect
+	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/moul/http2curl v1.0.0 // indirect
