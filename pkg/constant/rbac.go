@@ -48,6 +48,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/clusters/{**}/{**}/{**}",
 			"/api/v1/clusters/{**}/{**}/{**}/{**}",
 			"/api/v1/events/npd/{**}/{**}",
+			"/api/v1/logs",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -65,17 +66,6 @@ var SystemRules = loader.AdvancedRules{
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{ProjectRoleProjectManager, SystemRoleAdmin},
-			AllowAnyone:     false,
-		},
-	},
-	{
-		Host: []string{"*"},
-		Path: []string{
-			"/api/v1/logs",
-		},
-		Method: []string{"GET"},
-		Permission: &grbac.Permission{
-			AuthorizedRoles: []string{SystemRoleAdmin, ProjectRoleProjectManager},
 			AllowAnyone:     false,
 		},
 	},
