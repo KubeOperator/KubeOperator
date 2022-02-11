@@ -1,12 +1,13 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/storyicon/grbac"
-	"net/http"
 )
 
 func RBACMiddleware() iris.Handler {
@@ -33,12 +34,7 @@ func RBACMiddleware() iris.Handler {
 
 func querySystemRoles(ctx context.Context) []string {
 	u := ctx.Values().Get("user").(dto.SessionUser)
-	var roles []string
-	if u.IsAdmin {
-		roles = append(roles, constant.SystemRoleAdmin)
-	} else {
-		roles = append(roles, constant.SystemRoleUser)
-	}
+	roles := u.Roles
 	ctx.Values().Set("roles", roles)
 	return roles
 }

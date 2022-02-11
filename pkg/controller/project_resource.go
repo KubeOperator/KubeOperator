@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -37,7 +40,13 @@ func NewProjectResourceController() *ProjectResourceController {
 func (p ProjectResourceController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.Values().GetString("project")
+
+	projectNameUnDecode := p.Ctx.Request().Header.Get("project")
+	projectName, err := url.QueryUnescape(projectNameUnDecode)
+	if err != nil {
+		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
+
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -71,7 +80,12 @@ func (p ProjectResourceController) PostBatch() error {
 
 func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.Values().GetString("project")
+	projectNameUnDecode := p.Ctx.Request().Header.Get("project")
+	projectName, err := url.QueryUnescape(projectNameUnDecode)
+	if err != nil {
+		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
+
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
 

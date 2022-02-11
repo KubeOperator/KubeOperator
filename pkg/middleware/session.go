@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/session"
 	"github.com/kataras/iris/v12/context"
 )
@@ -25,6 +27,8 @@ func SessionMiddleware(ctx context.Context) {
 
 	user, ok := u.(*dto.Profile)
 	if ok {
+		roles, _ := getUserRole(&user.User)
+		user.User.Roles = roles
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("operator", user.User.Name)
 		ctx.Next()
@@ -43,4 +47,38 @@ func errorHandler(ctx context.Context, err error) {
 	}
 	ctx.StatusCode(http.StatusUnauthorized)
 	_, _ = ctx.JSON(response)
+}
+
+func getUserRole(user *dto.SessionUser) ([]string, error) {
+	roles := []string{}
+	if user.IsAdmin {
+		roles = append(roles, constant.SystemRoleAdmin)
+		return roles, nil
+	}
+	var projectMember []model.ProjectMember
+	if err := db.DB.Model(&model.ProjectMember{}).Where("user_id = ?", user.UserId).Find(&projectMember).Error; err != nil {
+		return roles, nil
+	}
+	isProjectManage := false
+	isClusterManage := false
+	for _, memeber := range projectMember {
+		if memeber.Role == constant.ProjectRoleProjectManager && !isProjectManage {
+			isProjectManage = true
+			continue
+		}
+		if memeber.Role == constant.ProjectRoleClusterManager && !isClusterManage {
+			isClusterManage = true
+			continue
+		}
+	}
+	if isProjectManage {
+		roles = append(roles, constant.ProjectRoleProjectManager)
+	}
+	if isClusterManage {
+		roles = append(roles, constant.ProjectRoleClusterManager)
+	}
+	if !isClusterManage && !isProjectManage {
+		roles = append(roles, constant.SystemRoleUser)
+	}
+	return roles, nil
 }

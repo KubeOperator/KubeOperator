@@ -42,21 +42,18 @@ export class ProjectListComponent extends BaseModelDirective<Project> implements
     }
 
     onUpdate(item: Project) {
-        this.permissionService.authOperate('PROJECT.UPDATE', item.name).then(result => {
-            if (result) {
-                super.onUpdate(item);
-            } else {
-                this.commonAlertService.showAlert(this.translateService.instant('APP_NO_AUTH'), AlertLevels.ERROR);
-            }
-        });
+        if (this.user.isAdmin) {
+            super.onUpdate(item);
+        } else {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_NO_AUTH'), AlertLevels.ERROR);
+        }
     }
 
     onDelete() {
         let result = true;
         let clusterName = '';
         for (const item of this.selected) {
-            const auth = this.permissionService.authOp('PROJECT.DELETE', item.name);
-            if (!auth) {
+            if (!this.user.isAdmin) {
                 result = false;
                 clusterName = clusterName + item.name + ',';
             }

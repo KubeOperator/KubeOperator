@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -36,7 +39,14 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Router /project/members [get]
 func (p ProjectMemberController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
-	projectName := p.Ctx.Values().GetString("project")
+
+	projectNameUnDecode := p.Ctx.Request().Header.Get("project")
+	projectName, err := url.QueryUnescape(projectNameUnDecode)
+	if err != nil {
+		var page page.Page
+		return page, fmt.Errorf("decode error: %s", projectName)
+	}
+
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -48,7 +58,12 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 }
 
 func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) {
-	projectName := p.Ctx.Values().GetString("project")
+	projectNameUnDecode := p.Ctx.Request().Header.Get("project")
+	projectName, err := url.QueryUnescape(projectNameUnDecode)
+	if err != nil {
+		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
+
 	return p.ProjectMemberService.Get(name, projectName)
 }
 
