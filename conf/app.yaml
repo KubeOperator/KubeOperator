@@ -6,28 +6,33 @@ logging:
 db:
   host: mysql
   port: 3306
-  user: root
-  password: KubeOperator@admin123
+  user: kubeoperator
+  password: U08BAQEBAQHNm6g24wOpMgv34sNpwR5aBVdvFeSE9+6bydHO/WZLvZXlX9rxiY4V
   name: ko
   max_open_conns: 200
   max_idle_conns: 10
 jwt:
-  secret: iXDgDaEYBzIzustW
-  exp: 480
-helm:
-  repo:
-    name: nexus
-    url: http://nexus:8081/repository/helm
-    username: admin
-    password: admin123
+  exp: 600
+job:
+  timeout: 60
 kobe:
   host: kobe
   port: 8080
 kotf:
   host: kotf
   port: 8080
-grafana:
-  host: grafana
-  port: 3000
-  username: admin
-  password: admin
+webkubectl:
+  host: webkubectl
+  port: 8080
+cron:
+  enable: true
+repository:
+  nexus_password: cKABAQEBAQFcl1zet5k9vjPSdnGY39h9B4HMz3xSECs=
+  htpasswd: meoBAQEBAQFahnahNyKhAgA4oRsVM2dLGNdS+qk7BsTudEzk8iLNgHI7wPBK9UDV8evU9UlYl81I3uUKKx2Y+SvQ2y3HjsAMcJ1TUrnxkb+DmKKdMZCNVcmdVMXcvgJ+
+encrypt:
+  multilevel:
+    enable: true
+    secret: WjgBAQEBAQG1bkw4r7ZuaKD1klBxrT+zrRk8KWl+7LE0dli3h+a8gl6er0u8Ks1w
+    parts:
+      - dP3hT7dBQhygBCYW
+      - YIi2czL9wv4tQEZD
