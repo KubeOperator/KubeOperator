@@ -44,6 +44,7 @@ VERIFY_CODE_FAILED: "Verification code error"
 EMAIL_DISABLE: "Mail settings are disabled! Please contact the administrator"
 EMAIL_NOT_MATCH: "Email match failed！"
 NAME_PASSWORD_SAME_FAILED: "The password strength does not meet system requirements"
+NOT_SUPPORT_CHANGE_OTHERS: "You cannot change the passwords of other users"
 NAME_PASSWORD_ERROR: "wrong user name or password"
 EMAIL_EXIST: "Email already exists"
 
@@ -109,3 +110,5 @@ IP_POOL_DELETE_FAILED: "The IP pool has been associated with the available zone 
 #registry
 REGISTRY_ALREADY_EXISTS: "The registry of this architecture type already exists"
 
+#common 
+NOT_FOUND: "Information not found"

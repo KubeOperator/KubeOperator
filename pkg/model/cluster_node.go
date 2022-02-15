@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	_ "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
@@ -68,13 +69,11 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 	}
 
 	r, _ := n.GetRegistry(n.Host.Architecture)
-	return &api.Host{
-		Ip:         n.Host.Ip,
-		Name:       n.Name,
-		Port:       int32(n.Host.Port),
-		User:       n.Host.Credential.Username,
-		Password:   n.Host.Credential.Password,
-		PrivateKey: n.Host.Credential.PrivateKey,
+	host := &api.Host{
+		Ip:   n.Host.Ip,
+		Name: n.Name,
+		Port: int32(n.Host.Port),
+		User: n.Host.Credential.Username,
 		Vars: map[string]string{
 			"has_gpu":           fmt.Sprintf("%v", n.Host.HasGpu),
 			"architectures":     r.Architecture,
@@ -82,6 +81,22 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 			"registry_hostname": r.Hostname,
 		},
 	}
+
+	if len(n.Host.Credential.Password) != 0 {
+		password, err := encrypt.StringDecrypt(n.Host.Credential.Password)
+		if err != nil {
+			log.Errorf("decrypt host credential err, err: %s", err.Error())
+		}
+		host.Password = password
+	}
+	if len(n.Host.Credential.Password) != 0 {
+		PrivateKey, err := encrypt.StringDecrypt(n.Host.Credential.PrivateKey)
+		if err != nil {
+			log.Errorf("decrypt host credential err, err: %s", err.Error())
+		}
+		host.PrivateKey = PrivateKey
+	}
+	return host
 }
 
 func (n ClusterNode) ToSSHConfig() ssh.Config {

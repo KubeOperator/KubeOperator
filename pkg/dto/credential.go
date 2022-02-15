@@ -20,7 +20,7 @@ type CredentialCreate struct {
 	Username   string `json:"username" validate:"required"`
 	Password   string `json:"password" validate:"-"`
 	PrivateKey string `json:"privateKey" validate:"-"`
-	Type       string `json:"type" validate:"required"`
+	Type       string `json:"type" validate:"required,oneof=password privateKey"`
 }
 
 type CredentialUpdate struct {
@@ -29,7 +29,7 @@ type CredentialUpdate struct {
 	Username   string `json:"username" validate:"required"`
 	Password   string `json:"password" validate:"-"`
 	PrivateKey string `json:"privateKey" validate:"-"`
-	Type       string `json:"type" validate:"required"`
+	Type       string `json:"type" validate:"required,oneof=password privateKey"`
 }
 
 type CredentialBatchOp struct {

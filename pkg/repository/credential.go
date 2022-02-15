@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 var (
@@ -52,6 +53,20 @@ func (c credentialRepository) Page(num, size int) (int, []model.Credential, erro
 }
 
 func (c credentialRepository) Save(credential *model.Credential) error {
+	if credential.Type == "password" {
+		password, err := encrypt.StringEncrypt(credential.Password)
+		if err != nil {
+			return err
+		}
+		credential.Password = password
+	} else {
+		privateKey, err := encrypt.StringEncrypt(credential.PrivateKey)
+		if err != nil {
+			return err
+		}
+		credential.PrivateKey = privateKey
+	}
+
 	if db.DB.NewRecord(credential) {
 		return db.DB.Create(&credential).Error
 	} else {

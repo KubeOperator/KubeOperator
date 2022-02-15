@@ -241,8 +241,10 @@ func (h HostController) PostUpload() error {
 	}
 	defer f.Close()
 
-	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPLOAD_HOST, "-")
+	hosts, err := h.HostService.ImportHosts(bs)
 
-	return h.HostService.ImportHosts(bs)
+	operator := h.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPLOAD_HOST, hosts)
+
+	return err
 }

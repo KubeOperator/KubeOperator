@@ -58,7 +58,11 @@ func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {
 		}
 		password = p
 	case "privateKey":
-		privateKey = []byte(h.Credential.PrivateKey)
+		p, err := encrypt.StringDecrypt(h.Credential.PrivateKey)
+		if err != nil {
+			return "", nil, err
+		}
+		privateKey = []byte(p)
 	}
 	return password, privateKey, nil
 }

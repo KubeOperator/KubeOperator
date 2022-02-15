@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -48,9 +49,14 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	}
 	var ipPool model.IpPool
 	if err := tx.Where("name = ?", create.IpPoolName).First(&ipPool).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	cs := strings.Split(create.Subnet, "/")
+	if len(cs) < 2 {
+		tx.Rollback()
+		return fmt.Errorf("incorrect subnet format: %s", create.Subnet)
+	}
 	mask, _ := strconv.Atoi(cs[1])
 	startIp := strings.Replace(create.IpStart, " ", "", -1)
 	endIp := strings.Replace(create.IpEnd, " ", "", -1)

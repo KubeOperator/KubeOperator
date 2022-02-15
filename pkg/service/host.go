@@ -36,7 +36,7 @@ type HostService interface {
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
 	DownloadTemplateFile() error
-	ImportHosts(file []byte) error
+	ImportHosts(file []byte) (string, error)
 }
 
 type hostService struct {
@@ -452,28 +452,30 @@ func (h hostService) DownloadTemplateFile() error {
 	return nil
 }
 
-func (h hostService) ImportHosts(file []byte) error {
+func (h hostService) ImportHosts(file []byte) (string, error) {
 	f, err := os.Create("./import.xlsx")
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer f.Close()
 	err = ioutil.WriteFile("./import.xlsx", file, 0750)
 	if err != nil {
-		return err
+		return "", err
 	}
 	xlsx, err := excelize.OpenFile("./import.xlsx")
 	if err != nil {
-		return err
+		return "", err
 	}
 	rows := xlsx.GetRows("Sheet1")
 	if len(rows) == 0 {
-		return errors.New("HOST_IMPORT_ERROR_NULL")
+		return "", errors.New("HOST_IMPORT_ERROR_NULL")
 	}
-	var hosts []model.Host
-	//var errMsg string
-	var failedNum int
-	var errs errorf.CErrFs
+	var (
+		hosts     []model.Host
+		hostNames string
+		failedNum int
+		errs      errorf.CErrFs
+	)
 	for index, row := range rows {
 		if index == 0 {
 			continue
@@ -504,6 +506,7 @@ func (h hostService) ImportHosts(file []byte) error {
 			Credential:   credential,
 		}
 		hosts = append(hosts, host)
+		hostNames += (hostNames + host.Name + ",")
 	}
 
 	if len(errs) > 0 {
@@ -529,9 +532,9 @@ func (h hostService) ImportHosts(file []byte) error {
 		}
 	}
 	if len(errs) > 0 {
-		return errs
+		return hostNames, errs
 	} else {
-		return nil
+		return hostNames, nil
 	}
 }
 
