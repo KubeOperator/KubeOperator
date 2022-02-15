@@ -146,10 +146,12 @@ func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.Ba
 		return nil, err
 	}
 
-	old, err := b.backupAccountRepo.Get(creation.Name)
-	if err != nil {
-		return nil, err
+	old, _ := b.backupAccountRepo.Get(creation.Name)
+	if old.ID == "" || old.ID != creation.ID {
+		return nil, errors.New("NOT_FOUND")
 	}
+
+	encrypt.VarsEncrypt("ahead", encryptBackupKeys, creation.CredentialVars)
 
 	credential, _ := json.Marshal(creation.CredentialVars)
 	backupAccount := model.BackupAccount{
@@ -161,11 +163,11 @@ func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.Ba
 		Status:     constant.Valid,
 	}
 
-	if err = b.backupAccountRepo.Save(&backupAccount); err != nil {
+	if err := b.backupAccountRepo.Save(&backupAccount); err != nil {
 		return nil, err
 	}
 
-	return &dto.BackupAccount{BackupAccount: backupAccount}, err
+	return &dto.BackupAccount{BackupAccount: backupAccount}, nil
 }
 
 func (b backupAccountService) Batch(op dto.BackupAccountOp) error {

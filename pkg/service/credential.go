@@ -8,7 +8,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 var (
@@ -115,48 +114,42 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
-
 	old, _ := c.Get(creation.Name)
 	if old.Name != "" {
-		return nil, errors.New(CredentialNameExist)
-	}
-	password, err := encrypt.StringEncrypt(creation.Password)
-	if err != nil {
-		return nil, err
+		return nil, errors.New("NAME_EXISTS")
 	}
 
 	credential := model.Credential{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,
-		Password:   password,
 		Username:   creation.Username,
-		PrivateKey: creation.PrivateKey,
+		Password:   creation.Password,
 		Type:       creation.Type,
+		PrivateKey: creation.PrivateKey,
 	}
-	err = c.credentialRepo.Save(&credential)
-	if err != nil {
+
+	if err := c.credentialRepo.Save(&credential); err != nil {
 		return nil, err
 	}
 	return &dto.Credential{Name: credential.Name, Username: credential.Username, Type: credential.Type, CreatedAt: credential.CreatedAt}, nil
 }
 
 func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
-
-	password, err := encrypt.StringEncrypt(update.Password)
-	if err != nil {
-		return dto.Credential{}, err
+	old, _ := c.Get(update.Name)
+	if old.ID == "" || old.ID != update.ID {
+		return dto.Credential{}, errors.New("NOT_FOUND")
 	}
 
 	credential := model.Credential{
-		ID:         update.ID,
+		ID:         old.ID,
 		Name:       update.Name,
-		Password:   password,
 		Username:   update.Username,
-		PrivateKey: update.PrivateKey,
+		Password:   update.Password,
 		Type:       update.Type,
+		PrivateKey: update.PrivateKey,
 	}
-	err = c.credentialRepo.Save(&credential)
-	if err != nil {
+
+	if err := c.credentialRepo.Save(&credential); err != nil {
 		return dto.Credential{}, err
 	}
 	return dto.Credential{Name: credential.Name, Username: credential.Username, Type: credential.Type, CreatedAt: credential.CreatedAt}, nil

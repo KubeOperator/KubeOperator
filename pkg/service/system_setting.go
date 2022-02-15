@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -185,8 +186,13 @@ func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry
 }
 
 func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
+	old, _ := s.systemRegistryRepo.Get(creation.Architecture)
+	if old.ID != "" {
+		return nil, errors.New("NAME_EXISTS")
+	}
+
 	systemRegistry := model.SystemRegistry{
-		ID:           creation.ID,
+		ID:           old.ID,
 		Architecture: creation.Architecture,
 		Protocol:     creation.Protocol,
 		Hostname:     creation.Hostname,
@@ -199,8 +205,13 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 }
 
 func (s systemSettingService) UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
+	old, _ := s.systemRegistryRepo.Get(creation.Architecture)
+	if old.ID == "" || old.ID != creation.ID {
+		return nil, errors.New("NOT_FOUND")
+	}
+
 	systemRegistry := model.SystemRegistry{
-		ID:           creation.ID,
+		ID:           old.ID,
 		Architecture: creation.Architecture,
 		Protocol:     creation.Protocol,
 		Hostname:     creation.Hostname,

@@ -13,6 +13,7 @@ type BackupAccountOp struct {
 }
 
 type BackupAccountRequest struct {
+	ID             string                 `json:"id" validate:"required"`
 	Name           string                 `json:"name" validate:"required"`
 	CredentialVars map[string]interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string                 `json:"bucket" validate:"required"`

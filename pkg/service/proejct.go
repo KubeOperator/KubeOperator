@@ -97,19 +97,21 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 }
 
 func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) {
+	old, _ := p.Get(creation.Name)
+	if old.ID != "" || old.ID != creation.ID {
+		return dto.Project{}, errors.New("NOT_FOUND")
+	}
 
 	project := model.Project{
-		BaseModel:   common.BaseModel{},
-		ID:          creation.ID,
+		ID:          old.ID,
 		Name:        creation.Name,
 		Description: creation.Description,
 	}
 
-	err := p.projectRepo.Save(&project)
-	if err != nil {
+	if err := p.projectRepo.Save(&project); err != nil {
 		return dto.Project{}, err
 	}
-	return dto.Project{Project: project}, err
+	return dto.Project{Project: project}, nil
 }
 
 func (p projectService) Page(num, size int, userId string) (page.Page, error) {

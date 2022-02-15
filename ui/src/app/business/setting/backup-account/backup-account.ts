@@ -16,6 +16,7 @@ export class BackupAccountCreateRequest extends BaseRequest {
 }
 
 export class BackupAccountUpdateRequest extends BaseRequest {
+    id: string;
     name: string;
     bucket: string;
     type: string;
