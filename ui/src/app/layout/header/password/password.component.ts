@@ -66,6 +66,9 @@ export class PasswordComponent implements OnInit {
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
             this.submitGoing = false;
+            if(error.error.msg === this.translateService.instant('TOO_MANY_FAILURES')) {
+                this.router.navigateByUrl(CommonRoutes.LOGIN).then();
+            }
         });
     }
 

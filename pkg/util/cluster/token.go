@@ -1,12 +1,10 @@
 package cluster
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	uuid "github.com/satori/go.uuid"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -36,15 +34,5 @@ func GetClusterToken(client ssh.Interface) (string, error) {
 }
 
 func GenerateKubeadmToken() string {
-	token, err := encrypt.StringEncrypt(uuid.NewV4().String())
-	if err != nil {
-		fmt.Printf("generate kubeadm token failed: err: %v \n", err)
-	}
-	token = strings.ReplaceAll(token, "/", "")
-	token = strings.ReplaceAll(token, "+", "")
-	token = strings.ReplaceAll(token, "=", "")
-	if len(token) < 32 {
-		return token
-	}
-	return token[0:31]
+	return uuid.NewV4().String()
 }

@@ -126,7 +126,6 @@ func toSessionUser(u model.User) dto.SessionUser {
 	return dto.SessionUser{
 		UserId:   u.ID,
 		Name:     u.Name,
-		Email:    u.Email,
 		Language: u.Language,
 		IsActive: u.IsActive,
 		IsAdmin:  u.IsAdmin,

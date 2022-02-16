@@ -233,28 +233,40 @@ func (u UserController) PostChangePassword() error {
 		return errors.New("NAME_PASSWORD_SAME_FAILED")
 	}
 
+	operator := u.Ctx.Values().GetString("operator")
+	if operator != req.Name {
+		return errors.New("NOT_SUPPORT_CHANGE_OTHERS")
+	}
+
 	isFirstLogin, err := u.UserService.ChangePassword(req)
 	if err != nil {
+		if err.Error() == "TOO_MANY_FAILURES" {
+			go deleteSession(req.Name)
+		}
 		return err
 	}
 
 	if !isFirstLogin {
-		var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
-		for _, onlineSessionID := range onlineSessionIDList {
-			if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
-				if value, ok := userInfo.(*dto.Profile); ok {
-					if value.User.Name == req.Name {
-						session.GloablSessionMgr.EndSessionBy(onlineSessionID)
-					}
-				}
-			}
-		}
+		go deleteSession(req.Name)
 
 		operator := u.Ctx.Values().GetString("operator")
 		go kolog.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
 	}
 
 	return nil
+}
+
+func deleteSession(name string) {
+	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
+	for _, onlineSessionID := range onlineSessionIDList {
+		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
+			if value, ok := userInfo.(*dto.Profile); ok {
+				if value.User.Name == name {
+					session.GloablSessionMgr.EndSessionBy(onlineSessionID)
+				}
+			}
+		}
+	}
 }
 
 func reverseString(s string) string {

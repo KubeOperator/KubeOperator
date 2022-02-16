@@ -9,6 +9,8 @@ import {Theme} from '../business/setting/theme/theme';
 import {ThemeService} from '../business/setting/theme/theme.service';
 import {Captcha} from '../shared/auth/session-user';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
+import {ModalAlertService} from "../shared/common-component/modal-alert/modal-alert.service";
+import {AlertLevels} from "../layout/common-alert/alert";
 
 @Component({
     selector: 'app-login',
@@ -29,7 +31,8 @@ export class LoginComponent implements OnInit {
     constructor(private router: Router,
                 private themeService: ThemeService,
                 private sessionService: SessionService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private alert: ModalAlertService) {
     }
 
     ngOnInit(): void {
@@ -68,6 +71,14 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
         }, error => this.handleError(error));
+    }
+
+    reLogin() {
+        this.alert.showAlert(this.translateService.instant('APP_RESET_PASSWORD'), AlertLevels.SUCCESS);
+        this.loginCredential.password = "";
+        this.loginCredential.captchaId = "";
+        this.loginCredential.code = "";
+        this.createCaptcha();
     }
 
     resetOpen() {

@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UserService} from '../../business/user/user.service';
@@ -7,6 +7,8 @@ import {AlertLevels} from '../../layout/common-alert/alert';
 import {CommonRoutes} from '../../constant/route';
 import {PasswordPattern} from '../../constant/pattern';
 import {ChangePasswordRequest} from '../../business/user/user';
+import {TranslateService} from '@ngx-translate/core';
+import {CommonAlertService} from '../../layout/common-alert/common-alert.service';
 
 @Component({
     selector: 'app-reset-password',
@@ -14,8 +16,10 @@ import {ChangePasswordRequest} from '../../business/user/user';
     styleUrls: ['./reset-password.component.css']
 })
 export class ResetPasswordComponent implements OnInit {
-
     opened = false;
+    
+    @Output()
+    reseted = new EventEmitter();
     
     loading = false;
     password: string;
@@ -28,7 +32,9 @@ export class ResetPasswordComponent implements OnInit {
 
     constructor(private router: Router,
                 private userService: UserService,
-                private modalAlertService: ModalAlertService) {
+                private modalAlertService: ModalAlertService,
+                private translateService: TranslateService,
+                private commonAlertService: CommonAlertService) {
     }
 
     ngOnInit(): void {
@@ -48,7 +54,9 @@ export class ResetPasswordComponent implements OnInit {
     reset() {
         this.changePasswordRequest.password = this.password
         this.userService.changePassword(this.changePasswordRequest).subscribe(res => {
-            this.router.navigateByUrl(CommonRoutes.KO_ROOT);
+            this.reseted.emit();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_RESET_PASSWORD'), AlertLevels.SUCCESS);
+            this.router.navigateByUrl(CommonRoutes.LOGIN);
             this.opened = false;
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
