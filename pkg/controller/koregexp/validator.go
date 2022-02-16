@@ -26,6 +26,12 @@ func CheckCommonNamePattern(fl validator.FieldLevel) bool {
 	return result
 }
 
+func CheckHostNamePattern(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+	result, _ := regexp.MatchString(`[a-zA-Z0-9.]{0,30}$`, value)
+	return result
+}
+
 func CheckIpPattern(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 	result, _ := regexp.MatchString(`^((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}$`, value)

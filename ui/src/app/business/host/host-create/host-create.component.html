@@ -5,7 +5,9 @@
         <form clrForm #hostForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" required/>
+                <input clrInput [size]="32" pattern="{{hostNamePattern}}" maxlength="30" name="name" [(ngModel)]="item.name" required/>
+                <clr-control-helper>{{'APP_HOST_NAME_HELPER'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_HOST_INVALID'|translate}}</clr-control-error>
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_IP"|translate}}</label>
