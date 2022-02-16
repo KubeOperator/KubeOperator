@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -16,11 +17,13 @@ import (
 type ProjectResourceController struct {
 	Ctx                    context.Context
 	ProjectResourceService service.ProjectResourceService
+	ProjectMemberService   service.ProjectMemberService
 }
 
 func NewProjectResourceController() *ProjectResourceController {
 	return &ProjectResourceController{
 		ProjectResourceService: service.NewProjectResourceService(),
+		ProjectMemberService:   service.NewProjectMemberService(),
 	}
 }
 
@@ -47,6 +50,16 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 		return nil, fmt.Errorf("decode error: %s", projectName)
 	}
 
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return &page.Page{Items: []dto.Project{}, Total: 0}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{projectName})
+	if !hasPower || err != nil {
+		return &page.Page{Items: []dto.Project{}, Total: 0}, errors.New("PERMISSION_DENIED")
+	}
+
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -58,18 +71,28 @@ func (p ProjectResourceController) Get() (*page.Page, error) {
 
 func (p ProjectResourceController) PostBatch() error {
 	var req dto.ProjectResourceOp
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := p.Ctx.ReadJSON(&req); err != nil {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
-	err = p.ProjectResourceService.Batch(req)
-	if err != nil {
+	if err := p.ProjectResourceService.Batch(req); err != nil {
 		return err
+	}
+
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return errors.New("UNRECOGNIZED_USER")
+	}
+	if len(req.Items) == 0 {
+		return nil
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByID(userId, []string{req.Items[0].ProjectID})
+	if !hasPower || err != nil {
+		return errors.New("PERMISSION_DENIED")
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
@@ -84,6 +107,16 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	projectName, err := url.QueryUnescape(projectNameUnDecode)
 	if err != nil {
 		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
+
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return nil, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{projectName})
+	if !hasPower || err != nil {
+		return nil, errors.New("PERMISSION_DENIED")
 	}
 
 	return p.ProjectResourceService.GetResources(resourceType, projectName)

@@ -17,7 +17,7 @@ var (
 
 type ProjectService interface {
 	Get(name string) (dto.Project, error)
-	List() ([]dto.Project, error)
+	List(userId string) ([]dto.Project, error)
 	Page(num, size int, userId string) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (*dto.Project, error)
@@ -49,9 +49,9 @@ func (p projectService) Get(name string) (dto.Project, error) {
 	return projectDTO, err
 }
 
-func (p projectService) List() ([]dto.Project, error) {
+func (p projectService) List(userId string) ([]dto.Project, error) {
 	var projectDTOs []dto.Project
-	mos, err := p.projectRepo.List()
+	mos, err := p.projectRepo.List(userId)
 	if err != nil {
 		return projectDTOs, err
 	}
@@ -62,7 +62,7 @@ func (p projectService) List() ([]dto.Project, error) {
 }
 
 func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
-	old, _ := p.Get(creation.Name)
+	old, _ := p.projectRepo.Get(creation.Name)
 	if old.ID != "" {
 		return nil, errors.New(ProjectNameExist)
 	}
@@ -97,7 +97,7 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 }
 
 func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) {
-	old, _ := p.Get(creation.Name)
+	old, _ := p.projectRepo.Get(creation.Name)
 	if old.ID != "" || old.ID != creation.ID {
 		return dto.Project{}, errors.New("NOT_FOUND")
 	}
@@ -130,8 +130,12 @@ func (p projectService) Page(num, size int, userId string) (page.Page, error) {
 }
 
 func (p projectService) Delete(name string) error {
-	err := p.projectRepo.Delete(name)
-	if err != nil {
+	old, _ := p.projectRepo.Get(name)
+	if old.ID != "" {
+		return errors.New("NOT_FOUND")
+	}
+
+	if err := p.projectRepo.Delete(name); err != nil {
 		return err
 	}
 	return nil

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -47,6 +48,16 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 		return page, fmt.Errorf("decode error: %s", projectName)
 	}
 
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return page.Page{Items: []dto.Project{}, Total: 0}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{projectName})
+	if !hasPower || err != nil {
+		return page.Page{Items: []dto.Project{}, Total: 0}, errors.New("PERMISSION_DENIED")
+	}
+
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -62,6 +73,16 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 	projectName, err := url.QueryUnescape(projectNameUnDecode)
 	if err != nil {
 		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
+
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return &dto.ProjectMember{}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{projectName})
+	if !hasPower || err != nil {
+		return &dto.ProjectMember{}, errors.New("PERMISSION_DENIED")
 	}
 
 	return p.ProjectMemberService.Get(name, projectName)
@@ -93,6 +114,16 @@ func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 		return nil, err
 	}
 
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return &dto.ProjectMember{}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{req.ProjectName})
+	if !hasPower || err != nil {
+		return &dto.ProjectMember{}, errors.New("PERMISSION_DENIED")
+	}
+
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.BIND_PROJECT_MEMBER, req.ProjectName+"-"+req.Username)
 
@@ -101,18 +132,28 @@ func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 
 func (p ProjectMemberController) PostBatch() error {
 	var req dto.ProjectMemberOP
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := p.Ctx.ReadJSON(&req); err != nil {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
-	err = p.ProjectMemberService.Batch(req)
-	if err != nil {
+	if err := p.ProjectMemberService.Batch(req); err != nil {
 		return err
+	}
+
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return errors.New("UNRECOGNIZED_USER")
+	}
+	if len(req.Items) == 0 {
+		return nil
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{req.Items[0].ProjectName})
+	if !hasPower || err != nil {
+		return errors.New("PERMISSION_DENIED")
 	}
 
 	operator := p.Ctx.Values().GetString("operator")

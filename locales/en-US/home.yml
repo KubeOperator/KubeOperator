@@ -112,3 +112,5 @@ REGISTRY_ALREADY_EXISTS: "The registry of this architecture type already exists"
 
 #common 
 NOT_FOUND: "Information not found"
+PERMISSION_DENIED: "Permission denied"
+UNRECOGNIZED_USER: "Unrecognized user information"

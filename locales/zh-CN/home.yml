@@ -113,4 +113,6 @@ REGISTRY_ALREADY_EXISTS: "该架构类型的仓库已经存在"
 
 #common 
 NOT_FOUND: "信息未能找到"
+PERMISSION_DENIED: "权限不足"
+UNRECOGNIZED_USER: "未能识别的用户"
 

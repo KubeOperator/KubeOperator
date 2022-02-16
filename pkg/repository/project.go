@@ -8,7 +8,7 @@ import (
 
 type ProjectRepository interface {
 	Get(name string) (model.Project, error)
-	List() ([]model.Project, error)
+	List(userId string) ([]model.Project, error)
 	Page(num, size int, userId string) (int, []model.Project, error)
 	Save(project *model.Project) error
 	Batch(operation string, items []model.Project) error
@@ -30,10 +30,25 @@ func (p projectRepository) Get(name string) (model.Project, error) {
 	return project, nil
 }
 
-func (p projectRepository) List() ([]model.Project, error) {
+func (p projectRepository) List(userId string) ([]model.Project, error) {
 	var projects []model.Project
-	err := db.DB.Find(&projects).Error
-	return projects, err
+	if userId == "" {
+		err := db.DB.Model(&model.Project{}).Order("name").Find(&projects).Error
+		return projects, err
+	}
+
+	var projectResources []model.ProjectMember
+	if err := db.DB.Where("user_id = ?", userId).Find(&projectResources).Error; err != nil {
+		return projects, err
+	}
+	var projectIds []string
+	for _, pm := range projectResources {
+		projectIds = append(projectIds, pm.ProjectID)
+	}
+	if err := db.DB.Model(&model.Project{}).Order("name").Where("id in (?)", projectIds).Find(&projects).Error; err != nil {
+		return projects, err
+	}
+	return projects, nil
 }
 
 func (p projectRepository) Page(num, size int, userId string) (int, []model.Project, error) {
@@ -42,22 +57,21 @@ func (p projectRepository) Page(num, size int, userId string) (int, []model.Proj
 	if userId == "" {
 		err := db.DB.Model(&model.Project{}).Count(&total).Order("name").Offset((num - 1) * size).Limit(size).Find(&projects).Error
 		return total, projects, err
-	} else {
-		var projectResources []model.ProjectMember
-		err := db.DB.Where("user_id = ?", userId).Find(&projectResources).Error
-		if err != nil {
-			return total, nil, err
-		}
-		var projectIds []string
-		for _, pm := range projectResources {
-			projectIds = append(projectIds, pm.ProjectID)
-		}
-		err = db.DB.Model(&model.Project{}).Order("name").Where("id in (?)", projectIds).Count(&total).Offset((num - 1) * size).Limit(size).Find(&projects).Error
-		if err != nil {
-			return total, nil, err
-		}
-		return total, projects, err
 	}
+
+	var projectResources []model.ProjectMember
+	err := db.DB.Where("user_id = ?", userId).Find(&projectResources).Error
+	if err != nil {
+		return total, nil, err
+	}
+	var projectIds []string
+	for _, pm := range projectResources {
+		projectIds = append(projectIds, pm.ProjectID)
+	}
+	if err := db.DB.Model(&model.Project{}).Order("name").Where("id in (?)", projectIds).Count(&total).Offset((num - 1) * size).Limit(size).Find(&projects).Error; err != nil {
+		return total, nil, err
+	}
+	return total, projects, err
 }
 
 func (p projectRepository) Save(project *model.Project) error {

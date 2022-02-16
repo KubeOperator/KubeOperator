@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
@@ -12,13 +14,15 @@ import (
 )
 
 type ProjectController struct {
-	Ctx            context.Context
-	ProjectService service.ProjectService
+	Ctx                  context.Context
+	ProjectService       service.ProjectService
+	ProjectMemberService service.ProjectMemberService
 }
 
 func NewProjectController() *ProjectController {
 	return &ProjectController{
-		ProjectService: service.NewProjectService(),
+		ProjectService:       service.NewProjectService(),
+		ProjectMemberService: service.NewProjectMemberService(),
 	}
 }
 
@@ -35,21 +39,19 @@ func NewProjectController() *ProjectController {
 // @Router /projects/ [get]
 func (p ProjectController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return page.Page{Items: []dto.Project{}, Total: 0}, errors.New("UNRECOGNIZED_USER")
+	}
+
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		sessionUser := p.Ctx.Values().Get("user")
-		var userId string
-		user, ok := sessionUser.(dto.SessionUser)
-		if ok && !user.IsAdmin {
-			userId = user.UserId
-		} else {
-			userId = ""
-		}
 		return p.ProjectService.Page(num, size, userId)
 	} else {
 		var page page.Page
-		items, err := p.ProjectService.List()
+		items, err := p.ProjectService.List(userId)
 		if err != nil {
 			return page, err
 		}
@@ -70,6 +72,16 @@ func (p ProjectController) Get() (page.Page, error) {
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [get]
 func (p ProjectController) GetBy(name string) (dto.Project, error) {
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return dto.Project{}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{name})
+	if !hasPower || err != nil {
+		return dto.Project{}, errors.New("PERMISSION_DENIED")
+	}
+
 	return p.ProjectService.Get(name)
 }
 
@@ -120,15 +132,25 @@ func (p ProjectController) Post() (*dto.Project, error) {
 // @Router /projects/{name}/ [patch]
 func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	var req dto.ProjectUpdate
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := p.Ctx.ReadJSON(&req); err != nil {
 		return nil, err
 	}
+
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
+
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return &dto.Project{}, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{name})
+	if !hasPower || err != nil {
+		return &dto.Project{}, errors.New("PERMISSION_DENIED")
+	}
+
 	result, err := p.ProjectService.Update(req)
 	if err != nil {
 		return nil, err
@@ -141,6 +163,12 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 }
 
 func (p ProjectController) Delete(name string) error {
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return errors.New("UNRECOGNIZED_USER")
+	}
+
 	operator := p.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.DELETE_PROJECT, name)
 
@@ -158,26 +186,47 @@ func (p ProjectController) Delete(name string) error {
 // @Router /projects/batch [post]
 func (p ProjectController) PostBatch() error {
 	var req dto.ProjectOp
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := p.Ctx.ReadJSON(&req); err != nil {
 		return err
 	}
 	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	if err := validate.Struct(req); err != nil {
 		return err
 	}
-	err = p.ProjectService.Batch(req)
-	if err != nil {
+
+	var delProjects string
+	var projectNames []string
+	for _, item := range req.Items {
+		delProjects += (item.Name + ",")
+		projectNames = append(projectNames, item.Name)
+	}
+	sessionUser := p.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := p.ProjectMemberService.CheckUserProjectPermissionByName(userId, projectNames)
+	if !hasPower || err != nil {
+		return errors.New("PERMISSION_DENIED")
+	}
+
+	if err := p.ProjectService.Batch(req); err != nil {
 		return err
 	}
 
 	operator := p.Ctx.Values().GetString("operator")
-	delProjects := ""
-	for _, item := range req.Items {
-		delProjects += (item.Name + ",")
-	}
 	go kolog.Save(operator, constant.DELETE_PROJECT, delProjects)
 
 	return err
+}
+
+func getUserID(sessionUser interface{}) string {
+	user, ok := sessionUser.(dto.SessionUser)
+	if !ok {
+		return "UNRECOGNIZED_USER"
+	}
+	if user.IsAdmin {
+		return ""
+	}
+	return user.UserId
 }

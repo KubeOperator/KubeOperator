@@ -24,6 +24,8 @@ type ProjectMemberService interface {
 	GetUsers(name string) (dto.AddMemberResponse, error)
 	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
 	Get(name string, projectName string) (*dto.ProjectMember, error)
+	CheckUserProjectPermissionByName(userId string, projectNames []string) (bool, error)
+	CheckUserProjectPermissionByID(userId string, projectIDs []string) (bool, error)
 }
 
 type projectMemberService struct {
@@ -160,4 +162,56 @@ func (p projectMemberService) Get(name string, projectName string) (*dto.Project
 	return &dto.ProjectMember{
 		ProjectMember: pm,
 	}, nil
+}
+
+func (p projectMemberService) CheckUserProjectPermissionByName(userId string, projectNames []string) (bool, error) {
+	if userId == "" {
+		return true, nil
+	}
+
+	var projectMembers []model.ProjectMember
+	if err := db.DB.Where("user_id = ?", userId).Find(&projectMembers).Error; err != nil {
+		return false, err
+	}
+	var projects []model.Project
+	if err := db.DB.Where("name in (?)", projectNames).Find(&projects).Error; err != nil {
+		return false, err
+	}
+	for _, project := range projects {
+		hasPower := false
+		for _, member := range projectMembers {
+			if project.ID == member.ProjectID {
+				hasPower = true
+				break
+			}
+		}
+		if !hasPower {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func (p projectMemberService) CheckUserProjectPermissionByID(userId string, projectIDs []string) (bool, error) {
+	if userId == "" {
+		return true, nil
+	}
+
+	var projectMembers []model.ProjectMember
+	if err := db.DB.Where("user_id = ?", userId).Find(&projectMembers).Error; err != nil {
+		return false, err
+	}
+	for _, id := range projectIDs {
+		hasPower := false
+		for _, member := range projectMembers {
+			if id == member.ProjectID {
+				hasPower = true
+				break
+			}
+		}
+		if !hasPower {
+			return false, nil
+		}
+	}
+	return true, nil
 }

@@ -27,6 +27,7 @@ type ClusterController struct {
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
+	ProjectMemberService             service.ProjectMemberService
 }
 
 func NewClusterController() *ClusterController {
@@ -41,6 +42,7 @@ func NewClusterController() *ClusterController {
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
+		ProjectMemberService:             service.NewProjectMemberService(),
 	}
 }
 
@@ -55,8 +57,19 @@ func NewClusterController() *ClusterController {
 // @Router /clusters/ [get]
 func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
+	projectName := c.Ctx.URLParam("projectName")
+
+	sessionUser := c.Ctx.Values().Get("user")
+	userId := getUserID(sessionUser)
+	if userId == "UNRECOGNIZED_USER" {
+		return nil, errors.New("UNRECOGNIZED_USER")
+	}
+	hasPower, err := c.ProjectMemberService.CheckUserProjectPermissionByName(userId, []string{projectName})
+	if !hasPower || err != nil {
+		return nil, errors.New("PERMISSION_DENIED")
+	}
+
 	if page {
-		projectName := c.Ctx.URLParam("projectName")
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		pageItem, err := c.ClusterService.Page(num, size, projectName)
