@@ -60,7 +60,6 @@ func (u userService) Get(name string) (dto.User, error) {
 	userDTO = dto.User{
 		ID:        mo.ID,
 		Name:      mo.Name,
-		Email:     mo.Email,
 		IsActive:  mo.IsActive,
 		Language:  mo.Language,
 		IsAdmin:   mo.IsAdmin,
@@ -80,7 +79,6 @@ func (u userService) List() ([]dto.User, error) {
 		user := dto.User{
 			ID:        mo.ID,
 			Name:      mo.Name,
-			Email:     mo.Email,
 			IsActive:  mo.IsActive,
 			Language:  mo.Language,
 			IsAdmin:   mo.IsAdmin,
@@ -108,7 +106,6 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	}
 	user := model.User{
 		Name:     creation.Name,
-		Email:    creation.Email,
 		Password: password,
 		IsActive: true,
 		Language: model.ZH,
@@ -123,7 +120,6 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	userDTO := dto.User{
 		ID:        user.ID,
 		Name:      user.Name,
-		Email:     user.Email,
 		IsActive:  user.IsActive,
 		Language:  user.Language,
 		IsAdmin:   user.IsAdmin,
@@ -145,7 +141,6 @@ func (u userService) Page(num, size int) (page.Page, error) {
 		user := dto.User{
 			ID:        mo.ID,
 			Name:      mo.Name,
-			Email:     mo.Email,
 			IsActive:  mo.IsActive,
 			Language:  mo.Language,
 			IsAdmin:   mo.IsAdmin,
@@ -172,7 +167,6 @@ func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
 	userDTO := dto.User{
 		ID:        old.ID,
 		Name:      old.Name,
-		Email:     old.Email,
 		IsActive:  old.IsActive,
 		Language:  old.Language,
 		IsAdmin:   old.IsAdmin,

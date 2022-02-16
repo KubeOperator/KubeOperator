@@ -1520,6 +1520,9 @@ var doc = `{
                     "type": "object",
                     "additionalProperties": true
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1557,6 +1560,7 @@ var doc = `{
             "required": [
                 "bucket",
                 "credentialVars",
+                "id",
                 "name"
             ],
             "properties": {
@@ -1566,6 +1570,9 @@ var doc = `{
                 "credentialVars": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1816,7 +1823,11 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "password",
+                        "privateKey"
+                    ]
                 },
                 "username": {
                     "type": "string"
@@ -1846,7 +1857,11 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "password",
+                        "privateKey"
+                    ]
                 },
                 "username": {
                     "type": "string"
@@ -2158,6 +2173,12 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "userId": {
                     "type": "string"
                 }
@@ -2167,9 +2188,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "id": {
@@ -2199,9 +2217,6 @@ var doc = `{
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
                 "isAdmin": {
                     "type": "boolean"
                 },
@@ -2259,6 +2274,9 @@ var doc = `{
                     "type": "string"
                 },
                 "credential": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {

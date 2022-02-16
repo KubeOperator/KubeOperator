@@ -11,6 +11,8 @@ definitions:
       credentialVars:
         additionalProperties: true
         type: object
+      id:
+        type: string
       name:
         type: string
       status:
@@ -39,6 +41,8 @@ definitions:
       credentialVars:
         additionalProperties: true
         type: object
+      id:
+        type: string
       name:
         type: string
       type:
@@ -51,6 +55,7 @@ definitions:
     required:
     - bucket
     - credentialVars
+    - id
     - name
     type: object
   dto.Cluster:
@@ -208,6 +213,9 @@ definitions:
       privateKey:
         type: string
       type:
+        enum:
+        - password
+        - privateKey
         type: string
       username:
         type: string
@@ -228,6 +236,9 @@ definitions:
       privateKey:
         type: string
       type:
+        enum:
+        - password
+        - privateKey
         type: string
       username:
         type: string
@@ -442,14 +453,16 @@ definitions:
         type: string
       name:
         type: string
+      roles:
+        items:
+          type: string
+        type: array
       userId:
         type: string
     type: object
   dto.User:
     properties:
       createdAt:
-        type: string
-      email:
         type: string
       id:
         type: string
@@ -466,8 +479,6 @@ definitions:
     type: object
   dto.UserCreate:
     properties:
-      email:
-        type: string
       isAdmin:
         type: boolean
       name:
@@ -509,6 +520,8 @@ definitions:
       createdAt:
         type: string
       credential:
+        type: string
+      id:
         type: string
       name:
         type: string

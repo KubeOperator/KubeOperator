@@ -79,8 +79,12 @@ func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) 
 // @Router /project/members/ [post]
 func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 	var req dto.ProjectMemberCreate
-	err := p.Ctx.ReadJSON(&req)
-	if err != nil {
+	if err := p.Ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
 

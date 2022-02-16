@@ -5,7 +5,6 @@ import "time"
 type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	Email     string    `json:"email"`
 	IsActive  bool      `json:"isActive"`
 	Language  string    `json:"language"`
 	IsAdmin   bool      `json:"isAdmin"`
@@ -15,7 +14,6 @@ type User struct {
 
 type UserCreate struct {
 	Name     string `json:"name" validate:"koname,required,max=30"`
-	Email    string `json:"email" validate:"-"`
 	Password string `json:"password" validate:"kopassword,required"`
 	IsAdmin  bool   `json:"isAdmin" validate:"-"`
 }

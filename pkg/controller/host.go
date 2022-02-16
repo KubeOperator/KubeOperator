@@ -134,13 +134,6 @@ func (h HostController) Post() (*dto.Host, error) {
 	return &item, nil
 }
 
-func (h HostController) DeleteBy(name string) error {
-	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_HOST, name)
-
-	return h.HostService.Delete(name)
-}
-
 func (h HostController) PostSync() error {
 	var req []dto.HostSync
 	err := h.Ctx.ReadJSON(&req)

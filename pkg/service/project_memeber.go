@@ -53,7 +53,7 @@ func (p projectMemberService) PageByProjectName(num, size int, projectName strin
 
 	var result []dto.ProjectMember
 	for _, mo := range mos {
-		result = append(result, dto.ProjectMember{ProjectMember: mo, UserName: mo.User.Name, Email: mo.User.Email})
+		result = append(result, dto.ProjectMember{ProjectMember: mo, UserName: mo.User.Name})
 	}
 	page.Items = result
 	page.Total = total
@@ -68,7 +68,7 @@ func (p projectMemberService) Batch(op dto.ProjectMemberOP) error {
 		if err != nil {
 			return err
 		}
-		project, err := NewProjectService().Get(item.ProjectName)
+		project, err := p.projectRepo.Get(item.ProjectName)
 		if err != nil {
 			return err
 		}
@@ -117,7 +117,7 @@ func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.Proj
 			return nil, err
 		}
 	}
-	project, err := NewProjectService().Get(request.ProjectName)
+	project, err := p.projectRepo.Get(request.ProjectName)
 	if err != nil {
 		return nil, err
 	}

@@ -1503,6 +1503,9 @@
                     "type": "object",
                     "additionalProperties": true
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1540,6 +1543,7 @@
             "required": [
                 "bucket",
                 "credentialVars",
+                "id",
                 "name"
             ],
             "properties": {
@@ -1549,6 +1553,9 @@
                 "credentialVars": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1799,7 +1806,11 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "password",
+                        "privateKey"
+                    ]
                 },
                 "username": {
                     "type": "string"
@@ -1829,7 +1840,11 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "password",
+                        "privateKey"
+                    ]
                 },
                 "username": {
                     "type": "string"
@@ -2141,6 +2156,12 @@
                 "name": {
                     "type": "string"
                 },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "userId": {
                     "type": "string"
                 }
@@ -2150,9 +2171,6 @@
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "id": {
@@ -2182,9 +2200,6 @@
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
                 "isAdmin": {
                     "type": "boolean"
                 },
@@ -2242,6 +2257,9 @@
                     "type": "string"
                 },
                 "credential": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {
