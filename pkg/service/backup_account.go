@@ -209,6 +209,9 @@ func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error 
 		return err
 	}
 	defer file.Close()
+	if err := file.Chmod(0640); err != nil {
+		return err
+	}
 	success, err := client.Upload(constant.DefaultFireName, constant.DefaultFireName)
 	if err != nil {
 		return err

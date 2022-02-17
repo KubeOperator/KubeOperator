@@ -441,6 +441,9 @@ func (h hostService) DownloadTemplateFile() error {
 		return err
 	}
 	defer file.Close()
+	if err := file.Chmod(0640); err != nil {
+		return err
+	}
 	_, err = f.WriteTo(file)
 	if err != nil {
 		return err

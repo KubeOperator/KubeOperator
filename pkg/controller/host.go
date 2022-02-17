@@ -275,6 +275,9 @@ func (h HostController) getHostCreateInfo(file multipart.File) (string, []dto.Ho
 	if err != nil {
 		return hostNames, hosts, err
 	}
+	if err := excelFile.Chmod(0640); err != nil {
+		return hostNames, hosts, err
+	}
 	defer excelFile.Close()
 	err = ioutil.WriteFile("./import.xlsx", bs, 0750)
 	if err != nil {
