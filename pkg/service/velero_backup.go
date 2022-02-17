@@ -2,12 +2,13 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"os"
 )
 
 type VeleroBackupService interface {
-	CreateBackup(cluster string) (string, error)
+	CreateBackup(backup dto.VeleroBackup) (string, error)
 	GetBackups(cluster string) (map[string]interface{}, error)
 	GetBackupDescribe(cluster string, backupName string) (string, error)
 	GetBackupLogs(cluster string, backupName string) (string, error)
@@ -23,14 +24,8 @@ func NewVeleroBackupService() VeleroBackupService {
 	}
 }
 
-func (v veleroBackupService) CreateBackup(cluster string) (string, error) {
-	config, err := v.GetClusterConfig(cluster)
-	if err != nil {
-		return "", err
-	}
-
-	args := []string{"--kubeconfig", config}
-	result, err := velero.Backup(cluster, args)
+func (v veleroBackupService) CreateBackup(backup dto.VeleroBackup) (string, error) {
+	result, err := velero.Backup(backup.Name, v.handleArgs(backup))
 	if err != nil {
 		return string(result), err
 	}
@@ -140,4 +135,49 @@ func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 	file.Close()
 
 	return filePath, err
+}
+
+func (v veleroBackupService) handleArgs(backup dto.VeleroBackup) []string {
+	args := []string{}
+
+	config, err := v.GetClusterConfig(backup.Cluster)
+	if err != nil {
+		return args
+	}
+	configArg := []string{"--kubeconfig", config}
+	args = append(configArg, args...)
+
+	if !backup.IncludeClusterResources {
+		args = append(args, "--include-cluster-resources=false")
+	}
+	if len(backup.Labels) > 0 {
+		args = append(args, "--labels", backup.Labels)
+	}
+	if len(backup.IncludeNamespaces) > 0 {
+		args = append(args, "--include-namespaces", handleArray(backup.IncludeNamespaces))
+	}
+	if len(backup.ExcludeNamespaces) > 0 {
+		args = append(args, "--exclude-namespaces", handleArray(backup.ExcludeNamespaces))
+	}
+	if len(backup.IncludeResources) > 0 {
+		args = append(args, "--include-resources", backup.IncludeResources)
+	}
+	if len(backup.ExcludeResources) > 0 {
+		args = append(args, "--exclude-resources", backup.ExcludeResources)
+	}
+	if len(backup.Selector) > 0 {
+		args = append(args, "--selector", backup.Selector)
+	}
+	if backup.Ttl != "" {
+		args = append(args, "--ttl", backup.Ttl)
+	}
+	return args
+}
+
+func handleArray(arr []string) string {
+	result := arr[0]
+	for i := 1; i < len(arr); i++ {
+		result = result + "," + arr[i]
+	}
+	return result
 }

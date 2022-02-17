@@ -3,24 +3,15 @@ package velero
 import (
 	"bytes"
 	"os/exec"
-	"time"
 )
 
 const defaultVeleroPath = "/usr/local/bin"
 
-func Backup(cluster string, args []string) ([]byte, error) {
-
-	now := time.Now()
-	day := now.Format("2006-01-02-15-04")
-	backupName := cluster + "-" + day
+func Backup(backupName string, args []string) ([]byte, error) {
 	backups := []string{"backup", "create", backupName}
 	args = append(backups, args...)
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func GetBackups(args []string) ([]byte, error) {
@@ -28,66 +19,72 @@ func GetBackups(args []string) ([]byte, error) {
 	args = append(backups, args...)
 	args = append(args, "-o", "json")
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func GetBackupDescribe(backupName string, args []string) ([]byte, error) {
 	describes := []string{"backup", "describe", backupName}
 	args = append(describes, args...)
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func GetBackupLogs(backupName string, args []string) ([]byte, error) {
 	logs := []string{"backup", "logs", backupName}
 	args = append(logs, args...)
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func Restore(backupName string, args []string) ([]byte, error) {
 	backups := []string{"restore", "create", "--from-backup", backupName}
 	args = append(backups, args...)
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func GetRestores(args []string) ([]byte, error) {
-	backups := []string{"get", "backups"}
+	backups := []string{"get", "restores"}
 	args = append(backups, args...)
+	args = append(args, "-o", "json")
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func GetRestoreDescribe(restoreName string, args []string) ([]byte, error) {
 	describes := []string{"restore", "describe", restoreName}
 	args = append(describes, args...)
 
-	result, err := ExecCommand(defaultVeleroPath, "velero", args)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
+	return ExecCommand(defaultVeleroPath, "velero", args)
+}
+
+func GetRestoreLogs(backupName string, args []string) ([]byte, error) {
+	logs := []string{"restore", "logs", backupName}
+	args = append(logs, args...)
+
+	return ExecCommand(defaultVeleroPath, "velero", args)
+}
+
+func Schedule(scheduleName string, args []string) ([]byte, error) {
+	backups := []string{"schedule", "create", scheduleName}
+	args = append(backups, args...)
+
+	return ExecCommand(defaultVeleroPath, "velero", args)
+}
+
+func GetSchedules(args []string) ([]byte, error) {
+	backups := []string{"get", "schedule"}
+	args = append(backups, args...)
+	args = append(args, "-o", "json")
+
+	return ExecCommand(defaultVeleroPath, "velero", args)
+}
+
+func GetScheduleDescribe(scheduleName string, args []string) ([]byte, error) {
+	describes := []string{"schedule", "describe", scheduleName}
+	args = append(describes, args...)
+
+	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
 func ExecCommand(path string, command string, args []string) ([]byte, error) {

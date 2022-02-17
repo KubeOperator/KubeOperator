@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
@@ -30,4 +31,15 @@ func (c ClusterVeleroBackupController) GetLogs() (string, error) {
 	clusterName := c.Ctx.Params().GetString("name")
 	backupName := c.Ctx.URLParam("backupName")
 	return c.VeleroBackupService.GetBackupLogs(clusterName, backupName)
+}
+
+func (c ClusterVeleroBackupController) PostCreate() (string, error) {
+	var req dto.VeleroBackup
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return "", err
+	}
+	clusterName := c.Ctx.Params().GetString("name")
+	req.Cluster = clusterName
+	return c.VeleroBackupService.CreateBackup(req)
 }
