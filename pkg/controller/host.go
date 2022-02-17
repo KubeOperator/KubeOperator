@@ -2,9 +2,14 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"mime/multipart"
+	"os"
+	"strconv"
 	"strings"
 
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/koregexp"
@@ -24,12 +29,14 @@ type HostController struct {
 	Ctx                  context.Context
 	HostService          service.HostService
 	SystemSettingService service.SystemSettingService
+	CredentialService    service.CredentialService
 }
 
 func NewHostController() *HostController {
 	return &HostController{
 		HostService:          service.NewHostService(),
 		SystemSettingService: service.NewSystemSettingService(),
+		CredentialService:    service.NewCredentialService(),
 	}
 }
 
@@ -223,6 +230,7 @@ func (h HostController) PostUpload() error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	if handler.Size > 10485760 {
 		return errors.New("APP_HOST_IMPORT_FILE_SIZE_ERROR")
@@ -230,17 +238,85 @@ func (h HostController) PostUpload() error {
 	if !strings.HasSuffix(handler.Filename, ".xls") && !strings.HasSuffix(handler.Filename, ".xlsx") {
 		return errors.New("APP_HOST_IMPORT_FILE_FORMAT_ERROR")
 	}
-
-	bs, err := ioutil.ReadAll(f)
+	hostNames, hosts, err := h.getHostCreateInfo(f)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
-	hosts, err := h.HostService.ImportHosts(bs)
+	for _, host := range hosts {
+		if _, err = h.HostService.Create(host); err != nil {
+			return err
+		}
+	}
 
 	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPLOAD_HOST, hosts)
+	go kolog.Save(operator, constant.UPLOAD_HOST, hostNames)
 
 	return err
+}
+
+func (h HostController) getHostCreateInfo(file multipart.File) (string, []dto.HostCreate, error) {
+	var hosts []dto.HostCreate
+	var hostNames string
+	validate := validator.New()
+	if err := validate.RegisterValidation("koip", koregexp.CheckIpPattern); err != nil {
+		return hostNames, hosts, err
+	}
+	if err := validate.RegisterValidation("hostname", koregexp.CheckHostNamePattern); err != nil {
+		return hostNames, hosts, err
+	}
+
+	bs, err := ioutil.ReadAll(file)
+	if err != nil {
+		return hostNames, hosts, err
+	}
+
+	excelFile, err := os.Create("./import.xlsx")
+	if err != nil {
+		return hostNames, hosts, err
+	}
+	defer excelFile.Close()
+	err = ioutil.WriteFile("./import.xlsx", bs, 0750)
+	if err != nil {
+		return hostNames, hosts, err
+	}
+	xlsx, err := excelize.OpenFile("./import.xlsx")
+	if err != nil {
+		return hostNames, hosts, err
+	}
+	rows := xlsx.GetRows("Sheet1")
+	if len(rows) == 0 {
+		return hostNames, hosts, errors.New("HOST_IMPORT_ERROR_NULL")
+	}
+
+	for index, row := range rows {
+		if index == 0 {
+			continue
+		}
+		if row[0] == "" || row[1] == "" || row[2] == "" || row[3] == "" {
+			return hostNames, hosts, fmt.Errorf("there is a null value at row %d", index)
+		}
+		port, err := strconv.Atoi(row[2])
+		if err != nil {
+			return hostNames, hosts, fmt.Errorf("incorrect port format at row %d", index)
+		}
+		credential, err := h.CredentialService.Get(row[3])
+		if err != nil {
+			return hostNames, hosts, fmt.Errorf("incorrect credential %s at row %d", row[3], index)
+		}
+		host := dto.HostCreate{
+			Name:         strings.Trim(row[0], " "),
+			Ip:           strings.Trim(row[1], " "),
+			Port:         port,
+			CredentialID: credential.ID,
+		}
+		hosts = append(hosts, host)
+
+		if err := validate.Struct(host); err != nil {
+			return hostNames, hosts, err
+		}
+
+		hostNames += (hostNames + host.Name + ",")
+	}
+	return hostNames, hosts, nil
 }

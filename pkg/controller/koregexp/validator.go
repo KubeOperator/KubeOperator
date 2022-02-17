@@ -28,7 +28,7 @@ func CheckCommonNamePattern(fl validator.FieldLevel) bool {
 
 func CheckHostNamePattern(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
-	result, _ := regexp.MatchString(`[a-zA-Z0-9.]{0,30}$`, value)
+	result, _ := regexp.MatchString(`^[a-zA-Z0-9.]{0,30}$`, value)
 	return result
 }
 
