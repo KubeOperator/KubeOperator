@@ -2,6 +2,7 @@ package captcha
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/mojocn/base64Captcha"
@@ -14,7 +15,11 @@ func VerifyCode(codeId string, code string) error {
 	if code == "" {
 		return verifyCodeFailed
 	}
-	if store.Verify(codeId, code, true) {
+	vv := store.Get(codeId, true)
+	vv = strings.TrimSpace(vv)
+	code = strings.TrimSpace(code)
+
+	if strings.EqualFold(vv, code) {
 		return nil
 	} else {
 		return verifyCodeFailed
@@ -23,7 +28,7 @@ func VerifyCode(codeId string, code string) error {
 
 func CreateCaptcha() (*dto.Captcha, error) {
 	var driverString base64Captcha.DriverString
-	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnm"
+	driverString.Source = "1234567890QWERTYUIOPLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm"
 	driverString.Width = 120
 	driverString.Height = 50
 	driverString.NoiseCount = 0

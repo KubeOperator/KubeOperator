@@ -68,13 +68,13 @@ func (u userRepository) Batch(operation string, items []model.User) error {
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for i := range items {
-			var host model.Host
-			if err := db.DB.Where("name = ?", items[i].Name).First(&host).Error; err != nil {
+			var user model.User
+			if err := db.DB.Where("name = ?", items[i].Name).First(&user).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
 
-			if err := db.DB.Delete(&host).Error; err != nil {
+			if err := db.DB.Delete(&user).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

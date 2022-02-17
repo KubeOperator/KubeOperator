@@ -25,19 +25,6 @@ func unPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
-func aesDecrypt(key, crypted []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-	blockSize := block.BlockSize()
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
-	origData := make([]byte, len(crypted))
-	blockMode.CryptBlocks(origData, crypted)
-	origData = unPadding(origData)
-	return origData, nil
-}
-
 func aesEncryptWithSalt(key, plaintext []byte) ([]byte, error) {
 	plaintext = padding(plaintext, aes.BlockSize)
 	block, err := aes.NewCipher(key)
@@ -90,26 +77,12 @@ func StringDecrypt(text string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var tpass []byte
-	if isSaltPass(bytesPass) {
-		tpass, err = aesDecryptWithSalt([]byte(key), bytesPass)
-	} else {
-		tpass, err = aesDecrypt([]byte(key), bytesPass)
-	}
+	tpass, err := aesDecryptWithSalt([]byte(key), bytesPass)
 	if err == nil {
 		result := string(tpass[:])
 		return result, err
 	}
 	return "", err
-}
-
-func isSaltPass(pass []byte) bool {
-	for i := 2; i < 8; i++ {
-		if pass[i] != 1 {
-			return false
-		}
-	}
-	return true
 }
 
 func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
