@@ -89,7 +89,7 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		}
 		host.Password = password
 	}
-	if len(n.Host.Credential.Password) != 0 {
+	if len(n.Host.Credential.PrivateKey) != 0 {
 		PrivateKey, err := encrypt.StringDecrypt(n.Host.Credential.PrivateKey)
 		if err != nil {
 			log.Errorf("decrypt host credential err, err: %s", err.Error())

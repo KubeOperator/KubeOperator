@@ -100,7 +100,7 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		return nil, UserNameExist
 	}
 
-	password, err := encrypt.StringEncrypt(creation.Password)
+	password, err := encrypt.StringEncryptWithSalt(creation.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
 		return isFirstLogin, err
 	}
 
-	user.Password, err = encrypt.StringEncrypt(ch.Password)
+	user.Password, err = encrypt.StringEncryptWithSalt(ch.Password)
 	if err != nil {
 		return isFirstLogin, err
 	}
@@ -265,7 +265,7 @@ func validateOldPassword(user model.User, password string) (bool, error) {
 		return false, errors.New("TOO_MANY_FAILURES")
 	}
 
-	oldPassword, err := encrypt.StringDecrypt(user.Password)
+	oldPassword, err := encrypt.StringDecryptWithSalt(user.Password)
 	if err != nil {
 		return false, err
 	}

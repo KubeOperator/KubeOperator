@@ -11,7 +11,6 @@ require (
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
-	github.com/aws/aws-sdk-go v1.33.18
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1

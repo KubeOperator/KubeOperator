@@ -98,7 +98,7 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 
 func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) {
 	old, _ := p.projectRepo.Get(creation.Name)
-	if old.ID != "" || old.ID != creation.ID {
+	if old.ID == "" || old.ID != creation.ID {
 		return dto.Project{}, errors.New("NOT_FOUND")
 	}
 

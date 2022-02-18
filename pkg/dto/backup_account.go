@@ -17,7 +17,7 @@ type BackupAccountRequest struct {
 	Name           string                 `json:"name" validate:"required"`
 	CredentialVars map[string]interface{} `json:"credentialVars" validate:"required"`
 	Bucket         string                 `json:"bucket" validate:"required"`
-	Type           string                 `json:"type" validate:"oneof=OSS S3 AZURE SFTP"`
+	Type           string                 `json:"type" validate:"oneof=OSS AZURE SFTP"`
 }
 
 type CloudStorageRequest struct {

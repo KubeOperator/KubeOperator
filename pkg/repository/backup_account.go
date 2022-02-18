@@ -28,7 +28,7 @@ func NewBackupAccountRepository() BackupAccountRepository {
 func (b backupAccountRepository) Get(name string) (*model.BackupAccount, error) {
 	var backupAccount model.BackupAccount
 	if err := db.DB.Where("name = ?", name).First(&backupAccount).Error; err != nil {
-		return nil, err
+		return &backupAccount, err
 	}
 	return &backupAccount, nil
 }

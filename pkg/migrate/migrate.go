@@ -38,7 +38,7 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
-	p, err := encrypt.StringDecrypt(i.Password)
+	p, err := encrypt.StringDecryptWithSalt(i.Password)
 	if err != nil {
 		return err
 	}

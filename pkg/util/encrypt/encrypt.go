@@ -25,6 +25,20 @@ func unPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
+func AesEncrypt(origData, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	blockSize := block.BlockSize()
+	origData = padding(origData, blockSize)
+	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
+	crypted := make([]byte, len(origData))
+	blockMode.CryptBlocks(crypted, origData)
+	return crypted, nil
+}
+
 func aesEncryptWithSalt(key, plaintext []byte) ([]byte, error) {
 	plaintext = padding(plaintext, aes.BlockSize)
 	block, err := aes.NewCipher(key)
@@ -43,6 +57,20 @@ func aesEncryptWithSalt(key, plaintext []byte) ([]byte, error) {
 	cbc.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
 	return ciphertext, nil
 }
+
+func aesDecrypt(key, crypted []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	blockSize := block.BlockSize()
+	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
+	origData := make([]byte, len(crypted))
+	blockMode.CryptBlocks(origData, crypted)
+	origData = unPadding(origData)
+	return origData, nil
+}
+
 func aesDecryptWithSalt(key, ciphertext []byte) ([]byte, error) {
 	var block cipher.Block
 	block, err := aes.NewCipher(key)
@@ -63,6 +91,17 @@ func aesDecryptWithSalt(key, ciphertext []byte) ([]byte, error) {
 func StringEncrypt(text string) (string, error) {
 	key := viper.GetString("encrypt.key")
 	pass := []byte(text)
+	xpass, err := AesEncrypt(pass, []byte(key))
+	if err == nil {
+		pass64 := base64.StdEncoding.EncodeToString(xpass)
+		return pass64, err
+	}
+	return "", err
+}
+
+func StringEncryptWithSalt(text string) (string, error) {
+	key := viper.GetString("encrypt.key")
+	pass := []byte(text)
 	xpass, err := aesEncryptWithSalt([]byte(key), pass)
 	if err == nil {
 		pass64 := base64.StdEncoding.EncodeToString(xpass)
@@ -72,6 +111,20 @@ func StringEncrypt(text string) (string, error) {
 }
 
 func StringDecrypt(text string) (string, error) {
+	key := viper.GetString("encrypt.key")
+	bytesPass, err := base64.StdEncoding.DecodeString(text)
+	if err != nil {
+		return "", err
+	}
+	tpass, err := aesDecrypt([]byte(key), bytesPass)
+	if err == nil {
+		result := string(tpass[:])
+		return result, err
+	}
+	return "", err
+}
+
+func StringDecryptWithSalt(text string) (string, error) {
 	key := viper.GetString("encrypt.key")
 	bytesPass, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
