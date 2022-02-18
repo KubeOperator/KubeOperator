@@ -2,6 +2,7 @@ package cloud_storage
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 )
@@ -21,9 +22,6 @@ type CloudStorageClient interface {
 func NewCloudStorageClient(vars map[string]interface{}) (CloudStorageClient, error) {
 	if vars["type"] == constant.Azure {
 		return client.NewAzureClient(vars)
-	}
-	if vars["type"] == constant.S3 {
-		return client.NewS3Client(vars)
 	}
 	if vars["type"] == constant.OSS {
 		return client.NewOssClient(vars)

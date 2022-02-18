@@ -14,7 +14,6 @@
                 <label>{{'APP_TYPE'|translate}}:</label>
                 <select clrSelect name="type" [(ngModel)]="item.type" (ngModelChange)="changeType(item)" required>
                     <option value="OSS">OSS</option>
-                    <option value="S3">S3</option>
                     <option value="AZURE">Azure</option>
                     <option value="SFTP">SFTP</option>
                 </select>

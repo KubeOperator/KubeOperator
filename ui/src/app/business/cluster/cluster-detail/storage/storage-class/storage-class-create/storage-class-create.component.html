@@ -15,7 +15,7 @@
                 <select name="provisioner" [(ngModel)]="provisioner" (change)="onProvisionerChange()" clrSelect
                         required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option [ngValue]="p" *ngFor="let p of provisioners" [disabled]="p.status !== 'Running'">
+                    <option [ngValue]="p" *ngFor="let p of provisioners">
                         [{{p.type}}]{{p.name}}
                     </option>
                 </select>

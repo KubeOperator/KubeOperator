@@ -45,7 +45,12 @@ export class StorageClassCreateComponent implements OnInit {
         this.item = this.newV1StorageClass();
         this.provisioner = null;
         this.provisionerService.list(this.currentCluster.name).subscribe(data => {
-            this.provisioners = data;
+            this.provisioners = []
+            for (const provisioner of data) {
+                if (provisioner.status === "Running") {
+                    this.provisioners.push(provisioner)
+                }
+            }
             this.provisioners.push({
                 name: 'kubernetes.io/no-provisioner',
                 type: 'local-storage',
