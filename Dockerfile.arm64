@@ -31,7 +31,7 @@ RUN make build_server_linux GOARCH=$GOARCH
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM kubeoperator/euleros:2.0
+FROM kubeoperator/euleros:2.1
 ARG GOARCH
 
 RUN echo > /etc/yum.repos.d/Euler-Base.repo \
@@ -40,9 +40,9 @@ RUN echo > /etc/yum.repos.d/Euler-Base.repo \
 
 WORKDIR /usr/local/bin
 
-RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
+RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod 500 validator_linux_$GOARCH
 RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_arm64 \
-    && chmod +x encrypt_linux_arm64
+    && chmod 500 encrypt_linux_arm64
 
 WORKDIR /tmp
 
@@ -62,6 +62,8 @@ ENV ZONEINFO /opt/zoneinfo.zip
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
+
+RUN chmod 550 /usr/local/bin/ko-server
 
 EXPOSE 8080
 

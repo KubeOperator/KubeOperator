@@ -74,8 +74,8 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
 
 WORKDIR /usr/local/bin
 
-RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod +x validator_linux_$GOARCH
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_amd64 && chmod +x encrypt_linux_amd64
+RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod 500 validator_linux_$GOARCH
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_amd64 && chmod 500 encrypt_linux_amd64
 
 WORKDIR /tmp
 
@@ -97,6 +97,8 @@ ENV ZONEINFO /opt/zoneinfo.zip
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
+
+RUN chmod 550 /usr/local/bin/ko-server
 
 EXPOSE 8080
 
