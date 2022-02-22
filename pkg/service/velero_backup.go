@@ -26,9 +26,22 @@ func NewVeleroBackupService() VeleroBackupService {
 }
 
 func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (string, error) {
-	result, err := velero.Create(backup.Name, operate, v.handleArgs(backup))
-	if err != nil {
-		return string(result), err
+
+	var (
+		result []byte
+		err    error
+	)
+
+	if len(backup.BackupName) > 0 {
+		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
+		if err != nil {
+			return string(result), err
+		}
+	} else {
+		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
+		if err != nil {
+			return string(result), err
+		}
 	}
 	return string(result), err
 }

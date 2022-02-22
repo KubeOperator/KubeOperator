@@ -12,4 +12,5 @@ type VeleroBackup struct {
 	Selector                string
 	Ttl                     string
 	Schedule                string
+	BackupName              string
 }
