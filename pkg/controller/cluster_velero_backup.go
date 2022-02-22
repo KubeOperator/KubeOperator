@@ -33,6 +33,17 @@ func (c ClusterVeleroBackupController) GetLogs() (string, error) {
 	return c.VeleroBackupService.GetBackupLogs(clusterName, backupName)
 }
 
+func (c ClusterVeleroBackupController) GetSchedules() (interface{}, error) {
+	clusterName := c.Ctx.Params().GetString("name")
+	return c.VeleroBackupService.GetSchedules(clusterName)
+}
+
+func (c ClusterVeleroBackupController) GetScheduleDescribe() (string, error) {
+	clusterName := c.Ctx.Params().GetString("name")
+	scheduleName := c.Ctx.URLParam("scheduleName")
+	return c.VeleroBackupService.GetScheduleDescribe(clusterName, scheduleName)
+}
+
 func (c ClusterVeleroBackupController) PostCreate() (string, error) {
 	var req dto.VeleroBackup
 	err := c.Ctx.ReadJSON(&req)

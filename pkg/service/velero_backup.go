@@ -12,6 +12,9 @@ type VeleroBackupService interface {
 	GetBackups(cluster string) (map[string]interface{}, error)
 	GetBackupDescribe(cluster string, backupName string) (string, error)
 	GetBackupLogs(cluster string, backupName string) (string, error)
+	GetRestores(cluster string) (map[string]interface{}, error)
+	GetSchedules(cluster string) (map[string]interface{}, error)
+	GetScheduleDescribe(cluster string, scheduleName string) (string, error)
 }
 
 type veleroBackupService struct {
@@ -99,6 +102,41 @@ func (v veleroBackupService) GetRestores(cluster string) (map[string]interface{}
 	if err != nil {
 		return result, err
 	}
+	return result, err
+}
+
+func (v veleroBackupService) GetSchedules(cluster string) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	config, err := v.GetClusterConfig(cluster)
+	if err != nil {
+		return result, err
+	}
+
+	args := []string{"--kubeconfig", config}
+	res, err := velero.GetSchedules(args)
+	if err != nil {
+		return result, err
+	}
+	err = json.Unmarshal(res, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, err
+}
+
+func (v veleroBackupService) GetScheduleDescribe(cluster string, scheduleName string) (string, error) {
+	var result string
+	config, err := v.GetClusterConfig(cluster)
+	if err != nil {
+		return result, err
+	}
+
+	args := []string{"--kubeconfig", config}
+	res, err := velero.GetScheduleDescribe(scheduleName, args)
+	if err != nil {
+		return result, err
+	}
+	result = string(res)
 	return result, err
 }
 
