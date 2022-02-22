@@ -8,13 +8,11 @@ import (
 )
 
 type VeleroBackupService interface {
-	CreateBackup(backup dto.VeleroBackup) (string, error)
-	GetBackups(cluster string) (map[string]interface{}, error)
-	GetBackupDescribe(cluster string, backupName string) (string, error)
-	GetBackupLogs(cluster string, backupName string) (string, error)
-	GetRestores(cluster string) (map[string]interface{}, error)
-	GetSchedules(cluster string) (map[string]interface{}, error)
-	GetScheduleDescribe(cluster string, scheduleName string) (string, error)
+	Create(operate string, backup dto.VeleroBackup) (string, error)
+	Get(cluster, operate string) (map[string]interface{}, error)
+	GetLogs(cluster, name, operate string) (string, error)
+	GetDescribe(cluster, name, operate string) (string, error)
+	Delete(cluster, name, operate string) (string, error)
 }
 
 type veleroBackupService struct {
@@ -27,23 +25,22 @@ func NewVeleroBackupService() VeleroBackupService {
 	}
 }
 
-func (v veleroBackupService) CreateBackup(backup dto.VeleroBackup) (string, error) {
-	result, err := velero.Backup(backup.Name, v.handleArgs(backup))
+func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (string, error) {
+	result, err := velero.Create(backup.Name, operate, v.handleArgs(backup))
 	if err != nil {
 		return string(result), err
 	}
 	return string(result), err
 }
 
-func (v veleroBackupService) GetBackups(cluster string) (map[string]interface{}, error) {
+func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{}, error) {
 	var result map[string]interface{}
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
 		return result, err
 	}
-
 	args := []string{"--kubeconfig", config}
-	res, err := velero.GetBackups(args)
+	res, err := velero.Get(operate, args)
 	if err != nil {
 		return result, err
 	}
@@ -54,7 +51,7 @@ func (v veleroBackupService) GetBackups(cluster string) (map[string]interface{},
 	return result, err
 }
 
-func (v veleroBackupService) GetBackupDescribe(cluster string, backupName string) (string, error) {
+func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, error) {
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -62,7 +59,7 @@ func (v veleroBackupService) GetBackupDescribe(cluster string, backupName string
 	}
 
 	args := []string{"--kubeconfig", config}
-	res, err := velero.GetBackupDescribe(backupName, args)
+	res, err := velero.GetLogs(name, operate, args)
 	if err != nil {
 		return result, err
 	}
@@ -70,7 +67,7 @@ func (v veleroBackupService) GetBackupDescribe(cluster string, backupName string
 	return result, err
 }
 
-func (v veleroBackupService) GetBackupLogs(cluster string, backupName string) (string, error) {
+func (v veleroBackupService) GetDescribe(cluster, name, operate string) (string, error) {
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -78,7 +75,7 @@ func (v veleroBackupService) GetBackupLogs(cluster string, backupName string) (s
 	}
 
 	args := []string{"--kubeconfig", config}
-	res, err := velero.GetBackupLogs(backupName, args)
+	res, err := velero.GetDescribe(name, operate, args)
 	if err != nil {
 		return result, err
 	}
@@ -86,45 +83,7 @@ func (v veleroBackupService) GetBackupLogs(cluster string, backupName string) (s
 	return result, err
 }
 
-func (v veleroBackupService) GetRestores(cluster string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	config, err := v.GetClusterConfig(cluster)
-	if err != nil {
-		return result, err
-	}
-
-	args := []string{"--kubeconfig", config}
-	res, err := velero.GetRestores(args)
-	if err != nil {
-		return result, err
-	}
-	err = json.Unmarshal(res, &result)
-	if err != nil {
-		return result, err
-	}
-	return result, err
-}
-
-func (v veleroBackupService) GetSchedules(cluster string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	config, err := v.GetClusterConfig(cluster)
-	if err != nil {
-		return result, err
-	}
-
-	args := []string{"--kubeconfig", config}
-	res, err := velero.GetSchedules(args)
-	if err != nil {
-		return result, err
-	}
-	err = json.Unmarshal(res, &result)
-	if err != nil {
-		return result, err
-	}
-	return result, err
-}
-
-func (v veleroBackupService) GetScheduleDescribe(cluster string, scheduleName string) (string, error) {
+func (v veleroBackupService) Delete(cluster, name, operate string) (string, error) {
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -132,7 +91,7 @@ func (v veleroBackupService) GetScheduleDescribe(cluster string, scheduleName st
 	}
 
 	args := []string{"--kubeconfig", config}
-	res, err := velero.GetScheduleDescribe(scheduleName, args)
+	res, err := velero.Delete(name, operate, args)
 	if err != nil {
 		return result, err
 	}
@@ -184,6 +143,11 @@ func (v veleroBackupService) handleArgs(backup dto.VeleroBackup) []string {
 	}
 	configArg := []string{"--kubeconfig", config}
 	args = append(configArg, args...)
+
+	if len(backup.Schedule) > 0 {
+		schedule := "--schedule=\"" + backup.Schedule + "\""
+		args = append(args, schedule)
+	}
 
 	if !backup.IncludeClusterResources {
 		args = append(args, "--include-cluster-resources=false")

@@ -18,39 +18,40 @@ func NewClusterVeleroBackupController() *ClusterVeleroBackupController {
 }
 
 func (c ClusterVeleroBackupController) Get() (interface{}, error) {
-	clusterName := c.Ctx.Params().GetString("name")
-	return c.VeleroBackupService.GetBackups(clusterName)
+	clusterName := c.Ctx.Params().GetString("cluster")
+	operate := c.Ctx.Params().GetString("operate")
+	return c.VeleroBackupService.Get(clusterName, operate)
+}
+
+func (c ClusterVeleroBackupController) GetLogs() (string, error) {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	operate := c.Ctx.Params().GetString("operate")
+	name := c.Ctx.URLParam("name")
+	return c.VeleroBackupService.GetLogs(clusterName, name, operate)
 }
 
 func (c ClusterVeleroBackupController) GetDescribe() (string, error) {
-	clusterName := c.Ctx.Params().GetString("name")
-	backupName := c.Ctx.URLParam("backupName")
-	return c.VeleroBackupService.GetBackupDescribe(clusterName, backupName)
-}
-func (c ClusterVeleroBackupController) GetLogs() (string, error) {
-	clusterName := c.Ctx.Params().GetString("name")
-	backupName := c.Ctx.URLParam("backupName")
-	return c.VeleroBackupService.GetBackupLogs(clusterName, backupName)
+	clusterName := c.Ctx.Params().GetString("cluster")
+	operate := c.Ctx.Params().GetString("operate")
+	name := c.Ctx.URLParam("name")
+	return c.VeleroBackupService.GetDescribe(clusterName, name, operate)
 }
 
-func (c ClusterVeleroBackupController) GetSchedules() (interface{}, error) {
-	clusterName := c.Ctx.Params().GetString("name")
-	return c.VeleroBackupService.GetSchedules(clusterName)
-}
-
-func (c ClusterVeleroBackupController) GetScheduleDescribe() (string, error) {
-	clusterName := c.Ctx.Params().GetString("name")
-	scheduleName := c.Ctx.URLParam("scheduleName")
-	return c.VeleroBackupService.GetScheduleDescribe(clusterName, scheduleName)
+func (c ClusterVeleroBackupController) DeleteDel() (string, error) {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	operate := c.Ctx.Params().GetString("operate")
+	name := c.Ctx.URLParam("name")
+	return c.VeleroBackupService.Delete(clusterName, name, operate)
 }
 
 func (c ClusterVeleroBackupController) PostCreate() (string, error) {
+	operate := c.Ctx.Params().GetString("operate")
 	var req dto.VeleroBackup
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return "", err
 	}
-	clusterName := c.Ctx.Params().GetString("name")
+	clusterName := c.Ctx.Params().GetString("cluster")
 	req.Cluster = clusterName
-	return c.VeleroBackupService.CreateBackup(req)
+	return c.VeleroBackupService.Create(operate, req)
 }
