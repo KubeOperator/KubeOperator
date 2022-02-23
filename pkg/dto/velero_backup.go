@@ -14,3 +14,9 @@ type VeleroBackup struct {
 	Schedule                string
 	BackupName              string
 }
+
+type VeleroInstall struct {
+	Cluster           string
+	BackupAccountName string
+	ID                string
+}

@@ -48,6 +48,12 @@ func Restore(backupName string, args []string) ([]byte, error) {
 	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
+func Install(args []string) ([]byte, error) {
+	install := []string{"install"}
+	args = append(install, args...)
+	return ExecCommand(defaultVeleroPath, "velero", args)
+}
+
 func ExecCommand(path string, command string, args []string) ([]byte, error) {
 	cmd := exec.Command(command, args...)
 	cmd.Dir = path
