@@ -13,7 +13,7 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name     string `json:"name" validate:"koname,required,max=30"`
+	Name     string `json:"name" validate:"koname,required,min=6,max=30"`
 	Password string `json:"password" validate:"kopassword,required"`
 	IsAdmin  bool   `json:"isAdmin" validate:"-"`
 }
@@ -25,7 +25,7 @@ type UserPage struct {
 
 type UserUpdate struct {
 	ID       string `json:"id"`
-	Name     string `json:"name" validate:"required,max=30"`
+	Name     string `json:"name" validate:"required,min=6,max=30"`
 	IsActive bool   `json:"isActive" validate:"-"`
 	IsAdmin  bool   `json:"isAdmin" validate:"-"`
 }

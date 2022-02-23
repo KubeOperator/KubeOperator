@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -26,13 +28,13 @@ func NewUserRepository() UserRepository {
 func (u userRepository) Page(num, size int) (int, []model.User, error) {
 	var total int
 	var users []model.User
-	err := db.DB.Model(&model.User{}).Count(&total).Order("name").Offset((num - 1) * size).Limit(size).Find(&users).Error
+	err := db.DB.Where("is_system = ?", false).Model(&model.User{}).Count(&total).Order("name").Offset((num - 1) * size).Limit(size).Find(&users).Error
 	return total, users, err
 }
 
 func (u userRepository) List() ([]model.User, error) {
 	var users []model.User
-	err := db.DB.Order("name").Find(&users).Error
+	err := db.DB.Where("is_system = ?", false).Order("name").Find(&users).Error
 	return users, err
 }
 
@@ -60,6 +62,9 @@ func (u userRepository) Save(item *model.User) error {
 }
 
 func (u userRepository) Delete(name string) error {
+	if name == "admin" || name == "system" {
+		return errors.New("system user can't be deleted")
+	}
 	return db.DB.Where("name = ?", name).Delete(&model.User{}).Error
 }
 

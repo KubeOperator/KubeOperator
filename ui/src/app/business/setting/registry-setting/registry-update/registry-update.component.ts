@@ -54,7 +54,7 @@ export class RegistryUpdateComponent implements OnInit {
             this.update.emit();
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.msg ? error.msg : error.error.msg, AlertLevels.ERROR);
         });
     }
 }

@@ -56,14 +56,23 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(aul); err != nil {
-		return nil, err
-	}
+	if aul.Username != "system" {
+		validate := validator.New()
+		if err := validate.Struct(aul); err != nil {
+			return nil, err
+		}
 
-	err := captcha.VerifyCode(aul.CaptchaId, aul.Code)
-	if err != nil {
-		return nil, err
+		err := captcha.VerifyCode(aul.CaptchaId, aul.Code)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		if len(aul.Password) == 0 {
+			return nil, errors.New("Key: 'LoginCredential.Password' Error:Field validation for 'Password' failed on the 'required' tag")
+		}
+		if len(aul.Language) == 0 {
+			return nil, errors.New("Key: 'LoginCredential.Language' Error:Field validation for 'Language' failed on the 'required' tag")
+		}
 	}
 
 	p, err := s.checkSessionLogin(aul.Username, aul.Password, false)

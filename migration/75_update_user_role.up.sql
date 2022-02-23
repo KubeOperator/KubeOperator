@@ -1,0 +1,3 @@
+ALTER TABLE `ko`.`ko_user` ADD COLUMN `is_system` tinyint(1) DEFAULT '0' AFTER `is_admin`;
+
+INSERT INTO `ko`.`ko_user`(`created_at`, `updated_at`, `id`, `name`, `password`, `email`, `is_active`, `language`, `is_admin`, `is_system`, `type`, `is_first`) VALUES (date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'system', 'QWwBAQEBAQFKh72nUyUF/mAmVR6mY8teupXPJPBwZxo6j63lpjN/Di+gb4GO2O68', '', 1, 'zh-CN', 1, 1, 'LOCAL', 0);

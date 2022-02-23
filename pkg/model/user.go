@@ -29,6 +29,7 @@ type User struct {
 	IsActive bool   `json:"isActive" gorm:"type:boolean;default:true"`
 	Language string `json:"language" gorm:"type:varchar(64)"`
 	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
+	IsSystem bool   `json:"isSystem" gorm:"type:boolean;default:false"`
 	Type     string `json:"type" gorm:"type:varchar(64)"`
 	IsFirst  bool   `json:"isFirst" gorm:"type:boolean;default:true"`
 	ErrCount int    `json:"errCount" gorm:"type:int(64)"`

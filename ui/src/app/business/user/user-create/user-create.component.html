@@ -4,7 +4,7 @@
         <form autocomplete="off" clrForm #userForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}"
+                <input clrInput [size]="32" minlength="6" maxlength="30" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}"
                        required/>
                 <clr-control-helper>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-helper>
                 <clr-control-error>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-error>
