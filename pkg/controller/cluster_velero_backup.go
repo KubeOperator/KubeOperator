@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
@@ -42,6 +43,21 @@ func (c ClusterVeleroBackupController) DeleteDel() (string, error) {
 	operate := c.Ctx.Params().GetString("operate")
 	name := c.Ctx.URLParam("name")
 	return c.VeleroBackupService.Delete(clusterName, name, operate)
+}
+
+func (c ClusterVeleroBackupController) PostInstallConfig() (string, error) {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	var req dto.VeleroInstall
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return "", err
+	}
+	return c.VeleroBackupService.Install(clusterName, req)
+}
+
+func (c ClusterVeleroBackupController) GetInstallConfig() (model.ClusterVelero, error) {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	return c.VeleroBackupService.GetConfig(clusterName)
 }
 
 func (c ClusterVeleroBackupController) PostCreate() (string, error) {

@@ -2,8 +2,12 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
+	"github.com/jinzhu/gorm"
 	"os"
 )
 
@@ -13,22 +17,39 @@ type VeleroBackupService interface {
 	GetLogs(cluster, name, operate string) (string, error)
 	GetDescribe(cluster, name, operate string) (string, error)
 	Delete(cluster, name, operate string) (string, error)
+	Install(cluster string, veleroInstall dto.VeleroInstall) (string, error)
+	GetConfig(cluster string) (model.ClusterVelero, error)
 }
 
 type veleroBackupService struct {
-	ClusterService ClusterService
+	ClusterService       ClusterService
+	BackupAccountService BackupAccountService
 }
 
 func NewVeleroBackupService() VeleroBackupService {
 	return &veleroBackupService{
-		ClusterService: NewClusterService(),
+		ClusterService:       NewClusterService(),
+		BackupAccountService: NewBackupAccountService(),
 	}
 }
 
 func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (string, error) {
-	result, err := velero.Create(backup.Name, operate, v.handleArgs(backup))
-	if err != nil {
-		return string(result), err
+
+	var (
+		result []byte
+		err    error
+	)
+
+	if len(backup.BackupName) > 0 {
+		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
+		if err != nil {
+			return string(result), err
+		}
+	} else {
+		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
+		if err != nil {
+			return string(result), err
+		}
 	}
 	return string(result), err
 }
@@ -99,6 +120,116 @@ func (v veleroBackupService) Delete(cluster, name, operate string) (string, erro
 	return result, err
 }
 
+func (v veleroBackupService) GetConfig(cluster string) (model.ClusterVelero, error) {
+	var result model.ClusterVelero
+	if err := db.DB.Where("cluster = ?", cluster).Find(&result).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+		return result, err
+	}
+	return result, nil
+}
+
+func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroInstall) (string, error) {
+	var result string
+	config, err := v.GetClusterConfig(cluster)
+	if err != nil {
+		return result, err
+	}
+
+	args := []string{"--kubeconfig", config}
+
+	backupAccount, err := v.BackupAccountService.Get(veleroInstall.BackupAccountName)
+	if err != nil {
+		return result, err
+	}
+	vars := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(backupAccount.Credential), &vars); err != nil {
+		return result, err
+	}
+	credentialPath, err := CreateCredential(cluster, *backupAccount)
+	if err != nil {
+		return result, err
+	}
+	args = append(args, "--secret-file", credentialPath)
+	if backupAccount.Type == "OSS" {
+		args = append(args, "--provider", "alibabacloud")
+		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:latest")
+		args = append(args, "--bucket", backupAccount.Bucket)
+		args = append(args, "--plugins", "registry.cn-hangzhou.aliyuncs.com/acs/velero-plugin-alibabacloud:v1.0.0-2d33b89")
+	}
+	if backupAccount.Type == "MINIO" || backupAccount.Type == "S3" {
+		args = append(args, "--provider", "aws")
+		args = append(args, "--plugins", "velero/velero-plugin-for-aws:v1.2.1")
+		args = append(args, "--bucket", backupAccount.Bucket)
+		config := "srUrl=" + vars["endpoint"].(string)
+		args = append(args, "--backup-location-config", config)
+	}
+
+	res, err := velero.Install(args)
+	if err != nil {
+		logger.Log.Errorf("install velero error: %s", err.Error())
+		return result, err
+	}
+
+	clusterVelero := &model.ClusterVelero{
+		Cluster:           cluster,
+		BackupAccountName: veleroInstall.BackupAccountName,
+		Bucket:            vars["bucket"].(string),
+		Endpoint:          vars["endpoint"].(string),
+	}
+	if veleroInstall.ID != "" {
+		clusterVelero.ID = veleroInstall.ID
+		err = db.DB.Save(&clusterVelero).Error
+	} else {
+		err = db.DB.Create(&clusterVelero).Error
+	}
+
+	if err != nil {
+		return result, err
+	}
+	result = string(res)
+	return result, err
+}
+
+func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) {
+	var (
+		filePath string
+	)
+	configPath := "/Users/zk.wang/configs/" + cluster
+	filePath = configPath + "/credentials-velero"
+	_, err := os.Stat(filePath)
+	if err == nil {
+		err := os.Remove(filePath)
+		if err != nil {
+			return filePath, err
+		}
+	}
+	_, err = os.Stat(configPath)
+	if err != nil && os.IsNotExist(err) {
+		err = os.MkdirAll(configPath, os.ModePerm)
+		if err != nil {
+			return filePath, err
+		}
+	}
+
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0766)
+	if err != nil {
+		return filePath, err
+	}
+	defer file.Close()
+
+	if backup.Type == "MINIO" || backup.Type == "S3" {
+		vars := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
+			return filePath, err
+		}
+		file.WriteString("[default] \n")
+		file.WriteString("aws_access_key_id = " + vars["accessKey"].(string) + "\n")
+		file.WriteString("aws_secret_access_key = " + vars["secretKey"].(string) + "\n")
+	}
+
+	return filePath, err
+}
+
 func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 
 	var (
@@ -129,7 +260,7 @@ func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 		return filePath, err
 	}
 	file.WriteString(config)
-	file.Close()
+	defer file.Close()
 
 	return filePath, err
 }

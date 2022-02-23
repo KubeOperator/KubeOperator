@@ -41,17 +41,6 @@ func Create(name, operate string, args []string) ([]byte, error) {
 	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
-func Backup(backupName string, args []string) ([]byte, error) {
-	backups := []string{"backup", "create", backupName}
-	args = append(backups, args...)
-	return ExecCommand(defaultVeleroPath, "velero", args)
-}
-
-func DeleteBackup(backupName string) ([]byte, error) {
-	del := []string{"backup", "delete", backupName}
-	return ExecCommand(defaultVeleroPath, "velero", del)
-}
-
 func Restore(backupName string, args []string) ([]byte, error) {
 	backups := []string{"restore", "create", "--from-backup", backupName}
 	args = append(backups, args...)
@@ -59,24 +48,10 @@ func Restore(backupName string, args []string) ([]byte, error) {
 	return ExecCommand(defaultVeleroPath, "velero", args)
 }
 
-func Schedule(scheduleName string, args []string) ([]byte, error) {
-	backups := []string{"schedule", "create", scheduleName}
-	args = append(backups, args...)
-
+func Install(args []string) ([]byte, error) {
+	install := []string{"install"}
+	args = append(install, args...)
 	return ExecCommand(defaultVeleroPath, "velero", args)
-}
-
-func GetSchedules(args []string) ([]byte, error) {
-	backups := []string{"get", "schedule"}
-	args = append(backups, args...)
-	args = append(args, "-o", "json")
-
-	return ExecCommand(defaultVeleroPath, "velero", args)
-}
-
-func DeleteSchedule(scheduleName string) ([]byte, error) {
-	del := []string{"schedule", "delete", scheduleName}
-	return ExecCommand(defaultVeleroPath, "velero", del)
 }
 
 func ExecCommand(path string, command string, args []string) ([]byte, error) {
