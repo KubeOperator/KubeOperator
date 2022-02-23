@@ -91,12 +91,14 @@ func (n ClusterNode) ToKobeHost(nodeNameRule string, role string) *api.Host {
 			"registry_hosted_port": fmt.Sprintf("%v", r.RegistryHostedPort),
 		},
 	}
-	if nodeNameRule == constant.NodeNameRuleDefault {
+	switch nodeNameRule {
+	case constant.NodeNameRuleDefault, constant.NodeNameRuleHostName:
 		apiHost.Ip = n.Host.Ip
 		apiHost.Name = n.Name
-	} else {
+	case constant.NodeNameRuleIP:
 		apiHost.Name = n.Host.Ip
 	}
+
 	if role == constant.LbModeInternal {
 		return &apiHost
 	}

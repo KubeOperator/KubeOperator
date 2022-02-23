@@ -737,7 +737,7 @@ func (c *clusterNodeService) AddWorkInit(clusterName string, nodes []model.Clust
 		Phase:                   constant.ClusterInitializing,
 		ClusterStatusConditions: []model.ClusterStatusCondition{},
 	}
-	c.StatusRepo.Save(&status)
+	_ = c.StatusRepo.Save(&status)
 
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIds).
 		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating, "status_id": status.ID}).Error; err != nil {
