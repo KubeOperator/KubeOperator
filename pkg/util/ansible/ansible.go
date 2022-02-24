@@ -21,7 +21,7 @@ func CreateAnsibleLogWriter(clusterName string) (string, io.Writer, error) {
 		}
 	}
 	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
-	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0750)
+	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
 	if err != nil {
 		return "", nil, err
 	}
@@ -37,7 +37,7 @@ func CreateAnsibleLogWriterWithId(clusterName string, logId string) (io.Writer, 
 		}
 	}
 	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
-	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0750)
+	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +46,9 @@ func CreateAnsibleLogWriterWithId(clusterName string, logId string) (io.Writer, 
 
 func GetAnsibleLogReader(clusterName string, logId string) (io.Reader, error) {
 	logPath := path.Join(constant.DefaultAnsibleLogDir, clusterName, fmt.Sprintf("%s.log", logId))
-	return os.OpenFile(logPath, os.O_RDONLY, 0750)
+	return os.OpenFile(logPath, os.O_RDONLY, 0640)
 }
 func GetNodeAnsibleLogReader(clusterName string, nodeName string, logId string) (io.Reader, error) {
 	logPath := path.Join(constant.DefaultAnsibleLogDir, clusterName, nodeName, fmt.Sprintf("%s.log", logId))
-	return os.OpenFile(logPath, os.O_RDONLY, 0750)
+	return os.OpenFile(logPath, os.O_RDONLY, 0640)
 }

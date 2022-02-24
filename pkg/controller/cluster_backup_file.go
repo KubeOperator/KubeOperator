@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"errors"
 	"io/ioutil"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -158,17 +160,50 @@ func (b BackupFileController) PostRestore() error {
 	return err
 }
 
-func (b BackupFileController) PostRestoreLocal() error {
+var unSupportMimes = []string{
+	"application/zip",
+	"application/rar",
+	"application/gzip",
+	"application/x-gtar",
+	"application/x-tar",
+	"application/x-gzip",
+	"application/x-bzip",
+	"application/x-bzip2",
+}
+var unSupportSuffix = []string{
+	".zip",
+	".gz",
+	".bz",
+	".bz2",
+	".xz",
+	".tar",
+	".Z",
+	".7z",
+}
 
-	f, _, err := b.Ctx.FormFile("file")
+func (b BackupFileController) PostRestoreLocal() error {
+	f, handler, err := b.Ctx.FormFile("file")
 	if err != nil {
 		return err
+	}
+	defer f.Close()
+	contantTypes := handler.Header["Content-Type"]
+	for _, t := range contantTypes {
+		for _, umime := range unSupportMimes {
+			if t == umime {
+				return errors.New("NOT_SUPPORT")
+			}
+		}
+	}
+	for _, suf := range unSupportSuffix {
+		if strings.HasSuffix(handler.Filename, suf) {
+			return errors.New("NOT_SUPPORT")
+		}
 	}
 	bs, err := ioutil.ReadAll(f)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 	clusterName := b.Ctx.FormValue("clusterName")
 
 	operator := b.Ctx.Values().GetString("operator")
