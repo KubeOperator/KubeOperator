@@ -26,8 +26,9 @@ const (
 	ClusterCreating      = "Creating"
 	ClusterSynchronizing = "Synchronizing"
 
-	NodeNameRuleDefault = "default"
-	NodeNameRuleIP      = "ip"
+	NodeNameRuleDefault  = "default"
+	NodeNameRuleHostName = "hostname"
+	NodeNameRuleIP       = "ip"
 
 	ClusterSourceLocal      = "local"
 	ClusterNotReady         = "NotReady"

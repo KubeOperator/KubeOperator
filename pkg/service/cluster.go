@@ -481,20 +481,22 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				return nil, fmt.Errorf("can bind host %s to cluster", nc.HostName)
 			}
 
-			if cluster.NodeNameRule == constant.NodeNameRuleDefault {
-				switch n.Role {
-				case constant.NodeRoleNameMaster:
+			switch cluster.NodeNameRule {
+			case constant.NodeNameRuleDefault:
+				if n.Role == constant.NodeRoleNameMaster {
 					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
 					if len(firstMasterIP) == 0 {
 						firstMasterIP = n.Host.Ip
 					}
 					masterNo++
-				case constant.NodeRoleNameWorker:
+				} else {
 					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
 					workerNo++
 				}
-			} else {
+			case constant.NodeNameRuleIP:
 				n.Name = host.Ip
+			case constant.NodeNameRuleHostName:
+				n.Name = host.Name
 			}
 
 			n.HostID = host.ID
