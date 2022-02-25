@@ -25,8 +25,8 @@ type BackupAccountService interface {
 	GetAfterDecrypt(name string) (*dto.BackupAccount, error)
 	List(projectName string) ([]dto.BackupAccount, error)
 	Page(num, size int) (page.Page, error)
-	Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
-	Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
+	Create(creation dto.BackupAccountCreate) (*dto.BackupAccount, error)
+	Update(creation dto.BackupAccountUpdate) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
 	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
 	Delete(name string) error
@@ -113,7 +113,7 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 	return page, err
 }
 
-func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
+func (b backupAccountService) Create(creation dto.BackupAccountCreate) (*dto.BackupAccount, error) {
 	old, _ := b.GetAfterDecrypt(creation.Name)
 	if old != nil && old.ID != "" {
 		return nil, errors.New(backupAccountNameExist)
@@ -141,8 +141,14 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 	return &dto.BackupAccount{BackupAccount: backupAccount}, nil
 }
 
-func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
-	if err := b.CheckValid(creation); err != nil {
+func (b backupAccountService) Update(creation dto.BackupAccountUpdate) (*dto.BackupAccount, error) {
+	backInfo := dto.BackupAccountCreate{
+		Name:           creation.Name,
+		CredentialVars: creation.CredentialVars,
+		Bucket:         creation.Bucket,
+		Type:           creation.Type,
+	}
+	if err := b.CheckValid(backInfo); err != nil {
 		return nil, err
 	}
 
@@ -196,7 +202,7 @@ func (b backupAccountService) GetBuckets(request dto.CloudStorageRequest) ([]int
 	return client.ListBuckets()
 }
 
-func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error {
+func (b backupAccountService) CheckValid(create dto.BackupAccountCreate) error {
 	vars := create.CredentialVars
 	vars["type"] = create.Type
 	vars["bucket"] = create.Bucket

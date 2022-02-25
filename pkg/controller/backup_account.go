@@ -58,12 +58,12 @@ func (b BackupAccountController) Get() (page.Page, error) {
 // @Description create a backupAccount
 // @Accept  json
 // @Produce  json
-// @Param request body dto.BackupAccountRequest true "request"
+// @Param request body dto.BackupAccountCreate true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
 // @Router /backupaccounts/ [post]
 func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
-	var req dto.BackupAccountRequest
+	var req dto.BackupAccountCreate
 	err := b.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
@@ -123,12 +123,12 @@ func (b BackupAccountController) PostBatch() error {
 // @Description Update a backupAccount
 // @Accept  json
 // @Produce  json
-// @Param request body dto.BackupAccountRequest true "request"
+// @Param request body dto.BackupAccountUpdate true "request"
 // @Success 200 {object} dto.BackupAccount
 // @Security ApiKeyAuth
 // @Router /backupaccounts/{name}/ [patch]
 func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error) {
-	var req dto.BackupAccountRequest
+	var req dto.BackupAccountUpdate
 	err := b.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
