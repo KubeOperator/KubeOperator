@@ -50,14 +50,13 @@ RUN wget https://github.com/FairwindsOps/polaris/archive/4.1.0.tar.gz -O ./polar
     && tar zxvf ./polaris.tar.gz \
     && mv ./polaris-4.1.0/checks/ /checks
 
-RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar -zvxf kubernetes-client-linux-$GOARCH.tar.gz
-RUN cp ./kubernetes/client/bin/* /usr/local/bin
-RUN chmod +x /usr/local/bin/kubectl
+RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar -zvxf kubernetes-client-linux-$GOARCH.tar.gz \
+    && cp ./kubernetes/client/bin/* /usr/local/bin \
+    && chmod +x /usr/local/bin/kubectl
 
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/velero/v1.8.0/velero-v1.8.0-linux-$GOARCH.tar.gz && tar -zxvf velero-v1.8.0-linux-$GOARCH.tar.gz
-RUN cp ./velero-v1.8.0-linux-amd64/velero /user/local/bin
-RUN chmod +x /usr/local/bin/velero
-
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/velero/v1.8.0/velero-v1.8.0-linux-$GOARCH.tar.gz && tar -zxvf velero-v1.8.0-linux-$GOARCH.tar.gz \
+    && cp ./velero-v1.8.0-linux-amd64/velero /usr/local/bin \
+    && chmod +x /usr/local/bin/velero
 
 WORKDIR /
 
