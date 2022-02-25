@@ -55,30 +55,86 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	if err := s.Ctx.ReadJSON(&aul); err != nil {
 		return nil, err
 	}
-
-	if aul.Username != "system" {
-		validate := validator.New()
-		if err := validate.Struct(aul); err != nil {
-			return nil, err
-		}
-
-		err := captcha.VerifyCode(aul.CaptchaId, aul.Code)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		if len(aul.Password) == 0 {
-			return nil, errors.New("Key: 'LoginCredential.Password' Error:Field validation for 'Password' failed on the 'required' tag")
-		}
-		if len(aul.Language) == 0 {
-			return nil, errors.New("Key: 'LoginCredential.Language' Error:Field validation for 'Language' failed on the 'required' tag")
-		}
+	validate := validator.New()
+	if err := validate.Struct(aul); err != nil {
+		return nil, err
 	}
 
-	p, err := s.checkSessionLogin(aul.Username, aul.Password, false)
+	if err := captcha.VerifyCode(aul.CaptchaId, aul.Code); err != nil {
+		return nil, err
+	}
+
+	p, err := s.handleLogin(aul.Username, aul.Password, false)
 	if err != nil {
 		return nil, err
 	}
+
+	go kolog.Save(aul.Username, constant.LOGIN, "-")
+	return p, nil
+}
+
+// Login by system
+// @Tags auth
+// @Summary Login by system user
+// @Description Login by system user
+// @Param request body dto.LoginCredentialSystem true "request"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Profile
+// @Router /auth/session/system [post]
+func (s *SessionController) PostSystem() (*dto.Profile, error) {
+	aul := dto.LoginCredentialSystem{}
+	if err := s.Ctx.ReadJSON(&aul); err != nil {
+		return nil, err
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(aul); err != nil {
+		return nil, err
+	}
+
+	p, err := s.handleLogin(aul.Username, aul.Password, true)
+	if err != nil {
+		return nil, err
+	}
+
+	go kolog.Save(aul.Username, constant.LOGIN, "-")
+	return p, nil
+}
+
+// Logout
+// @Tags auth
+// @Summary Logout
+// @Description Logout
+// @Accept  json
+// @Produce  json
+// @Router /auth/session/ [delete]
+func (s *SessionController) Delete() error {
+	operator := ""
+	session.GloablSessionMgr.EndSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
+
+	go kolog.Save(operator, constant.LOGOUT, "-")
+	return nil
+}
+
+func toSessionUser(u model.User) dto.SessionUser {
+	return dto.SessionUser{
+		UserId:   u.ID,
+		Name:     u.Name,
+		Language: u.Language,
+		IsActive: u.IsActive,
+		IsAdmin:  u.IsAdmin,
+		IsFirst:  u.IsFirst,
+	}
+}
+
+func (s *SessionController) handleLogin(username, password string, isSystem bool) (*dto.Profile, error) {
+	p := &dto.Profile{}
+	u, err := s.UserService.UserAuth(username, password, isSystem)
+	if err != nil {
+		return nil, err
+	}
+	p.User = toSessionUser(*u)
 
 	sId := s.Ctx.GetCookie(constant.CookieNameForSessionID)
 	if sId != "" {
@@ -99,45 +155,5 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	}
 	session.GloablSessionMgr.SetSessionVal(sessionID, constant.SessionUserKey, p)
 
-	go kolog.Save(aul.Username, constant.LOGIN, "-")
-
 	return p, nil
-}
-
-// Logout
-// @Tags auth
-// @Summary Logout
-// @Description Logout
-// @Accept  json
-// @Produce  json
-// @Router /auth/session/ [delete]
-func (s *SessionController) Delete() error {
-	operator := ""
-	session.GloablSessionMgr.EndSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
-
-	go kolog.Save(operator, constant.LOGOUT, "-")
-	return nil
-}
-
-func (s *SessionController) checkSessionLogin(username string, password string, jwt bool) (*dto.Profile, error) {
-	u, err := s.UserService.UserAuth(username, password)
-	if err != nil {
-		return nil, err
-	}
-
-	resp := &dto.Profile{}
-	resp.User = toSessionUser(*u)
-
-	return resp, err
-}
-
-func toSessionUser(u model.User) dto.SessionUser {
-	return dto.SessionUser{
-		UserId:   u.ID,
-		Name:     u.Name,
-		Language: u.Language,
-		IsActive: u.IsActive,
-		IsAdmin:  u.IsAdmin,
-		IsFirst:  u.IsFirst,
-	}
 }

@@ -22,6 +22,26 @@ definitions:
       updatedAt:
         type: string
     type: object
+  dto.BackupAccountCreate:
+    properties:
+      bucket:
+        type: string
+      credentialVars:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      type:
+        enum:
+        - OSS
+        - AZURE
+        - SFTP
+        type: string
+    required:
+    - bucket
+    - credentialVars
+    - name
+    type: object
   dto.BackupAccountOp:
     properties:
       items:
@@ -34,7 +54,7 @@ definitions:
     - items
     - operation
     type: object
-  dto.BackupAccountRequest:
+  dto.BackupAccountUpdate:
     properties:
       bucket:
         type: string
@@ -48,7 +68,6 @@ definitions:
       type:
         enum:
         - OSS
-        - S3
         - AZURE
         - SFTP
         type: string
@@ -351,6 +370,19 @@ definitions:
     - password
     - username
     type: object
+  dto.LoginCredentialSystem:
+    properties:
+      language:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - language
+    - password
+    - username
+    type: object
   dto.Profile:
     properties:
       token:
@@ -387,8 +419,6 @@ definitions:
   dto.ProjectMember:
     properties:
       createdAt:
-        type: string
-      email:
         type: string
       projectId:
         type: string
@@ -441,8 +471,6 @@ definitions:
     type: object
   dto.SessionUser:
     properties:
-      email:
-        type: string
       isActive:
         type: boolean
       isAdmin:
@@ -483,6 +511,7 @@ definitions:
         type: boolean
       name:
         maxLength: 30
+        minLength: 6
         type: string
       password:
         type: string
@@ -509,6 +538,7 @@ definitions:
         type: boolean
       name:
         maxLength: 30
+        minLength: 6
         type: string
     required:
     - name
@@ -716,6 +746,28 @@ paths:
       summary: Login
       tags:
       - auth
+  /auth/session/system:
+    post:
+      consumes:
+      - application/json
+      description: Login by system user
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginCredentialSystem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Profile'
+      summary: Login by system user
+      tags:
+      - auth
   /backupAccounts/:
     patch:
       consumes:
@@ -799,7 +851,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BackupAccountRequest'
+          $ref: '#/definitions/dto.BackupAccountCreate'
       produces:
       - application/json
       responses:
@@ -823,7 +875,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BackupAccountRequest'
+          $ref: '#/definitions/dto.BackupAccountUpdate'
       produces:
       - application/json
       responses:

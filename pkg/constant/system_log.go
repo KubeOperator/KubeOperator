@@ -72,7 +72,7 @@ const (
 
 	CREATE_USER          = "添加用户|Create user"
 	UPDATE_USER          = "修改用户信息|Update user information"
-	UPDATE_USER_PASSWORD = "修改用户密码|Delete user password"
+	UPDATE_USER_PASSWORD = "修改用户密码|Update user password"
 	DELETE_USER          = "删除用户|Delete user"
 	FORGOT_USER_PASSWORD = "忘记密码|forgot password"
 

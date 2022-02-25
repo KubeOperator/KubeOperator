@@ -79,6 +79,40 @@ var doc = `{
                 "responses": {}
             }
         },
+        "/auth/session/system": {
+            "post": {
+                "description": "Login by system user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login by system user",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginCredentialSystem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Profile"
+                        }
+                    }
+                }
+            }
+        },
         "/backupAccounts/": {
             "patch": {
                 "security": [
@@ -219,7 +253,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BackupAccountRequest"
+                            "$ref": "#/definitions/dto.BackupAccountCreate"
                         }
                     }
                 ],
@@ -290,7 +324,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BackupAccountRequest"
+                            "$ref": "#/definitions/dto.BackupAccountUpdate"
                         }
                     }
                 ],
@@ -1537,6 +1571,34 @@ var doc = `{
                 }
             }
         },
+        "dto.BackupAccountCreate": {
+            "type": "object",
+            "required": [
+                "bucket",
+                "credentialVars",
+                "name"
+            ],
+            "properties": {
+                "bucket": {
+                    "type": "string"
+                },
+                "credentialVars": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "OSS",
+                        "AZURE",
+                        "SFTP"
+                    ]
+                }
+            }
+        },
         "dto.BackupAccountOp": {
             "type": "object",
             "required": [
@@ -1555,7 +1617,7 @@ var doc = `{
                 }
             }
         },
-        "dto.BackupAccountRequest": {
+        "dto.BackupAccountUpdate": {
             "type": "object",
             "required": [
                 "bucket",
@@ -1581,7 +1643,6 @@ var doc = `{
                     "type": "string",
                     "enum": [
                         "OSS",
-                        "S3",
                         "AZURE",
                         "SFTP"
                     ]
@@ -2019,6 +2080,25 @@ var doc = `{
                 }
             }
         },
+        "dto.LoginCredentialSystem": {
+            "type": "object",
+            "required": [
+                "language",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.Profile": {
             "type": "object",
             "properties": {
@@ -2073,9 +2153,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "projectId": {
@@ -2155,9 +2232,6 @@ var doc = `{
         "dto.SessionUser": {
             "type": "object",
             "properties": {
-                "email": {
-                    "type": "string"
-                },
                 "isActive": {
                     "type": "boolean"
                 },
@@ -2222,7 +2296,8 @@ var doc = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30
+                    "maxLength": 30,
+                    "minLength": 6
                 },
                 "password": {
                     "type": "string"
@@ -2260,7 +2335,8 @@ var doc = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30
+                    "maxLength": 30,
+                    "minLength": 6
                 }
             }
         },

@@ -1,0 +1,1 @@
+DELETE FROM `ko`.`ko_credential` WHERE `name`='kubeoperator';

@@ -9,6 +9,12 @@ type LoginCredential struct {
 	AuthMethod string `json:"authMethod" validate:"-"`
 }
 
+type LoginCredentialSystem struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Language string `json:"language" validate:"required"`
+}
+
 type SessionUser struct {
 	UserId   string   `json:"userId"`
 	Name     string   `json:"name"`

@@ -36,7 +36,7 @@ type UserService interface {
 	Delete(name string) error
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) (bool, error)
-	UserAuth(name string, password string) (user *model.User, err error)
+	UserAuth(name string, password string, isSystem bool) (user *model.User, err error)
 }
 
 type userService struct {
@@ -219,12 +219,10 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
 	return isFirstLogin, err
 }
 
-func (u userService) UserAuth(name string, password string) (user *model.User, err error) {
+func (u userService) UserAuth(name string, password string, isSystem bool) (user *model.User, err error) {
 	var dbUser model.User
-	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
-		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {
-			return nil, NameOrPasswordErr
-		}
+	if err := db.DB.Where("name = ? AND is_system = ?", name, isSystem).First(&dbUser).Error; err != nil {
+		return nil, err
 	}
 	if !dbUser.IsActive {
 		return nil, UserIsNotActive
