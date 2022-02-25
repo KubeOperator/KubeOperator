@@ -54,6 +54,11 @@ RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-$GOARCH.tar.gz && tar
 RUN cp ./kubernetes/client/bin/* /usr/local/bin
 RUN chmod +x /usr/local/bin/kubectl
 
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/velero/v1.8.0/velero-v1.8.0-linux-$GOARCH.tar.gz && tar -zxvf velero-v1.8.0-linux-$GOARCH.tar.gz
+RUN cp ./velero-v1.8.0-linux-amd64/velero /user/local/bin
+RUN chmod +x /usr/local/bin/velero
+
+
 WORKDIR /
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
