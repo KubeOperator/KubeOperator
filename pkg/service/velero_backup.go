@@ -190,6 +190,23 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	return result, err
 }
 
+//func (v veleroBackupService)UnInstall(cluster string) error {
+//	secret, err := v.ClusterService.GetSecrets(cluster)
+//	if err != nil {
+//		return  err
+//	}
+//	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
+//	if err != nil {
+//		return err
+//	}
+//	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+//		Hosts: endpoints,
+//		Token: secret.KubernetesToken,
+//	})
+//
+//	return nil
+//}
+
 func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) {
 	var (
 		filePath string

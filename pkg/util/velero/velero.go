@@ -56,6 +56,7 @@ func Install(args []string) ([]byte, error) {
 
 func ExecCommand(command string, args []string) ([]byte, error) {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	cmd := exec.CommandContext(ctx, command, args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -90,7 +91,6 @@ func ExecCommand(command string, args []string) ([]byte, error) {
 		return buffer.Bytes(), nil
 	case <-time.After(time.Second * 10):
 		err := stdout.Close()
-		cancel()
 		return []byte{}, err
 	}
 }
