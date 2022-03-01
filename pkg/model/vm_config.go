@@ -31,7 +31,10 @@ func (v *VmConfig) BeforeDelete() error {
 	}
 	for _, p := range plans {
 		planVars := map[string]string{}
-		_ = json.Unmarshal([]byte(p.Vars), &planVars)
+		if err := json.Unmarshal([]byte(p.Vars), &planVars); err != nil {
+			log.Errorf("json unmarshal falied : %v", p.Vars)
+			continue
+		}
 		if planVars["masterModel"] == v.Name {
 			return errors.New("VM_CONFIG_DELETE_FAILED")
 		}

@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
+
+var log = logger.Default
 
 type BaseInterface struct {
 	Component *model.ClusterIstio
@@ -21,7 +24,9 @@ func NewBaseInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) *Ba
 
 func (b *BaseInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(b.Component.Vars), &values)
+	if err := json.Unmarshal([]byte(b.Component.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", b.Component.Vars)
+	}
 
 	return values
 }

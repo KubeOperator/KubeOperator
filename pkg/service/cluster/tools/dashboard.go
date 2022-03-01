@@ -27,10 +27,14 @@ func NewDashboard(cluster *Cluster, tool *model.ClusterTool) (*Dashboard, error)
 
 func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(d.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(d.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", d.Tool.Vars)
+	}
 	values["extraArgs[0]"] = "--enable-skip-login"
 	values["extraArgs[1]"] = "--enable-insecure-login"
 	values["protocolHttp"] = "true"
@@ -40,7 +44,10 @@ func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	values["metricsScraper.image.tag"] = imageMap["metrics_image_tag"]
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, d.LocalRepositoryPort, imageMap["dashboard_image_name"])
 	values["image.tag"] = imageMap["dashboard_image_tag"]
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	d.Tool.Vars = string(str)
 }
 

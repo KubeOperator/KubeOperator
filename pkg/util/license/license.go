@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 )
 
 type Response struct {
@@ -19,7 +20,7 @@ type Response struct {
 }
 
 func Parse(content string) (*Response, error) {
-	if checkIllegal(content) {
+	if ssh.CheckIllegal(content) {
 		return nil, errors.New("license contains invalid characters!")
 	}
 	fs, err := ioutil.ReadDir("/usr/local/bin")
@@ -52,13 +53,4 @@ func Parse(content string) (*Response, error) {
 		return nil, err
 	}
 	return &resp, nil
-}
-
-func checkIllegal(cmdName string) bool {
-	if strings.Contains(cmdName, "&") || strings.Contains(cmdName, "|") || strings.Contains(cmdName, ";") ||
-		strings.Contains(cmdName, "$") || strings.Contains(cmdName, "'") || strings.Contains(cmdName, "`") ||
-		strings.Contains(cmdName, "(") || strings.Contains(cmdName, ")") || strings.Contains(cmdName, "\"") {
-		return true
-	}
-	return false
 }

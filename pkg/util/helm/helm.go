@@ -169,7 +169,10 @@ func GetSettings() *cli.EnvSettings {
 }
 
 func updateRepo(arch string) error {
-	repos, _ := ListRepo()
+	repos, err := ListRepo()
+	if err != nil {
+		return err
+	}
 	flag := false
 	for _, r := range repos {
 		if r.Name == "nexus" {

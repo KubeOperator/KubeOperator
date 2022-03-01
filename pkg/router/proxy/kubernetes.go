@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/session"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -20,6 +21,8 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
+
+var log = logger.Default
 
 func KubernetesClientProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
@@ -76,9 +79,16 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 	operator := getOperator(ctx)
 	_ = ctx.ReadJSON(&bodyStruct)
 	if bodyStruct != nil {
-		buf, _ := json.Marshal(bodyStruct)
+		buf, err := json.Marshal(bodyStruct)
+		if err != nil {
+			log.Errorf("json marshal failed, %v", bodyStruct)
+		}
 		ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(buf))
-		valueMap, _ = bodyStruct.(map[string]interface{})
+		valueMapItem, ok := bodyStruct.(map[string]interface{})
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
+		valueMap = valueMapItem
 	}
 
 	proxyPath := ctx.Params().Get("p")

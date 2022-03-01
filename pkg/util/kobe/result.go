@@ -65,6 +65,8 @@ func (r *Result) GatherFailedInfo() {
 }
 
 func ParseResult(content string) (result Result, err error) {
-	err = json.Unmarshal([]byte(content), &result)
-	return
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		return result, err
+	}
+	return result, nil
 }

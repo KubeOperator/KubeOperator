@@ -27,7 +27,10 @@ func SessionMiddleware(ctx context.Context) {
 
 	user, ok := u.(*dto.Profile)
 	if ok {
-		roles, _ := getUserRole(&user.User)
+		roles, err := getUserRole(&user.User)
+		if err != nil {
+			log.Errorf("get user %s role failed failed, %v", user.User.Name, err)
+		}
 		user.User.Roles = roles
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("operator", user.User.Name)

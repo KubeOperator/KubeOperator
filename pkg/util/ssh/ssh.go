@@ -186,7 +186,9 @@ func (s *SSH) CopyFile(src, dst string) error {
 	hashFile := "/tmp" + dst + ".sha256"
 	buffer := new(bytes.Buffer)
 	buffer.WriteString(fmt.Sprintf("%s %s", srcHash, dst))
-	_ = s.WriteFile(buffer, hashFile)
+	if err := s.WriteFile(buffer, hashFile); err != nil {
+		return err
+	}
 	_, err = s.CombinedOutput(fmt.Sprintf("sha256sum --check --status %s", hashFile))
 	if err == nil { // means dst exist and same as src
 		log.Infof("skip copy `%s` because already existed", src)
@@ -361,12 +363,16 @@ func (d *realSSHDialer) Dial(network, addr string, config *ssh.ClientConfig) (*s
 	if err != nil {
 		return nil, err
 	}
-	_ = conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+	if err := conn.SetReadDeadline(time.Now().Add(30 * time.Second)); err != nil {
+		return nil, err
+	}
 	c, chans, reqs, err := ssh.NewClientConn(conn, addr, config)
 	if err != nil {
 		return nil, err
 	}
-	_ = conn.SetReadDeadline(time.Time{})
+	if err := conn.SetReadDeadline(time.Time{}); err != nil {
+		return nil, err
+	}
 	return ssh.NewClient(c, chans, reqs), nil
 }
 

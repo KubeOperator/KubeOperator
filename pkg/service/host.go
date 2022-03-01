@@ -294,8 +294,11 @@ func (h hostService) GetHostMem(host *model.Host) error {
 	if err != nil {
 		return err
 	}
-	host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
-	return err
+	host.Memory, err = strconv.Atoi(strings.Trim(result, "\n"))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h hostService) RunGetHostConfig(host *model.Host) {
@@ -368,7 +371,10 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 					}
 					result.GatherFailedInfo()
 					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
-						by, _ := json.Marshal(&result.HostFailedInfo)
+						by, err := json.Marshal(&result.HostFailedInfo)
+						if err != nil {
+							log.Errorf("json marshal failed, %v", result.HostFailedInfo)
+						}
 						return true, errors.New(string(by))
 					}
 				}
@@ -394,16 +400,36 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		if !ok {
 			return err
 		}
-		host.Os = result["ansible_distribution"].(string)
-		host.OsVersion = result["ansible_distribution_version"].(string)
-		host.Architecture = result["ansible_architecture"].(string)
-		if result["ansible_processor_vcpus"] != nil {
-			host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
+		host.Os, ok = result["ansible_distribution"].(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
 		}
-		devices := result["ansible_devices"].(map[string]interface{})
+		host.OsVersion, ok = result["ansible_distribution_version"].(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
+		host.Architecture, ok = result["ansible_architecture"].(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
+		if result["ansible_processor_vcpus"] != nil {
+			cpuCore, ok := result["ansible_processor_vcpus"].(float64)
+			if !ok {
+				log.Errorf("type aassertion failed")
+			}
+			host.CpuCore = int(cpuCore)
+		}
+		devices, ok := result["ansible_devices"].(map[string]interface{})
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 		var volumes []model.Volume
 		for i := range devices {
-			device := devices[i].(map[string]interface{})
+			device, ok := devices[i].(map[string]interface{})
+			if !ok {
+				log.Errorf("type aassertion failed")
+				continue
+			}
 			if "Virtual disk" == device["model"] {
 				v := model.Volume{
 					ID:     uuid.NewV4().String(),

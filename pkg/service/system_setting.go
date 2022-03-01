@@ -7,12 +7,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/util/message"
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,7 +20,6 @@ type SystemSettingService interface {
 	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	ListByTab(tabName string) (dto.SystemSettingResult, error)
-	CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error
 	ListRegistry() ([]dto.SystemRegistry, error)
 	GetRegistryByArch(arch string) (dto.SystemRegistry, error)
 	CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error)
@@ -125,34 +122,6 @@ func (s systemSettingService) GetLocalIPs() ([]model.SystemRegistry, error) {
 		return sysRepo, fmt.Errorf("can't found repo from system registry, err %s", err.Error())
 	}
 	return sysRepo, nil
-}
-
-func (s systemSettingService) CheckSettingByType(tabName string, creation dto.SystemSettingCreate) error {
-
-	vars := make(map[string]interface{})
-	for k, value := range creation.Vars {
-		vars[k] = value
-	}
-	if tabName == constant.Email {
-		vars["type"] = constant.Email
-		vars["RECEIVERS"] = vars["SMTP_TEST_USER"]
-		vars["TITLE"] = "KubeOperator测试邮件"
-		vars["CONTENT"] = "此邮件由 KubeOperator 发送，用于测试邮件发送，请勿回复"
-	} else if tabName == constant.DingTalk {
-		vars["type"] = constant.DingTalk
-		vars["RECEIVERS"] = vars["DING_TALK_TEST_USER"]
-		vars["TITLE"] = "KubeOperator测试消息"
-		vars["CONTENT"] = "此邮件由 KubeOperator 发送，用于测试消息发送"
-	}
-	c, err := message.NewMessageClient(vars)
-	if err != nil {
-		return err
-	}
-	err = c.SendMessage(vars)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (s systemSettingService) ListRegistry() ([]dto.SystemRegistry, error) {

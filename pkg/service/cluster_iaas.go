@@ -126,7 +126,9 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		masterAmount = 3
 	}
 	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
+	if err := json.Unmarshal([]byte(plan.Vars), &planVars); err != nil {
+		return nil, err
+	}
 
 	for i := 0; i < masterAmount; i++ {
 		host := model.Host{
@@ -172,9 +174,13 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		providerVars["provider"] = plan.Region.Provider
 		providerVars["datacenter"] = plan.Region.Datacenter
 		zoneVars := map[string]interface{}{}
-		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		if err := json.Unmarshal([]byte(k.Vars), &zoneVars); err != nil {
+			return nil, err
+		}
 		providerVars["cluster"] = zoneVars["cluster"]
-		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
+		if err := json.Unmarshal([]byte(plan.Region.Vars), &providerVars); err != nil {
+			return nil, err
+		}
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
 		if err != nil {
@@ -212,7 +218,9 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 
 func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host, clusterId string) error {
 	zoneVars := map[string]string{}
-	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
+	if err := json.Unmarshal([]byte(zone.Vars), &zoneVars); err != nil {
+		return err
+	}
 	pool, _ := p.GetIpInUsed(zoneVars["network"])
 	var hs []model.Host
 	if err := db.DB.Find(&hs).Error; err != nil {
@@ -226,13 +234,13 @@ func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*mode
 		return err
 	}
 	var wg sync.WaitGroup
-	for i := range ips {
+	for _, i := range ips {
 		wg.Add(1)
-		go func(i int) {
-			err := ipaddr.Ping(ips[i].Address)
+		go func(ip model.Ip) {
+			err := ipaddr.Ping(ip.Address)
 			if err == nil {
-				ips[i].Status = constant.IpReachable
-				db.DB.Save(&ips[i])
+				ip.Status = constant.IpReachable
+				db.DB.Save(&ip)
 			}
 			wg.Done()
 		}(i)
@@ -282,9 +290,10 @@ func exists(ip string, pool []string) bool {
 }
 
 func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host) error {
-
 	zoneVars := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
+	if err := json.Unmarshal([]byte(zone.Vars), &zoneVars); err != nil {
+		return err
+	}
 	if zoneVars["datastore"] == nil {
 		return nil
 	}
@@ -326,7 +335,10 @@ func allocateDatastore(p cloud_provider.CloudClient, zone model.Zone, hosts []*m
 	if zoneVars["datastoreType"] == constant.Usage {
 		remaining := 0.0
 		for i := range datastores {
-			dRemaining, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(datastores[i].FreeSpace)/float64(datastores[i].Capacity)), 64)
+			dRemaining, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(datastores[i].FreeSpace)/float64(datastores[i].Capacity)), 64)
+			if err != nil {
+				return err
+			}
 			if i == 0 {
 				remaining = dRemaining
 			}

@@ -56,7 +56,10 @@ func (c *clusterLogRepository) GetRunningLogWithClusterNameAndType(clusterName s
 		return item, err
 	}
 	now := time.Now()
-	h, _ := time.ParseDuration("-12h")
+	h, err := time.ParseDuration("-12h")
+	if err != nil {
+		return item, err
+	}
 	halfDayAgo := now.Add(h)
 	if err := db.DB.Where("cluster_id = ? AND type = ? AND status = ? AND created_at BETWEEN ? AND ?", cluster.ID, logType, constant.ClusterRunning, halfDayAgo, now).
 		Find(&item).

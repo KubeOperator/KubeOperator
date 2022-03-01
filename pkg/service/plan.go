@@ -12,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -106,13 +107,18 @@ func (p planService) Delete(name string) error {
 }
 
 func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
-
-	old, _ := p.Get(creation.Name)
+	old, err := p.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(PlanNameExist)
 	}
 
-	vars, _ := json.Marshal(creation.PlanVars)
+	vars, err := json.Marshal(creation.PlanVars)
+	if err != nil {
+		return nil, err
+	}
 	region, err := p.regionRepo.Get(creation.Region)
 	if err != nil {
 		return nil, err
@@ -195,6 +201,9 @@ func (p planService) GetConfigs(regionName string) ([]dto.PlanVmConfig, error) {
 					Disk:   config.Disk,
 				},
 			})
+		}
+		if len(configs) < 1 {
+			return configs, nil
 		}
 		sort.Slice(configs, func(i, j int) bool {
 			return configs[i].Config.Cpu < configs[j].Config.Cpu

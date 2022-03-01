@@ -28,7 +28,6 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		clusterSpecRepo:            repository.NewClusterSpecRepository(),
 		clusterIaasService:         NewClusterIaasService(),
-		messageService:             NewMessageService(),
 	}
 }
 
@@ -40,7 +39,6 @@ type clusterInitService struct {
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	clusterSpecRepo            repository.ClusterSpecRepository
 	clusterIaasService         ClusterIaasService
-	messageService             MessageService
 }
 
 func (c clusterInitService) Init(name string) error {
@@ -92,10 +90,8 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
 			cancel()
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.Status.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
-			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			for i := range cluster.Nodes {
 				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 				_ = c.clusterSpecRepo.Save(&cluster.Spec)
@@ -114,7 +110,9 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 }
 
 func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
-
+	if statusChan == nil {
+		statusChan = make(chan adm.Cluster)
+	}
 	ad := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(cluster)

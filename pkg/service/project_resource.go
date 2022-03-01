@@ -90,7 +90,10 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				}
 				encrypt.DeleteVarsDecrypt("ahead", encryptBackupKeys, vars)
 
-				varsAfterHandle, _ := json.Marshal(vars)
+				varsAfterHandle, err := json.Marshal(vars)
+				if err != nil {
+					return nil, err
+				}
 				bac.Credential = string(varsAfterHandle)
 				resultAfterHandle = append(resultAfterHandle, bac)
 			}

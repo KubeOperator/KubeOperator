@@ -78,7 +78,10 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kube
 			if err != nil {
 				return nil, err
 			}
-			lokiNs, _ := getGrafanaSourceNs(cluster, "loki")
+			lokiNs, err := getGrafanaSourceNs(cluster, "loki")
+			if err != nil {
+				return nil, err
+			}
 			return NewGrafana(c, tool, prometheusNs, lokiNs)
 		} else {
 			return NewGrafana(c, tool, "", "")
@@ -134,7 +137,9 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 		return err
 	}
 	valueMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(tool.Vars), &valueMap)
+	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+		return err
+	}
 	m, err := MergeValueMap(valueMap)
 	if err != nil {
 		return err
@@ -275,7 +280,9 @@ func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error
 		return "", err
 	}
 	sourceVars := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(sourceData.Vars), &sourceVars)
+	if err := json.Unmarshal([]byte(sourceData.Vars), &sourceVars); err != nil {
+		return "", err
+	}
 	sp, ok := sourceVars["namespace"]
 	if !ok {
 		return "", fmt.Errorf("获取prometheus ns 失败")

@@ -53,7 +53,6 @@ func NewClusterService() ClusterService {
 		planRepo:                   repository.NewPlanRepository(),
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
-		messageService:             NewMessageService(),
 	}
 }
 
@@ -69,7 +68,6 @@ type clusterService struct {
 	clusterInitService         ClusterInitService
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
-	messageService             MessageService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -405,7 +403,6 @@ func (c *clusterService) Delete(name string, force bool) error {
 		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
 			return err
 		}
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
 }
@@ -453,7 +450,6 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		log.Errorf("delete luster error %s", err.Error())
 		return
 	}
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {

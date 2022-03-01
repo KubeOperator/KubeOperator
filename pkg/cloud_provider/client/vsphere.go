@@ -93,11 +93,20 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		clusterData := make(map[string]interface{})
 
 		clusterData["cluster"] = d.ManagedEntity.Name
-		networks, _ := v.GetNetwork(d.ComputeResource.Network)
+		networks, err := v.GetNetwork(d.ComputeResource.Network)
+		if err != nil {
+			return result, err
+		}
 		clusterData["networks"] = networks
-		datastores, _ := v.GetDatastore(d.ComputeResource.Datastore)
+		datastores, err := v.GetDatastore(d.ComputeResource.Datastore)
+		if err != nil {
+			return result, err
+		}
 		clusterData["datastores"] = datastores
-		resourcePools, _ := v.GetResourcePools(*d.ComputeResource.ResourcePool)
+		resourcePools, err := v.GetResourcePools(*d.ComputeResource.ResourcePool)
+		if err != nil {
+			return result, err
+		}
 		clusterData["resourcePools"] = resourcePools
 
 		result = append(result, clusterData)
@@ -276,12 +285,19 @@ func (v *vSphereClient) UploadImage() error {
 
 	f := find.NewFinder(client, true)
 
-	resourcePoolPath := v.Vars["resourcePool"].(string)
+	resourcePoolPath, ok := v.Vars["resourcePool"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
 	if v.Vars["resourcePool"].(string) == "Resources" {
 		resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
 	}
 
-	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	datacenterName, ok := v.Vars["datacenter"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
+	datacenter, err := f.Datacenter(ctx, datacenterName)
 	if err != nil {
 		return err
 	}

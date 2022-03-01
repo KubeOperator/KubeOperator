@@ -27,14 +27,12 @@ func NewClusterUpgradeService() ClusterUpgradeService {
 	return &clusterUpgradeService{
 		clusterService:    NewClusterService(),
 		clusterStatusRepo: repository.NewClusterStatusRepository(),
-		messageService:    NewMessageService(),
 	}
 }
 
 type clusterUpgradeService struct {
 	clusterService    ClusterService
 	clusterStatusRepo repository.ClusterStatusRepository
-	messageService    MessageService
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
@@ -127,6 +125,9 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	}
 }
 func (c clusterUpgradeService) doUpgrade(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+	if statusChan == nil {
+		statusChan = make(chan adm.Cluster)
+	}
 	ad := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnUpgrade(cluster)

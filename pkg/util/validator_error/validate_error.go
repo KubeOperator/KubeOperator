@@ -2,6 +2,9 @@ package validator_error
 
 import (
 	"errors"
+	"reflect"
+	"strings"
+
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
@@ -9,8 +12,6 @@ import (
 	entrans "github.com/go-playground/validator/v10/translations/en"
 	zhtrans "github.com/go-playground/validator/v10/translations/zh"
 	"github.com/kataras/iris/v12/context"
-	"reflect"
-	"strings"
 )
 
 func Tr(ctx context.Context, validate *validator.Validate, err error) error {
@@ -28,7 +29,10 @@ func Tr(ctx context.Context, validate *validator.Validate, err error) error {
 		})
 		trans, _ := uni.GetTranslator(lang)
 		_ = zhtrans.RegisterDefaultTranslations(validate, trans)
-		errs := err.(validator.ValidationErrors)
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			return err
+		}
 		return errors.New(removeStructName(errs.Translate(trans)))
 	} else {
 		lang = "en"
@@ -38,7 +42,10 @@ func Tr(ctx context.Context, validate *validator.Validate, err error) error {
 		})
 		trans, _ := uni.GetTranslator(lang)
 		_ = entrans.RegisterDefaultTranslations(validate, trans)
-		errs := err.(validator.ValidationErrors)
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			return err
+		}
 		return errors.New(removeStructName(errs.Translate(trans)))
 	}
 }

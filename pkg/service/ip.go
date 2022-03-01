@@ -57,7 +57,10 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 		tx.Rollback()
 		return fmt.Errorf("incorrect subnet format: %s", create.Subnet)
 	}
-	mask, _ := strconv.Atoi(cs[1])
+	mask, err := strconv.Atoi(cs[1])
+	if err != nil {
+		return err
+	}
 	startIp := strings.Replace(create.IpStart, " ", "", -1)
 	endIp := strings.Replace(create.IpEnd, " ", "", -1)
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
@@ -81,13 +84,13 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 			tx.Rollback()
 			return err
 		}
-		go func() {
-			err := ipaddr.Ping(insert.Address)
+		go func(insertItem model.Ip) {
+			err := ipaddr.Ping(insertItem.Address)
 			if err == nil {
-				insert.Status = constant.IpReachable
-				db.DB.Save(&insert)
+				insertItem.Status = constant.IpReachable
+				db.DB.Save(&insertItem)
 			}
-		}()
+		}(insert)
 	}
 	tx.Commit()
 	return nil
@@ -175,19 +178,19 @@ func (i ipService) Sync(ipPoolName string) error {
 	if err != nil {
 		return err
 	}
-	for i := range ips {
-		if ips[i].Status != constant.IpUsed && ips[i].Status != constant.IpLock {
-			go func(i int) {
-				err := ipaddr.Ping(ips[i].Address)
-				if err == nil && ips[i].Status != constant.IpReachable {
-					ips[i].Status = constant.IpReachable
-					db.DB.Save(&ips[i])
+	for _, ip := range ips {
+		if ip.Status != constant.IpUsed && ip.Status != constant.IpLock {
+			go func(ip model.Ip) {
+				err := ipaddr.Ping(ip.Address)
+				if err == nil && ip.Status != constant.IpReachable {
+					ip.Status = constant.IpReachable
+					db.DB.Save(&ip)
 				}
-				if err != nil && ips[i].Status == constant.IpReachable {
-					ips[i].Status = constant.IpAvailable
-					db.DB.Save(&ips[i])
+				if err != nil && ip.Status == constant.IpReachable {
+					ip.Status = constant.IpAvailable
+					db.DB.Save(&ip)
 				}
-			}(i)
+			}(ip)
 		}
 	}
 	return nil

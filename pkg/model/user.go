@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -39,73 +38,33 @@ type Token struct {
 	Token string `json:"access_token"`
 }
 
-func (u *User) BeforeCreate() (err error) {
+func (u *User) BeforeCreate() error {
 	u.ID = uuid.NewV4().String()
-	return err
+	return nil
 }
 
 func (u *User) BeforeDelete() (err error) {
 	if u.Name == "admin" {
 		return errors.New(AdminCanNotDelete)
 	}
-	var member ProjectMember
-	err = db.DB.Where(ProjectMember{UserID: u.ID}).Find(&member).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&member).Error
-	if err != nil {
+	if err := db.DB.Where("user_id = ?", u.ID).Delete(&ProjectMember{}).Error; err != nil {
 		return err
 	}
-	var userMessage UserMessage
-	err = db.DB.Where(UserMessage{UserID: u.ID}).Find(&userMessage).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&userMessage).Error
-	if err != nil {
+	if err := db.DB.Where("user_id = ?", u.ID).Delete(&UserMessage{}).Error; err != nil {
 		return err
 	}
-	var config UserNotificationConfig
-	err = db.DB.Where(UserNotificationConfig{UserID: u.ID}).Find(&config).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&config).Error
-	if err != nil {
+	if err := db.DB.Where("user_id = ?", u.ID).Delete(&UserNotificationConfig{}).Error; err != nil {
 		return err
 	}
-	var receiver UserReceiver
-	err = db.DB.Where(UserReceiver{UserID: u.ID}).Find(&receiver).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil
-		} else {
-			return err
-		}
-	}
-	err = db.DB.Delete(&receiver).Error
-	if err != nil {
+	if err := db.DB.Where("user_id = ?", u.ID).Delete(&UserReceiver{}).Error; err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
-func (u *User) BeforeUpdate() (err error) {
+func (u *User) BeforeUpdate() error {
 	if u.Type == constant.Ldap {
 		return errors.New(LdapCanNotUpdate)
 	}
-	return err
+	return nil
 }

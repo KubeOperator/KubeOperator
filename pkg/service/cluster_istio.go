@@ -46,8 +46,14 @@ func (c clusterIstioService) List(clusterName string) ([]dto.ClusterIstio, error
 	}
 	for _, m := range istios {
 		d := dto.ClusterIstio{ClusterIstio: m}
+		if len(m.Vars) == 0 {
+			istioDtos = append(istioDtos, d)
+			continue
+		}
 		d.Vars = map[string]interface{}{}
-		_ = json.Unmarshal([]byte(m.Vars), &d.Vars)
+		if err := json.Unmarshal([]byte(m.Vars), &d.Vars); err != nil {
+			return istioDtos, err
+		}
 		istioDtos = append(istioDtos, d)
 	}
 	return istioDtos, nil
@@ -70,7 +76,10 @@ func (c clusterIstioService) Enable(clusterName string, istioDtos []dto.ClusterI
 	// base chart必须最先安装
 	for i := 0; i < len(istioDtos); i++ {
 		if istioDtos[i].ClusterIstio.Name == "base" {
-			buf, _ := json.Marshal(&istioDtos[i].Vars)
+			buf, err := json.Marshal(&istioDtos[i].Vars)
+			if err != nil {
+				return istioDtos, err
+			}
 			istioDtos[i].ClusterIstio.Vars = string(buf)
 			istioDtos[i].ClusterIstio.ClusterID = cluster.ID
 			istioDtos[i].ClusterIstio.Status = constant.ClusterInitializing
@@ -85,7 +94,10 @@ func (c clusterIstioService) Enable(clusterName string, istioDtos []dto.ClusterI
 
 	var ct istios.IstioInterface
 	for i := 0; i < len(istioDtos); i++ {
-		buf, _ := json.Marshal(&istioDtos[i].Vars)
+		buf, err := json.Marshal(&istioDtos[i].Vars)
+		if err != nil {
+			return istioDtos, err
+		}
 		istioDtos[i].ClusterIstio.Vars = string(buf)
 		istioDtos[i].ClusterIstio.ClusterID = cluster.ID
 		switch istioDtos[i].ClusterIstio.Name {
@@ -131,7 +143,10 @@ func (c clusterIstioService) Disable(clusterName string, istioDtos []dto.Cluster
 
 	var ct istios.IstioInterface
 	for i := 0; i < len(istioDtos); i++ {
-		buf, _ := json.Marshal(&istioDtos[i].Vars)
+		buf, err := json.Marshal(&istioDtos[i].Vars)
+		if err != nil {
+			return istioDtos, err
+		}
 		istioDtos[i].ClusterIstio.Vars = string(buf)
 		istioDtos[i].ClusterIstio.ClusterID = cluster.ID
 		switch istioDtos[i].ClusterIstio.Name {
@@ -187,13 +202,19 @@ func (c clusterIstioService) doInstall(p istios.IstioInterface, istio *model.Clu
 	} else {
 		istio.Status = constant.ClusterRunning
 	}
-	_ = saveIstio(istio)
+	if err := saveIstio(istio); err != nil {
+		log.Errorf("save istio failed: %v", err)
+	}
 }
 
 func (c clusterIstioService) doUninstall(p istios.IstioInterface, istio *model.ClusterIstio) {
-	_ = p.Uninstall()
+	if err := p.Uninstall(); err != nil {
+		log.Errorf("uninstall istio failed: %v", err)
+	}
 	istio.Status = constant.ClusterWaiting
-	_ = saveIstio(istio)
+	if err := saveIstio(istio); err != nil {
+		log.Errorf("save istio failed: %v", err)
+	}
 }
 
 func saveIstio(istio *model.ClusterIstio) error {

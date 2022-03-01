@@ -95,7 +95,10 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		return nil, NamePwdFailed
 	}
 
-	old, _ := u.Get(creation.Name)
+	old, err := u.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, UserNameExist
 	}

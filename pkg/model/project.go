@@ -22,9 +22,9 @@ type Project struct {
 	Clusters    []Cluster `json:"-"`
 }
 
-func (p *Project) BeforeCreate() (err error) {
+func (p *Project) BeforeCreate() error {
 	p.ID = uuid.NewV4().String()
-	return err
+	return nil
 }
 
 func (p *Project) BeforeDelete() (err error) {
@@ -32,23 +32,20 @@ func (p *Project) BeforeDelete() (err error) {
 		return errors.New(DefaultProjectCanNotDelete)
 	}
 	var projectResources []ProjectResource
-	err = db.DB.Model(ProjectResource{}).Where(ProjectResource{ProjectID: p.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error
-	if err != nil {
+	if err := db.DB.Model(ProjectResource{}).Where(ProjectResource{ProjectID: p.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error; err != nil {
 		return err
 	}
 	if len(projectResources) > 0 {
 		return errors.New(ProjectHasClusterError)
 	}
 	var projectMembers []ProjectMember
-	err = db.DB.Model(ProjectMember{}).Where(ProjectMember{ProjectID: p.ID}).Find(&projectMembers).Error
-	if err != nil {
+	if err := db.DB.Model(ProjectMember{}).Where(ProjectMember{ProjectID: p.ID}).Find(&projectMembers).Error; err != nil {
 		return err
 	}
 	if len(projectMembers) > 0 {
-		err := db.DB.Delete(&projectMembers).Error
-		if err != nil {
+		if err := db.DB.Delete(&projectMembers).Error; err != nil {
 			return err
 		}
 	}
-	return err
+	return nil
 }

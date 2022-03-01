@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	_ "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
@@ -56,7 +55,6 @@ func (n ClusterNode) GetRegistry(arch string) (*Registry, error) {
 }
 
 func (n ClusterNode) ToKobeHost() *api.Host {
-	var log = logger.Default
 	if err := n.Host.GetHostConfig(); err != nil {
 		log.Errorf("get host config err, err: %s", err.Error())
 	}
@@ -67,7 +65,10 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		log.Errorf("get host config err, err: %s", err.Error())
 	}
 
-	r, _ := n.GetRegistry(n.Host.Architecture)
+	r, err := n.GetRegistry(n.Host.Architecture)
+	if err != nil {
+		log.Errorf("get registry err, err: %s", err.Error())
+	}
 	host := &api.Host{
 		Ip:         n.Host.Ip,
 		Name:       n.Name,

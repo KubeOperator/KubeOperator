@@ -78,7 +78,9 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 		}
 
 		var vars map[string]interface{}
-		_ = json.Unmarshal([]byte(p.Vars), &vars)
+		if err := json.Unmarshal([]byte(p.Vars), &vars); err != nil {
+			return clusterStorageProvisionerDTOS, err
+		}
 		encrypt.DeleteVarsDecrypt("ahead", encryptProvisionerKeys, vars)
 
 		clusterStorageProvisionerDTOS = append(clusterStorageProvisionerDTOS, dto.ClusterStorageProvisioner{
@@ -107,9 +109,11 @@ func (c clusterStorageProvisionerService) BatchStorageProvisioner(clusterName st
 
 func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName string, creation dto.ClusterStorageProvisionerCreation) (dto.ClusterStorageProvisioner, error) {
 	encrypt.VarsEncrypt("ahead", encryptProvisionerKeys, creation.Vars)
-
-	vars, _ := json.Marshal(creation.Vars)
 	var dp dto.ClusterStorageProvisioner
+	vars, err := json.Marshal(creation.Vars)
+	if err != nil {
+		return dp, err
+	}
 	p := model.ClusterStorageProvisioner{
 		Name:   creation.Name,
 		Type:   creation.Type,
@@ -128,7 +132,9 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	//playbook
 	go c.do(cluster.Cluster, p)
 	dp.ClusterStorageProvisioner = p
-	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
+	if err := json.Unmarshal([]byte(p.Vars), &dp.Vars); err != nil {
+		return dp, err
+	}
 	return dp, nil
 }
 

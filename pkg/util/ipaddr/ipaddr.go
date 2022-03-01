@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/c-robinson/iplib"
-	"github.com/go-ping/ping"
 	"net"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/c-robinson/iplib"
+	"github.com/go-ping/ping"
 )
 
 func GenerateIps(ip string, mask int, startIp string, endIp string) []string {
@@ -47,10 +48,22 @@ func ParseMask(num int) (mask string, err error) {
 		buff.WriteString("0")
 	}
 	masker := buff.String()
-	a, _ := strconv.ParseUint(masker[:8], 2, 64)
-	b, _ := strconv.ParseUint(masker[8:16], 2, 64)
-	c, _ := strconv.ParseUint(masker[16:24], 2, 64)
-	d, _ := strconv.ParseUint(masker[24:32], 2, 64)
+	a, err := strconv.ParseUint(masker[:8], 2, 64)
+	if err != nil {
+		return "", err
+	}
+	b, err := strconv.ParseUint(masker[8:16], 2, 64)
+	if err != nil {
+		return "", err
+	}
+	c, err := strconv.ParseUint(masker[16:24], 2, 64)
+	if err != nil {
+		return "", err
+	}
+	d, err := strconv.ParseUint(masker[24:32], 2, 64)
+	if err != nil {
+		return "", err
+	}
 	resultMask := fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
 	return resultMask, nil
 }

@@ -2,20 +2,21 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
-	"github.com/KubeOperator/KubeOperator/pkg/errorf"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/mvc"
-	E "github.com/pkg/errors"
 )
 
 var AuthScope iris.Party
 var WhiteScope iris.Party
+var log = logger.Default
 
 func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
@@ -70,27 +71,20 @@ func ErrorHandler(ctx context.Context, err error) {
 				result = result + set + " "
 			}
 		case error:
-			switch err := E.Cause(err).(type) {
-			case errorf.CErrFs:
-				errs := err.Get()
-				for _, er := range errs {
-					args := er.Args.([]interface{})
-					tr := ctx.Tr(er.Msg, args...)
-					if tr != "" {
-						result = result + tr + "\n "
-					}
-				}
-			default:
-				tr := ctx.Tr(err.Error())
-				if tr != "" {
-					result = tr
-				} else {
-					result = err.Error()
-				}
+			tr := ctx.Tr(err.Error())
+			if tr != "" {
+				result = tr
+			} else {
+				result = err.Error()
 			}
+		default:
+			fmt.Printf("err type is %T", err)
 		}
 		warp.Msg = result
-		bf, _ := json.Marshal(&warp)
+		bf, err := json.Marshal(&warp)
+		if err != nil {
+			log.Errorf("json marshal failed, %v", warp)
+		}
 		ctx.StatusCode(http.StatusBadRequest)
 		_, _ = ctx.WriteString(string(bf))
 		ctx.StopExecution()

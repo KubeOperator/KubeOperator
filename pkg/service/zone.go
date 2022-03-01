@@ -19,6 +19,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -64,7 +65,9 @@ func (z zoneService) Get(name string) (dto.Zone, error) {
 	}
 
 	m := make(map[string]interface{})
-	_ = json.Unmarshal([]byte(mo.Vars), &m)
+	if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+		return zoneDTO, err
+	}
 	for key := range m {
 		if strings.Contains(strings.ToLower(key), "nfsPassword") {
 			delete(m, key)
@@ -83,7 +86,9 @@ func (z zoneService) List() ([]dto.Zone, error) {
 	}
 	for _, mo := range mos {
 		m := make(map[string]interface{})
-		_ = json.Unmarshal([]byte(mo.Vars), &m)
+		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+			return zoneDTOs, err
+		}
 		for key := range m {
 			if strings.Contains(strings.ToLower(key), "nfsPassword") {
 				delete(m, key)
@@ -151,7 +156,10 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 
 	encrypt.VarsEncrypt("ahead", "nfsPassword", creation.CloudVars)
 
-	old, _ := z.Get(creation.Name)
+	old, err := z.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(ZoneNameExist)
 	}
@@ -295,7 +303,12 @@ func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{},
 		return result, err
 	}
 	var vars map[string]interface{}
-	_ = json.Unmarshal([]byte(region.Vars), &vars)
+	if err := json.Unmarshal([]byte(region.Vars), &vars); err != nil {
+		return result, err
+	}
+	if vars == nil {
+		vars = map[string]interface{}{}
+	}
 	encrypt.VarsDecrypt("after", "password", vars)
 	vars["datacenter"] = region.Datacenter
 
@@ -327,7 +340,11 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 		}
 		encrypt.VarsDecrypt("after", "password", m)
 
-		m["cluster"] = creation.CloudVars["cluster"].(string)
+		clusterItem, ok := creation.CloudVars["cluster"].(string)
+		if !ok {
+			return result, err
+		}
+		m["cluster"] = clusterItem
 		m["datacenter"] = region.Datacenter
 		clientVars = m
 	} else {
@@ -517,7 +534,11 @@ func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudD
 			return result, err
 		}
 		encrypt.VarsDecrypt("after", "nfsPassword", m)
-		m["cluster"] = creation.CloudVars["cluster"].(string)
+		clusterItem, ok := creation.CloudVars["cluster"].(string)
+		if !ok {
+			return result, err
+		}
+		m["cluster"] = clusterItem
 		m["datacenter"] = region.Datacenter
 		clientVars = m
 	} else {

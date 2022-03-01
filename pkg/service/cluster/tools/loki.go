@@ -27,10 +27,14 @@ func NewLoki(cluster *Cluster, tool *model.ClusterTool) (*Loki, error) {
 
 func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(l.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(l.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", (l.Tool.Vars))
+	}
 	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["loki_image_name"])
 	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["promtail_image_name"])
 	values["loki.image.tag"] = imageMap["loki_image_tag"]
@@ -41,13 +45,19 @@ func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool
 			values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])
 		}
 		if va, ok := values["loki.persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); !hasPers {
-				delete(values, "loki.nodeSelector.kubernetes\\.io/hostname")
+			hasPers, ok := va.(bool)
+			if ok {
+				if !hasPers {
+					delete(values, "loki.nodeSelector.kubernetes\\.io/hostname")
+				}
 			}
 		}
 	}
 
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	l.Tool.Vars = string(str)
 }
 

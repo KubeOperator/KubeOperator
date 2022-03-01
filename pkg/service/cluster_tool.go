@@ -44,8 +44,14 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 	}
 	for _, m := range ms {
 		d := dto.ClusterTool{ClusterTool: m}
+		if len(m.Vars) == 0 {
+			items = append(items, d)
+			continue
+		}
 		d.Vars = map[string]interface{}{}
-		_ = json.Unmarshal([]byte(m.Vars), &d.Vars)
+		if err := json.Unmarshal([]byte(m.Vars), &d.Vars); err != nil {
+			return items, err
+		}
 		encrypt.DeleteVarsDecrypt("after", "adminPassword", d.Vars)
 
 		items = append(items, d)
@@ -61,7 +67,10 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
-	buf, _ := json.Marshal(&tool.Vars)
+	buf, err := json.Marshal(&tool.Vars)
+	if err != nil {
+		return tool, err
+	}
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
 
@@ -70,7 +79,10 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	if !ok {
 		namespace = constant.DefaultNamespace
 	} else {
-		namespace = itemValue.(string)
+		namespace, ok = itemValue.(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 	}
 
 	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, false)
@@ -98,7 +110,10 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
-	buf, _ := json.Marshal(&tool.Vars)
+	buf, err := json.Marshal(&tool.Vars)
+	if err != nil {
+		return tool, err
+	}
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
 
@@ -147,7 +162,10 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
-	buf, _ := json.Marshal(&tool.Vars)
+	buf, err := json.Marshal(&tool.Vars)
+	if err != nil {
+		return tool, err
+	}
 	mo.Vars = string(buf)
 	mo.Status = constant.ClusterUpgrading
 	mo.Version = mo.HigherVersion
@@ -159,7 +177,10 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	if !ok {
 		namespace = constant.DefaultNamespace
 	} else {
-		namespace = itemValue.(string)
+		namespace, ok = itemValue.(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 	}
 	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, hosts, secret.ClusterSecret, namespace, namespace, true)
 	if err != nil {
@@ -203,23 +224,33 @@ func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTo
 
 func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool) (string, string) {
 	namespace := ""
-	Sp, ok := tool.Vars["namespace"]
+	nsFromVars, ok := tool.Vars["namespace"]
 	if !ok {
 		namespace = constant.DefaultNamespace
 	} else {
-		namespace = Sp.(string)
+		namespace, ok = nsFromVars.(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 	}
 	var oldTools model.ClusterTool
 	if err := db.DB.Where("cluster_id = ? AND name = ?", clusterID, tool.Name).First(&oldTools).Error; err != nil {
 		return namespace, namespace
 	}
 	oldVars := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(oldTools.Vars), &oldVars)
-	oldSp, ok := oldVars["namespace"]
+	if err := json.Unmarshal([]byte(oldTools.Vars), &oldVars); err != nil {
+		log.Errorf("json unmarshal falied : %v", oldTools.Vars)
+	}
+	oldNsFromVars, ok := oldVars["namespace"]
 	if !ok {
 		return namespace, namespace
 	} else {
-		return oldSp.(string), namespace
+		itemNs, ok := oldNsFromVars.(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+			return "", namespace
+		}
+		return itemNs, namespace
 	}
 }
 

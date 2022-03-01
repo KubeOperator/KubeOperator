@@ -126,7 +126,9 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	}
 	oldVersion := oldVars[runtimeVersionKey]
 	newVersion := newVars[runtimeVersionKey]
-	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	if _, err := fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion); err != nil {
+		return err
+	}
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
 		_, _ = fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade")
@@ -148,7 +150,9 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 	var etcdVersionKey = "etcd_version"
 	oldVersion := oldVars[etcdVersionKey]
 	newVersion := newVars[etcdVersionKey]
-	_, _ = fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion)
+	if _, err := fmt.Fprintf(c.writer, "%s -> %s", oldVersion, newVersion); err != nil {
+		return err
+	}
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
 		_, _ = fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade")

@@ -4,9 +4,12 @@ import (
 	"errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
+
+var log = logger.Default
 
 var (
 	DeleteBackupAccountFailedByProject = "DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT"
@@ -29,12 +32,11 @@ func (b *BackupAccount) BeforeCreate() (err error) {
 
 func (b *BackupAccount) BeforeDelete() (err error) {
 	var backupAccounts []ProjectResource
-	err = db.DB.Where(ProjectResource{ResourceID: b.ID}).Find(&backupAccounts).Error
-	if err != nil {
+	if err = db.DB.Where(ProjectResource{ResourceID: b.ID}).Find(&backupAccounts).Error; err != nil {
 		return err
 	}
 	if len(backupAccounts) > 0 {
 		return errors.New(DeleteBackupAccountFailedByProject)
 	}
-	return err
+	return nil
 }

@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/spf13/viper"
 )
 
 type response struct {
@@ -23,7 +24,10 @@ func GetConnectToken(name string, apiServer string, token string) (string, error
 		"token":     token,
 	}
 
-	j, _ := json.Marshal(&req)
+	j, err := json.Marshal(&req)
+	if err != nil {
+		return "", err
+	}
 	url := fmt.Sprintf("http://%s:%d/api/kube-token", viper.GetString("webkubectl.host"), viper.GetInt("webkubectl.port"))
 	resp, err := http.Post(url, "application/json", bytes.NewReader(j))
 	if err != nil {
@@ -31,8 +35,13 @@ func GetConnectToken(name string, apiServer string, token string) (string, error
 	}
 	var r response
 	if resp.StatusCode == http.StatusOK {
-		buf, _ := ioutil.ReadAll(resp.Body)
-		_ = json.Unmarshal(buf, &r)
+		buf, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+		if err := json.Unmarshal(buf, &r); err != nil {
+			return "", err
+		}
 		if r.Success {
 			return r.Token, nil
 		} else {

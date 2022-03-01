@@ -87,7 +87,10 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	if systemSetting.ID != "" {
 		c.Kobe.SetVar(facts.NtpServerName, systemSetting.Value)
 	}
-	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
+	maniFest, err := GetManiFestBy(cluster.Spec.Version)
+	if err != nil {
+		log.Errorf("get manifest by version %s failed, %v", cluster.Spec.Version, err)
+	}
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for k, v := range vars {

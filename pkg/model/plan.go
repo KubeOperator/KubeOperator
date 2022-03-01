@@ -30,12 +30,11 @@ func (p *Plan) BeforeCreate() (err error) {
 
 func (p *Plan) BeforeDelete(tx *gorm.DB) (err error) {
 	var PlanResources []ProjectResource
-	err = tx.Where(ProjectResource{ResourceID: p.ID}).Find(&PlanResources).Error
-	if err != nil {
+	if err := tx.Where(ProjectResource{ResourceID: p.ID}).Find(&PlanResources).Error; err != nil {
 		return err
 	}
 	if len(PlanResources) > 0 {
 		return errors.New(DeleteFailedByProject)
 	}
-	return err
+	return nil
 }

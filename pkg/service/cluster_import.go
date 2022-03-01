@@ -47,8 +47,15 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "https://", "", -1)
 	if strings.Contains(clusterImport.ApiServer, ":") {
 		strs := strings.Split(clusterImport.ApiServer, ":")
+		if len(strs) < 2 {
+			return fmt.Errorf("err format of apiserver: %s", strs)
+		}
 		address = strs[0]
-		port, _ = strconv.Atoi(strs[1])
+		portItem, err := strconv.Atoi(strs[1])
+		if err != nil {
+			return err
+		}
+		port = portItem
 	} else {
 		address = clusterImport.ApiServer
 		port = 80

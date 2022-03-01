@@ -163,7 +163,10 @@ func (h *Host) GetHostConfig() error {
 					}
 					result.GatherFailedInfo()
 					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
-						by, _ := json.Marshal(&result.HostFailedInfo)
+						by, err := json.Marshal(&result.HostFailedInfo)
+						if err != nil {
+							log.Errorf("json marshal failed, %v", result.HostFailedInfo)
+						}
 						return true, errors.New(string(by))
 					}
 				}
@@ -189,11 +192,24 @@ func (h *Host) GetHostConfig() error {
 		if !ok {
 			return err
 		}
-		h.Os = result["ansible_distribution"].(string)
-		h.OsVersion = result["ansible_distribution_version"].(string)
-		h.Architecture = result["ansible_architecture"].(string)
+		h.Os, ok = result["ansible_distribution"].(string)
+		if !ok {
+			return err
+		}
+		h.OsVersion, ok = result["ansible_distribution_version"].(string)
+		if !ok {
+			return err
+		}
+		h.Architecture, ok = result["ansible_architecture"].(string)
+		if !ok {
+			return err
+		}
 		if result["ansible_processor_vcpus"] != nil {
-			h.CpuCore = int(result["ansible_processor_vcpus"].(float64))
+			cpuCore, ok := result["ansible_processor_vcpus"].(float64)
+			if !ok {
+				return err
+			}
+			h.CpuCore = int(cpuCore)
 		}
 	}
 	return nil

@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
@@ -19,17 +20,26 @@ func NewOssClient(vars map[string]interface{}) (*ossClient, error) {
 	var accessKey string
 	var secretKey string
 	if _, ok := vars["endpoint"]; ok {
-		endpoint = vars["endpoint"].(string)
+		endpoint, ok = vars["endpoint"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["accessKey"]; ok {
-		accessKey = vars["accessKey"].(string)
+		accessKey, ok = vars["accessKey"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["secretKey"]; ok {
-		secretKey = vars["secretKey"].(string)
+		secretKey, ok = vars["secretKey"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}

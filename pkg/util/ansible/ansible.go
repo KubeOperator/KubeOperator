@@ -25,6 +25,7 @@ func CreateAnsibleLogWriter(clusterName string) (string, io.Writer, error) {
 	if err != nil {
 		return "", nil, err
 	}
+	defer writer.Close()
 	return logId, writer, nil
 }
 
@@ -41,6 +42,7 @@ func CreateAnsibleLogWriterWithId(clusterName string, logId string) (io.Writer, 
 	if err != nil {
 		return nil, err
 	}
+	defer writer.Close()
 	return writer, nil
 }
 

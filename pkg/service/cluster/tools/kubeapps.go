@@ -28,7 +28,9 @@ func NewKubeapps(cluster *Cluster, tool *model.ClusterTool) (*Kubeapps, error) {
 
 func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	}
 	values := map[string]interface{}{}
 	switch toolDetail.ChartVersion {
 	case "3.7.2":
@@ -38,9 +40,12 @@ func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 	}
 	if isInstall {
 		if va, ok := values["postgresql.persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); hasPers {
-				if va, ok := values["nodeSelector"]; ok {
-					values["postgresql.primary.nodeSelector.kubernetes\\.io/hostname"] = va
+			hasPers, ok := va.(bool)
+			if ok {
+				if hasPers {
+					if va, ok := values["nodeSelector"]; ok {
+						values["postgresql.primary.nodeSelector.kubernetes\\.io/hostname"] = va
+					}
 				}
 			}
 		}
@@ -50,7 +55,10 @@ func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 		delete(values, "nodeSelector")
 	}
 
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	k.Tool.Vars = string(str)
 }
 
@@ -80,7 +88,9 @@ func (k Kubeapps) Uninstall() error {
 // v3.7.2
 func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(k.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", (k.Tool.Vars))
+	}
 	var c helm2.Client
 	repoIP, _ := c.GetRepoIP("amd64")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
@@ -98,7 +108,9 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]
 func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
 	if len(k.Tool.Vars) != 0 {
-		_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
+		if err := json.Unmarshal([]byte(k.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", (k.Tool.Vars))
+		}
 	}
 	var c helm2.Client
 	repoIP, _ := c.GetRepoIP("amd64")

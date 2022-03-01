@@ -37,7 +37,10 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 		return nil, errors.New("session invalid !")
 	}
 
-	user, _ := u.(*dto.Profile)
+	user, ok := u.(*dto.Profile)
+	if !ok {
+		return nil, errors.New("type aassertion failed")
+	}
 	return user, nil
 }
 

@@ -5,10 +5,13 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/storyicon/grbac"
 )
+
+var log = logger.Default
 
 func RBACMiddleware() iris.Handler {
 	r, err := grbac.New(grbac.WithAdvancedRules(constant.SystemRules))
@@ -33,8 +36,12 @@ func RBACMiddleware() iris.Handler {
 }
 
 func querySystemRoles(ctx context.Context) []string {
-	u := ctx.Values().Get("user").(dto.SessionUser)
-	roles := u.Roles
+	user := ctx.Values().Get("user")
+	sessionUser, ok := user.(dto.SessionUser)
+	if !ok {
+		log.Errorf("type aassertion failed")
+	}
+	roles := sessionUser.Roles
 	ctx.Values().Set("roles", roles)
 	return roles
 }

@@ -27,10 +27,14 @@ func NewEFK(cluster *Cluster, tool *model.ClusterTool) (*EFK, error) {
 
 func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(e.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(e.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", e.Tool.Vars)
+	}
 	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["fluentd_image_name"])
 	values["fluentd-elasticsearch.imageTag"] = imageMap["fluentd_image_tag"]
 	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["elasticsearch_image_name"])
@@ -47,7 +51,10 @@ func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool)
 			values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
 		}
 	}
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	e.Tool.Vars = string(str)
 }
 

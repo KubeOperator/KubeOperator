@@ -3,10 +3,11 @@ package ipaddr
 import (
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/allocator"
-	api "k8s.io/api/core/v1"
 	"math/big"
 	"net"
+
+	"github.com/KubeOperator/KubeOperator/pkg/util/allocator"
+	api "k8s.io/api/core/v1"
 )
 
 // Interface manages the allocation of IP addresses out of a range. Interface
@@ -166,7 +167,10 @@ func (r *Range) Release(ip net.IP) error {
 // ForEach calls the provided function for each allocated IP.
 func (r *Range) ForEach(fn func(net.IP)) {
 	r.alloc.ForEach(func(offset int) {
-		ip, _ := GetIndexedIP(r.net, offset+1) // +1 because Range doesn't store IP 0
+		ip, err := GetIndexedIP(r.net, offset+1) // +1 because Range doesn't store IP 0
+		if err != nil {
+			fmt.Println("get indexd ip failed")
+		}
 		fn(ip)
 	})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -189,27 +190,31 @@ func (c clusterManifestService) ListByLargeVersion() ([]dto.ClusterManifestGroup
 }
 
 func sortManifest(arr []dto.ClusterManifest) []dto.ClusterManifest {
-	for i := 0; i < len(arr)-1; i++ {
-		for j := i + 1; j <= len(arr)-1; j++ {
-			if !compareVersion(arr[i], arr[j]) {
-				arr[j], arr[i] = arr[i], arr[j]
-			}
-		}
+	if len(arr) < 1 {
+		return arr
 	}
+	sort.SliceStable(arr, func(i, j int) bool {
+		return compareVersion(arr[i], arr[j])
+	})
 	return arr
 }
 
 func getKoVersion(manifest dto.ClusterManifest) float64 {
 	koIndex := strings.Index(manifest.Name, "ko")
 	koVersionString := manifest.Name[koIndex+2:]
-	version, _ := strconv.ParseFloat(koVersionString, 64)
+	version, err := strconv.ParseFloat(koVersionString, 64)
+	if err != nil {
+		log.Errorf("ko version %s parse float failed: %v", koVersionString, err)
+	}
 	return version
 }
 
 func compareVersion(version1 dto.ClusterManifest, version2 dto.ClusterManifest) bool {
-
 	v1slice := getVersionSlice(version1)
 	v2slice := getVersionSlice(version2)
+	if len(v1slice) < 3 || len(v2slice) < 3 {
+		return false
+	}
 
 	if getVersionNumber(v1slice[0]) > getVersionNumber(v2slice[0]) {
 		return true
@@ -237,7 +242,10 @@ func compareVersion(version1 dto.ClusterManifest, version2 dto.ClusterManifest) 
 }
 
 func getVersionNumber(versionStr string) float64 {
-	version, _ := strconv.ParseFloat(versionStr, 64)
+	version, err := strconv.ParseFloat(versionStr, 64)
+	if err != nil {
+		log.Errorf("ko version %s parse float failed: %v", versionStr, err)
+	}
 	return version
 }
 

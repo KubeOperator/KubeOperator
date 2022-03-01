@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -10,7 +12,6 @@ import (
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sync"
 )
 
 type ClusterHealthService interface {
@@ -67,18 +68,17 @@ func checkHostNetworkConnected(c model.Cluster) dto.ClusterHealthHook {
 	wg := &sync.WaitGroup{}
 	for i := range c.Nodes {
 		wg.Add(1)
-		i := i
-		go func() {
+		go func(item int) {
 			defer wg.Done()
-			if err := ipaddr.Ping(c.Nodes[i].Host.Ip); err != nil {
+			if err := ipaddr.Ping(c.Nodes[item].Host.Ip); err != nil {
 				result.Level = constant.ClusterHealthLevelWarning
 				result.Msg += err.Error()
 				return
 			}
-			if c.Nodes[i].Role == constant.NodeRoleNameMaster {
+			if c.Nodes[item].Role == constant.NodeRoleNameMaster {
 				aliveMaster++
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 	if !(aliveMaster > 0) {
@@ -95,10 +95,9 @@ func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 	wg := &sync.WaitGroup{}
 	for i := range c.Nodes {
 		wg.Add(1)
-		i := i
-		go func() {
+		go func(item int) {
 			defer wg.Done()
-			sshCfg := c.Nodes[i].ToSSHConfig()
+			sshCfg := c.Nodes[item].ToSSHConfig()
 			sshClient, err := ssh.New(&sshCfg)
 			if err != nil {
 				result.Msg += err.Error()
@@ -109,10 +108,10 @@ func checkHostSSHConnected(c model.Cluster) dto.ClusterHealthHook {
 				result.Msg += err.Error()
 				return
 			}
-			if c.Nodes[i].Role == constant.NodeRoleNameMaster {
+			if c.Nodes[item].Role == constant.NodeRoleNameMaster {
 				aliveMaster++
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 	if !(aliveMaster > 0) {

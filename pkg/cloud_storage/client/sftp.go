@@ -45,7 +45,12 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	sftpC, err := connect(s.Vars["username"].(string), s.Vars["password"].(string), s.Vars["address"].(string), port)
+	pass, ok := s.Vars["password"].(string)
+	if !ok {
+		return false, errors.New("not support password type")
+	}
+	pwdByte := []byte(pass)
+	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
@@ -97,7 +102,12 @@ func (s sftpClient) Download(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	sftpC, err := connect(s.Vars["username"].(string), s.Vars["password"].(string), s.Vars["address"].(string), port)
+	pass, ok := s.Vars["password"].(string)
+	if !ok {
+		return false, errors.New("not support password type")
+	}
+	pwdByte := []byte(pass)
+	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
@@ -129,7 +139,12 @@ func (s sftpClient) Exist(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	sftpC, err := connect(s.Vars["username"].(string), s.Vars["password"].(string), s.Vars["address"].(string), port)
+	pass, ok := s.Vars["password"].(string)
+	if !ok {
+		return false, errors.New("not support password type")
+	}
+	pwdByte := []byte(pass)
+	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
@@ -155,7 +170,12 @@ func (s sftpClient) Delete(filePath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	sftpC, err := connect(s.Vars["username"].(string), s.Vars["password"].(string), s.Vars["address"].(string), port)
+	pass, ok := s.Vars["password"].(string)
+	if !ok {
+		return false, errors.New("not support password type")
+	}
+	pwdByte := []byte(pass)
+	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
@@ -172,8 +192,7 @@ func (s sftpClient) Delete(filePath string) (bool, error) {
 	return true, nil
 }
 
-func connect(user, password, host string, port int) (*sftp.Client, error) {
-
+func connect(user string, password []byte, host string, port int) (*sftp.Client, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -183,7 +202,7 @@ func connect(user, password, host string, port int) (*sftp.Client, error) {
 		err          error
 	)
 	auth = make([]ssh.AuthMethod, 0)
-	auth = append(auth, ssh.Password(password))
+	auth = append(auth, ssh.Password(string(password[:])))
 	clientConfig = &ssh.ClientConfig{
 		User:    user,
 		Auth:    auth,

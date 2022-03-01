@@ -10,6 +10,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/containerd/containerd/log"
 	"github.com/spf13/viper"
 )
 
@@ -139,12 +140,18 @@ func StringDecryptWithSalt(text string) (string, error) {
 }
 
 func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	if vars == nil {
+		return vars
+	}
 	for key, value := range vars {
 		if operation == "ahead" {
 			if strings.Contains(str, key) {
 				passwd, ok := value.(string)
 				if ok {
-					passwdEncrypt, _ := StringEncrypt(passwd)
+					passwdEncrypt, err := StringEncrypt(passwd)
+					if err != nil {
+						log.L.Errorf("string decrypt failed")
+					}
 					vars[key] = passwdEncrypt
 				}
 			}
@@ -152,7 +159,10 @@ func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[
 			if strings.Contains(key, str) {
 				passwd, ok := value.(string)
 				if ok {
-					passwdEncrypt, _ := StringEncrypt(passwd)
+					passwdEncrypt, err := StringEncrypt(passwd)
+					if err != nil {
+						log.L.Errorf("string decrypt failed")
+					}
 					vars[key] = passwdEncrypt
 				}
 			}
@@ -162,12 +172,18 @@ func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[
 }
 
 func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	if vars == nil {
+		return vars
+	}
 	for key, value := range vars {
 		if operation == "ahead" {
 			if strings.Contains(str, key) {
 				passwd, ok := value.(string)
 				if ok {
-					passwdDecrypt, _ := StringDecrypt(passwd)
+					passwdDecrypt, err := StringDecrypt(passwd)
+					if err != nil {
+						log.L.Errorf("string decrypt failed")
+					}
 					vars[key] = passwdDecrypt
 				}
 			}
@@ -175,7 +191,10 @@ func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[
 			if strings.Contains(key, str) {
 				passwd, ok := value.(string)
 				if ok {
-					passwdDecrypt, _ := StringDecrypt(passwd)
+					passwdDecrypt, err := StringDecrypt(passwd)
+					if err != nil {
+						log.L.Errorf("string decrypt failed")
+					}
 					vars[key] = passwdDecrypt
 				}
 			}
@@ -185,6 +204,9 @@ func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[
 }
 
 func DeleteVarsDecrypt(operation string, str string, vars map[string]interface{}) map[string]interface{} {
+	if vars == nil {
+		return vars
+	}
 	for key := range vars {
 		if operation == "ahead" {
 			if strings.Contains(str, key) {

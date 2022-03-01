@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -55,7 +56,10 @@ func (b backupAccountService) GetAfterDecrypt(name string) (*dto.BackupAccount, 
 
 	encrypt.VarsDecrypt("ahead", encryptBackupKeys, vars)
 
-	varsAfterHandle, _ := json.Marshal(vars)
+	varsAfterHandle, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
 	mo.Credential = string(varsAfterHandle)
 
 	backupAccountDTO = dto.BackupAccount{
@@ -79,7 +83,10 @@ func (b backupAccountService) List(projectName string) ([]dto.BackupAccount, err
 		}
 		encrypt.DeleteVarsDecrypt("ahead", encryptBackupKeys, vars)
 
-		varsAfterHandle, _ := json.Marshal(vars)
+		varsAfterHandle, err := json.Marshal(vars)
+		if err != nil {
+			return nil, err
+		}
 		mo.Credential = string(varsAfterHandle)
 
 		backupAccountDTOs = append(backupAccountDTOs, dto.BackupAccount{BackupAccount: mo})
@@ -102,7 +109,10 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 		}
 
 		backupDTO.CredentialVars = encrypt.DeleteVarsDecrypt("ahead", encryptBackupKeys, vars)
-		varsAfterHandle, _ := json.Marshal(vars)
+		varsAfterHandle, err := json.Marshal(vars)
+		if err != nil {
+			return page, err
+		}
 		mo.Credential = string(varsAfterHandle)
 		backupDTO.BackupAccount = mo
 
@@ -114,7 +124,10 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 }
 
 func (b backupAccountService) Create(creation dto.BackupAccountCreate) (*dto.BackupAccount, error) {
-	old, _ := b.GetAfterDecrypt(creation.Name)
+	old, err := b.GetAfterDecrypt(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old != nil && old.ID != "" {
 		return nil, errors.New(backupAccountNameExist)
 	}
@@ -125,7 +138,10 @@ func (b backupAccountService) Create(creation dto.BackupAccountCreate) (*dto.Bac
 
 	encrypt.VarsEncrypt("ahead", encryptBackupKeys, creation.CredentialVars)
 
-	credential, _ := json.Marshal(creation.CredentialVars)
+	credential, err := json.Marshal(creation.CredentialVars)
+	if err != nil {
+		return nil, err
+	}
 	backupAccount := model.BackupAccount{
 		Name:       creation.Name,
 		Bucket:     creation.Bucket,
@@ -152,14 +168,20 @@ func (b backupAccountService) Update(creation dto.BackupAccountUpdate) (*dto.Bac
 		return nil, err
 	}
 
-	old, _ := b.backupAccountRepo.Get(creation.Name)
+	old, err := b.backupAccountRepo.Get(creation.Name)
+	if err != nil {
+		return nil, err
+	}
 	if old.ID == "" || old.ID != creation.ID {
 		return nil, errors.New("NOT_FOUND")
 	}
 
 	encrypt.VarsEncrypt("ahead", encryptBackupKeys, creation.CredentialVars)
 
-	credential, _ := json.Marshal(creation.CredentialVars)
+	credential, err := json.Marshal(creation.CredentialVars)
+	if err != nil {
+		return nil, err
+	}
 	backupAccount := model.BackupAccount{
 		ID:         old.ID,
 		Name:       creation.Name,

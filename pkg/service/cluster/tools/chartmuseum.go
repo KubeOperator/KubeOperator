@@ -5,8 +5,11 @@ import (
 	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
+
+var log = logger.Default
 
 type Chartmuseum struct {
 	Cluster             *Cluster
@@ -27,18 +30,25 @@ func NewChartmuseum(cluster *Cluster, tool *model.ClusterTool) (*Chartmuseum, er
 
 func (c Chartmuseum) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	versionMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &versionMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &versionMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(c.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", c.Tool.Vars)
+	}
 	values["env.open.DISABLE_API"] = false
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, c.LocalRepositoryPort, versionMap["chartmuseum_image_name"])
 	values["image.tag"] = versionMap["chartmuseum_image_tag"]
 
 	if isInstall {
 		if va, ok := values["persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); !hasPers {
-				delete(values, "nodeSelector.kubernetes\\.io/hostname")
+			hasPers, ok := va.(bool)
+			if ok {
+				if !hasPers {
+					delete(values, "nodeSelector.kubernetes\\.io/hostname")
+				}
 			}
 		}
 
@@ -47,7 +57,10 @@ func (c Chartmuseum) setDefaultValue(toolDetail model.ClusterToolDetail, isInsta
 		}
 	}
 
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	c.Tool.Vars = string(str)
 }
 

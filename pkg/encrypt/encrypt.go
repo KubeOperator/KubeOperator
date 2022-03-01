@@ -1,16 +1,22 @@
 package encrypt
 
 import (
+	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
+	"github.com/spf13/viper"
 )
 
 const phaseName = "encrypt"
+
+var log = logger.Default
 
 type InitEncryptPhase struct {
 	Multilevel map[string]interface{}
@@ -23,12 +29,28 @@ func (c *InitEncryptPhase) Init() error {
 		if err != nil {
 			return err
 		}
-		secret := c.Multilevel["secret"].(string)
-		parts := c.Multilevel["parts"].([]interface{})
+		secret, ok := c.Multilevel["secret"].(string)
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
+		parts, ok := c.Multilevel["parts"].([]interface{})
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 		args := []string{"decrypt", "-t", secret}
 		args = append(args, "-p")
+		argCommonds := ""
 		for i := range parts {
-			args = append(args, parts[i].(string))
+			arg, ok := parts[i].(string)
+			if !ok {
+				log.Errorf("type aassertion failed")
+				continue
+			}
+			args = append(args, arg)
+			argCommonds += (arg + " ")
+		}
+		if ssh.CheckIllegal(argCommonds) {
+			return errors.New("args contains invalid characters!")
 		}
 		cmd := exec.Command(p, args...)
 		cmd.Env = os.Environ()

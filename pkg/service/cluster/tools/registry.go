@@ -29,10 +29,14 @@ func NewRegistry(cluster *Cluster, tool *model.ClusterTool) (*Registry, error) {
 
 func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(r.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(r.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", (r.Tool.Vars))
+	}
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalHostName, r.LocalRepositoryPort, imageMap["registry_image_name"])
 	values["image.tag"] = imageMap["registry_image_tag"]
 
@@ -49,7 +53,10 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 			}
 		}
 	}
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	r.Tool.Vars = string(str)
 }
 

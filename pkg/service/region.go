@@ -12,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -142,14 +143,20 @@ func (r regionService) Delete(name string) error {
 }
 
 func (r regionService) Create(creation dto.RegionCreate) (*dto.Region, error) {
-	old, _ := r.Get(creation.Name)
+	old, err := r.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(RegionNameExist)
 	}
 
 	encrypt.VarsEncrypt("after", "password", creation.RegionVars)
 
-	vars, _ := json.Marshal(creation.RegionVars)
+	vars, err := json.Marshal(creation.RegionVars)
+	if err != nil {
+		return nil, err
+	}
 	region := model.Region{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,
@@ -158,8 +165,7 @@ func (r regionService) Create(creation dto.RegionCreate) (*dto.Region, error) {
 		Provider:   creation.Provider,
 	}
 
-	err := r.regionRepo.Save(&region)
-	if err != nil {
+	if err := r.regionRepo.Save(&region); err != nil {
 		return nil, err
 	}
 	return &dto.Region{Region: region}, err

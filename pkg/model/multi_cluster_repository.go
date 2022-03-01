@@ -43,7 +43,7 @@ func (m *MultiClusterRepository) BeforeDelete() error {
 		return err
 	}
 	tx := db.DB.Begin()
-	for _,m := range mls {
+	for _, m := range mls {
 		if err := db.DB.Delete(&m).Error; err != nil {
 			tx.Rollback()
 			return err
@@ -54,7 +54,9 @@ func (m *MultiClusterRepository) BeforeDelete() error {
 }
 
 func (m *MultiClusterRepository) AfterDelete() error {
-	_ = os.RemoveAll(path.Join(constant.DefaultRepositoryDir, m.Name))
+	if err := os.RemoveAll(path.Join(constant.DefaultRepositoryDir, m.Name)); err != nil {
+		return err
+	}
 	return nil
 }
 

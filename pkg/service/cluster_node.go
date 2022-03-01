@@ -38,7 +38,6 @@ func NewClusterNodeService() ClusterNodeService {
 		HostRepo:            repository.NewHostRepository(),
 		systemSettingRepo:   repository.NewSystemSettingRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
-		messageService:      NewMessageService(),
 		vmConfigRepo:        repository.NewVmConfigRepository(),
 		hostService:         NewHostService(),
 		planService:         NewPlanService(),
@@ -52,7 +51,6 @@ type clusterNodeService struct {
 	planService         PlanService
 	systemSettingRepo   repository.SystemSettingRepository
 	projectResourceRepo repository.ProjectResourceRepository
-	messageService      MessageService
 	vmConfigRepo        repository.VmConfigRepository
 	hostService         HostService
 }
@@ -437,7 +435,9 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		}
 		if cluster.Plan.Region.Provider != constant.OpenStack {
 			planVars := map[string]string{}
-			_ = json.Unmarshal([]byte(cluster.Plan.Vars), &planVars)
+			if err := json.Unmarshal([]byte(cluster.Plan.Vars), &planVars); err != nil {
+				return nil, err
+			}
 			role := getHostRole(newHost.Name)
 			workerConfig, err := c.vmConfigRepo.Get(planVars[fmt.Sprintf("%sModel", role)])
 			if err != nil {
@@ -454,9 +454,13 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		providerVars["provider"] = cluster.Plan.Region.Provider
 		providerVars["datacenter"] = cluster.Plan.Region.Datacenter
 		zoneVars := map[string]interface{}{}
-		_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+		if err := json.Unmarshal([]byte(k.Vars), &zoneVars); err != nil {
+			return nil, err
+		}
 		providerVars["cluster"] = zoneVars["cluster"]
-		_ = json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars)
+		if err := json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars); err != nil {
+			return nil, err
+		}
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
 		if err != nil {

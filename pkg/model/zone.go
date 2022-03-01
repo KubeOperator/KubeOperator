@@ -25,19 +25,18 @@ type Zone struct {
 	IpPool       IpPool `json:"_"`
 }
 
-func (z *Zone) BeforeCreate() (err error) {
+func (z *Zone) BeforeCreate() error {
 	z.ID = uuid.NewV4().String()
-	return err
+	return nil
 }
 
-func (z *Zone) BeforeDelete() (err error) {
+func (z *Zone) BeforeDelete() error {
 	var planZones []PlanZones
-	err = db.DB.Where(PlanZones{ZoneID: z.ID}).Find(&planZones).Error
-	if err != nil {
+	if err := db.DB.Where(PlanZones{ZoneID: z.ID}).Find(&planZones).Error; err != nil {
 		return err
 	}
 	if len(planZones) > 0 {
 		return errors.New(DeleteZoneError)
 	}
-	return err
+	return nil
 }

@@ -65,7 +65,10 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, writer 
 					}
 					result.GatherFailedInfo()
 					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
-						by, _ := json.Marshal(&result.HostFailedInfo)
+						by, err := json.Marshal(&result.HostFailedInfo)
+						if err != nil {
+							log.Errorf("json marshal failed, %v", result.HostFailedInfo)
+						}
 						return true, errors.New(string(by))
 					}
 				}

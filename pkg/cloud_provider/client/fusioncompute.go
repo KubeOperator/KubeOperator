@@ -172,11 +172,26 @@ func (f *fusionComputeClient) GetIpInUsed(network string) ([]string, error) {
 }
 
 func (f *fusionComputeClient) UploadImage() error {
-	siteName := f.Vars["datacenter"].(string)
-	clusterName := f.Vars["cluster"].(string)
-	datastoreName := f.Vars["datastore"].(string)
-	portgroupName := f.Vars["portgroup"].(string)
-	ovfPath := f.Vars["ovfPath"].(string)
+	siteName, ok := f.Vars["datacenter"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
+	clusterName, ok := f.Vars["cluster"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
+	datastoreName, ok := f.Vars["datastore"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
+	portgroupName, ok := f.Vars["portgroup"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
+	ovfPath, ok := f.Vars["ovfPath"].(string)
+	if !ok {
+		return errors.New("type aassertion failed")
+	}
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {
 		return err
@@ -292,7 +307,10 @@ func (f *fusionComputeClient) UploadImage() error {
 }
 
 func (f *fusionComputeClient) DefaultImageExist() (bool, error) {
-	siteName := f.Vars["datacenter"].(string)
+	siteName, ok := f.Vars["datacenter"].(string)
+	if !ok {
+		return false, errors.New("type aassertion failed")
+	}
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {
 		return false, err
@@ -336,15 +354,27 @@ func (f *fusionComputeClient) CreateDefaultFolder() error {
 }
 
 func (f *fusionComputeClient) newFusionComputeClient() client.FusionComputeClient {
-	server := f.Vars["server"].(string)
-	user := f.Vars["user"].(string)
-	password := f.Vars["password"].(string)
+	server, ok := f.Vars["server"].(string)
+	if !ok {
+		log.Errorf("type aassertion failed")
+	}
+	user, ok := f.Vars["user"].(string)
+	if !ok {
+		log.Errorf("type aassertion failed")
+	}
+	password, ok := f.Vars["password"].(string)
+	if !ok {
+		log.Errorf("type aassertion failed")
+	}
 	return client.NewFusionComputeClient(server, user, password)
 }
 
 func (f *fusionComputeClient) ListDatastores() ([]DatastoreResult, error) {
 	var results []DatastoreResult
-	siteName := f.Vars["datacenter"].(string)
+	siteName, ok := f.Vars["datacenter"].(string)
+	if !ok {
+		log.Errorf("type aassertion failed")
+	}
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {
 		return results, err

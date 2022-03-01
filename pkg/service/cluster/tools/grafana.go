@@ -32,10 +32,14 @@ func NewGrafana(cluster *Cluster, tool *model.ClusterTool, prometheusNs, lokiNs 
 
 func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(toolDetail.Vars), &imageMap)
+	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	}
 
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(g.Tool.Vars), &values)
+	if err := json.Unmarshal([]byte(g.Tool.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", g.Tool.Vars)
+	}
 
 	passwd, _ := values["adminPassword"].(string)
 	passwdEncrypt, _ := encrypt.StringDecrypt(passwd)
@@ -83,13 +87,19 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 			values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 		}
 		if va, ok := values["persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); !hasPers {
-				delete(values, "nodeSelector.kubernetes\\.io/hostname")
+			hasPers, ok := va.(bool)
+			if ok {
+				if !hasPers {
+					delete(values, "nodeSelector.kubernetes\\.io/hostname")
+				}
 			}
 		}
 	}
 
-	str, _ := json.Marshal(&values)
+	str, err := json.Marshal(&values)
+	if err != nil {
+		log.Errorf("json marshal falied : %v", values)
+	}
 	g.Tool.Vars = string(str)
 }
 

@@ -55,19 +55,34 @@ func (v *openStackClient) ListDatacenter() ([]string, error) {
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", v.Vars["identity"].(string)+"/regions", nil)
+	req, err := http.NewRequest("GET", v.Vars["identity"].(string)+"/regions", nil)
+	if err != nil {
+		return result, err
+	}
 	req.Header.Add("X-Auth-Token", provider.TokenID)
-	resp, _ := client.Do(req)
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp, err := client.Do(req)
+	if err != nil {
+		return result, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return result, err
+	}
 	m := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(body), &m); err != nil {
 		return result, err
 	}
 	key, exist := m["regions"]
 	if exist {
-		regions := key.([]interface{})
+		regions, ok := key.([]interface{})
+		if !ok {
+			log.Errorf("type aassertion failed")
+		}
 		for _, r := range regions {
-			region := r.(map[string]interface{})
+			region, ok := r.(map[string]interface{})
+			if !ok {
+				log.Errorf("type aassertion failed")
+			}
 			result = append(result, region["id"].(string))
 		}
 	} else {
@@ -117,7 +132,7 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 
 	allImages, err := images.ExtractImages(iPages)
 	if err != nil {
-		panic(err)
+		return result, err
 	}
 
 	networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
@@ -226,7 +241,6 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	return result, nil
 }
 func (v *openStackClient) ListTemplates() ([]interface{}, error) {
-
 	var result []interface{}
 	provider, err := v.GetAuth()
 	if err != nil {
@@ -280,7 +294,6 @@ func (v *openStackClient) GetAuth() (*gophercloud.ProviderClient, error) {
 }
 
 func (v *openStackClient) ListFlavors() ([]interface{}, error) {
-
 	var result []interface{}
 
 	provider, err := v.GetAuth()
@@ -304,13 +317,15 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 	}
 
 	for _, f := range allPages {
-
 		if f.RAM > 1024 {
 			vmConfig := make(map[string]interface{})
 			vmConfig["name"] = f.Name
 
 			config := make(map[string]interface{})
-			config["id"], _ = strconv.Atoi(f.ID)
+			config["id"], err = strconv.Atoi(f.ID)
+			if err != nil {
+				log.Errorf("strconv atoi failed, f.ID: %s", f.ID)
+			}
 			config["disk"] = f.Disk
 			config["cpu"] = f.VCPUs
 			config["memory"] = f.RAM / 1024
@@ -326,6 +341,7 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 func (v *openStackClient) GetIpInUsed(network string) ([]string, error) {
 	return []string{}, nil
 }
+
 func (v *openStackClient) UploadImage() error {
 
 	provider, err := v.GetAuth()

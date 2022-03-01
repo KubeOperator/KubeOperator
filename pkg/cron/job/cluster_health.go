@@ -32,28 +32,27 @@ func (c *ClusterHealthCheck) Run() {
 			continue
 		}
 		wg.Add(1)
-		i := i
-		go func() {
+		go func(item int) {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			log.Infof("test cluster  %s api  ", cs[i].Name)
-			endpoints, err := c.clusterService.GetApiServerEndpoints(cs[i].Name)
+			log.Infof("test cluster  %s api  ", cs[item].Name)
+			endpoints, err := c.clusterService.GetApiServerEndpoints(cs[item].Name)
 			if err != nil {
-				log.Errorf("get cluster %s endpoint error %s", cs[i].Name, err.Error())
+				log.Errorf("get cluster %s endpoint error %s", cs[item].Name, err.Error())
 				return
 			}
-			secret, err := c.clusterService.GetSecrets(cs[i].Name)
+			secret, err := c.clusterService.GetSecrets(cs[item].Name)
 			if err != nil {
-				log.Errorf("get cluster %s secret error %s", cs[i].Name, err.Error())
+				log.Errorf("get cluster %s secret error %s", cs[item].Name, err.Error())
 				return
 			}
 			_, err = kubeUtil.SelectAliveHost(endpoints)
 			if err != nil {
-				log.Errorf("ping cluster %s api error %s", cs[i].Name, err.Error())
-				cs[i].Cluster.Status.Phase = constant.StatusLost
-				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
+				log.Errorf("ping cluster %s api error %s", cs[item].Name, err.Error())
+				cs[item].Cluster.Status.Phase = constant.StatusLost
+				if err := db.DB.Save(&cs[item].Cluster.Status).Error; err != nil {
+					log.Errorf("save cluster %s status error %s", cs[item].Name, err.Error())
 					return
 				}
 				return
@@ -63,27 +62,27 @@ func (c *ClusterHealthCheck) Run() {
 				Token: secret.KubernetesToken,
 			})
 			if err != nil {
-				log.Errorf("get cluster %s api client error %s", cs[i].Name, err.Error())
+				log.Errorf("get cluster %s api client error %s", cs[item].Name, err.Error())
 				return
 			}
 			_, err = client.ServerVersion()
 			if err != nil {
-				log.Errorf("ping cluster %s api error %s", cs[i].Name, err.Error())
-				cs[i].Cluster.Status.Phase = constant.StatusLost
-				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
+				log.Errorf("ping cluster %s api error %s", cs[item].Name, err.Error())
+				cs[item].Cluster.Status.Phase = constant.StatusLost
+				if err := db.DB.Save(&cs[item].Cluster.Status).Error; err != nil {
+					log.Errorf("save cluster %s status error %s", cs[item].Name, err.Error())
 					return
 				}
 				return
 			}
-			if cs[i].Cluster.Status.Phase == constant.StatusLost {
-				cs[i].Cluster.Status.Phase = constant.StatusRunning
-				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
+			if cs[item].Cluster.Status.Phase == constant.StatusLost {
+				cs[item].Cluster.Status.Phase = constant.StatusRunning
+				if err := db.DB.Save(&cs[item].Cluster.Status).Error; err != nil {
+					log.Errorf("save cluster %s status error %s", cs[item].Name, err.Error())
 					return
 				}
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -114,7 +115,10 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
-	old, _ := c.Get(creation.Name)
+	old, err := c.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.Name != "" {
 		return nil, errors.New("NAME_EXISTS")
 	}
@@ -135,7 +139,10 @@ func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credentia
 }
 
 func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
-	old, _ := c.Get(update.Name)
+	old, err := c.Get(update.Name)
+	if err != nil {
+		return dto.Credential{}, err
+	}
 	if old.ID == "" || old.ID != update.ID {
 		return dto.Credential{}, errors.New("NOT_FOUND")
 	}

@@ -22,17 +22,26 @@ func NewAzureClient(vars map[string]interface{}) (*azureClient, error) {
 	var accountKey string
 	var endpoint string
 	if _, ok := vars["accountName"]; ok {
-		accountName = vars["accountName"].(string)
+		accountName, ok = vars["accountName"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["accountKey"]; ok {
-		accountKey = vars["accountKey"].(string)
+		accountKey, ok = vars["accountKey"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["endpoint"]; ok {
-		endpoint = vars["endpoint"].(string)
+		endpoint, ok = vars["endpoint"].(string)
+		if !ok {
+			return nil, errors.New("type aassertion failed")
+		}
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
@@ -99,6 +108,7 @@ func (azure azureClient) Upload(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer file.Close()
 	_, err = azblob.UploadFileToBlockBlob(context.Background(), file, blobURL, azblob.UploadToBlockBlobOptions{
 		Parallelism: 16,
 	})

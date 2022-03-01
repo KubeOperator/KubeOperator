@@ -26,7 +26,9 @@ func NewPilotInterface(component *model.ClusterIstio, helmInfo IstioHelmInfo) *P
 
 func (d *PilotInterface) setDefaultValue() map[string]interface{} {
 	values := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(d.Component.Vars), &values)
+	if err := json.Unmarshal([]byte(d.Component.Vars), &values); err != nil {
+		log.Errorf("json unmarshal falied : %v", d.Component.Vars)
+	}
 	values["pilot.image"] = fmt.Sprintf("%s:%d/%s", d.HelmInfo.LocalhostName, constant.LocalDockerRepositoryPort, PilotImageName)
 	values["global.jwtPolicy"] = "first-party-jwt"
 	values["pilot.resources.requests.cpu"] = fmt.Sprintf("%vm", values["pilot.resources.requests.cpu"])
