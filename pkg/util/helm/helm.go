@@ -45,7 +45,7 @@ type Interface interface {
 	Upgrade(name string, chartName string, chartVersion string, values map[string]interface{}) (*release.Release, error)
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
 	List() ([]*release.Release, error)
-	GetRepoIP(arch string) (string, error)
+	GetRepoIP(arch string) (string, string, error)
 }
 
 type Config struct {
