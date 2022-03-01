@@ -18,7 +18,6 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/ghodss/yaml"
 	"github.com/gofrs/flock"
 	"github.com/pkg/errors"
@@ -180,13 +179,8 @@ func updateRepo(arch string) error {
 		}
 	}
 	if !flag {
-		r := repository.NewSystemSettingRepository()
-		p, err := r.Get("REGISTRY_PROTOCOL")
-		if err != nil {
-			return errors.New("invalid local host ip")
-		}
 		var c Client
-		repoIP, err := c.GetRepoIP(arch)
+		repoProtocol, repoIP, err := c.GetRepoIP(arch)
 		if err != nil {
 			return err
 		}
@@ -194,7 +188,7 @@ func updateRepo(arch string) error {
 		if err != nil {
 			return err
 		}
-		if err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", p.Value, repoIP), "admin", password); err != nil {
+		if err = addRepo("nexus", fmt.Sprintf("%s://%s::8081/repository/applications", repoProtocol, repoIP), "admin", password); err != nil {
 			log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
 		}
@@ -303,26 +297,26 @@ func addRepo(name string, url string, username string, password string) error {
 	return nil
 }
 
-func (c Client) GetRepoIP(arch string) (string, error) {
+func (c Client) GetRepoIP(arch string) (string, string, error) {
 	var repo model.SystemRegistry
 	switch arch {
 	case "amd64":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&repo).Error; err != nil {
-			return "", err
+			return "", "", err
 		}
-		return repo.Hostname, nil
+		return repo.Protocol, repo.Hostname, nil
 	case "arm64":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
-			return "", err
+			return "", "", err
 		}
-		return repo.Hostname, nil
+		return repo.Protocol, repo.Hostname, nil
 	case "all":
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&repo).Error; err != nil {
-			return "", err
+			return "", "", err
 		}
-		return repo.Hostname, nil
+		return repo.Protocol, repo.Hostname, nil
 	}
-	return "", fmt.Errorf("no such architecture")
+	return "", "", fmt.Errorf("no such architecture")
 }
 
 func ListRepo() ([]*repo.Entry, error) {

@@ -92,7 +92,7 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]
 		log.Errorf("json unmarshal falied : %v", (k.Tool.Vars))
 	}
 	var c helm2.Client
-	repoIP, _ := c.GetRepoIP("amd64")
+	_, repoIP, _ := c.GetRepoIP("amd64")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
 	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:8081/repository/kubeapps", repoIP)
@@ -113,7 +113,7 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]
 		}
 	}
 	var c helm2.Client
-	repoIP, _ := c.GetRepoIP("amd64")
+	_, repoIP, _ := c.GetRepoIP("amd64")
 	delete(values, "useHelm3")
 	delete(values, "postgresql.enabled")
 	delete(values, "postgresql.image.repository")
