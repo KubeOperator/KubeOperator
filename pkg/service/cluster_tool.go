@@ -49,8 +49,10 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 			continue
 		}
 		d.Vars = map[string]interface{}{}
-		if err := json.Unmarshal([]byte(m.Vars), &d.Vars); err != nil {
-			return items, err
+		if len(m.Vars) != 0 {
+			if err := json.Unmarshal([]byte(m.Vars), &d.Vars); err != nil {
+				return items, err
+			}
 		}
 		encrypt.DeleteVarsDecrypt("after", "adminPassword", d.Vars)
 
@@ -238,8 +240,10 @@ func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool)
 		return namespace, namespace
 	}
 	oldVars := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(oldTools.Vars), &oldVars); err != nil {
-		log.Errorf("json unmarshal falied : %v", oldTools.Vars)
+	if len(oldTools.Vars) != 0 {
+		if err := json.Unmarshal([]byte(oldTools.Vars), &oldVars); err != nil {
+			log.Errorf("json unmarshal falied : %v", oldTools.Vars)
+		}
 	}
 	oldNsFromVars, ok := oldVars["namespace"]
 	if !ok {

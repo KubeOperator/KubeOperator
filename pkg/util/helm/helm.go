@@ -169,7 +169,7 @@ func GetSettings() *cli.EnvSettings {
 func updateRepo(arch string) error {
 	repos, err := ListRepo()
 	if err != nil {
-		return err
+		log.Error("list repo failed, now start to add repo")
 	}
 	flag := false
 	for _, r := range repos {
@@ -188,7 +188,7 @@ func updateRepo(arch string) error {
 			return err
 		}
 		if err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", repoProtocol, repoIP), "admin", password); err != nil {
-			log.Errorf("addRepo failed, error: %s", err.Error())
+			log.Errorf("add repo %s failed, error: %v", fmt.Sprintf("%s://%s:8081/repository/applications", repoProtocol, repoIP), err)
 			return err
 		}
 	}

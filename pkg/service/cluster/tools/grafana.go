@@ -32,13 +32,17 @@ func NewGrafana(cluster *Cluster, tool *model.ClusterTool, prometheusNs, lokiNs 
 
 func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(g.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", g.Tool.Vars)
+	if len(g.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(g.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", g.Tool.Vars)
+		}
 	}
 
 	passwd, _ := values["adminPassword"].(string)

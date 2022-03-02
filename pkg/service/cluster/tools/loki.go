@@ -27,13 +27,17 @@ func NewLoki(cluster *Cluster, tool *model.ClusterTool) (*Loki, error) {
 
 func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(l.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", (l.Tool.Vars))
+	if len(l.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(l.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", (l.Tool.Vars))
+		}
 	}
 	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["loki_image_name"])
 	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["promtail_image_name"])

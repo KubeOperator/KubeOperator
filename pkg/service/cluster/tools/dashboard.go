@@ -27,13 +27,17 @@ func NewDashboard(cluster *Cluster, tool *model.ClusterTool) (*Dashboard, error)
 
 func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(d.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", d.Tool.Vars)
+	if len(d.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(d.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", d.Tool.Vars)
+		}
 	}
 	values["extraArgs[0]"] = "--enable-skip-login"
 	values["extraArgs[1]"] = "--enable-insecure-login"

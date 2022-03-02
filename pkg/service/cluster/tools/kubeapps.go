@@ -28,8 +28,10 @@ func NewKubeapps(cluster *Cluster, tool *model.ClusterTool) (*Kubeapps, error) {
 
 func (k Kubeapps) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+		}
 	}
 	values := map[string]interface{}{}
 	switch toolDetail.ChartVersion {
@@ -88,8 +90,10 @@ func (k Kubeapps) Uninstall() error {
 // v3.7.2
 func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]interface{} {
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(k.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", (k.Tool.Vars))
+	if len(k.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(k.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", (k.Tool.Vars))
+		}
 	}
 	var c helm2.Client
 	_, repoIP, _ := c.GetRepoIP("amd64")

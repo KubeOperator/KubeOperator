@@ -137,8 +137,10 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 		return err
 	}
 	valueMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
-		return err
+	if len(tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+			return err
+		}
 	}
 	m, err := MergeValueMap(valueMap)
 	if err != nil {
@@ -153,8 +155,10 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 
 func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVersion string) error {
 	valueMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
-		return err
+	if len(tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+			return err
+		}
 	}
 	m, err := MergeValueMap(valueMap)
 	if err != nil {
@@ -280,8 +284,10 @@ func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error
 		return "", err
 	}
 	sourceVars := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(sourceData.Vars), &sourceVars); err != nil {
-		return "", err
+	if len(sourceData.Vars) != 0 {
+		if err := json.Unmarshal([]byte(sourceData.Vars), &sourceVars); err != nil {
+			return "", err
+		}
 	}
 	sp, ok := sourceVars["namespace"]
 	if !ok {

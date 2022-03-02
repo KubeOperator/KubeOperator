@@ -27,13 +27,17 @@ func NewPrometheus(cluster *Cluster, tool *model.ClusterTool) (*Prometheus, erro
 
 func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", (toolDetail.Vars))
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(p.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", (p.Tool.Vars))
+	if len(p.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(p.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", (p.Tool.Vars))
+		}
 	}
 	values["alertmanager.enabled"] = false
 	values["pushgateway.enabled"] = false

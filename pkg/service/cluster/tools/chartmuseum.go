@@ -30,13 +30,17 @@ func NewChartmuseum(cluster *Cluster, tool *model.ClusterTool) (*Chartmuseum, er
 
 func (c Chartmuseum) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	versionMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &versionMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &versionMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(c.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", c.Tool.Vars)
+	if len(c.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(c.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", c.Tool.Vars)
+		}
 	}
 	values["env.open.DISABLE_API"] = false
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, c.LocalRepositoryPort, versionMap["chartmuseum_image_name"])

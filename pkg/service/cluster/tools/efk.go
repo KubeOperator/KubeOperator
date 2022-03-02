@@ -27,13 +27,17 @@ func NewEFK(cluster *Cluster, tool *model.ClusterTool) (*EFK, error) {
 
 func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool) {
 	imageMap := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
-		log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+	if len(toolDetail.Vars) != 0 {
+		if err := json.Unmarshal([]byte(toolDetail.Vars), &imageMap); err != nil {
+			log.Errorf("json unmarshal falied : %v", toolDetail.Vars)
+		}
 	}
 
 	values := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(e.Tool.Vars), &values); err != nil {
-		log.Errorf("json unmarshal falied : %v", e.Tool.Vars)
+	if len(e.Tool.Vars) != 0 {
+		if err := json.Unmarshal([]byte(e.Tool.Vars), &values); err != nil {
+			log.Errorf("json unmarshal falied : %v", e.Tool.Vars)
+		}
 	}
 	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["fluentd_image_name"])
 	values["fluentd-elasticsearch.imageTag"] = imageMap["fluentd_image_tag"]
