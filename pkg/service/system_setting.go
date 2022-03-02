@@ -155,7 +155,10 @@ func (s systemSettingService) GetRegistryByArch(arch string) (dto.SystemRegistry
 }
 
 func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) (*dto.SystemRegistry, error) {
-	old, _ := s.systemRegistryRepo.Get(creation.Architecture)
+	old, err := s.systemRegistryRepo.Get(creation.Architecture)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New("NAME_EXISTS")
 	}
@@ -166,15 +169,17 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 		Protocol:     creation.Protocol,
 		Hostname:     creation.Hostname,
 	}
-	err := s.systemRegistryRepo.Save(&systemRegistry)
-	if err != nil {
+	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
 	}
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil
 }
 
 func (s systemSettingService) UpdateRegistry(creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
-	old, _ := s.systemRegistryRepo.Get(creation.Architecture)
+	old, err := s.systemRegistryRepo.Get(creation.Architecture)
+	if err != nil {
+		return nil, err
+	}
 	if old.ID == "" || old.ID != creation.ID {
 		return nil, errors.New("NOT_FOUND")
 	}
@@ -185,8 +190,7 @@ func (s systemSettingService) UpdateRegistry(creation dto.SystemRegistryUpdate) 
 		Protocol:     creation.Protocol,
 		Hostname:     creation.Hostname,
 	}
-	err := s.systemRegistryRepo.Save(&systemRegistry)
-	if err != nil {
+	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
 	}
 	return &dto.SystemRegistry{SystemRegistry: systemRegistry}, nil

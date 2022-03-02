@@ -23,6 +23,7 @@ type User struct {
 	common.BaseModel
 	ID       string `json:"id" gorm:"type:varchar(64)"`
 	Name     string `json:"name" gorm:"type:varchar(256);not null;unique"`
+	Salt     string `json:"salt" gorm:"type:varchar(256);not null"`
 	Password string `json:"password" gorm:"type:varchar(256)"`
 	Email    string `json:"email" gorm:"type:varchar(256)"`
 	IsActive bool   `json:"isActive" gorm:"type:boolean;default:true"`

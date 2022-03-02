@@ -9,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -62,7 +63,10 @@ func (p projectService) List(userId string) ([]dto.Project, error) {
 }
 
 func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
-	old, _ := p.projectRepo.Get(creation.Name)
+	old, err := p.projectRepo.Get(creation.Name)
+	if !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
 	if old.ID != "" {
 		return nil, errors.New(ProjectNameExist)
 	}
@@ -130,11 +134,6 @@ func (p projectService) Page(num, size int, userId string) (page.Page, error) {
 }
 
 func (p projectService) Delete(name string) error {
-	old, _ := p.projectRepo.Get(name)
-	if old.ID != "" {
-		return errors.New("NOT_FOUND")
-	}
-
 	if err := p.projectRepo.Delete(name); err != nil {
 		return err
 	}

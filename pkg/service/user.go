@@ -103,12 +103,10 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		return nil, UserNameExist
 	}
 
-	password, err := encrypt.StringEncryptWithSalt(creation.Password)
-	if err != nil {
-		return nil, err
-	}
+	salt, password := encrypt.Encode(creation.Password, nil)
 	user := model.User{
 		Name:     creation.Name,
+		Salt:     salt,
 		Password: password,
 		IsActive: true,
 		Language: model.ZH,
@@ -211,11 +209,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
 		return isFirstLogin, err
 	}
 
-	user.Password, err = encrypt.StringEncryptWithSalt(ch.Password)
-	if err != nil {
-		return isFirstLogin, err
-	}
-
+	user.Salt, user.Password = encrypt.Encode(ch.Password, nil)
 	if err = u.userRepo.Save(&user); err != nil {
 		return isFirstLogin, err
 	}
@@ -266,11 +260,7 @@ func validateOldPassword(user model.User, password string) (bool, error) {
 		return false, errors.New("TOO_MANY_FAILURES")
 	}
 
-	oldPassword, err := encrypt.StringDecryptWithSalt(user.Password)
-	if err != nil {
-		return false, err
-	}
-	if oldPassword != password {
+	if !encrypt.Verify(password, user.Salt, user.Password, nil) {
 		if user.UpdatedAt.Before(time.Now().Add(-1 * time.Minute)) {
 			_ = db.DB.Model(&model.User{}).Where("id = ?", user.ID).Update("err_count", 1)
 		} else {
@@ -278,5 +268,5 @@ func validateOldPassword(user model.User, password string) (bool, error) {
 		}
 		return false, NameOrPasswordErr
 	}
-	return true, err
+	return true, nil
 }
