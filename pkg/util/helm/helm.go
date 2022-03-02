@@ -164,7 +164,6 @@ func GetSettings() *cli.EnvSettings {
 		RepositoryConfig: helmpath.ConfigPath("repositories.yaml"),
 		RepositoryCache:  helmpath.CachePath("repository"),
 	}
-
 }
 
 func updateRepo(arch string) error {
@@ -184,11 +183,11 @@ func updateRepo(arch string) error {
 		if err != nil {
 			return err
 		}
-		password, err := encrypt.StringDecrypt(viper.GetString("repository.nexus_password"))
+		password, err := encrypt.StringDecryptWithSalt(viper.GetString("repository.nexus_password"))
 		if err != nil {
 			return err
 		}
-		if err = addRepo("nexus", fmt.Sprintf("%s://%s::8081/repository/applications", repoProtocol, repoIP), "admin", password); err != nil {
+		if err = addRepo("nexus", fmt.Sprintf("%s://%s:8081/repository/applications", repoProtocol, repoIP), "admin", password); err != nil {
 			log.Errorf("addRepo failed, error: %s", err.Error())
 			return err
 		}

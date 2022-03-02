@@ -40,7 +40,7 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", r.LocalHostName, r.LocalRepositoryPort, imageMap["registry_image_name"])
 	values["image.tag"] = imageMap["registry_image_tag"]
 
-	password, _ := encrypt.StringDecrypt(viper.GetString("repository.htpasswd"))
+	password, _ := encrypt.StringDecryptWithSalt(viper.GetString("repository.htpasswd"))
 	values["secrets.htpasswd"] = password
 
 	if isInstall {

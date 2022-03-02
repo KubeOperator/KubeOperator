@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -60,6 +61,10 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		address = clusterImport.ApiServer
 		port = 80
 	}
+	k8sToken, err := encrypt.StringEncrypt(clusterImport.Token)
+	if err != nil {
+		return err
+	}
 	tx := db.DB.Begin()
 	cluster := model.Cluster{
 		Name:   clusterImport.Name,
@@ -74,7 +79,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		},
 		Secret: model.ClusterSecret{
 			KubeadmToken:    "",
-			KubernetesToken: clusterImport.Token,
+			KubernetesToken: k8sToken,
 		},
 	}
 	if err := tx.Create(&cluster.Spec).Error; err != nil {
