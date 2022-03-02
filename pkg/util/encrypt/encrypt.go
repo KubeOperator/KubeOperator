@@ -26,10 +26,10 @@ func unPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
-func AesEncrypt(origData, key []byte) ([]byte, error) {
+func AesEncrypt(origData, key []byte) ([]byte, []byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, origData, err
 	}
 
 	blockSize := block.BlockSize()
@@ -37,26 +37,26 @@ func AesEncrypt(origData, key []byte) ([]byte, error) {
 	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
 	crypted := make([]byte, len(origData))
 	blockMode.CryptBlocks(crypted, origData)
-	return crypted, nil
+	return crypted, origData, nil
 }
 
-func aesEncryptWithSalt(key, plaintext []byte) ([]byte, error) {
+func aesEncryptWithSalt(key, plaintext []byte) ([]byte, []byte, error) {
 	plaintext = padding(plaintext, aes.BlockSize)
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, plaintext, err
 	}
 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
 	iv := ciphertext[0:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
+		return nil, plaintext, err
 	}
 	for i := 2; i < 8; i++ {
 		iv[i] = 1
 	}
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
-	return ciphertext, nil
+	return ciphertext, plaintext, nil
 }
 
 func aesDecrypt(key, crypted []byte) ([]byte, error) {
@@ -92,7 +92,7 @@ func aesDecryptWithSalt(key, ciphertext []byte) ([]byte, error) {
 func StringEncrypt(text string) (string, error) {
 	key := viper.GetString("encrypt.key")
 	pass := []byte(text)
-	xpass, err := AesEncrypt(pass, []byte(key))
+	xpass, _, err := AesEncrypt(pass, []byte(key))
 	if err == nil {
 		pass64 := base64.StdEncoding.EncodeToString(xpass)
 		return pass64, err
@@ -103,7 +103,7 @@ func StringEncrypt(text string) (string, error) {
 func StringEncryptWithSalt(text string) (string, error) {
 	key := viper.GetString("encrypt.key")
 	pass := []byte(text)
-	xpass, err := aesEncryptWithSalt([]byte(key), pass)
+	xpass, _, err := aesEncryptWithSalt([]byte(key), pass)
 	if err == nil {
 		pass64 := base64.StdEncoding.EncodeToString(xpass)
 		return pass64, err

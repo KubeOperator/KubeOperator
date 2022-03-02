@@ -19,9 +19,9 @@ func NewSystemSettingRepository() SystemSettingRepository {
 type systemSettingRepository struct {
 }
 
-func (s systemSettingRepository) Get(key string) (model.SystemSetting, error) {
+func (s systemSettingRepository) Get(info string) (model.SystemSetting, error) {
 	var systemSetting model.SystemSetting
-	if err := db.DB.Where(map[string]interface{}{"key": key}).First(&systemSetting).Error; err != nil {
+	if err := db.DB.Where("key = ?", info).First(&systemSetting).Error; err != nil {
 		return systemSetting, err
 	}
 	return systemSetting, nil

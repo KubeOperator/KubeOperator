@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
@@ -18,7 +19,7 @@ type ossClient struct {
 func NewOssClient(vars map[string]interface{}) (*ossClient, error) {
 	var endpoint string
 	var accessKey string
-	var secretKey string
+	var secretKey []byte
 	if _, ok := vars["endpoint"]; ok {
 		endpoint, ok = vars["endpoint"].(string)
 		if !ok {
@@ -36,17 +37,16 @@ func NewOssClient(vars map[string]interface{}) (*ossClient, error) {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["secretKey"]; ok {
-		secretKey, ok = vars["secretKey"].(string)
-		if !ok {
-			return nil, errors.New("type aassertion failed")
-		}
+		secretKey = escape.GetByte(vars["secretKey"])
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
-	client, err := oss.New(endpoint, accessKey, secretKey)
+	client, err := oss.New(endpoint, accessKey, string(secretKey))
 	if err != nil {
 		return nil, err
 	}
+	escape.Clean(string(secretKey))
+
 	return &ossClient{
 		Vars:   vars,
 		client: *client,

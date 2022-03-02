@@ -11,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/jinzhu/gorm"
 )
@@ -36,7 +37,7 @@ type UserService interface {
 	Delete(name string) error
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) (bool, error)
-	UserAuth(name string, password string, isSystem bool) (user *model.User, err error)
+	UserAuth(name string, password []byte, isSystem bool) (user *model.User, err error)
 }
 
 type userService struct {
@@ -204,7 +205,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
 		user.IsFirst = false
 	}
 
-	success, err := validateOldPassword(user, ch.Original)
+	success, err := validateOldPassword(user, []byte(ch.Original))
 	if !success || err != nil {
 		return isFirstLogin, err
 	}
@@ -216,7 +217,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) (bool, error) {
 	return isFirstLogin, err
 }
 
-func (u userService) UserAuth(name string, password string, isSystem bool) (user *model.User, err error) {
+func (u userService) UserAuth(name string, password []byte, isSystem bool) (user *model.User, err error) {
 	var dbUser model.User
 	if err := db.DB.Where("name = ? AND is_system = ?", name, isSystem).First(&dbUser).Error; err != nil {
 		return nil, err
@@ -255,12 +256,12 @@ func (u userService) UserAuth(name string, password string, isSystem bool) (user
 	return &dbUser, nil
 }
 
-func validateOldPassword(user model.User, password string) (bool, error) {
+func validateOldPassword(user model.User, password []byte) (bool, error) {
 	if !user.UpdatedAt.Before(time.Now().Add(-1*time.Minute)) && user.ErrCount > 4 {
 		return false, errors.New("TOO_MANY_FAILURES")
 	}
 
-	if !encrypt.Verify(password, user.Salt, user.Password, nil) {
+	if !encrypt.Verify(string(password), user.Salt, user.Password, nil) {
 		if user.UpdatedAt.Before(time.Now().Add(-1 * time.Minute)) {
 			_ = db.DB.Model(&model.User{}).Where("id = ?", user.ID).Update("err_count", 1)
 		} else {
@@ -268,5 +269,6 @@ func validateOldPassword(user model.User, password string) (bool, error) {
 		}
 		return false, NameOrPasswordErr
 	}
+	escape.Clean(string(password))
 	return true, nil
 }

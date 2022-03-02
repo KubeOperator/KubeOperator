@@ -71,27 +71,27 @@ func (mgr *SessionMgr) EndSession(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (mgr *SessionMgr) EndSessionBy(sessionID string) {
+func (mgr *SessionMgr) EndSessionBy(sessID string) {
 	mgr.mLock.Lock()
 	defer mgr.mLock.Unlock()
 
-	delete(mgr.mSessions, sessionID)
+	delete(mgr.mSessions, sessID)
 }
 
-func (mgr *SessionMgr) SetSessionVal(sessionID string, key interface{}, value interface{}) {
+func (mgr *SessionMgr) SetSessionVal(sessID string, key interface{}, value interface{}) {
 	mgr.mLock.Lock()
 	defer mgr.mLock.Unlock()
 
-	if session, ok := mgr.mSessions[sessionID]; ok {
+	if session, ok := mgr.mSessions[sessID]; ok {
 		session.mValues[key] = value
 	}
 }
 
-func (mgr *SessionMgr) GetSessionVal(sessionID string, key interface{}) (interface{}, bool) {
+func (mgr *SessionMgr) GetSessionVal(sessID string, key interface{}) (interface{}, bool) {
 	mgr.mLock.RLock()
 	defer mgr.mLock.RUnlock()
 
-	if session, ok := mgr.mSessions[sessionID]; ok {
+	if session, ok := mgr.mSessions[sessID]; ok {
 		if val, ok := session.mValues[key]; ok {
 			return val, ok
 		}
@@ -124,21 +124,21 @@ func (mgr *SessionMgr) CheckCookieValid(w http.ResponseWriter, r *http.Request) 
 	mgr.mLock.Lock()
 	defer mgr.mLock.Unlock()
 
-	sessionID := cookie.Value
+	sessID := cookie.Value
 
-	if session, ok := mgr.mSessions[sessionID]; ok {
+	if session, ok := mgr.mSessions[sessID]; ok {
 		session.mLastTimeAccessed = time.Now()
-		return sessionID
+		return sessID
 	}
 
 	return ""
 }
 
-func (mgr *SessionMgr) GetLastAccessTime(sessionID string) time.Time {
+func (mgr *SessionMgr) GetLastAccessTime(sessID string) time.Time {
 	mgr.mLock.RLock()
 	defer mgr.mLock.RUnlock()
 
-	if session, ok := mgr.mSessions[sessionID]; ok {
+	if session, ok := mgr.mSessions[sessID]; ok {
 		return session.mLastTimeAccessed
 	}
 
@@ -149,9 +149,9 @@ func (mgr *SessionMgr) GC() {
 	mgr.mLock.Lock()
 	defer mgr.mLock.Unlock()
 
-	for sessionID, session := range mgr.mSessions {
+	for sessID, session := range mgr.mSessions {
 		if session.mLastTimeAccessed.Unix()+mgr.mMaxLifeTime < time.Now().Unix() {
-			delete(mgr.mSessions, sessionID)
+			delete(mgr.mSessions, sessID)
 		}
 	}
 

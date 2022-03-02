@@ -232,7 +232,7 @@ func updateCharts(repos []*repo.ChartRepository) {
 	log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
 }
 
-func addRepo(name string, url string, username string, password string) error {
+func addRepo(name string, url string, username string, repoConf string) error {
 	settings := GetSettings()
 
 	repoFile := settings.RepositoryConfig
@@ -275,7 +275,7 @@ func addRepo(name string, url string, username string, password string) error {
 		Name:                  name,
 		URL:                   url,
 		Username:              username,
-		Password:              password,
+		Password:              repoConf,
 		InsecureSkipTLSverify: true,
 	}
 

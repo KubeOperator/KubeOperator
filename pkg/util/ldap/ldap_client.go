@@ -3,6 +3,8 @@ package ldap
 import (
 	"errors"
 	"fmt"
+
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	"github.com/go-ldap/ldap"
 )
 
@@ -25,7 +27,7 @@ func (l *LdapClient) Connect() error {
 	var endpoint string
 	var port string
 	var username string
-	var password string
+	var password []byte
 	if _, ok := l.Vars["ldap_address"]; ok {
 		endpoint = l.Vars["ldap_address"]
 	} else {
@@ -41,20 +43,17 @@ func (l *LdapClient) Connect() error {
 	} else {
 		return errors.New(ParamEmpty)
 	}
-	if _, ok := l.Vars["ldap_password"]; ok {
-		password = l.Vars["ldap_password"]
-	} else {
-		return errors.New(ParamEmpty)
-	}
+	password = escape.GetByte(l.Vars["ldap_password"])
 	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", endpoint, port))
 	if err != nil {
 		return err
 	}
-	err = conn.Bind(username, password)
+	err = conn.Bind(username, string(password))
 	if err != nil {
 		return err
 	}
 	l.Conn = conn
+	escape.Clean(string(password))
 	return err
 }
 
@@ -88,7 +87,7 @@ func (l *LdapClient) Search() ([]*ldap.Entry, error) {
 	return sr.Entries, err
 }
 
-func (l *LdapClient) Login(userName, password string) error {
+func (l *LdapClient) Login(userName string, password []byte) error {
 	var dn string
 	if _, ok := l.Vars["ldap_dn"]; ok {
 		dn = l.Vars["ldap_dn"]
@@ -108,10 +107,11 @@ func (l *LdapClient) Login(userName, password string) error {
 		return errors.New("LDAP_LOGIN_USER_IS_NULL")
 	}
 	userdn := sr.Entries[0].DN
-	err = l.Conn.Bind(userdn, password)
+	err = l.Conn.Bind(userdn, string(password))
 	if err != nil {
 		return errors.New("PASSWORD_NOT_MATCH")
 	}
 	defer l.Conn.Close()
+	escape.Clean(string(password))
 	return nil
 }

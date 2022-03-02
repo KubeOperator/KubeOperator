@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
@@ -45,16 +46,13 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	pass, ok := s.Vars["password"].(string)
-	if !ok {
-		return false, errors.New("not support password type")
-	}
-	pwdByte := []byte(pass)
-	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
+	pass := escape.GetByte(s.Vars["password"])
+	sftpC, err := connect(s.Vars["username"].(string), pass, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
 	defer sftpC.Close()
+	escape.Clean(string(pass))
 	srcFile, err := os.OpenFile(src, os.O_RDONLY, 0750)
 	if err != nil {
 		return false, err
@@ -102,16 +100,13 @@ func (s sftpClient) Download(src, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	pass, ok := s.Vars["password"].(string)
-	if !ok {
-		return false, errors.New("not support password type")
-	}
-	pwdByte := []byte(pass)
-	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
+	pass := escape.GetByte(s.Vars["password"])
+	sftpC, err := connect(s.Vars["username"].(string), pass, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
 	defer sftpC.Close()
+	escape.Clean(string(pass))
 	srcFile, err := sftpC.Open(bucket + "/" + src)
 	if err != nil {
 		return false, err
@@ -139,16 +134,13 @@ func (s sftpClient) Exist(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	pass, ok := s.Vars["password"].(string)
-	if !ok {
-		return false, errors.New("not support password type")
-	}
-	pwdByte := []byte(pass)
-	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
+	pass := escape.GetByte(s.Vars["password"])
+	sftpC, err := connect(s.Vars["username"].(string), pass, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
 	defer sftpC.Close()
+	escape.Clean(string(pass))
 	srcFile, err := sftpC.Open(bucket + "/" + path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -170,16 +162,13 @@ func (s sftpClient) Delete(filePath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	pass, ok := s.Vars["password"].(string)
-	if !ok {
-		return false, errors.New("not support password type")
-	}
-	pwdByte := []byte(pass)
-	sftpC, err := connect(s.Vars["username"].(string), pwdByte, s.Vars["address"].(string), port)
+	pass := escape.GetByte(s.Vars["password"])
+	sftpC, err := connect(s.Vars["username"].(string), pass, s.Vars["address"].(string), port)
 	if err != nil {
 		return false, err
 	}
 	defer sftpC.Close()
+	escape.Clean(string(pass))
 	targetFilePath := bucket + "/" + filePath
 	err = sftpC.Remove(targetFilePath)
 	if err != nil {

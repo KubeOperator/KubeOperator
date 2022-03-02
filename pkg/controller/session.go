@@ -67,7 +67,7 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	p, err := s.handleLogin(aul.Username, aul.Password, false)
+	p, err := s.handleLogin(aul.Username, []byte(aul.Password), false)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *SessionController) PostSystem() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	p, err := s.handleLogin(aul.Username, aul.Password, true)
+	p, err := s.handleLogin(aul.Username, []byte(aul.Password), true)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func toSessionUser(u model.User) dto.SessionUser {
 	}
 }
 
-func (s *SessionController) handleLogin(username, password string, isSystem bool) (*dto.Profile, error) {
+func (s *SessionController) handleLogin(username string, password []byte, isSystem bool) (*dto.Profile, error) {
 	p := &dto.Profile{}
 	u, err := s.UserService.UserAuth(username, password, isSystem)
 	if err != nil {

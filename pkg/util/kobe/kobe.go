@@ -1,10 +1,11 @@
 package kobe
 
 import (
+	"io"
+
 	"github.com/KubeOperator/kobe/api"
 	kobeClient "github.com/KubeOperator/kobe/pkg/client"
 	"github.com/spf13/viper"
-	"io"
 )
 
 type Interface interface {
@@ -43,8 +44,8 @@ func (k *Kobe) RunPlaybook(name, tag string) (string, error) {
 	return result.Id, nil
 }
 
-func (k *Kobe) SetVar(key string, value string) {
-	k.Inventory.Vars[key] = value
+func (k *Kobe) SetVar(ke string, va string) {
+	k.Inventory.Vars[ke] = va
 }
 
 func (k *Kobe) RunAdhoc(pattern, module, param string) (string, error) {

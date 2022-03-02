@@ -42,9 +42,9 @@ func NewSystemSettingService() SystemSettingService {
 	}
 }
 
-func (s systemSettingService) Get(key string) (dto.SystemSetting, error) {
+func (s systemSettingService) Get(info string) (dto.SystemSetting, error) {
 	var systemSettingDTO dto.SystemSetting
-	mo, err := s.systemSettingRepo.Get(key)
+	mo, err := s.systemSettingRepo.Get(info)
 	if err != nil {
 		return systemSettingDTO, err
 	}

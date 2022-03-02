@@ -36,20 +36,20 @@ func generateSalt(length int) []byte {
 	return salt
 }
 
-func Encode(rawPwd string, options *Options) (string, string) {
+func Encode(rawPw string, options *Options) (string, string) {
 	if options == nil {
 		salt := generateSalt(defaultSaltLen)
-		encodedPwd := pbkdf2.Key([]byte(rawPwd), salt, defaultIterations, defaultKeyLen, defaultHashFunction)
+		encodedPwd := pbkdf2.Key([]byte(rawPw), salt, defaultIterations, defaultKeyLen, defaultHashFunction)
 		return string(salt), hex.EncodeToString(encodedPwd)
 	}
 	salt := generateSalt(options.SaltLen)
-	encodedPwd := pbkdf2.Key([]byte(rawPwd), salt, options.Iterations, options.KeyLen, options.HashFunction)
+	encodedPwd := pbkdf2.Key([]byte(rawPw), salt, options.Iterations, options.KeyLen, options.HashFunction)
 	return string(salt), hex.EncodeToString(encodedPwd)
 }
 
-func Verify(rawPwd string, salt string, encodedPwd string, options *Options) bool {
+func Verify(rawPw string, salt string, encodedPw string, options *Options) bool {
 	if options == nil {
-		return encodedPwd == hex.EncodeToString(pbkdf2.Key([]byte(rawPwd), []byte(salt), defaultIterations, defaultKeyLen, defaultHashFunction))
+		return encodedPw == hex.EncodeToString(pbkdf2.Key([]byte(rawPw), []byte(salt), defaultIterations, defaultKeyLen, defaultHashFunction))
 	}
-	return encodedPwd == hex.EncodeToString(pbkdf2.Key([]byte(rawPwd), []byte(salt), options.Iterations, options.KeyLen, options.HashFunction))
+	return encodedPw == hex.EncodeToString(pbkdf2.Key([]byte(rawPw), []byte(salt), options.Iterations, options.KeyLen, options.HashFunction))
 }

@@ -386,10 +386,10 @@ func (d *timeoutDialer) Dial(network, addr string, config *ssh.ClientConfig) (*s
 	return d.dialer.Dial(network, addr, config)
 }
 
-func MakePrivateKeySignerFromFile(key string) (ssh.Signer, error) {
-	buffer, err := ioutil.ReadFile(key)
+func MakePrivateKeySignerFromFile(key []byte) (ssh.Signer, error) {
+	buffer, err := ioutil.ReadFile(string(key))
 	if err != nil {
-		return nil, fmt.Errorf("error reading SSH key %s: '%v'", key, err)
+		return nil, fmt.Errorf("error reading SSH key %s: '%v'", string(key), err)
 	}
 	return MakePrivateKeySigner(buffer, nil)
 }
