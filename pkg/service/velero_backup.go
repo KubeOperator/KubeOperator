@@ -170,7 +170,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	args = append(args, "--secret-file", credentialPath)
 	if backupAccount.Type == "OSS" {
 		args = append(args, "--provider", "alibabacloud")
-		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:latest")
+		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:1.4.2-2b9dce65-aliyun")
 		args = append(args, "--bucket", backupAccount.Bucket)
 		args = append(args, "--plugins", "registry.cn-hangzhou.aliyuncs.com/acs/velero-plugin-alibabacloud:v1.0.0-2d33b89")
 	}
@@ -307,6 +307,15 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 		file.WriteString("[default] \n")
 		file.WriteString("aws_access_key_id = " + vars["accessKey"].(string) + "\n")
 		file.WriteString("aws_secret_access_key = " + vars["secretKey"].(string) + "\n")
+	}
+	if backup.Type == "OSS" {
+		vars := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
+			return filePath, err
+		}
+		file.WriteString("[default] \n")
+		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID = " + vars["accessKey"].(string) + "\n")
+		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET = " + vars["secretKey"].(string) + "\n")
 	}
 
 	return filePath, err
