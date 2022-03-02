@@ -1,13 +1,16 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 )
 
@@ -19,6 +22,7 @@ type VeleroBackupService interface {
 	Delete(cluster, name, operate string) (string, error)
 	Install(cluster string, veleroInstall dto.VeleroInstall) (string, error)
 	GetConfig(cluster string) (model.ClusterVelero, error)
+	UnInstall(cluster string) error
 }
 
 type veleroBackupService struct {
@@ -55,6 +59,12 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 }
 
 func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{}, error) {
+
+	err := v.checkValid(cluster)
+	if err != nil {
+		return nil, nil
+	}
+
 	var result map[string]interface{}
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -73,6 +83,10 @@ func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{
 }
 
 func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, error) {
+	err := v.checkValid(cluster)
+	if err != nil {
+		return "", nil
+	}
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -89,6 +103,10 @@ func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, err
 }
 
 func (v veleroBackupService) GetDescribe(cluster, name, operate string) (string, error) {
+	err := v.checkValid(cluster)
+	if err != nil {
+		return "", nil
+	}
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -190,22 +208,69 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	return result, err
 }
 
-//func (v veleroBackupService)UnInstall(cluster string) error {
-//	secret, err := v.ClusterService.GetSecrets(cluster)
-//	if err != nil {
-//		return  err
-//	}
-//	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
-//	if err != nil {
-//		return err
-//	}
-//	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-//		Hosts: endpoints,
-//		Token: secret.KubernetesToken,
-//	})
-//
-//	return nil
-//}
+func (v veleroBackupService) UnInstall(cluster string) error {
+	secret, err := v.ClusterService.GetSecrets(cluster)
+	if err != nil {
+		return err
+	}
+	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
+	if err != nil {
+		return err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	err = kubeClient.CoreV1().Namespaces().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	err = kubeClient.RbacV1().ClusterRoleBindings().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	exClient, err := kubernetesUtil.NewKubernetesExtensionClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	listPvOptions := metav1.ListOptions{
+		LabelSelector: "component=velero",
+	}
+	err = exClient.ApiextensionsV1().CustomResourceDefinitions().DeleteCollection(context.Background(), metav1.DeleteOptions{}, listPvOptions)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (v veleroBackupService) checkValid(cluster string) error {
+	secret, err := v.ClusterService.GetSecrets(cluster)
+	if err != nil {
+		return err
+	}
+	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
+	if err != nil {
+		return err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	_, err = kubeClient.CoreV1().Namespaces().Get(context.Background(), "velero", metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) {
 	var (

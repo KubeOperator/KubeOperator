@@ -45,6 +45,11 @@ func (c ClusterVeleroBackupController) DeleteDel() (string, error) {
 	return c.VeleroBackupService.Delete(clusterName, name, operate)
 }
 
+func (c ClusterVeleroBackupController) DeleteUninstall() error {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	return c.VeleroBackupService.UnInstall(clusterName)
+}
+
 func (c ClusterVeleroBackupController) PostInstallConfig() (string, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	var req dto.VeleroInstall

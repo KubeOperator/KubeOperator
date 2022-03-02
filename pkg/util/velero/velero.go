@@ -49,7 +49,7 @@ func Restore(backupName string, args []string) ([]byte, error) {
 }
 
 func Install(args []string) ([]byte, error) {
-	install := []string{"-c", "install"}
+	install := []string{"install"}
 	args = append(install, args...)
 	return ExecCommand(defaultVeleroPath, args)
 }
@@ -90,7 +90,7 @@ func ExecCommand(command string, args []string) ([]byte, error) {
 		}
 		return buffer.Bytes(), nil
 	case <-time.After(time.Second * 10):
-		err := stdout.Close()
-		return []byte{}, err
+		_ = stdout.Close()
+		return []byte("time out"), errors.New("read log time out")
 	}
 }
