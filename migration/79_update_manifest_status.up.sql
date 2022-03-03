@@ -1,0 +1,1 @@
+UPDATE `ko`.`ko_cluster_manifest` SET `is_active`='0' WHERE `name`='v1.20.4-ko1';
