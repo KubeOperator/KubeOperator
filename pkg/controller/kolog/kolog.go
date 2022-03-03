@@ -1,8 +1,6 @@
 package kolog
 
 import (
-	"fmt"
-
 	"github.com/kataras/iris/v12/context"
 
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -16,7 +14,6 @@ func Save(ctx context.Context, operation, operationInfo string) {
 	lS := service.NewSystemLogService()
 	operator := ctx.Values().GetString("operator")
 	ip := ctx.Values().GetString("ipfrom")
-	fmt.Println(ip)
 	logInfo := dto.SystemLogCreate{
 		Name:          operator,
 		Operation:     operation,

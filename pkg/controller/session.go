@@ -149,7 +149,7 @@ func (s *SessionController) Delete() error {
 	if len(ip) == 0 {
 		ip = middleware.GetClientIP(s.Ctx.Request())
 	}
-	s.Ctx.Values().Set("user", user.User.Name)
+	s.Ctx.Values().Set("operator", user.User.Name)
 	s.Ctx.Values().Set("ipfrom", ip)
 	go kolog.Save(s.Ctx, constant.LOGOUT, "-")
 	return nil
