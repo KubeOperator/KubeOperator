@@ -45,7 +45,10 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 		}
 	}
 
-	passwd, _ := values["adminPassword"].(string)
+	passwd, ok := values["adminPassword"].(string)
+	if !ok {
+		log.Error("type aassertion failed")
+	}
 	passwdEncrypt, _ := encrypt.StringDecrypt(passwd)
 	values["adminPassword"] = passwdEncrypt
 

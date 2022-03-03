@@ -53,7 +53,7 @@ func (l *LdapClient) Connect() error {
 		return err
 	}
 	l.Conn = conn
-	escape.Clean(string(password))
+	escape.Clean(password)
 	return err
 }
 
@@ -112,6 +112,6 @@ func (l *LdapClient) Login(userName string, password []byte) error {
 		return errors.New("PASSWORD_NOT_MATCH")
 	}
 	defer l.Conn.Close()
-	escape.Clean(string(password))
+	escape.Clean(password)
 	return nil
 }

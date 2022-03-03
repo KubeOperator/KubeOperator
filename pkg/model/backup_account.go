@@ -32,7 +32,7 @@ func (b *BackupAccount) BeforeCreate() (err error) {
 
 func (b *BackupAccount) BeforeDelete() (err error) {
 	var backupAccounts []ProjectResource
-	if err = db.DB.Where(ProjectResource{ResourceID: b.ID}).Find(&backupAccounts).Error; err != nil {
+	if err := db.DB.Where(ProjectResource{ResourceID: b.ID}).Find(&backupAccounts).Error; err != nil {
 		return err
 	}
 	if len(backupAccounts) > 0 {

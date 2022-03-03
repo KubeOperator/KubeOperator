@@ -1,11 +1,8 @@
 package escape
 
-import "unsafe"
-
-func Clean(str string) {
-	clearStr := *(*[]byte)(unsafe.Pointer(&str))
-	for i := 0; i < len(clearStr); i++ {
-		clearStr[i] = 0
+func Clean(str []byte) {
+	for i := 0; i < len(str); i++ {
+		str[i] = 0
 	}
 }
 

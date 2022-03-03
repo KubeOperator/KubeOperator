@@ -212,7 +212,10 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	param["dns1"] = ipPool.Ips[0].DNS1
 	param["dns2"] = ipPool.Ips[0].DNS2
 
-	vars, _ := json.Marshal(creation.CloudVars)
+	vars, err := json.Marshal(creation.CloudVars)
+	if err != nil {
+		return nil, err
+	}
 	zone := model.Zone{
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
@@ -258,7 +261,10 @@ func (z zoneService) Update(update dto.ZoneUpdate) (*dto.Zone, error) {
 	param["dns1"] = ipPool.Ips[0].DNS1
 	param["dns2"] = ipPool.Ips[0].DNS2
 
-	vars, _ := json.Marshal(update.CloudVars)
+	vars, err := json.Marshal(update.CloudVars)
+	if err != nil {
+		return nil, err
+	}
 	old, err := z.zoneRepo.Get(update.Name)
 	if err != nil {
 		return nil, err

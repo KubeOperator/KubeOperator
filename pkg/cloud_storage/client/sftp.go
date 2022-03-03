@@ -52,7 +52,7 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 		return false, err
 	}
 	defer sftpC.Close()
-	escape.Clean(string(pass))
+	escape.Clean(pass)
 	srcFile, err := os.OpenFile(src, os.O_RDONLY, 0750)
 	if err != nil {
 		return false, err
@@ -106,7 +106,7 @@ func (s sftpClient) Download(src, target string) (bool, error) {
 		return false, err
 	}
 	defer sftpC.Close()
-	escape.Clean(string(pass))
+	escape.Clean(pass)
 	srcFile, err := sftpC.Open(bucket + "/" + src)
 	if err != nil {
 		return false, err
@@ -140,7 +140,7 @@ func (s sftpClient) Exist(path string) (bool, error) {
 		return false, err
 	}
 	defer sftpC.Close()
-	escape.Clean(string(pass))
+	escape.Clean(pass)
 	srcFile, err := sftpC.Open(bucket + "/" + path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -168,7 +168,7 @@ func (s sftpClient) Delete(filePath string) (bool, error) {
 		return false, err
 	}
 	defer sftpC.Close()
-	escape.Clean(string(pass))
+	escape.Clean(pass)
 	targetFilePath := bucket + "/" + filePath
 	err = sftpC.Remove(targetFilePath)
 	if err != nil {
@@ -208,6 +208,10 @@ func connect(user string, password []byte, host string, port int) (*sftp.Client,
 	if sftpClient, err = sftp.NewClient(sshClient); err != nil {
 		return nil, err
 	}
+	for i := 0; i < len(password); i++ {
+		password[i] = 0
+	}
+
 	return sftpClient, nil
 }
 

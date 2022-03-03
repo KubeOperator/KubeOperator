@@ -52,8 +52,11 @@ func (r Registry) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall 
 			values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 		}
 		if va, ok := values["persistence.enabled"]; ok {
-			if hasPers, _ := va.(bool); !hasPers {
-				delete(values, "nodeSelector.kubernetes\\.io/hostname")
+			hasPers, ok := va.(bool)
+			if ok {
+				if !hasPers {
+					delete(values, "nodeSelector.kubernetes\\.io/hostname")
+				}
 			}
 		}
 	}

@@ -17,11 +17,11 @@ type response struct {
 	Message string `json:"message"`
 }
 
-func GetConnectToken(name string, apiServer string, token string) (string, error) {
+func GetConnectToken(name string, apiServer string, token []byte) (string, error) {
 	req := map[string]string{
 		"name":      name,
 		"apiServer": apiServer,
-		"token":     token,
+		"token":     string(token),
 	}
 
 	j, err := json.Marshal(&req)

@@ -39,17 +39,10 @@ func (c *InitEncryptPhase) Init() error {
 		}
 		args := []string{"decrypt", "-t", secret}
 		args = append(args, "-p")
-		argCommonds := ""
 		for i := range parts {
-			arg, ok := parts[i].(string)
-			if !ok {
-				log.Errorf("type aassertion failed")
-				continue
-			}
-			args = append(args, arg)
-			argCommonds += (arg + " ")
+			args = append(args, parts[i].(string))
 		}
-		if ssh.CheckIllegal(argCommonds) {
+		if ssh.CheckIllegal(p) || ssh.CheckIllegal(args...) {
 			return errors.New("args contains invalid characters!")
 		}
 		cmd := exec.Command(p, args...)

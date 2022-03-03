@@ -308,8 +308,10 @@ func (v *vSphereClient) UploadImage() error {
 	}
 	var datastoreName string
 	for _, name := range v.Vars["datastore"].([]interface{}) {
-		datastoreName = name.(string)
-		break
+		datastoreName, ok = name.(string)
+		if !ok {
+			log.Error("type aassertion failed")
+		}
 	}
 	datastore, err := f.Datastore(ctx, datastoreName)
 	if err != nil {

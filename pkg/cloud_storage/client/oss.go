@@ -45,7 +45,7 @@ func NewOssClient(vars map[string]interface{}) (*ossClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	escape.Clean(string(secretKey))
+	escape.Clean(secretKey)
 
 	return &ossClient{
 		Vars:   vars,

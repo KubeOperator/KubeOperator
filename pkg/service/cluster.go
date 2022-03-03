@@ -517,7 +517,7 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	if err != nil {
 		return token, nil
 	}
-	t, err := webkubectl.GetConnectToken(name, addr, secret.KubernetesToken)
+	t, err := webkubectl.GetConnectToken(name, addr, []byte(secret.KubernetesToken))
 	token.Token = t
 	if err != nil {
 		return token, nil

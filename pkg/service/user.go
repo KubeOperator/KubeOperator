@@ -261,7 +261,7 @@ func validateOldPassword(user model.User, password []byte) (bool, error) {
 		return false, errors.New("TOO_MANY_FAILURES")
 	}
 
-	if !encrypt.Verify(string(password), user.Salt, user.Password, nil) {
+	if !encrypt.Verify(password, []byte(user.Salt), []byte(user.Password), nil) {
 		if user.UpdatedAt.Before(time.Now().Add(-1 * time.Minute)) {
 			_ = db.DB.Model(&model.User{}).Where("id = ?", user.ID).Update("err_count", 1)
 		} else {
@@ -269,6 +269,6 @@ func validateOldPassword(user model.User, password []byte) (bool, error) {
 		}
 		return false, NameOrPasswordErr
 	}
-	escape.Clean(string(password))
+	escape.Clean(password)
 	return true, nil
 }

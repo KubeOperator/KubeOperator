@@ -131,7 +131,9 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	}
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
-		_, _ = fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade")
+		if _, err := fmt.Fprintln(c.writer, "runtime version is newest.skip upgrade"); err != nil {
+			log.Error(err.Error())
+		}
 		return nil
 	}
 	c.Kobe.SetVar(runtimeVersionKey, newVersion)
@@ -155,7 +157,9 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 	}
 	newer := version.IsNewerThan(newVersion, oldVersion)
 	if !newer {
-		_, _ = fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade")
+		if _, err := fmt.Fprintln(c.writer, "etcd version is newest.skip upgrade"); err != nil {
+			log.Error(err.Error())
+		}
 		return nil
 	}
 	c.Kobe.SetVar(etcdVersionKey, newVersion)

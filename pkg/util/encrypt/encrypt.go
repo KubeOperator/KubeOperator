@@ -15,6 +15,9 @@ import (
 )
 
 func padding(plaintext []byte, blockSize int) []byte {
+	if blockSize == 0 {
+		blockSize = 1
+	}
 	padding := blockSize - len(plaintext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(plaintext, padtext...)

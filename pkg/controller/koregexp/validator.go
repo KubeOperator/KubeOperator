@@ -1,7 +1,6 @@
 package koregexp
 
 import (
-	"fmt"
 	"regexp"
 	"unicode"
 
@@ -82,6 +81,8 @@ func CheckPasswordPattern(fl validator.FieldLevel) bool {
 func CheckVmConfigPattern(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 	result, err := regexp.MatchString("^[a-zA-Z0-9]{1}[a-zA-Z0-9]{0,30}$", value)
-	fmt.Println(err)
+	if err != nil {
+		log.Errorf("regexp check ip matchString failed, %v", err)
+	}
 	return result
 }

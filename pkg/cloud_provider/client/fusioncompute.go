@@ -48,7 +48,10 @@ func (f *fusionComputeClient) ListDatacenter() ([]string, error) {
 }
 
 func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
-	siteName := f.Vars["datacenter"].(string)
+	siteName, ok := f.Vars["datacenter"].(string)
+	if !ok {
+		return nil, errors.New("type aassertion failed")
+	}
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {
 		return nil, err
@@ -138,7 +141,10 @@ func (f *fusionComputeClient) ListFlavors() ([]interface{}, error) {
 }
 
 func (f *fusionComputeClient) GetIpInUsed(network string) ([]string, error) {
-	siteName := f.Vars["datacenter"].(string)
+	siteName, ok := f.Vars["datacenter"].(string)
+	if !ok {
+		return nil, errors.New("type aassertion failed")
+	}
 	var result []string
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {

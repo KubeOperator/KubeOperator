@@ -58,8 +58,11 @@ func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstal
 			values["server.persistentVolume.size"] = fmt.Sprintf("%vGi", values["server.persistentVolume.size"])
 		}
 		if va, ok := values["server.persistentVolume.enabled"]; ok {
-			if hasPers, _ := va.(bool); !hasPers {
-				delete(values, "server.nodeSelector.kubernetes\\.io/hostname")
+			hasPers, ok := va.(bool)
+			if ok {
+				if !hasPers {
+					delete(values, "server.nodeSelector.kubernetes\\.io/hostname")
+				}
 			}
 		}
 	}
