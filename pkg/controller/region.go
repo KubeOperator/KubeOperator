@@ -59,15 +59,13 @@ func (r RegionController) Post() (*dto.Region, error) {
 		return nil, err
 	}
 
-	operator := r.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_REGION, req.Name)
+	go kolog.Save(r.Ctx, constant.CREATE_REGION, req.Name)
 
 	return r.RegionService.Create(req)
 }
 
 func (r RegionController) Delete(name string) error {
-	operator := r.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_REGION, name)
+	go kolog.Save(r.Ctx, constant.DELETE_REGION, name)
 
 	return r.RegionService.Delete(name)
 }
@@ -88,12 +86,11 @@ func (r RegionController) PostBatch() error {
 		return err
 	}
 
-	operator := r.Ctx.Values().GetString("operator")
 	delRegions := ""
 	for _, item := range req.Items {
 		delRegions += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_REGION, delRegions)
+	go kolog.Save(r.Ctx, constant.DELETE_REGION, delRegions)
 
 	return err
 }

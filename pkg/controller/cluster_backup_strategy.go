@@ -63,7 +63,6 @@ func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrat
 	if err != nil {
 		return nil, err
 	}
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
+	go kolog.Save(c.Ctx, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
 	return cb, nil
 }

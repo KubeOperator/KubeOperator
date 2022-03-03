@@ -55,8 +55,7 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Security ApiKeyAuth
 // @Router /clusters/backup/files/{name}/ [delete]
 func (b BackupFileController) DeleteBy(name string) error {
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_RECOVERY_LIST, name)
+	go kolog.Save(b.Ctx, constant.DELETE_RECOVERY_LIST, name)
 
 	return b.ClusterBackupFileService.Delete(name)
 }
@@ -77,12 +76,11 @@ func (b BackupFileController) PostBatch() error {
 		return err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
 	delBackup := ""
 	for _, item := range req.Items {
 		delBackup += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_RECOVERY_LIST, delBackup)
+	go kolog.Save(b.Ctx, constant.DELETE_RECOVERY_LIST, delBackup)
 
 	return err
 }
@@ -116,11 +114,10 @@ func (b BackupFileController) PostBackup() error {
 		return err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
 	if len(req.Name) != 0 {
-		go kolog.Save(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
+		go kolog.Save(b.Ctx, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
 	} else {
-		go kolog.Save(operator, constant.START_CLUSTER_BACKUP, req.ClusterName)
+		go kolog.Save(b.Ctx, constant.START_CLUSTER_BACKUP, req.ClusterName)
 	}
 
 	return err
@@ -154,8 +151,7 @@ func (b BackupFileController) PostRestore() error {
 		return err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.RECOVER_FROM_RECOVERY, req.ClusterName+"-"+req.Name)
+	go kolog.Save(b.Ctx, constant.RECOVER_FROM_RECOVERY, req.ClusterName+"-"+req.Name)
 
 	return err
 }
@@ -206,8 +202,7 @@ func (b BackupFileController) PostRestoreLocal() error {
 	}
 	clusterName := b.Ctx.FormValue("clusterName")
 
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPLOAD_LOCAL_RECOVERY_FILE, clusterName)
+	go kolog.Save(b.Ctx, constant.UPLOAD_LOCAL_RECOVERY_FILE, clusterName)
 
 	return b.ClusterBackupFileService.LocalRestore(clusterName, bs)
 }

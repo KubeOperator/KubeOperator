@@ -60,15 +60,13 @@ func (p PlanController) Post() (*dto.Plan, error) {
 		return nil, err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_PLAN, req.Name)
+	go kolog.Save(p.Ctx, constant.CREATE_PLAN, req.Name)
 
 	return p.PlanService.Create(req)
 }
 
 func (p PlanController) Delete(name string) error {
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_PLAN, name)
+	go kolog.Save(p.Ctx, constant.DELETE_PLAN, name)
 
 	return p.PlanService.Delete(name)
 }
@@ -89,12 +87,11 @@ func (p PlanController) PostBatch() error {
 		return err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
 	delPlans := ""
 	for _, item := range req.Items {
 		delPlans += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_PLAN, delPlans)
+	go kolog.Save(p.Ctx, constant.DELETE_PLAN, delPlans)
 
 	return err
 }

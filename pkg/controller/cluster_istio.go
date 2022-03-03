@@ -37,8 +37,7 @@ func (c ClusterIstioController) PostEnableBy(clusterName string) (*[]dto.Cluster
 		return nil, err
 	}
 
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.ENABLE_CLUSTER_ISTIO, clusterName)
+	go kolog.Save(c.Ctx, constant.ENABLE_CLUSTER_ISTIO, clusterName)
 
 	return &cts, nil
 }
@@ -53,8 +52,7 @@ func (c ClusterIstioController) PostDisableBy(clusterName string) (*[]dto.Cluste
 		return nil, err
 	}
 
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DISABLE_CLUSTER_ISTIO, clusterName)
+	go kolog.Save(c.Ctx, constant.DISABLE_CLUSTER_ISTIO, clusterName)
 
 	return &cts, nil
 }

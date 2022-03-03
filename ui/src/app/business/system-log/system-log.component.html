@@ -17,12 +17,14 @@
             </span>
         </div>
         <clr-datagrid style="word-break:break-all;overflow: hidden;" (clrDgRefresh)="load($event)" [clrDgLoading]="loading">
+            <clr-dg-column>IP</clr-dg-column>
             <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION_INFO'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
         
             <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
+                <clr-dg-cell>{{item.ip}}</clr-dg-cell>
                 <clr-dg-cell>{{item.name}}</clr-dg-cell>
                 <clr-dg-cell>
                     {{item.operation}}

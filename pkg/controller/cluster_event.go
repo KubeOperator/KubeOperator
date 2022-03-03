@@ -22,14 +22,12 @@ func (c ClusterEventController) GetNpdBy(clusterName string) (bool, error) {
 }
 
 func (c ClusterEventController) PostNpdDeleteBy(clusterName string) (bool, error) {
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DISABLE_CLUSTER_NPD, clusterName)
+	go kolog.Save(c.Ctx, constant.DISABLE_CLUSTER_NPD, clusterName)
 
 	return c.ClusterEventService.DeleteNpd(clusterName)
 }
 func (c ClusterEventController) PostNpdCreateBy(clusterName string) (bool, error) {
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.ENABLE_CLUSTER_NPD, clusterName)
+	go kolog.Save(c.Ctx, constant.ENABLE_CLUSTER_NPD, clusterName)
 
 	return c.ClusterEventService.CreateNpd(clusterName)
 }

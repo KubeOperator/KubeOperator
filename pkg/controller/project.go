@@ -113,8 +113,7 @@ func (p ProjectController) Post() (*dto.Project, error) {
 		return result, err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_PROJECT, req.Name)
+	go kolog.Save(p.Ctx, constant.CREATE_PROJECT, req.Name)
 
 	return nil, err
 }
@@ -156,8 +155,7 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 		return nil, err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_PROJECT_INFO, name)
+	go kolog.Save(p.Ctx, constant.UPDATE_PROJECT_INFO, name)
 
 	return &result, nil
 }
@@ -169,8 +167,7 @@ func (p ProjectController) Delete(name string) error {
 		return errors.New("UNRECOGNIZED_USER")
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_PROJECT, name)
+	go kolog.Save(p.Ctx, constant.DELETE_PROJECT, name)
 
 	return p.ProjectService.Delete(name)
 }
@@ -214,8 +211,7 @@ func (p ProjectController) PostBatch() error {
 		return err
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_PROJECT, delProjects)
+	go kolog.Save(p.Ctx, constant.DELETE_PROJECT, delProjects)
 
 	return err
 }

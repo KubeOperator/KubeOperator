@@ -138,8 +138,7 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, err
 	}
 
-	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_HOST, req.Name)
+	go kolog.Save(h.Ctx, constant.CREATE_HOST, req.Name)
 
 	return &item, nil
 }
@@ -155,8 +154,7 @@ func (h HostController) PostSync() error {
 	for _, host := range req {
 		hostStr += (host.HostName + ",")
 	}
-	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.SYNC_HOST_LIST, hostStr)
+	go kolog.Save(h.Ctx, constant.SYNC_HOST_LIST, hostStr)
 
 	return h.HostService.SyncList(req)
 }
@@ -187,12 +185,11 @@ func (h HostController) PostBatch() error {
 		return err
 	}
 
-	operator := h.Ctx.Values().GetString("operator")
 	delHost := ""
 	for _, item := range req.Items {
 		delHost += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_HOST, delHost)
+	go kolog.Save(h.Ctx, constant.DELETE_HOST, delHost)
 
 	return err
 }
@@ -249,8 +246,7 @@ func (h HostController) PostUpload() error {
 		}
 	}
 
-	operator := h.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPLOAD_HOST, hostNames)
+	go kolog.Save(h.Ctx, constant.UPLOAD_HOST, hostNames)
 
 	return err
 }

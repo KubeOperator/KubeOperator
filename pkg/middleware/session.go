@@ -2,7 +2,10 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
+	"net"
 	"net/http"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -32,7 +35,12 @@ func SessionMiddleware(ctx context.Context) {
 			log.Errorf("get user %s role failed failed, %v", user.User.Name, err)
 		}
 		user.User.Roles = roles
+		ip := GetClientPublicIP(ctx.Request())
+		if len(ip) == 0 {
+			ip = GetClientIP(ctx.Request())
+		}
 		ctx.Values().Set("user", user.User)
+		ctx.Values().Set("ipfrom", ip)
 		ctx.Values().Set("operator", user.User.Name)
 		ctx.Next()
 		return
@@ -84,4 +92,62 @@ func getUserRole(user *dto.SessionUser) ([]string, error) {
 		roles = append(roles, constant.SystemRoleUser)
 	}
 	return roles, nil
+}
+
+func GetClientIP(r *http.Request) string {
+	ip := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0])
+	if ip != "" {
+		return ip
+	}
+	ip = strings.TrimSpace(r.Header.Get("X-Real-Ip"))
+	if ip != "" {
+		return ip
+	}
+	if ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr)); err == nil {
+		return ip
+	}
+	return ""
+}
+
+func GetClientPublicIP(r *http.Request) string {
+	var ip string
+	for _, ip = range strings.Split(r.Header.Get("X-Forwarded-For"), ",") {
+		if ip = strings.TrimSpace(ip); ip != "" && !hasLocalIPAddr(ip) {
+			return ip
+		}
+	}
+	if ip = strings.TrimSpace(r.Header.Get("X-Real-Ip")); ip != "" && !hasLocalIPAddr(ip) {
+		return ip
+	}
+	if ip = remoteIP(r); !hasLocalIPAddr(ip) {
+		return ip
+	}
+	return ""
+}
+
+func remoteIP(r *http.Request) string {
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return ip
+}
+func hasLocalIPAddr(ip string) bool {
+	return hasLocalIP(net.ParseIP(ip))
+}
+
+func hasLocalIP(ip net.IP) bool {
+	if ip.IsLoopback() {
+		return true
+	}
+
+	ip4 := ip.To4()
+	if ip4 == nil {
+		return false
+	}
+
+	return ip4[0] == 10 || // 10.0.0.0/8
+		(ip4[0] == 172 && ip4[1] >= 16 && ip4[1] <= 31) || // 172.16.0.0/12
+		(ip4[0] == 169 && ip4[1] == 254) || // 169.254.0.0/16
+		(ip4[0] == 192 && ip4[1] == 168) // 192.168.0.0/16
 }

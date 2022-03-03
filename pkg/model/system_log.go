@@ -11,6 +11,7 @@ type SystemLog struct {
 	Name          string `json:"name" gorm:"type:varchar(256);not null;"`
 	Operation     string `json:"operation" gorm:"type:varchar(256);not null;"`
 	OperationInfo string `json:"operationInfo" gorm:"type:varchar(256);"`
+	IP            string `json:"ip" gorm:"type:varchar(20);"`
 }
 
 func (s *SystemLog) BeforeCreate() (err error) {

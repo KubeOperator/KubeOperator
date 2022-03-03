@@ -79,15 +79,13 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 		return nil, err
 	}
 
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_CREDENTIALS, req.Name)
+	go kolog.Save(c.Ctx, constant.CREATE_CREDENTIALS, req.Name)
 
 	return c.CredentialService.Create(req)
 }
 
 func (c CredentialController) Delete(name string) error {
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_CREDENTIALS, name)
+	go kolog.Save(c.Ctx, constant.DELETE_CREDENTIALS, name)
 
 	return c.CredentialService.Delete(name)
 }
@@ -116,8 +114,7 @@ func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 		return dto.Credential{}, err
 	}
 
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_CREDENTIALS, name)
+	go kolog.Save(c.Ctx, constant.UPDATE_CREDENTIALS, name)
 
 	return c.CredentialService.Update(req)
 }
@@ -146,12 +143,11 @@ func (c CredentialController) PostBatch() error {
 		return err
 	}
 
-	operator := c.Ctx.Values().GetString("operator")
 	delCres := ""
 	for _, item := range req.Items {
 		delCres += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_CREDENTIALS, delCres)
+	go kolog.Save(c.Ctx, constant.DELETE_CREDENTIALS, delCres)
 
 	return err
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/session"
@@ -72,7 +73,13 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	go kolog.Save(aul.Username, constant.LOGIN, "-")
+	ip := middleware.GetClientPublicIP(s.Ctx.Request())
+	if len(ip) == 0 {
+		ip = middleware.GetClientIP(s.Ctx.Request())
+	}
+	s.Ctx.Values().Set("operator", aul.Username)
+	s.Ctx.Values().Set("ipfrom", ip)
+	go kolog.Save(s.Ctx, constant.LOGIN, "-")
 	return p, nil
 }
 
@@ -101,7 +108,13 @@ func (s *SessionController) PostSystem() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	go kolog.Save(aul.Username, constant.LOGIN, "-")
+	ip := middleware.GetClientPublicIP(s.Ctx.Request())
+	if len(ip) == 0 {
+		ip = middleware.GetClientIP(s.Ctx.Request())
+	}
+	s.Ctx.Values().Set("operator", aul.Username)
+	s.Ctx.Values().Set("ipfrom", ip)
+	go kolog.Save(s.Ctx, constant.LOGIN, "-")
 	return p, nil
 }
 
@@ -113,10 +126,32 @@ func (s *SessionController) PostSystem() (*dto.Profile, error) {
 // @Produce  json
 // @Router /auth/session/ [delete]
 func (s *SessionController) Delete() error {
-	operator := ""
-	session.GloablSessionMgr.EndSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
+	var sessionID = session.GloablSessionMgr.CheckCookieValid(s.Ctx.ResponseWriter(), s.Ctx.Request())
+	if len(sessionID) == 0 {
+		session.GloablSessionMgr.EndSession(s.Ctx.ResponseWriter(), s.Ctx.Request())
+		return nil
+	}
 
-	go kolog.Save(operator, constant.LOGOUT, "-")
+	u, ok := session.GloablSessionMgr.GetSessionVal(sessionID, constant.SessionUserKey)
+	if !ok {
+		session.GloablSessionMgr.EndSessionBy(sessionID)
+		return nil
+	}
+
+	user, ok := u.(*dto.Profile)
+	if !ok {
+		session.GloablSessionMgr.EndSessionBy(sessionID)
+		return nil
+	}
+	session.GloablSessionMgr.EndSessionBy(sessionID)
+
+	ip := middleware.GetClientPublicIP(s.Ctx.Request())
+	if len(ip) == 0 {
+		ip = middleware.GetClientIP(s.Ctx.Request())
+	}
+	s.Ctx.Values().Set("user", user.User.Name)
+	s.Ctx.Values().Set("ipfrom", ip)
+	go kolog.Save(s.Ctx, constant.LOGOUT, "-")
 	return nil
 }
 

@@ -4,6 +4,7 @@ export class SystemLog {
     operation: string;
     completeOperation: string;
     isExceed: boolean;
+    ip: string;
 }
 
 export class Page<T> {

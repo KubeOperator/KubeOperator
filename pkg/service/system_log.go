@@ -23,6 +23,7 @@ func (s systemLogService) Create(creation dto.SystemLogCreate) error {
 		Name:          creation.Name,
 		Operation:     creation.Operation,
 		OperationInfo: creation.OperationInfo,
+		IP:            creation.IP,
 	}
 
 	if db.DB.NewRecord(log) {

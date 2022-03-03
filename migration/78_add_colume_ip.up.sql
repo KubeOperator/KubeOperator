@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_system_log` ADD COLUMN `ip` varchar(20) NULL AFTER `operation_info`;

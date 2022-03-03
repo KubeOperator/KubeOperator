@@ -95,8 +95,7 @@ func (p ProjectResourceController) PostBatch() error {
 		return errors.New("PERMISSION_DENIED")
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go saveResourceBindLogs(operator, req)
+	go p.saveResourceBindLogs(req)
 
 	return err
 }
@@ -122,7 +121,7 @@ func (p ProjectResourceController) GetList() (interface{}, error) {
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
 
-func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
+func (p ProjectResourceController) saveResourceBindLogs(req dto.ProjectResourceOp) {
 	resources := ""
 	typeStr := ""
 	for _, item := range req.Items {
@@ -132,20 +131,20 @@ func saveResourceBindLogs(operator string, req dto.ProjectResourceOp) {
 	if req.Operation == "create" {
 		switch typeStr {
 		case "PLAN":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
+			go kolog.Save(p.Ctx, constant.BIND_PROJECT_RESOURCE_PLAN, resources)
 		case "BACKUP_ACCOUNT":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
+			go kolog.Save(p.Ctx, constant.BIND_PROJECT_RESOURCE_BACKUP, resources)
 		case "HOST":
-			go kolog.Save(operator, constant.BIND_PROJECT_RESOURCE_HOST, resources)
+			go kolog.Save(p.Ctx, constant.BIND_PROJECT_RESOURCE_HOST, resources)
 		}
 	} else {
 		switch typeStr {
 		case "PLAN":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
+			go kolog.Save(p.Ctx, constant.UNBIND_PROJECT_RESOURCE_PLAN, resources)
 		case "BACKUP_ACCOUNT":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
+			go kolog.Save(p.Ctx, constant.UNBIND_PROJECT_RESOURCE_BACKUP, resources)
 		case "HOST":
-			go kolog.Save(operator, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
+			go kolog.Save(p.Ctx, constant.UNBIND_PROJECT_RESOURCE_HOST, resources)
 		}
 	}
 }

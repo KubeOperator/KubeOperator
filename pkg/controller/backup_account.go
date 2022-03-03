@@ -76,8 +76,7 @@ func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 		return nil, err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_BACKUP_ACCOUNT, req.Name)
+	go kolog.Save(b.Ctx, constant.CREATE_BACKUP_ACCOUNT, req.Name)
 
 	return b.BackupAccountService.Create(req)
 }
@@ -107,12 +106,11 @@ func (b BackupAccountController) PostBatch() error {
 		return err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
 	delAccs := ""
 	for _, item := range req.Items {
 		delAccs += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_BACKUP_ACCOUNT, delAccs)
+	go kolog.Save(b.Ctx, constant.DELETE_BACKUP_ACCOUNT, delAccs)
 
 	return err
 }
@@ -139,15 +137,13 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 		return nil, err
 	}
 
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_BACKUP_ACCOUNT, name)
+	go kolog.Save(b.Ctx, constant.UPDATE_BACKUP_ACCOUNT, name)
 
 	return b.BackupAccountService.Update(req)
 }
 
 func (b BackupAccountController) Delete(name string) error {
-	operator := b.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_BACKUP_ACCOUNT, name)
+	go kolog.Save(b.Ctx, constant.DELETE_BACKUP_ACCOUNT, name)
 
 	return b.BackupAccountService.Delete(name)
 }

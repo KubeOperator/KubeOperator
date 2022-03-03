@@ -46,11 +46,10 @@ func (m ManifestController) PatchBy(name string) (model.ClusterManifest, error) 
 		return model.ClusterManifest{}, err
 	}
 
-	operator := m.Ctx.Values().GetString("operator")
 	if req.IsActive {
-		go kolog.Save(operator, constant.ENABLE_VERSION, req.Name)
+		go kolog.Save(m.Ctx, constant.ENABLE_VERSION, req.Name)
 	} else {
-		go kolog.Save(operator, constant.DISABLE_VERSION, req.Name)
+		go kolog.Save(m.Ctx, constant.DISABLE_VERSION, req.Name)
 	}
 
 	return m.ManifestService.Update(req)

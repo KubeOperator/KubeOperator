@@ -42,8 +42,10 @@ export class NamespaceDeleteComponent implements OnInit {
         this.toolsService.list(this.currentCluster.name).subscribe(d => {
             if (d) {
                 for (const tool of d) {
-                    if (tool.vars["namespace"] === this.namespace && tool.status !== 'Waiting') {
-                        exitStr += tool.name + ',';
+                    if (tool.vars !== null) {
+                        if (tool.vars["namespace"] === this.namespace && tool.status !== 'Waiting') {
+                            exitStr += tool.name + ',';
+                        }
                     }
                 }
                 if (exitStr === '') {

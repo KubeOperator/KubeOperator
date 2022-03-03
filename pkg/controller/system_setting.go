@@ -60,8 +60,7 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 		return nil, err
 	}
 
-	operator := s.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_EMAIL, "-")
+	go kolog.Save(s.Ctx, constant.CREATE_EMAIL, "-")
 
 	return result, nil
 }
@@ -112,8 +111,7 @@ func (s SystemSettingController) PostRegistry() (*dto.SystemRegistry, error) {
 		return nil, RegistryAlreadyExistsErr
 	}
 
-	operator := s.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_REGISTRY, req.Architecture)
+	go kolog.Save(s.Ctx, constant.CREATE_REGISTRY, req.Architecture)
 
 	return s.SystemSettingService.CreateRegistry(req)
 }
@@ -132,8 +130,7 @@ func (s SystemSettingController) PatchRegistryBy(arch string) (*dto.SystemRegist
 		return nil, err
 	}
 
-	operator := s.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_REGISTRY, req.Architecture)
+	go kolog.Save(s.Ctx, constant.UPDATE_REGISTRY, req.Architecture)
 
 	return s.SystemSettingService.UpdateRegistry(req)
 }
@@ -153,11 +150,10 @@ func (s SystemSettingController) PostRegistryBatch() error {
 	if err != nil {
 		return err
 	}
-	operator := s.Ctx.Values().GetString("operator")
 	delCres := ""
 	for _, item := range req.Items {
 		delCres += (item.Architecture + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_REGISTRY, delCres)
+	go kolog.Save(s.Ctx, constant.DELETE_REGISTRY, delCres)
 	return err
 }

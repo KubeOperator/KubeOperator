@@ -13,10 +13,8 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/session"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -76,7 +74,6 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 		valueMap   map[string]interface{}
 	)
 
-	operator := getOperator(ctx)
 	_ = ctx.ReadJSON(&bodyStruct)
 	if bodyStruct != nil {
 		buf, err := json.Marshal(bodyStruct)
@@ -105,18 +102,18 @@ func saveSystemLogs(ctx context.Context, clusterName string) {
 
 	switch askModule {
 	case "storageclasses":
-		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_STORAGE_CLASS, constant.CREATE_CLUSTER_STORAGE_CLASS, valueMap)
+		goSaveLogs(askParam, clusterName, ctx, constant.DELETE_CLUSTER_STORAGE_CLASS, constant.CREATE_CLUSTER_STORAGE_CLASS, valueMap)
 	case "namespaces":
-		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_NAMESPACE, constant.CREATE_CLUSTER_NAMESPACE, valueMap)
+		goSaveLogs(askParam, clusterName, ctx, constant.DELETE_CLUSTER_NAMESPACE, constant.CREATE_CLUSTER_NAMESPACE, valueMap)
 	case "persistentvolumes":
-		goSaveLogs(askParam, clusterName, operator, constant.DELETE_CLUSTER_PVC, constant.CREATE_CLUSTER_PVC, valueMap)
+		goSaveLogs(askParam, clusterName, ctx, constant.DELETE_CLUSTER_PVC, constant.CREATE_CLUSTER_PVC, valueMap)
 	}
 }
 
-func goSaveLogs(askParam, clusterName, operator, deleteConstant, createConstant string, valueMap map[string]interface{}) {
+func goSaveLogs(askParam, clusterName string, ctx context.Context, deleteConstant, createConstant string, valueMap map[string]interface{}) {
 	if len(askParam) != 0 {
 		logStr := clusterName + "-" + askParam
-		go kolog.Save(operator, deleteConstant, logStr)
+		go kolog.Save(ctx, deleteConstant, logStr)
 	} else {
 		if _, ok := valueMap["metadata"]; ok {
 			metadata, isMap := valueMap["metadata"].(map[string]interface{})
@@ -124,28 +121,10 @@ func goSaveLogs(askParam, clusterName, operator, deleteConstant, createConstant 
 				if _, hasValue := metadata["name"]; hasValue {
 					if _, isString := metadata["name"].(string); isString {
 						logStr := clusterName + "-" + metadata["name"].(string)
-						go kolog.Save(operator, createConstant, logStr)
+						go kolog.Save(ctx, createConstant, logStr)
 					}
 				}
 			}
 		}
 	}
-}
-
-func getOperator(ctx context.Context) string {
-	var sessionID = session.GloablSessionMgr.CheckCookieValid(ctx.ResponseWriter(), ctx.Request())
-	if sessionID == "" {
-		return ""
-	}
-
-	u, ok := session.GloablSessionMgr.GetSessionVal(sessionID, constant.SessionUserKey)
-	if !ok {
-		return ""
-	}
-
-	user, ok := u.(*dto.Profile)
-	if !ok {
-		return ""
-	}
-	return user.User.Name
 }

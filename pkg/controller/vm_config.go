@@ -55,8 +55,7 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 		return nil, err
 	}
 
-	operator := v.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_VM_CONFIG, req.Name)
+	go kolog.Save(v.Ctx, constant.CREATE_VM_CONFIG, req.Name)
 
 	return v.VmConfigService.Create(req)
 }
@@ -78,8 +77,7 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 		return nil, err
 	}
 
-	operator := v.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_VM_CONFIG, name)
+	go kolog.Save(v.Ctx, constant.UPDATE_VM_CONFIG, name)
 
 	return result, nil
 }
@@ -100,12 +98,11 @@ func (v VmConfigController) PostBatch() error {
 		return err
 	}
 
-	operator := v.Ctx.Values().GetString("operator")
 	delConfs := ""
 	for _, item := range req.Items {
 		delConfs += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_VM_CONFIG, delConfs)
+	go kolog.Save(v.Ctx, constant.DELETE_VM_CONFIG, delConfs)
 
 	return err
 }

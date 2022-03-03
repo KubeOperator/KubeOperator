@@ -63,15 +63,13 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 		return nil, err
 	}
 
-	operator := z.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_ZONE, req.Name)
+	go kolog.Save(z.Ctx, constant.CREATE_ZONE, req.Name)
 
 	return z.ZoneService.Create(req)
 }
 
 func (z ZoneController) Delete(name string) error {
-	operator := z.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_ZONE, name)
+	go kolog.Save(z.Ctx, constant.DELETE_ZONE, name)
 
 	return z.ZoneService.Delete(name)
 }
@@ -88,8 +86,7 @@ func (z ZoneController) PatchBy(name string) (*dto.Zone, error) {
 		return nil, err
 	}
 
-	operator := z.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_ZONE, name)
+	go kolog.Save(z.Ctx, constant.UPDATE_ZONE, name)
 
 	return z.ZoneService.Update(req)
 }
@@ -110,12 +107,11 @@ func (z ZoneController) PostBatch() error {
 		return err
 	}
 
-	operator := z.Ctx.Values().GetString("operator")
 	delZone := ""
 	for _, item := range req.Items {
 		delZone += (item.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_ZONE, delZone)
+	go kolog.Save(z.Ctx, constant.DELETE_ZONE, delZone)
 
 	return err
 }

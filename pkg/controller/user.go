@@ -37,7 +37,6 @@ func NewUserController() *UserController {
 // @Security ApiKeyAuth
 // @Router /users/ [get]
 func (u UserController) Get() (page.Page, error) {
-
 	p, _ := u.Ctx.Values().GetBool("page")
 	if p {
 		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
@@ -99,8 +98,7 @@ func (u UserController) Post() (*dto.User, error) {
 		return nil, errors.New("NAME_PASSWORD_SAME_FAILED")
 	}
 
-	operator := u.Ctx.Values().GetString("operator")
-	kolog.Save(operator, constant.CREATE_USER, req.Name)
+	kolog.Save(u.Ctx, constant.CREATE_USER, req.Name)
 
 	return u.UserService.Create(req)
 }
@@ -142,15 +140,12 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 		}
 	}
 
-	operator := u.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPDATE_USER, name)
+	go kolog.Save(u.Ctx, constant.UPDATE_USER, name)
 
 	return user, err
 }
 
 func (u UserController) DeleteBy(name string) error {
-	operator := u.Ctx.Values().GetString("operator")
-
 	var onlineSessionIDList = session.GloablSessionMgr.GetSessionIDList()
 	for _, onlineSessionID := range onlineSessionIDList {
 		if userInfo, ok := session.GloablSessionMgr.GetSessionVal(onlineSessionID, constant.SessionUserKey); ok {
@@ -162,7 +157,7 @@ func (u UserController) DeleteBy(name string) error {
 		}
 	}
 
-	kolog.Save(operator, constant.DELETE_USER, name)
+	kolog.Save(u.Ctx, constant.DELETE_USER, name)
 
 	return u.UserService.Delete(name)
 }
@@ -205,12 +200,11 @@ func (u UserController) PostBatch() error {
 		}
 	}
 
-	operator := u.Ctx.Values().GetString("operator")
 	delUser := ""
 	for _, userItem := range req.Items {
 		delUser += (userItem.Name + ",")
 	}
-	go kolog.Save(operator, constant.DELETE_USER, delUser)
+	go kolog.Save(u.Ctx, constant.DELETE_USER, delUser)
 
 	return err
 }
@@ -248,9 +242,7 @@ func (u UserController) PostChangePassword() error {
 
 	if !isFirstLogin {
 		go deleteSession(req.Name)
-
-		operator := u.Ctx.Values().GetString("operator")
-		go kolog.Save(operator, constant.UPDATE_USER_PASSWORD, req.Name)
+		go kolog.Save(u.Ctx, constant.UPDATE_USER_PASSWORD, req.Name)
 	}
 
 	return nil

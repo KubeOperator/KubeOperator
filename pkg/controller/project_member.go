@@ -124,8 +124,7 @@ func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 		return &dto.ProjectMember{}, errors.New("PERMISSION_DENIED")
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.BIND_PROJECT_MEMBER, req.ProjectName+"-"+req.Username)
+	go kolog.Save(p.Ctx, constant.BIND_PROJECT_MEMBER, req.ProjectName+"-"+req.Username)
 
 	return result, nil
 }
@@ -156,16 +155,15 @@ func (p ProjectMemberController) PostBatch() error {
 		return errors.New("PERMISSION_DENIED")
 	}
 
-	operator := p.Ctx.Values().GetString("operator")
 	delMembers, delProject := "", ""
 	for _, item := range req.Items {
 		delMembers += (item.Username + ",")
 		delProject = item.ProjectName
 	}
 	if req.Operation == "update" {
-		go kolog.Save(operator, constant.UPDATE_PROJECT_MEMBER_ROLE, delProject+"-"+delMembers)
+		go kolog.Save(p.Ctx, constant.UPDATE_PROJECT_MEMBER_ROLE, delProject+"-"+delMembers)
 	} else {
-		go kolog.Save(operator, constant.UNBIND_PROJECT_MEMBER, delProject+"-"+delMembers)
+		go kolog.Save(p.Ctx, constant.UNBIND_PROJECT_MEMBER, delProject+"-"+delMembers)
 	}
 
 	return err

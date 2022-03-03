@@ -40,8 +40,7 @@ func (l *LicenseController) Post() (*dto.License, error) {
 	}
 	defer f.Close()
 
-	operator := l.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.IMPORT_LICENCE, "-")
+	go kolog.Save(l.Ctx, constant.IMPORT_LICENCE, "-")
 
 	return l.LicenseService.Save(string(bs))
 }
