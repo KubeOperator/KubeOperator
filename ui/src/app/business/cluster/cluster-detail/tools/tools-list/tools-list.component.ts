@@ -17,6 +17,7 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     items: ClusterTool[] = [];
     timer;
+    condition = false;
     @Input() currentCluster: Cluster;
     @Output() enableEvent = new EventEmitter<ClusterTool>();
     @Output() upgradeEvent = new EventEmitter<ClusterTool>();
@@ -71,7 +72,12 @@ export class ToolsListComponent implements OnInit, OnDestroy {
             default :
                 item.conditions = '';
         }
-        this.enableEvent.emit(item);
+        if (item.conditions !== '') {
+            item.message = item.conditions
+            this.failedEvent.emit(item);
+        } else {
+            this.enableEvent.emit(item);
+        }
     }
 
     onUpgrade(item: ClusterTool) {

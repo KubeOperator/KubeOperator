@@ -336,13 +336,3 @@
                 [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>
-
-<clr-modal [(clrModalOpen)]="condition" [clrModalClosable]="false">
-    <h3 class="modal-title">{{'APP_TIPS'|translate}}</h3>
-    <div class="modal-body modal-height">
-        {{item.conditions}}
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-    </div>
-</clr-modal>

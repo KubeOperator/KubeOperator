@@ -26,7 +26,6 @@ export class ToolsEnableComponent implements OnInit {
     esIndexPattern = EsIndexPattern;
     esIndexPatternHelper = EsIndexPatternHelper;
     opened = false;
-    condition = false;
     isSubmitGoing = false;
     nodeNum = 0;
     isCorrect = true;
@@ -78,7 +77,6 @@ export class ToolsEnableComponent implements OnInit {
     }
     onCancel() {
         this.opened = false;
-        this.condition = false;
     }
 
     reset() {
@@ -87,14 +85,9 @@ export class ToolsEnableComponent implements OnInit {
 
     open(item: ClusterTool) {
         this.reset();
-        if (item.conditions !== '') {
-            this.condition = true;
-            this.item = item;
-        } else {
-            this.opened = true;
-            this.setDefaultVars(item);
-            this.item = item;
-        }
+        this.opened = true;
+        this.setDefaultVars(item);
+        this.item = item;
     }
     listStorageClass() {
         this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {

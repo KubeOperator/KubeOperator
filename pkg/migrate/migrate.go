@@ -6,6 +6,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
@@ -38,16 +39,12 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
-	p, err := encrypt.StringDecryptWithSalt(i.Password)
+	var err error
+	i.Password, err = encrypt.StringDecryptWithSalt(i.Password)
 	if err != nil {
 		return err
 	}
-	url := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai",
-		i.User,
-		p,
-		i.Host,
-		i.Port,
-		i.Name)
+	url := []byte(fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai", i.User, i.Password, i.Host, i.Port, i.Name))
 	var path string
 	for _, d := range migrationDirs {
 		if file.Exists(d) {
@@ -58,11 +55,11 @@ func (i *InitMigrateDBPhase) Init() error {
 		return fmt.Errorf("can not find migration in [%s,%s]", localMigrationDir, releaseMigrationDir)
 	}
 	filePath := fmt.Sprintf("file://%s", path)
-	m, err := migrate.New(
-		filePath, url)
+	m, err := migrate.New(filePath, string(url))
 	if err != nil {
 		return err
 	}
+	escape.Clean(url)
 	if err := m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			log.Info("no databases change,skip migrate")
