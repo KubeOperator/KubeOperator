@@ -176,6 +176,7 @@ func writeLog(msg string, fileName string) {
 	if err != nil {
 		log.Error(err)
 	}
+	defer writer.Close()
 	if _, err := fmt.Fprintln(writer, msg); err != nil {
 		log.Error(err.Error())
 	}
