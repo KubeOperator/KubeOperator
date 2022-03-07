@@ -13,6 +13,8 @@ db:
   max_idle_conns: 10
 jwt:
   exp: 600
+validate:
+  enable: true
 job:
   timeout: 60
 kobe:

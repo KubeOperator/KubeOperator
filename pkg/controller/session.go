@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/captcha"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
+	"github.com/spf13/viper"
 )
 
 type SessionController struct {
@@ -64,8 +65,11 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 		return nil, err
 	}
 
-	if err := captcha.VerifyCode(aul.CaptchaId, aul.Code); err != nil {
-		return nil, err
+	enable := viper.GetBool("validate.enable")
+	if enable {
+		if err := captcha.VerifyCode(aul.CaptchaId, aul.Code); err != nil {
+			return nil, err
+		}
 	}
 
 	p, err := s.handleLogin(aul.Username, []byte(aul.Password), false)
