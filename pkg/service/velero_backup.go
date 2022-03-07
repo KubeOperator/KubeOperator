@@ -276,7 +276,7 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 	var (
 		filePath string
 	)
-	configPath := "/Users/zk.wang/configs/" + cluster
+	configPath := "/var/ko/velero/configs/" + cluster
 	filePath = configPath + "/credentials-velero"
 	_, err := os.Stat(filePath)
 	if err == nil {
@@ -326,7 +326,7 @@ func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 	var (
 		filePath string
 	)
-	configPath := "/Users/zk.wang/configs/" + cluster
+	configPath := "/var/ko/velero/configs/" + cluster
 	filePath = configPath + "/config"
 	_, err := os.Stat(filePath)
 	if err == nil {
