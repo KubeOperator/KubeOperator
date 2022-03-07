@@ -187,9 +187,9 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	if err != nil {
 		log.Errorf("start cluster log failed, error: %s", err.Error())
 	}
-	admCluster := adm.NewCluster(cluster)
+	admCluster := adm.NewCluster(cluster, "")
 	p := &backup.BackupClusterPhase{}
-	err = p.Run(admCluster.Kobe, nil)
+	err = p.Run(admCluster.Kobe, "")
 	if err != nil {
 		log.Errorf("run cluster log failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -312,9 +312,9 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 		return
 	}
 
-	admCluster := adm.NewCluster(cluster.Cluster)
+	admCluster := adm.NewCluster(cluster.Cluster, "")
 	p := &backup.RestoreClusterPhase{}
-	err = p.Run(admCluster.Kobe, nil)
+	err = p.Run(admCluster.Kobe, "")
 	if err != nil {
 		log.Errorf("restore cluster phase run failed, error: %s", err.Error())
 		_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -363,9 +363,9 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 			log.Errorf("start cluster log failed, error: %s", err.Error())
 		}
 
-		admCluster := adm.NewCluster(cluster.Cluster)
+		admCluster := adm.NewCluster(cluster.Cluster, "")
 		p := &backup.RestoreClusterPhase{}
-		err = p.Run(admCluster.Kobe, nil)
+		err = p.Run(admCluster.Kobe, "")
 		if err != nil {
 			log.Errorf("run cluster log failed, error: %s", err.Error())
 			_ = c.clusterLogService.End(&clog, false, err.Error())

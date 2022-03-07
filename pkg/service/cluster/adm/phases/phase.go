@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
+	"os"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -24,23 +24,30 @@ var log = logger.Default
 
 type Interface interface {
 	Name() string
-	Run(p kobe.Interface, writer io.Writer) error
+	Run(p kobe.Interface, fileName string) error
 }
 
-func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, writer io.Writer) error {
+func RunPlaybookAndGetResult(b kobe.Interface, playbookName, tag string, fileName string) error {
 	taskId, err := b.RunPlaybook(playbookName, tag)
 	var result kobe.Result
 	if err != nil {
 		return err
 	}
+	ctx, cancle := context.WithCancel(context.Background())
+	defer cancle()
 	// 读取 ansible 执行日志
-	if writer != nil {
-		go func() {
-			err = b.Watch(writer, taskId)
-			if err != nil {
+	if len(fileName) != 0 {
+		writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
+		if err != nil {
+			return err
+		}
+		go func(ctx context.Context) {
+			if err = b.Watch(writer, taskId); err != nil {
 				log.Error(err)
+				ctx.Done()
 			}
-		}()
+		}(ctx)
+		defer writer.Close()
 	}
 	timeout := viper.GetInt("job.timeout")
 	if timeout < DefaultPhaseTimeoutMinute {

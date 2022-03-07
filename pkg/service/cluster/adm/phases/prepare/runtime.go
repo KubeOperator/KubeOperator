@@ -3,7 +3,6 @@ package prepare
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"io"
 )
 
 const (
@@ -18,11 +17,11 @@ func (s ContainerRuntimePhase) Name() string {
 	return "Install Container Runtime"
 }
 
-func (s ContainerRuntimePhase) Run(b kobe.Interface, writer io.Writer) error {
+func (s ContainerRuntimePhase) Run(b kobe.Interface, fileName string) error {
 	var tag string
 	if s.Upgrade {
 		tag = "upgrade"
 	}
 
-	return phases.RunPlaybookAndGetResult(b, playbookNameContainerRuntime, tag, writer)
+	return phases.RunPlaybookAndGetResult(b, playbookNameContainerRuntime, tag, fileName)
 }

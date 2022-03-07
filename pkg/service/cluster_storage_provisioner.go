@@ -139,11 +139,11 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 }
 
 func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner) {
-	admCluster := adm.NewCluster(cluster)
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
+	fileName, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
 		log.Error(err)
 	}
+	admCluster := adm.NewCluster(cluster, fileName)
 
 	// 获取创建参数
 	if err := c.getVars(admCluster, cluster, provisioner); err != nil {
@@ -159,7 +159,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	switch provisioner.Type {
 	case "nfs":
 		admCluster.Kobe.SetVar("storage_nfs_provisioner_name", provisioner.Name)
-		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", writer); err != nil {
+		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -173,7 +173,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			return
 		}
 	case "rook-ceph":
-		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", writer); err != nil {
+		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -187,7 +187,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			return
 		}
 	case "vsphere":
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -202,7 +202,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "external-ceph":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephStorage, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -216,7 +216,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			return
 		}
 	case "oceanstor":
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -231,7 +231,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "cinder":
 		admCluster.Kobe.SetVar("cinder_csi_version", "v1.20.0")
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, cinderStorage, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, cinderStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -246,7 +246,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "glusterfs":
 		admCluster.Kobe.SetVar("type", provisioner.Type)
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, glusterfsStorage, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, glusterfsStorage, "", fileName); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}

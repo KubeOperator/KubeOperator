@@ -3,7 +3,6 @@ package storage
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"io"
 )
 
 const oceanStor = "10-plugin-cluster-storage-oceanstor.yml"
@@ -24,7 +23,7 @@ func (o OceanStorPhase) Name() string {
 	return "CrateOceanStorStorage"
 }
 
-func (o OceanStorPhase) Run(b kobe.Interface, writer io.Writer) error {
+func (o OceanStorPhase) Run(b kobe.Interface, fileName string) error {
 	if o.OceanStorType != "" {
 		b.SetVar("oceanstor_type", o.OceanStorType)
 	}
@@ -52,5 +51,5 @@ func (o OceanStorPhase) Run(b kobe.Interface, writer io.Writer) error {
 	if o.OceanstorIsMultipath != "" {
 		b.SetVar("oceanstor_is_multipath", o.OceanstorIsMultipath)
 	}
-	return phases.RunPlaybookAndGetResult(b, oceanStor, "", writer)
+	return phases.RunPlaybookAndGetResult(b, oceanStor, "", fileName)
 }

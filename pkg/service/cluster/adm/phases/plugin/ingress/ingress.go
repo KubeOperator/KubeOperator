@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"io"
 )
 
 const (
@@ -19,9 +18,9 @@ func (ControllerPhase) Name() string {
 	return "IngressController"
 }
 
-func (c ControllerPhase) Run(b kobe.Interface, writer io.Writer) error {
+func (c ControllerPhase) Run(b kobe.Interface, fileName string) error {
 	if c.IngressControllerType != "" {
 		b.SetVar(facts.IngressControllerTypeFactName, c.IngressControllerType)
 	}
-	return phases.RunPlaybookAndGetResult(b, ingressPlaybook, "", writer)
+	return phases.RunPlaybookAndGetResult(b, ingressPlaybook, "", fileName)
 }

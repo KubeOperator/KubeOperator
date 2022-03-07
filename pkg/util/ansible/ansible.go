@@ -11,37 +11,29 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func CreateAnsibleLogWriter(clusterName string) (string, io.Writer, error) {
+func CreateAnsibleLogWriter(clusterName string) (string, string, error) {
 	logId := uuid.NewV4().String()
 	dirName := path.Join(constant.DefaultAnsibleLogDir, clusterName)
 	if !file.Exists(dirName) {
 		err := os.MkdirAll(dirName, 0750)
 		if err != nil {
-			return "", nil, err
+			return "", "", err
 		}
 	}
 	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
-	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
-	if err != nil {
-		return "", nil, err
-	}
-	return logId, writer, nil
+	return logId, fileName, nil
 }
 
-func CreateAnsibleLogWriterWithId(clusterName string, logId string) (io.Writer, error) {
+func CreateAnsibleLogWriterWithId(clusterName string, logId string) (string, error) {
 	dirName := path.Join(constant.DefaultAnsibleLogDir, clusterName)
 	if !file.Exists(dirName) {
 		err := os.MkdirAll(dirName, 0750)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 	}
 	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
-	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
-	if err != nil {
-		return nil, err
-	}
-	return writer, nil
+	return fileName, nil
 }
 
 func GetAnsibleLogReader(clusterName string, logId string) (io.Reader, error) {

@@ -3,7 +3,6 @@ package upgrade
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"io"
 )
 
 const (
@@ -18,9 +17,9 @@ func (upgrade UpgradeClusterPhase) Name() string {
 	return "upgradeCluster"
 }
 
-func (upgrade UpgradeClusterPhase) Run(b kobe.Interface, writer io.Writer) error {
+func (upgrade UpgradeClusterPhase) Run(b kobe.Interface, fileName string) error {
 	if upgrade.Version != "" {
 		b.SetVar("kube_upgrade_version", upgrade.Version)
 	}
-	return phases.RunPlaybookAndGetResult(b, upgradeCluster, "", writer)
+	return phases.RunPlaybookAndGetResult(b, upgradeCluster, "", fileName)
 }

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -97,15 +96,14 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	return nil
 }
 
-func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
-
+func (c *clusterUpgradeService) do(cluster *model.Cluster, fileName string) {
 	status, err := c.clusterService.GetStatus(cluster.Name)
 	if err != nil {
 		log.Errorf("can not get current cluster status, error: %s", err.Error())
 	}
 	cluster.Status = status.ClusterStatus
 	ctx, cancel := context.WithCancel(context.Background())
-	admCluster := adm.NewCluster(*cluster, writer)
+	admCluster := adm.NewCluster(*cluster, fileName)
 	statusChan := make(chan adm.Cluster)
 	go c.doUpgrade(ctx, *admCluster, statusChan)
 	for {

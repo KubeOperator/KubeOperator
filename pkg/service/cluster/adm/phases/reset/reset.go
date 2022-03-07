@@ -3,7 +3,6 @@ package reset
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"io"
 )
 
 const (
@@ -17,6 +16,6 @@ func (s ResetClusterPhase) Name() string {
 	return "ResetCluster"
 }
 
-func (s ResetClusterPhase) Run(b kobe.Interface, writer io.Writer) error {
-	return phases.RunPlaybookAndGetResult(b, resetCluster, "", writer)
+func (s ResetClusterPhase) Run(b kobe.Interface, fileName string) error {
+	return phases.RunPlaybookAndGetResult(b, resetCluster, "", fileName)
 }

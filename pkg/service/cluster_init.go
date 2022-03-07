@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"io"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -62,17 +61,17 @@ func (c clusterInitService) Init(name string) error {
 			}
 		}
 	}
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	logId, fileName, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		return err
 	}
 	cluster.LogId = logId
 	_ = c.clusterRepo.Save(&cluster)
-	go c.do(cluster, writer)
+	go c.do(cluster, fileName)
 	return nil
 }
 
-func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
+func (c clusterInitService) do(cluster model.Cluster, fileName string) {
 	if len(cluster.Nodes) < 1 {
 		return
 	}
@@ -82,7 +81,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 	cluster.Status.Phase = constant.ClusterInitializing
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
 
-	admCluster := adm.NewCluster(cluster, writer)
+	admCluster := adm.NewCluster(cluster, fileName)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		cluster := <-statusChan
