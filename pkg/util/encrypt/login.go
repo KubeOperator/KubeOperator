@@ -9,12 +9,6 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-const (
-	defaultSaltLen    = 64
-	defaultIterations = 10000
-	defaultKeyLen     = 128
-)
-
 var defaultHashFunction = sha512.New
 
 type Options struct {
@@ -41,8 +35,8 @@ func generateSalt(length int) []byte {
 
 func Encode(rawPw string, options *Options) (string, string) {
 	if options == nil {
-		salt := generateSalt(defaultSaltLen)
-		encodedPwd := pbkdf2.Key([]byte(rawPw), salt, defaultIterations, defaultKeyLen, defaultHashFunction)
+		salt := generateSalt(64)
+		encodedPwd := pbkdf2.Key([]byte(rawPw), salt, 10000, 128, defaultHashFunction)
 		return string(salt), hex.EncodeToString(encodedPwd)
 	}
 	salt := generateSalt(options.SaltLen)
@@ -63,7 +57,7 @@ func Verify(rawPw []byte, salt []byte, encodedPw []byte, options *Options) bool 
 		}
 	}()
 	if options == nil {
-		return string(encodedPw) == hex.EncodeToString(pbkdf2.Key(rawPw, salt, defaultIterations, defaultKeyLen, defaultHashFunction))
+		return string(encodedPw) == hex.EncodeToString(pbkdf2.Key(rawPw, salt, 10000, 128, defaultHashFunction))
 	}
 	return string(encodedPw) == hex.EncodeToString(pbkdf2.Key(rawPw, salt, options.Iterations, options.KeyLen, options.HashFunction))
 }
