@@ -12,7 +12,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/jinzhu/gorm"
 )
 
@@ -226,32 +225,9 @@ func (u userService) UserAuth(name string, password []byte, isSystem bool) (user
 		return nil, UserIsNotActive
 	}
 
-	if dbUser.Type == constant.Ldap {
-		enable, err := NewSystemSettingService().Get("ldap_status")
-		if err != nil {
-			return nil, err
-		}
-		if enable.Value == "DISABLE" {
-			return nil, LdapDisable
-		}
-		result, err := NewSystemSettingService().List()
-		if err != nil {
-			return nil, err
-		}
-		ldapClient := ldap.NewLdap(result.Vars)
-		err = ldapClient.Connect()
-		if err != nil {
-			return nil, err
-		}
-		err = ldapClient.Login(name, password)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		success, err := validateOldPassword(dbUser, password)
-		if !success || err != nil {
-			return nil, err
-		}
+	success, err := validateOldPassword(dbUser, password)
+	if !success || err != nil {
+		return nil, err
 	}
 	return &dbUser, nil
 }

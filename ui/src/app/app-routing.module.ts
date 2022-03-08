@@ -35,7 +35,6 @@ import {BackupAccountComponent} from './business/setting/backup-account/backup-a
 import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 import {LicenseComponent} from './business/setting/license/license.component';
 import {SecurityComponent} from './business/cluster/cluster-detail/security/security.component';
-import {LdapComponent} from './business/setting/ldap/ldap.component';
 import {ManifestComponent} from './business/manifest/manifest.component';
 import {ThemeComponent} from './business/setting/theme/theme.component';
 import {EventComponent} from './business/cluster/cluster-detail/event/event.component';
@@ -160,7 +159,6 @@ const routes: Routes = [
                     {path: 'backupAccounts', component: BackupAccountComponent},
                     {path: 'email', component: EmailComponent},
                     {path: 'license', component: LicenseComponent},
-                    {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
                     {path: 'message', component: MessageComponent},
                     {path: 'registry-setting', component: RegistrySettingComponent}

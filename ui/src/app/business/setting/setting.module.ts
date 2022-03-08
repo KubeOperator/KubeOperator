@@ -7,7 +7,6 @@ import {SystemComponent} from './system/system.component';
 import {BackupAccountModule} from './backup-account/backup-account.module';
 import {LicenseComponent} from './license/license.component';
 import {LicenseImportComponent} from './license/license-import/license-import.component';
-import {LdapComponent} from './ldap/ldap.component';
 import {ThemeComponent} from './theme/theme.component';
 import {MessageComponent} from './message/message.component';
 import {EmailComponent} from './email/email.component';
@@ -21,7 +20,7 @@ import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
     declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent,
-        LdapComponent, ThemeComponent, MessageComponent, EmailComponent, RegistrySettingComponent, RegistryCreateComponent, RegistryListComponent, RegistryDeleteComponent, RegistryUpdateComponent],
+        ThemeComponent, MessageComponent, EmailComponent, RegistrySettingComponent, RegistryCreateComponent, RegistryListComponent, RegistryDeleteComponent, RegistryUpdateComponent],
     imports: [
         RouterModule,
         CoreModule,

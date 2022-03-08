@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
@@ -59,13 +58,6 @@ func (u *User) BeforeDelete() (err error) {
 	}
 	if err := db.DB.Where("user_id = ?", u.ID).Delete(&UserReceiver{}).Error; err != nil {
 		return err
-	}
-	return nil
-}
-
-func (u *User) BeforeUpdate() error {
-	if u.Type == constant.Ldap {
-		return errors.New(LdapCanNotUpdate)
 	}
 	return nil
 }
