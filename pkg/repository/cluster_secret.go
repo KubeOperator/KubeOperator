@@ -28,14 +28,14 @@ func (c clusterSecretRepository) Get(id string) (model.ClusterSecret, error) {
 	}
 
 	if len(status.KubeadmToken) != 0 {
-		admToken, err := encrypt.StringDecrypt(status.KubeadmToken)
+		admToken, err := encrypt.StringDecryptWithSalt(status.KubeadmToken)
 		if err != nil {
 			return status, err
 		}
 		status.KubeadmToken = admToken
 	}
 	if len(status.KubernetesToken) != 0 {
-		token, err := encrypt.StringDecrypt(status.KubernetesToken)
+		token, err := encrypt.StringDecryptWithSalt(status.KubernetesToken)
 		if err != nil {
 			return status, err
 		}
@@ -46,14 +46,14 @@ func (c clusterSecretRepository) Get(id string) (model.ClusterSecret, error) {
 
 func (c clusterSecretRepository) Save(status *model.ClusterSecret) error {
 	if len(status.KubeadmToken) != 0 {
-		admToken, err := encrypt.StringEncrypt(status.KubeadmToken)
+		admToken, err := encrypt.StringEncryptWithSalt(status.KubeadmToken)
 		if err != nil {
 			return err
 		}
 		status.KubeadmToken = admToken
 	}
 	if len(status.KubernetesToken) != 0 {
-		token, err := encrypt.StringEncrypt(status.KubernetesToken)
+		token, err := encrypt.StringEncryptWithSalt(status.KubernetesToken)
 		if err != nil {
 			return err
 		}

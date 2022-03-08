@@ -49,7 +49,7 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 	if !ok {
 		log.Error("type aassertion failed")
 	}
-	passwdEncrypt, _ := encrypt.StringDecrypt(passwd)
+	passwdEncrypt, _ := encrypt.StringDecryptWithSalt(passwd)
 	values["adminPassword"] = passwdEncrypt
 
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["grafana_image_name"])

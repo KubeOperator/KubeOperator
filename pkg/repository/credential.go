@@ -54,13 +54,13 @@ func (c credentialRepository) Page(num, size int) (int, []model.Credential, erro
 
 func (c credentialRepository) Save(credential *model.Credential) error {
 	if credential.Type == "password" {
-		password, err := encrypt.StringEncrypt(credential.Password)
+		password, err := encrypt.StringEncryptWithSalt(credential.Password)
 		if err != nil {
 			return err
 		}
 		credential.Password = password
 	} else {
-		privateKey, err := encrypt.StringEncrypt(credential.PrivateKey)
+		privateKey, err := encrypt.StringEncryptWithSalt(credential.PrivateKey)
 		if err != nil {
 			return err
 		}

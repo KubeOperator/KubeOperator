@@ -234,7 +234,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}
-	admToken, err := encrypt.StringEncrypt(secret.KubeadmToken)
+	admToken, err := encrypt.StringEncryptWithSalt(secret.KubeadmToken)
 	if err != nil {
 		return nil, fmt.Errorf("encrypt admtoken falied, err: %v", err)
 	}

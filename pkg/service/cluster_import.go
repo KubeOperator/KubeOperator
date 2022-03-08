@@ -61,7 +61,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		address = clusterImport.ApiServer
 		port = 80
 	}
-	k8sToken, err := encrypt.StringEncrypt(clusterImport.Token)
+	k8sToken, err := encrypt.StringEncryptWithSalt(clusterImport.Token)
 	if err != nil {
 		return err
 	}

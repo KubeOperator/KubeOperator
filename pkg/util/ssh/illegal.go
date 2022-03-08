@@ -1,17 +1,16 @@
 package ssh
 
-import "strings"
+import "os"
 
 func CheckIllegal(args ...string) bool {
 	if args == nil {
 		return false
 	}
 	for _, arg := range args {
-		if strings.Contains(arg, "&") || strings.Contains(arg, "|") || strings.Contains(arg, ";") ||
-			strings.Contains(arg, "$") || strings.Contains(arg, "'") || strings.Contains(arg, "`") ||
-			strings.Contains(arg, "(") || strings.Contains(arg, ")") || strings.Contains(arg, "\"") {
-			return true
+		_, err := os.Stat(arg)
+		if err != nil || os.IsNotExist(err) {
+			return false
 		}
 	}
-	return false
+	return true
 }

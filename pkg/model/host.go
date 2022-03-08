@@ -52,13 +52,13 @@ func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {
 	privateKey := []byte("")
 	switch h.Credential.Type {
 	case "password":
-		p, err := encrypt.StringDecrypt(h.Credential.Password)
+		p, err := encrypt.StringDecryptWithSalt(h.Credential.Password)
 		if err != nil {
 			return "", nil, err
 		}
 		password = p
 	case "privateKey":
-		p, err := encrypt.StringDecrypt(h.Credential.PrivateKey)
+		p, err := encrypt.StringDecryptWithSalt(h.Credential.PrivateKey)
 		if err != nil {
 			return "", nil, err
 		}
