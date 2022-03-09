@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/escape"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -102,7 +103,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		return fmt.Errorf("can not create cluster secret %s", err.Error())
 	}
 
-	if err := gatherClusterInfo(&cluster, clusterImport.Token); err != nil {
+	if err := gatherClusterInfo(&cluster, []byte(clusterImport.Token)); err != nil {
 		tx.Rollback()
 		return fmt.Errorf("can not  gather cluster info %s", err.Error())
 	}
@@ -168,11 +169,12 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	return nil
 }
 
-func gatherClusterInfo(cluster *model.Cluster, token string) error {
+func gatherClusterInfo(cluster *model.Cluster, token []byte) error {
 	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort))},
-		Token: token,
+		Token: string(token),
 	})
+	defer escape.Clean(token)
 	if err != nil {
 		return err
 	}

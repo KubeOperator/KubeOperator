@@ -25,6 +25,7 @@ var (
 	EmailDisable      = errors.New("EMAIL_DISABLE")
 	EmailNotMatch     = errors.New("EMAIL_NOT_MATCH")
 	NameOrPasswordErr = errors.New("NAME_PASSWORD_ERROR")
+	WithoutChangePwd  = errors.New("the password is not changed at the first login!")
 )
 
 type UserService interface {
@@ -226,8 +227,11 @@ func (u userService) UserAuth(name string, password []byte, isSystem bool) (user
 	}
 
 	success, err := validateOldPassword(dbUser, password)
+	if dbUser.IsFirst {
+		return &dbUser, WithoutChangePwd
+	}
 	if !success || err != nil {
-		return nil, err
+		return &dbUser, err
 	}
 	return &dbUser, nil
 }

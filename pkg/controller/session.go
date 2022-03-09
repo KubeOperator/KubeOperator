@@ -166,14 +166,13 @@ func toSessionUser(u model.User) dto.SessionUser {
 		Language: u.Language,
 		IsActive: u.IsActive,
 		IsAdmin:  u.IsAdmin,
-		IsFirst:  u.IsFirst,
 	}
 }
 
 func (s *SessionController) handleLogin(username string, password []byte, isSystem bool) (*dto.Profile, error) {
 	p := &dto.Profile{}
 	u, err := s.UserService.UserAuth(username, password, isSystem)
-	if err != nil {
+	if err != nil && err != service.WithoutChangePwd {
 		return nil, err
 	}
 	p.User = toSessionUser(*u)
@@ -197,5 +196,8 @@ func (s *SessionController) handleLogin(username string, password []byte, isSyst
 	}
 	session.GloablSessionMgr.SetSessionVal(sessionID, constant.SessionUserKey, p)
 
+	if err == service.WithoutChangePwd {
+		return nil, err
+	}
 	return p, nil
 }

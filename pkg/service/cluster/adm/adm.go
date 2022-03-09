@@ -174,7 +174,7 @@ func GetManiFestBy(name string) (dto.ClusterManifest, error) {
 func writeLog(msg string, fileName string) {
 	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0640)
 	if err != nil {
-		log.Error(err)
+		log.Error("Invalid file")
 	}
 	defer writer.Close()
 	if _, err := fmt.Fprintln(writer, msg); err != nil {

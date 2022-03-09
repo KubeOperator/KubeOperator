@@ -24,7 +24,6 @@ export class LoginComponent implements OnInit {
     @ViewChild(ResetPasswordComponent, {static: true}) resetPwdDialog: ResetPasswordComponent;
     message: string;
     isError = false;
-    isFirst = false;
     theme: Theme;
     captcha: Captcha = new Captcha();
 
@@ -63,11 +62,7 @@ export class LoginComponent implements OnInit {
         this.loginCredential.captchaId = this.captcha.captchaId;
         this.sessionService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
-            if (res.user.isFirst) {
-                this.resetOpen()
-            } else {
-              this.router.navigateByUrl(CommonRoutes.KO_ROOT);
-            }
+            this.router.navigateByUrl(CommonRoutes.KO_ROOT);
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
         }, error => this.handleError(error));
@@ -92,7 +87,12 @@ export class LoginComponent implements OnInit {
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
                 break;
             case 400:
-                this.message = error.error.msg;
+                if (error.error.msg === "the password is not changed at the first login!") {
+                    this.isError = false
+                    this.resetOpen()
+                } else {
+                    this.message = error.error.msg;
+                }
                 break;
             default:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_UNKNOWN_ERROR') + `${error.status}`;
