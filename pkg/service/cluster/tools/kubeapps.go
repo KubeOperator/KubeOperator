@@ -129,13 +129,13 @@ func (k Kubeapps) valuseV762Binding(imageMap map[string]interface{}, isInstall b
 		delete(values, "apprepository.initialRepos[0].url")
 
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps-internal-apprepository-controller", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps-internal-assetsvc", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deployment kubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("delete deployment kubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps-internal-dashboard", metav1.DeleteOptions{}); err != nil {
 			logger.Log.Info("delete deploymentkubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)

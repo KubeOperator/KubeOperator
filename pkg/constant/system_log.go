@@ -51,6 +51,8 @@ const (
 	DISABLE_CLUSTER_NPD = "关闭NPD|Disable cluster NPD"
 
 	ENABLE_CLUSTER_TOOL   = "启用集群工具|Enable cluster tools"
+	ENABLE_CLUSTER_FLEX   = "启用弹性 ip|Enable cluster flex ip"
+	DISABLE_CLUSTER_FLEX  = "禁用弹性 ip|Disable cluster flex ip"
 	UPGRADE_CLUSTER_TOOL  = "升级集群工具|Upgrade cluster tools"
 	DISABLE_CLUSTER_TOOL  = "禁用集群工具|Disable cluster tools"
 	ENABLE_CLUSTER_ISTIO  = "启用/修改集群 Istio|Enable/Update cluster Istio"
@@ -94,7 +96,7 @@ const (
 	// 用户
 	CREATE_USER          = "添加用户|Create user"
 	UPDATE_USER          = "修改用户信息|Update user information"
-	UPDATE_USER_PASSWORD = "修改用户密码|Delete user password"
+	UPDATE_USER_PASSWORD = "修改用户密码|Update user password"
 	DELETE_USER          = "删除用户|Delete user"
 	FORGOT_USER_PASSWORD = "忘记密码|forgot password"
 

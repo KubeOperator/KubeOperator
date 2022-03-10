@@ -6,6 +6,7 @@ IP_NOT_EXISTS: "请在系统设置页面填写仓库IP"
 CLUSTER_DELETE_FAILED: "无法删除当前状态的集群"
 CLUSTER_IS_NOT_RUNNING: "集群不在运行中！"
 CLUSTER_IS_NOT_LOCAL: "导入集群无法升级"
+CLUSTER_NO_FLEX: "未能找到弹性 ip"
 
 
 #credential

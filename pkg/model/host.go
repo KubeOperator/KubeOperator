@@ -32,6 +32,7 @@ type Host struct {
 	GpuNum       int        `json:"gpuNum" gorm:"type:int(64)"`
 	GpuInfo      string     `json:"gpuInfo" gorm:"type:varchar(128)"`
 	Ip           string     `json:"ip" gorm:"type:varchar(128);not null;unique"`
+	FlexIp       string     `json:"flexIp" gorm:"type:varchar(128);unique"`
 	HasGpu       bool       `json:"hasGpu" gorm:"type:boolean;default:false"`
 	Port         int        `json:"port" gorm:"type:varchar(64)"`
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`

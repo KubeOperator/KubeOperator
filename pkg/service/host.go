@@ -281,6 +281,7 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
 		Ip:           creation.Ip,
+		FlexIp:       creation.FlexIp,
 		Port:         creation.Port,
 		CredentialID: credential.ID,
 		Credential:   credential,
@@ -367,6 +368,7 @@ func (h *hostService) Update(host dto.HostUptate) (*dto.Host, error) {
 	}
 	if err := tx.Model(&model.Host{}).Where("id = ?", oldHost.ID).Updates(map[string]interface{}{
 		"Ip":           host.Ip,
+		"FlexIp":       host.FlexIp,
 		"Port":         host.Port,
 		"CredentialID": credential.ID,
 		"Status":       constant.ClusterInitializing,
@@ -378,6 +380,7 @@ func (h *hostService) Update(host dto.HostUptate) (*dto.Host, error) {
 		ID:           oldHost.ID,
 		Name:         host.Name,
 		Ip:           host.Ip,
+		FlexIp:       host.FlexIp,
 		Port:         host.Port,
 		CredentialID: credential.ID,
 		Credential:   credential,

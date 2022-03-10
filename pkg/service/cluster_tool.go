@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -26,18 +27,27 @@ type ClusterToolService interface {
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
+	GetFlex(clusterName string) (string, error)
+	EnableFlex(clusterName string) error
+	DisableFlex(clusterName string) error
 }
 
 func NewClusterToolService() ClusterToolService {
 	return &clusterToolService{
-		toolRepo:       repository.NewClusterToolRepository(),
-		clusterService: NewClusterService(),
+		toolRepo:        repository.NewClusterToolRepository(),
+		clusterRepo:     repository.NewClusterRepository(),
+		clusterNodeRepo: repository.NewClusterNodeRepository(),
+		clusterSpecRepo: repository.NewClusterSpecRepository(),
+		clusterService:  NewClusterService(),
 	}
 }
 
 type clusterToolService struct {
-	toolRepo       repository.ClusterToolRepository
-	clusterService ClusterService
+	toolRepo        repository.ClusterToolRepository
+	clusterRepo     repository.ClusterRepository
+	clusterNodeRepo repository.ClusterNodeRepository
+	clusterSpecRepo repository.ClusterSpecRepository
+	clusterService  ClusterService
 }
 
 func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) {
@@ -323,6 +333,53 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	_ = c.toolRepo.Save(&mo)
 	go c.doUpgrade(ct, &tool.ClusterTool, toolDetail)
 	return tool, nil
+}
+
+func (c clusterToolService) GetFlex(clusterName string) (string, error) {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return "", err
+	}
+	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
+	if err != nil {
+		return "", err
+	}
+	return master.Host.FlexIp, nil
+}
+
+func (c clusterToolService) EnableFlex(clusterName string) error {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
+	if err != nil {
+		return err
+	}
+	if len(master.Host.FlexIp) == 0 {
+		return errors.New("CLUSTER_NO_FLEX")
+	}
+	cluster.Spec.KubeRouter = master.Host.FlexIp
+	if err := c.clusterSpecRepo.Save(&cluster.Spec); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c clusterToolService) DisableFlex(clusterName string) error {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
+	if err != nil {
+		return err
+	}
+	cluster.Spec.KubeRouter = master.Host.Ip
+	if err := c.clusterSpecRepo.Save(&cluster.Spec); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool, toolDetail model.ClusterToolDetail) {

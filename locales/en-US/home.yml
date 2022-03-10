@@ -7,6 +7,7 @@ IP_NOT_EXISTS: "Please fill in the registry IP on the system setting page"
 CLUSTER_DELETE_FAILED: "can not delete cluster in current state"
 CLUSTER_IS_NOT_RUNNING: "The cluster is not running"
 CLUSTER_IS_NOT_LOCAL: "Import cluster cannot be upgraded"
+CLUSTER_NO_FLEX: "Can't find flex ip"
 
 
 #credential

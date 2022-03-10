@@ -16,6 +16,7 @@ type Host struct {
 type HostCreate struct {
 	Name         string                 `json:"name" validate:"required"`
 	Ip           string                 `json:"ip" validate:"required"`
+	FlexIp       string                 `json:"flexIp"`
 	Port         int                    `json:"port" validate:"required"`
 	Project      string                 `json:"project" validate:"required"`
 	Cluster      string                 `json:"cluster"`
@@ -26,6 +27,7 @@ type HostCreate struct {
 type HostUptate struct {
 	Name         string                 `json:"name" validate:"required"`
 	Ip           string                 `json:"ip" validate:"required"`
+	FlexIp       string                 `json:"flexIp"`
 	Port         int                    `json:"port" validate:"required"`
 	CredentialID string                 `json:"credentialId"`
 	Credential   CredentialOfHostCreate `json:"credential"`

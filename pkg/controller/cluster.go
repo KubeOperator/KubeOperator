@@ -27,7 +27,6 @@ type ClusterController struct {
 	ClusterService                   service.ClusterService
 	ClusterInitService               service.ClusterInitService
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
-	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
 	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
@@ -43,7 +42,6 @@ func NewClusterController() *ClusterController {
 		ClusterService:                   service.NewClusterService(),
 		ClusterInitService:               service.NewClusterInitService(),
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
-		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
 		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
@@ -337,84 +335,6 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
 
 	return nil
-}
-
-func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, error) {
-	cts, err := c.ClusterToolService.List(clusterName)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-	return cts, nil
-}
-
-func (c ClusterController) GetToolPortBy(clusterName, toolName string) (string, error) {
-	endPoint, err := c.ClusterToolService.GetNodePort(clusterName, toolName)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return endPoint, err
-	}
-	return endPoint, nil
-}
-
-func (c ClusterController) PostToolSyncBy(clusterName string) (*[]dto.ClusterTool, error) {
-	cts, err := c.ClusterToolService.SyncStatus(clusterName)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-
-	return &cts, nil
-}
-
-func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterTool, error) {
-	var req dto.ClusterTool
-	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return nil, err
-	}
-	cts, err := c.ClusterToolService.Enable(clusterName, req)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.ENABLE_CLUSTER_TOOL, clusterName+"-"+req.Name)
-
-	return &cts, nil
-}
-
-func (c ClusterController) PostToolUpgradeBy(clusterName string) (*dto.ClusterTool, error) {
-	var req dto.ClusterTool
-	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return nil, err
-	}
-	cts, err := c.ClusterToolService.Upgrade(clusterName, req)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.UPGRADE_CLUSTER_TOOL, clusterName+"-"+req.Name)
-
-	return &cts, nil
-}
-
-func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTool, error) {
-	var req dto.ClusterTool
-	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return nil, err
-	}
-	cts, err := c.ClusterToolService.Disable(clusterName, req)
-	if err != nil {
-		return nil, err
-	}
-
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DISABLE_CLUSTER_TOOL, clusterName+"-"+req.Name)
-
-	return &cts, nil
 }
 
 // Delete Cluster
