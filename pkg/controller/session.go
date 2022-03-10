@@ -43,6 +43,9 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 	if !ok {
 		return nil, errors.New("type aassertion failed")
 	}
+	if user.User.IsFirst {
+		return nil, service.WithoutChangePwd
+	}
 	return user, nil
 }
 
@@ -165,6 +168,7 @@ func toSessionUser(u model.User) dto.SessionUser {
 		Name:     u.Name,
 		Language: u.Language,
 		IsActive: u.IsActive,
+		IsFirst:  u.IsFirst,
 		IsAdmin:  u.IsAdmin,
 	}
 }

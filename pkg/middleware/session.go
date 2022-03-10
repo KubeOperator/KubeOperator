@@ -32,7 +32,7 @@ func SessionMiddleware(ctx context.Context) {
 	if ok {
 		roles, err := getUserRole(&user.User)
 		if err != nil {
-			log.Errorf("get user %s role failed failed, %v", user.User.Name, err)
+			log.Errorf("get user %s role failed, %v", user.User.Name, err)
 		}
 		user.User.Roles = roles
 		ip := GetClientPublicIP(ctx.Request())
