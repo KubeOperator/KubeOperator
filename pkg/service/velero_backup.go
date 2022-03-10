@@ -1,13 +1,16 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 )
 
@@ -19,6 +22,7 @@ type VeleroBackupService interface {
 	Delete(cluster, name, operate string) (string, error)
 	Install(cluster string, veleroInstall dto.VeleroInstall) (string, error)
 	GetConfig(cluster string) (model.ClusterVelero, error)
+	UnInstall(cluster string) error
 }
 
 type veleroBackupService struct {
@@ -55,6 +59,12 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 }
 
 func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{}, error) {
+
+	err := v.checkValid(cluster)
+	if err != nil {
+		return nil, nil
+	}
+
 	var result map[string]interface{}
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -73,6 +83,10 @@ func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{
 }
 
 func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, error) {
+	err := v.checkValid(cluster)
+	if err != nil {
+		return "", nil
+	}
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -89,6 +103,10 @@ func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, err
 }
 
 func (v veleroBackupService) GetDescribe(cluster, name, operate string) (string, error) {
+	err := v.checkValid(cluster)
+	if err != nil {
+		return "", nil
+	}
 	var result string
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
@@ -152,7 +170,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	args = append(args, "--secret-file", credentialPath)
 	if backupAccount.Type == "OSS" {
 		args = append(args, "--provider", "alibabacloud")
-		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:latest")
+		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:1.4.2-2b9dce65-aliyun")
 		args = append(args, "--bucket", backupAccount.Bucket)
 		args = append(args, "--plugins", "registry.cn-hangzhou.aliyuncs.com/acs/velero-plugin-alibabacloud:v1.0.0-2d33b89")
 	}
@@ -190,11 +208,75 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	return result, err
 }
 
+func (v veleroBackupService) UnInstall(cluster string) error {
+	secret, err := v.ClusterService.GetSecrets(cluster)
+	if err != nil {
+		return err
+	}
+	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
+	if err != nil {
+		return err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	err = kubeClient.CoreV1().Namespaces().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	err = kubeClient.RbacV1().ClusterRoleBindings().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	exClient, err := kubernetesUtil.NewKubernetesExtensionClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	listPvOptions := metav1.ListOptions{
+		LabelSelector: "component=velero",
+	}
+	err = exClient.ApiextensionsV1().CustomResourceDefinitions().DeleteCollection(context.Background(), metav1.DeleteOptions{}, listPvOptions)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (v veleroBackupService) checkValid(cluster string) error {
+	secret, err := v.ClusterService.GetSecrets(cluster)
+	if err != nil {
+		return err
+	}
+	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
+	if err != nil {
+		return err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: endpoints,
+		Token: secret.KubernetesToken,
+	})
+	if err != nil {
+		return err
+	}
+	_, err = kubeClient.CoreV1().Namespaces().Get(context.Background(), "velero", metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) {
 	var (
 		filePath string
 	)
-	configPath := "/Users/zk.wang/configs/" + cluster
+	configPath := "/var/ko/velero/configs/" + cluster
 	filePath = configPath + "/credentials-velero"
 	_, err := os.Stat(filePath)
 	if err == nil {
@@ -226,6 +308,15 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 		file.WriteString("aws_access_key_id = " + vars["accessKey"].(string) + "\n")
 		file.WriteString("aws_secret_access_key = " + vars["secretKey"].(string) + "\n")
 	}
+	if backup.Type == "OSS" {
+		vars := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
+			return filePath, err
+		}
+		file.WriteString("[default] \n")
+		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID = " + vars["accessKey"].(string) + "\n")
+		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET = " + vars["secretKey"].(string) + "\n")
+	}
 
 	return filePath, err
 }
@@ -235,7 +326,7 @@ func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 	var (
 		filePath string
 	)
-	configPath := "/Users/zk.wang/configs/" + cluster
+	configPath := "/var/ko/velero/configs/" + cluster
 	filePath = configPath + "/config"
 	_, err := os.Stat(filePath)
 	if err == nil {
