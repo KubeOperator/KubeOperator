@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -41,6 +43,9 @@ func SessionMiddleware(ctx context.Context) {
 		}
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("ipfrom", ip)
+		if ctx.Request().Method == "POST" {
+			ctx.Values().Set("hasCsrf", getClientCsrf(ctx.Request()))
+		}
 		ctx.Values().Set("operator", user.User.Name)
 		ctx.Next()
 		return
@@ -92,6 +97,21 @@ func getUserRole(user *dto.SessionUser) ([]string, error) {
 		roles = append(roles, constant.SystemRoleUser)
 	}
 	return roles, nil
+}
+
+func getClientCsrf(r *http.Request) bool {
+	cs := r.Header.Get("X-CSRF-TOKEN")
+	timeNow := time.Now().Format("01-02 15:04")
+	timeAMinuteAgo := time.Now().Add(-1 * time.Minute).Format("01-02 15:04")
+
+	return (md5Str("kubeoperator"+timeNow) == cs || md5Str("kubeoperator"+timeAMinuteAgo) == cs)
+}
+
+func md5Str(str string) string {
+	data := []byte(str)
+	has := md5.Sum(data)
+	md5str := fmt.Sprintf("%x", has)
+	return md5str
 }
 
 func GetClientIP(r *http.Request) string {

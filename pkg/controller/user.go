@@ -94,6 +94,11 @@ func (u UserController) Post() (*dto.User, error) {
 	if err := validate.Struct(req); err != nil {
 		return nil, err
 	}
+
+	hasCsrf, err := u.Ctx.Values().GetBool("hasCsrf")
+	if !hasCsrf || err != nil {
+		return nil, errors.New("The request was denied access due to CSRF defenses")
+	}
 	if req.Password == reverseString(req.Name) || req.Password == req.Name {
 		return nil, errors.New("NAME_PASSWORD_SAME_FAILED")
 	}
