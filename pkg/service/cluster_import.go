@@ -162,9 +162,10 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Status:       constant.StatusInitializing,
 				Architecture: node.Architecture,
 			}
-			if clusterImport.KoClusterInfo.NodeNameRule == constant.NodeNameRuleIP {
+			switch clusterImport.KoClusterInfo.NodeNameRule {
+			case constant.NodeNameRuleIP, constant.NodeNameRuleHostName:
 				host.Name = node.Name
-			} else {
+			case constant.NodeNameRuleDefault:
 				no := 0
 				if node.Role == constant.NodeRoleNameMaster {
 					masterNum++
@@ -277,7 +278,9 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterImport, true, ""), cluster.Name, constant.ClusterImport)
 
 	hostService := NewHostService()
-	go hostService.SyncList(synchosts)
+	go func() {
+		_ = hostService.SyncList(synchosts)
+	}()
 	return nil
 }
 
@@ -458,12 +461,6 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.Nodes, clusterInfo.RuntimeType, clusterInfo.Name, err = getKubeNodes(true, kubeClient)
 	if err != nil {
 		return clusterInfo, err
-	}
-	if len(clusterInfo.Name) == 0 {
-		clusterInfo.Name = loadInfo.Name
-		clusterInfo.NodeNameRule = constant.NodeNameRuleIP
-	} else {
-		clusterInfo.NodeNameRule = constant.NodeNameRuleDefault
 	}
 
 	// load kubeadm-config
