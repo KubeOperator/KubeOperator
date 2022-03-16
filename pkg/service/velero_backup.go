@@ -3,15 +3,18 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
+	"strconv"
 )
 
 type VeleroBackupService interface {
@@ -26,14 +29,16 @@ type VeleroBackupService interface {
 }
 
 type veleroBackupService struct {
-	ClusterService       ClusterService
-	BackupAccountService BackupAccountService
+	ClusterService           ClusterService
+	BackupAccountService     BackupAccountService
+	SystemRegistryRepository repository.SystemRegistryRepository
 }
 
 func NewVeleroBackupService() VeleroBackupService {
 	return &veleroBackupService{
-		ClusterService:       NewClusterService(),
-		BackupAccountService: NewBackupAccountService(),
+		ClusterService:           NewClusterService(),
+		BackupAccountService:     NewBackupAccountService(),
+		SystemRegistryRepository: repository.NewSystemRegistryRepository(),
 	}
 }
 
@@ -168,17 +173,35 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		return result, err
 	}
 	args = append(args, "--secret-file", credentialPath)
+
+	clusterModel, err := v.ClusterService.Get(cluster)
+	if err != nil {
+		return result, err
+	}
+	arch := ""
+	if clusterModel.Spec.Architectures == "amd64" {
+		arch = "x86_64"
+	} else {
+		arch = "aarch64"
+	}
+	registry, err := v.SystemRegistryRepository.GetByArch(arch)
+	if err != nil {
+		return result, err
+	}
+
+	url := registry.Hostname + ":" + strconv.Itoa(registry.RegistryPort) + "/"
+
 	if backupAccount.Type == "OSS" {
 		args = append(args, "--provider", "alibabacloud")
-		args = append(args, "--image", "registry.cn-hangzhou.aliyuncs.com/acs/velero:1.4.2-2b9dce65-aliyun")
+		args = append(args, "--image", url+"kubeoperator/velero:1.4.2-2b9dce65-aliyun")
 		args = append(args, "--bucket", backupAccount.Bucket)
-		args = append(args, "--plugins", "registry.cn-hangzhou.aliyuncs.com/acs/velero-plugin-alibabacloud:v1.0.0-2d33b89")
+		args = append(args, "--plugins", url+"kubeoperator/velero-plugin-alibabacloud:v1.0.0-2d33b89")
 	}
 	if backupAccount.Type == "MINIO" || backupAccount.Type == "S3" {
 		args = append(args, "--provider", "aws")
-		args = append(args, "--plugins", "velero/velero-plugin-for-aws:v1.2.1")
+		args = append(args, "--plugins", url+"velero/velero-plugin-for-aws:v1.2.1")
 		args = append(args, "--bucket", backupAccount.Bucket)
-		config := "srUrl=" + vars["endpoint"].(string)
+		config := "s3Url=" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
 
@@ -265,9 +288,12 @@ func (v veleroBackupService) checkValid(cluster string) error {
 	if err != nil {
 		return err
 	}
-	_, err = kubeClient.CoreV1().Namespaces().Get(context.Background(), "velero", metav1.GetOptions{})
+	velerons, err := kubeClient.CoreV1().Namespaces().Get(context.Background(), "velero", metav1.GetOptions{})
 	if err != nil {
 		return err
+	}
+	if velerons.Status.Phase == "Terminating" {
+		return errors.New("velero is Terminating")
 	}
 	return nil
 }
@@ -304,18 +330,18 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
 			return filePath, err
 		}
-		file.WriteString("[default] \n")
-		file.WriteString("aws_access_key_id = " + vars["accessKey"].(string) + "\n")
-		file.WriteString("aws_secret_access_key = " + vars["secretKey"].(string) + "\n")
+		_, _ = file.WriteString("[default] \n")
+		_, _ = file.WriteString("aws_access_key_id = " + vars["accessKey"].(string) + "\n")
+		_, _ = file.WriteString("aws_secret_access_key = " + vars["secretKey"].(string) + "\n")
 	}
 	if backup.Type == "OSS" {
 		vars := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
 			return filePath, err
 		}
-		file.WriteString("[default] \n")
-		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID = " + vars["accessKey"].(string) + "\n")
-		file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET = " + vars["secretKey"].(string) + "\n")
+		_, _ = file.WriteString("[default] \n")
+		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID = " + vars["accessKey"].(string) + "\n")
+		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET = " + vars["secretKey"].(string) + "\n")
 	}
 
 	return filePath, err
@@ -384,10 +410,10 @@ func (v veleroBackupService) handleArgs(backup dto.VeleroBackup) []string {
 		args = append(args, "--exclude-namespaces", handleArray(backup.ExcludeNamespaces))
 	}
 	if len(backup.IncludeResources) > 0 {
-		args = append(args, "--include-resources", backup.IncludeResources)
+		args = append(args, "--include-resources", handleArray(backup.IncludeResources))
 	}
 	if len(backup.ExcludeResources) > 0 {
-		args = append(args, "--exclude-resources", backup.ExcludeResources)
+		args = append(args, "--exclude-resources", handleArray(backup.ExcludeResources))
 	}
 	if len(backup.Selector) > 0 {
 		args = append(args, "--selector", backup.Selector)

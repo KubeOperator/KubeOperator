@@ -5,8 +5,8 @@ type VeleroBackup struct {
 	Cluster                 string
 	IncludeNamespaces       []string
 	ExcludeNamespaces       []string
-	IncludeResources        string
-	ExcludeResources        string
+	IncludeResources        []string
+	ExcludeResources        []string
 	IncludeClusterResources bool
 	Labels                  string
 	Selector                string
