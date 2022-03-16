@@ -428,6 +428,17 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		return nil, err
 	}
 
+	if creation.SupportGpu == constant.StatusEnabled {
+		gpuInfo := &model.ClusterGpu{
+			ClusterID: cluster.ID,
+			Status:    constant.StatusEnabled,
+		}
+		if err := tx.Create(&gpuInfo).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
 	switch spec.Provider {
 	case constant.ClusterProviderPlan:
 		spec.WorkerAmount = creation.WorkerAmount

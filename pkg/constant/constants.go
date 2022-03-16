@@ -27,6 +27,8 @@ const (
 	StatusInitializing  = "Initializing"
 	StatusTerminating   = "Terminating"
 	StatusWaiting       = "Waiting"
+	StatusDisabled      = "disable"
+	StatusEnabled       = "enable"
 
 	DefaultPassword = "kubeoperator@admin123"
 )

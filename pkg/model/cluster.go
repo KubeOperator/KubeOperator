@@ -61,6 +61,10 @@ func (c Cluster) BeforeDelete() error {
 			tx.Rollback()
 			return err
 		}
+		if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterGpu{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 	if cluster.StatusID != "" {
 		if err := tx.Delete(&ClusterStatus{ID: cluster.StatusID}).Error; err != nil {

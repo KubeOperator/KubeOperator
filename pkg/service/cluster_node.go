@@ -49,6 +49,7 @@ func NewClusterNodeService() ClusterNodeService {
 		vmConfigRepo:        repository.NewVmConfigRepository(),
 		hostService:         NewHostService(),
 		planService:         NewPlanService(),
+		gpuService:          NewClusterGpuService(),
 	}
 }
 
@@ -65,6 +66,7 @@ type clusterNodeService struct {
 	messageService      MessageService
 	vmConfigRepo        repository.VmConfigRepository
 	hostService         HostService
+	gpuService          ClusterGpuService
 }
 
 func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
@@ -341,6 +343,9 @@ func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes [
 func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
 	if item.SupportGpu == "enable" {
 		if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update(map[string]interface{}{"SupportGpu": "enable"}).Error; err != nil {
+			return err
+		}
+		if err := c.gpuService.Add(cluster.ID); err != nil {
 			return err
 		}
 	}
