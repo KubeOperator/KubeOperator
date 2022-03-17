@@ -15,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type VeleroBackupService interface {
@@ -200,16 +201,26 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	url := registry.Hostname + ":" + strconv.Itoa(registry.RegistryPort) + "/"
 
 	if backupAccount.Type == "OSS" {
+
 		args = append(args, "--provider", "alibabacloud")
-		args = append(args, "--image", url+"kubeoperator/velero:1.4.2-2b9dce65-aliyun")
+		args = append(args, "--image", url+"velero/velero:1.7.1")
 		args = append(args, "--bucket", backupAccount.Bucket)
 		args = append(args, "--plugins", url+"kubeoperator/velero-plugin-alibabacloud:v1.0.0-2d33b89")
+		args = append(args, "--use-volume-snapshots", "false")
+
+		endpoint := vars["endpoint"].(string)
+		start := strings.Index(endpoint, "oss-") + 4
+		end := strings.Index(endpoint, ".aliyuncs.com")
+		region := endpoint[start:end]
+		config := "region=" + region
+		args = append(args, "--backup-location-config", config)
 	}
 	if backupAccount.Type == "MINIO" || backupAccount.Type == "S3" {
 		args = append(args, "--provider", "aws")
+		args = append(args, "--image", url+"velero/velero:1.7.1")
 		args = append(args, "--plugins", url+"velero/velero-plugin-for-aws:v1.2.1")
 		args = append(args, "--bucket", backupAccount.Bucket)
-		config := "s3Url=" + vars["endpoint"].(string)
+		config := "region=minio,s3ForcePathStyle=true,s3Url=http://" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
 	if veleroInstall.Requests.Cpu > 0 {
@@ -363,7 +374,6 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 		if err := json.Unmarshal([]byte(backup.Credential), &vars); err != nil {
 			return filePath, err
 		}
-		_, _ = file.WriteString("[default] \n")
 		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID=" + vars["accessKey"].(string) + "\n")
 		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET=" + vars["secretKey"].(string) + "\n")
 	}
