@@ -24,7 +24,7 @@ type VeleroBackupService interface {
 	GetDescribe(cluster, name, operate string) (string, error)
 	Delete(cluster, name, operate string) (string, error)
 	Install(cluster string, veleroInstall dto.VeleroInstall) (string, error)
-	GetConfig(cluster string) (model.ClusterVelero, error)
+	GetConfig(cluster string) (dto.VeleroInstall, error)
 	UnInstall(cluster string) error
 }
 
@@ -143,11 +143,19 @@ func (v veleroBackupService) Delete(cluster, name, operate string) (string, erro
 	return result, err
 }
 
-func (v veleroBackupService) GetConfig(cluster string) (model.ClusterVelero, error) {
-	var result model.ClusterVelero
-	if err := db.DB.Where("cluster = ?", cluster).Find(&result).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+func (v veleroBackupService) GetConfig(cluster string) (dto.VeleroInstall, error) {
+	var clusterVelero model.ClusterVelero
+	var result dto.VeleroInstall
+	if err := db.DB.Where("cluster = ?", cluster).Find(&clusterVelero).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
 		return result, err
 	}
+	result.ID = clusterVelero.ID
+	result.Cluster = clusterVelero.Cluster
+	result.BackupAccountName = clusterVelero.BackupAccountName
+	result.Requests.Memory = clusterVelero.MemRequest
+	result.Requests.Cpu = clusterVelero.CpuRequest
+	result.Limits.Cpu = clusterVelero.CpuLimit
+	result.Limits.Memory = clusterVelero.MemLimit
 	return result, nil
 }
 
@@ -204,11 +212,19 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		config := "s3Url=" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
-	args = append(args, "--velero-pod-cpu-request", "2000m")
-	args = append(args, "--velero-pod-mem-request", "4Gi")
-	args = append(args, "--velero-pod-cpu-limit", "2000m")
-	args = append(args, "--velero-pod-mem-limit", "4Gi")
-	args = append(args, "--wait")
+	if veleroInstall.Requests.Cpu > 0 {
+		args = append(args, "--velero-pod-cpu-request", strconv.Itoa(veleroInstall.Requests.Cpu)+"m")
+	}
+	if veleroInstall.Requests.Memory > 0 {
+		args = append(args, "--velero-pod-mem-request", strconv.Itoa(veleroInstall.Requests.Memory)+"Mi")
+	}
+	if veleroInstall.Limits.Cpu > 0 {
+		args = append(args, "--velero-pod-cpu-limit", strconv.Itoa(veleroInstall.Limits.Cpu)+"m")
+	}
+	if veleroInstall.Limits.Memory > 0 {
+		args = append(args, "--velero-pod-mem-limit", strconv.Itoa(veleroInstall.Limits.Memory)+"Mi")
+	}
+	//args = append(args, "--wait")
 	res, err := velero.Install(args)
 	if err != nil {
 		logger.Log.Errorf("install velero error: %s", err.Error())
@@ -220,6 +236,10 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		BackupAccountName: veleroInstall.BackupAccountName,
 		Bucket:            vars["bucket"].(string),
 		Endpoint:          vars["endpoint"].(string),
+		CpuLimit:          veleroInstall.Limits.Cpu,
+		CpuRequest:        veleroInstall.Requests.Cpu,
+		MemLimit:          veleroInstall.Limits.Memory,
+		MemRequest:        veleroInstall.Requests.Memory,
 	}
 	if veleroInstall.ID != "" {
 		clusterVelero.ID = veleroInstall.ID
@@ -344,8 +364,8 @@ func CreateCredential(cluster string, backup dto.BackupAccount) (string, error) 
 			return filePath, err
 		}
 		_, _ = file.WriteString("[default] \n")
-		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID = " + vars["accessKey"].(string) + "\n")
-		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET = " + vars["secretKey"].(string) + "\n")
+		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_ID=" + vars["accessKey"].(string) + "\n")
+		_, _ = file.WriteString("ALIBABA_CLOUD_ACCESS_KEY_SECRET=" + vars["secretKey"].(string) + "\n")
 	}
 
 	return filePath, err

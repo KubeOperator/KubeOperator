@@ -12,6 +12,10 @@ type ClusterVelero struct {
 	BackupAccountName string `json:"backupAccountName"`
 	Bucket            string `json:"bucket"`
 	Endpoint          string `json:"endpoint"`
+	CpuLimit          int    `json:"cpuLimit"`
+	MemLimit          int    `json:"memLimit"`
+	CpuRequest        int    `json:"cpuRequest"`
+	MemRequest        int    `json:"memRequest"`
 }
 
 func (c *ClusterVelero) BeforeCreate() error {
