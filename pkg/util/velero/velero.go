@@ -89,7 +89,7 @@ func ExecCommand(command string, args []string) ([]byte, error) {
 			return []byte{}, errors.New(buffer.String())
 		}
 		return buffer.Bytes(), nil
-	case <-time.After(time.Second * 10):
+	case <-time.After(time.Second * 20):
 		_ = stdout.Close()
 		return []byte("time out"), errors.New("read log time out")
 	}

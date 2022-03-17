@@ -5,8 +5,8 @@ type VeleroBackup struct {
 	Cluster                 string
 	IncludeNamespaces       []string
 	ExcludeNamespaces       []string
-	IncludeResources        string
-	ExcludeResources        string
+	IncludeResources        []string
+	ExcludeResources        []string
 	IncludeClusterResources bool
 	Labels                  string
 	Selector                string
@@ -16,7 +16,14 @@ type VeleroBackup struct {
 }
 
 type VeleroInstall struct {
-	Cluster           string
-	BackupAccountName string
-	ID                string
+	Cluster           string        `json:"cluster"`
+	BackupAccountName string        `json:"backupAccountName"`
+	ID                string        `json:"id"`
+	Limits            ResourceQuota `json:"limits"`
+	Requests          ResourceQuota `json:"requests"`
+}
+
+type ResourceQuota struct {
+	Cpu    int `json:"cpu"`
+	Memory int `json:"memory"`
 }

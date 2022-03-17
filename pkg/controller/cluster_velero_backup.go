@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
@@ -60,7 +59,7 @@ func (c ClusterVeleroBackupController) PostInstallConfig() (string, error) {
 	return c.VeleroBackupService.Install(clusterName, req)
 }
 
-func (c ClusterVeleroBackupController) GetInstallConfig() (model.ClusterVelero, error) {
+func (c ClusterVeleroBackupController) GetInstallConfig() (dto.VeleroInstall, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
 	return c.VeleroBackupService.GetConfig(clusterName)
 }

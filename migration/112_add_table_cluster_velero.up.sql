@@ -7,5 +7,9 @@ CREATE TABLE `ko_cluster_velero` (
   `bucket` varchar(255) DEFAULT NULL,
   `endpoint` varchar(255) DEFAULT NULL,
   `backup_account_name` varchar(255) DEFAULT NULL,
+  `cpu_limit` int(11) DEFAULT NULL,
+  `mem_limit` int(11) DEFAULT NULL,
+  `cpu_request` int(11) DEFAULT NULL,
+  `mem_request` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
