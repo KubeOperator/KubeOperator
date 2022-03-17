@@ -204,7 +204,11 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		config := "s3Url=" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
-
+	args = append(args, "--velero-pod-cpu-request", "2000m")
+	args = append(args, "--velero-pod-mem-request", "4Gi")
+	args = append(args, "--velero-pod-cpu-limit", "2000m")
+	args = append(args, "--velero-pod-mem-limit", "4Gi")
+	args = append(args, "--wait")
 	res, err := velero.Install(args)
 	if err != nil {
 		logger.Log.Errorf("install velero error: %s", err.Error())
