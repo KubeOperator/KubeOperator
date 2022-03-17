@@ -56,7 +56,15 @@ func (l Loki) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(l.Cluster.HelmClient, l.Tool, constant.LokiChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(l.Cluster.Namespace, constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, l.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultLokiIngressName,
+		url:     constant.DefaultLokiIngress,
+		service: constant.DefaultLokiServiceName,
+		port:    3100,
+		version: l.Cluster.Spec.Version,
+	}
+	if err := createRoute(l.Cluster.Namespace, ingressItem, l.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForStatefulSetsRunning(l.Cluster.Namespace, constant.DefaultLokiStateSetsfulName, 1, l.Cluster.KubeClient); err != nil {

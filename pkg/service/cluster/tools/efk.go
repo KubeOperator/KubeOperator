@@ -56,7 +56,15 @@ func (e EFK) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(e.Cluster.HelmClient, e.Tool, constant.LoggingChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(e.Cluster.Namespace, constant.DefaultLoggingIngressName, constant.DefaultLoggingIngress, constant.DefaultLoggingServiceName, 9200, e.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultLoggingIngressName,
+		url:     constant.DefaultLoggingIngress,
+		service: constant.DefaultLoggingServiceName,
+		port:    9200,
+		version: e.Cluster.Spec.Version,
+	}
+	if err := createRoute(e.Cluster.Namespace, ingressItem, e.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForStatefulSetsRunning(e.Cluster.Namespace, constant.DefaultLoggingStateSetsfulName, 1, e.Cluster.KubeClient); err != nil {

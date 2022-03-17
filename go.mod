@@ -5,8 +5,6 @@ go 1.14
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Azure/azure-storage-blob-go v0.10.0
-	github.com/Azure/go-autorest/autorest v0.11.4 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.2 // indirect
 	github.com/CloudyKit/jet/v3 v3.0.1 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.1.2
@@ -21,7 +19,6 @@ require (
 	github.com/c-robinson/iplib v0.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/spdystream v0.0.0-20170912183627-bc6354cbbc29 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/fairwindsops/polaris v0.0.0-20210818215548-9ae4f774e98e
@@ -44,7 +41,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
 	github.com/icza/dyno v0.0.0-20210726202311-f1bafe5d9996
-	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/jade v1.1.4
 	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
@@ -91,21 +87,21 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
-	helm.sh/helm/v3 v3.4.2
+	helm.sh/helm/v3 v3.6.1
 	k8s.io/api v0.22.0
-	k8s.io/apiextensions-apiserver v0.19.4
+	k8s.io/apiextensions-apiserver v0.21.0
 	k8s.io/apimachinery v0.22.0
-	k8s.io/cli-runtime v0.19.4
+	k8s.io/cli-runtime v0.21.0
 	k8s.io/client-go v0.22.0
-	k8s.io/kubernetes v1.13.0
+	k8s.io/kubernetes v1.13.12
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
 replace (
-	k8s.io/api => k8s.io/api v0.19.4
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.19.4
-	k8s.io/apimachinery => k8s.io/apimachinery v0.19.4
-	k8s.io/client-go => k8s.io/client-go v0.19.4
+	k8s.io/api => k8s.io/api v0.21.0
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.21.0
+	k8s.io/apimachinery => k8s.io/apimachinery v0.21.0
+	k8s.io/client-go => k8s.io/client-go v0.21.0
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.7.0
 )
 

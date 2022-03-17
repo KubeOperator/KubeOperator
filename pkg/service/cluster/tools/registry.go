@@ -54,7 +54,15 @@ func (r Registry) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(r.Cluster.HelmClient, r.Tool, constant.DockerRegistryChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(r.Cluster.Namespace, constant.DefaultRegistryIngressName, constant.DefaultRegistryIngress, constant.DefaultRegistryServiceName, 5000, r.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultRegistryIngressName,
+		url:     constant.DefaultRegistryIngress,
+		service: constant.DefaultRegistryServiceName,
+		port:    5000,
+		version: r.Cluster.Spec.Version,
+	}
+	if err := createRoute(r.Cluster.Namespace, ingressItem, r.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(r.Cluster.Namespace, constant.DefaultRegistryDeploymentName, 1, r.Cluster.KubeClient); err != nil {

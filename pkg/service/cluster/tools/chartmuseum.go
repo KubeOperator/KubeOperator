@@ -56,7 +56,15 @@ func (c Chartmuseum) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.ChartmuseumChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(c.Cluster.Namespace, constant.DefaultChartmuseumIngressName, constant.DefaultChartmuseumIngress, constant.DefaultChartmuseumServiceName, 8080, c.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultChartmuseumIngressName,
+		url:     constant.DefaultChartmuseumIngress,
+		service: constant.DefaultChartmuseumServiceName,
+		port:    8080,
+		version: c.Cluster.Spec.Version,
+	}
+	if err := createRoute(c.Cluster.Namespace, ingressItem, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultChartmuseumDeploymentName, 1, c.Cluster.KubeClient); err != nil {
