@@ -203,7 +203,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	if backupAccount.Type == "OSS" {
 
 		args = append(args, "--provider", "alibabacloud")
-		args = append(args, "--image", url+"kubeoperator/velero:1.4.2-2b9dce65-aliyun")
+		args = append(args, "--image", url+"kubeoperator/velero:1.7.1")
 		args = append(args, "--bucket", backupAccount.Bucket)
 		args = append(args, "--plugins", url+"kubeoperator/velero-plugin-alibabacloud:v1.0.0-2d33b89")
 		args = append(args, "--use-volume-snapshots", "false")
@@ -217,10 +217,10 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	}
 	if backupAccount.Type == "MINIO" || backupAccount.Type == "S3" {
 		args = append(args, "--provider", "aws")
-		//args = append(args, "--image", url+"kubeoperator/velero:1.7.1")
+		args = append(args, "--image", url+"kubeoperator/velero:1.7.1")
 		args = append(args, "--plugins", url+"velero/velero-plugin-for-aws:v1.2.1")
 		args = append(args, "--bucket", backupAccount.Bucket)
-		config := "region=minio,s3ForcePathStyle=\"true\",s3Url=http://" + vars["endpoint"].(string)
+		config := "region=minio,s3ForcePathStyle=true,s3Url=http://" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
 	if veleroInstall.Requests.Cpu > 0 {
