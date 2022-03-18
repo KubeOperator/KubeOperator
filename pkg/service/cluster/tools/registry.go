@@ -77,5 +77,5 @@ func (r Registry) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (r Registry) Uninstall() error {
-	return uninstall(r.Cluster.Namespace, r.Tool, constant.DefaultRegistryIngressName, r.Cluster.HelmClient, r.Cluster.KubeClient)
+	return uninstall(r.Cluster.Namespace, r.Tool, constant.DefaultRegistryIngressName, r.Cluster.Spec.Version, r.Cluster.HelmClient, r.Cluster.KubeClient)
 }

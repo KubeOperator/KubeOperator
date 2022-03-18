@@ -114,5 +114,5 @@ func (g Grafana) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (g Grafana) Uninstall() error {
-	return uninstall(g.Cluster.Namespace, g.Tool, constant.DefaultGrafanaIngressName, g.Cluster.HelmClient, g.Cluster.KubeClient)
+	return uninstall(g.Cluster.Namespace, g.Tool, constant.DefaultGrafanaIngressName, g.Cluster.Spec.Version, g.Cluster.HelmClient, g.Cluster.KubeClient)
 }

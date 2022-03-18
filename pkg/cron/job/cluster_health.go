@@ -23,7 +23,7 @@ func NewClusterHealthCheck() *ClusterHealthCheck {
 func (c *ClusterHealthCheck) Run() {
 	cs, err := c.clusterService.List()
 	if err != nil {
-		logger.Log.Error("list clusters error %s", err.Error())
+		logger.Log.Errorf("list clusters error %s", err.Error())
 		return
 	}
 	var wg sync.WaitGroup
@@ -41,12 +41,12 @@ func (c *ClusterHealthCheck) Run() {
 			logger.Log.Infof("test cluster  %s api  ", cs[i].Name)
 			endpoints, err := c.clusterService.GetApiServerEndpoints(cs[i].Name)
 			if err != nil {
-				logger.Log.Error("get cluster %s endpoint error %s", cs[i].Name, err.Error())
+				logger.Log.Errorf("get cluster %s endpoint error %s", cs[i].Name, err.Error())
 				return
 			}
 			secret, err := c.clusterService.GetSecrets(cs[i].Name)
 			if err != nil {
-				logger.Log.Error("get cluster %s secret error %s", cs[i].Name, err.Error())
+				logger.Log.Errorf("get cluster %s secret error %s", cs[i].Name, err.Error())
 				return
 			}
 			_, err = kubeUtil.SelectAliveHost(endpoints)

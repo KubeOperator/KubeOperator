@@ -72,5 +72,5 @@ func (d Dashboard) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (d Dashboard) Uninstall() error {
-	return uninstall(d.Cluster.Namespace, d.Tool, constant.DefaultDashboardIngressName, d.Cluster.HelmClient, d.Cluster.KubeClient)
+	return uninstall(d.Cluster.Namespace, d.Tool, constant.DefaultDashboardIngressName, d.Cluster.Spec.Version, d.Cluster.HelmClient, d.Cluster.KubeClient)
 }

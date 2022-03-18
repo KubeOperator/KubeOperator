@@ -198,12 +198,20 @@ func upgradeChart(h helm.Interface, tool *model.ClusterTool, chartName, chartVer
 	return nil
 }
 
-func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes.Clientset) error {
-	ingress, _ := kubeClient.NetworkingV1beta1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
-	if ingress.Name != "" {
-		err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
-		if err != nil {
-			return err
+func preCreateRoute(namespace string, ingressName string, version string, kubeClient *kubernetes.Clientset) error {
+	if isApiV1(version) {
+		ingress, _ := kubeClient.NetworkingV1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
+		if ingress.Name != "" {
+			if err := kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{}); err != nil {
+				return err
+			}
+		}
+	} else {
+		ingress, _ := kubeClient.NetworkingV1beta1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
+		if ingress.Name != "" {
+			if err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{}); err != nil {
+				return err
+			}
 		}
 	}
 	logger.Log.Infof("operation before create route %s successful", ingressName)
@@ -211,7 +219,7 @@ func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes
 }
 
 func createRoute(namespace string, ingressInfo *Ingress, kubeClient *kubernetes.Clientset) error {
-	if err := preCreateRoute(namespace, ingressInfo.name, kubeClient); err != nil {
+	if err := preCreateRoute(namespace, ingressInfo.name, ingressInfo.version, kubeClient); err != nil {
 		return err
 	}
 	service, err := kubeClient.CoreV1().
@@ -351,7 +359,7 @@ func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minRe
 	return nil
 }
 
-func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h helm.Interface, kubeClient *kubernetes.Clientset) error {
+func uninstall(namespace string, tool *model.ClusterTool, ingressName string, version string, h helm.Interface, kubeClient *kubernetes.Clientset) error {
 	rs, err := h.List()
 	if err != nil {
 		return err
@@ -361,7 +369,17 @@ func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h 
 			_, _ = h.Uninstall(tool.Name)
 		}
 	}
-	_ = kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
+
+	if isApiV1(version) {
+		if err := kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{}); err != nil {
+			logger.Log.Errorf("uninstall tool %s of namespace %s failed, err: %v", tool.Name, namespace, err)
+		}
+	} else {
+		if err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{}); err != nil {
+			logger.Log.Errorf("uninstall tool %s of namespace %s failed, err: %v", tool.Name, namespace, err)
+		}
+	}
+
 	logger.Log.Infof("uninstall tool %s of namespace %s successful", tool.Name, namespace)
 	return nil
 }

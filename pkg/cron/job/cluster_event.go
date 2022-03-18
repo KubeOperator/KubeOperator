@@ -39,7 +39,7 @@ func (c *ClusterEvent) Run() {
 		if err != nil {
 			continue
 		}
-		endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
+		endpoints, _ := c.clusterService.GetApiServerEndpoints(cluster.Name)
 		if cluster.Status == constant.ClusterRunning {
 			client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 				Token: secret.KubernetesToken,
@@ -59,7 +59,7 @@ func (c *ClusterEvent) Run() {
 					return
 				}
 				for _, namespace := range namespaceList.Items {
-					eventList, err := client.EventsV1beta1().Events(namespace.Name).List(context.Background(), metav1.ListOptions{})
+					eventList, err := client.EventsV1().Events(namespace.Name).List(context.Background(), metav1.ListOptions{})
 					if err != nil {
 						logger.Log.Errorf("list namespace %s event error : %s", namespace.Name, err.Error())
 						return

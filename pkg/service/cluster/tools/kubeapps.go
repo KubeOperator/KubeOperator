@@ -92,7 +92,7 @@ func (k Kubeapps) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (k Kubeapps) Uninstall() error {
-	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngressName, k.Cluster.HelmClient, k.Cluster.KubeClient)
+	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngressName, k.Cluster.Spec.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }
 
 // v3.7.2

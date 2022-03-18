@@ -68,5 +68,5 @@ func (k Gatekeeper) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (k Gatekeeper) Uninstall() error {
-	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultGatekeeperIngressName, k.Cluster.HelmClient, k.Cluster.KubeClient)
+	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultGatekeeperIngressName, k.Cluster.Spec.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }

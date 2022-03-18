@@ -79,5 +79,5 @@ func (l Loki) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (l Loki) Uninstall() error {
-	return uninstall(l.Cluster.Namespace, l.Tool, constant.DefaultLokiIngressName, l.Cluster.HelmClient, l.Cluster.KubeClient)
+	return uninstall(l.Cluster.Namespace, l.Tool, constant.DefaultLokiIngressName, l.Cluster.Spec.Version, l.Cluster.HelmClient, l.Cluster.KubeClient)
 }

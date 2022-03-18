@@ -79,5 +79,5 @@ func (e EFK) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (e EFK) Uninstall() error {
-	return uninstall(e.Cluster.Namespace, e.Tool, constant.DefaultLoggingIngressName, e.Cluster.HelmClient, e.Cluster.KubeClient)
+	return uninstall(e.Cluster.Namespace, e.Tool, constant.DefaultLoggingIngressName, e.Cluster.Spec.Version, e.Cluster.HelmClient, e.Cluster.KubeClient)
 }
