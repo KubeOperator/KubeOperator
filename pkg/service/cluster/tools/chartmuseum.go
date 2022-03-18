@@ -79,5 +79,5 @@ func (c Chartmuseum) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (c Chartmuseum) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.Spec.Version, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }

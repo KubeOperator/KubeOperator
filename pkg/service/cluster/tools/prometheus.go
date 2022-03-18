@@ -84,7 +84,7 @@ func (p Prometheus) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (p Prometheus) Uninstall() error {
-	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.HelmClient, p.Cluster.KubeClient)
+	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.Spec.Version, p.Cluster.HelmClient, p.Cluster.KubeClient)
 }
 
 // 11.12.1
