@@ -166,6 +166,7 @@ type ClusterLoadInfo struct {
 	RuntimeType              string `json:"runtimeType"`
 	MasterScheduleType       string `json:"masterScheduleType"`
 
+	SupportGpu            string         `json:"supportGpu"`
 	KubePodSubnet         string         `json:"kubePodSubnet"`
 	KubeServiceSubnet     string         `json:"kubeServiceSubnet"`
 	MaxNodeNum            int            `json:"maxNodeNum"`

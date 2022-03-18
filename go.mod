@@ -27,7 +27,6 @@ require (
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/go-openapi/spec v0.19.7 // indirect
-	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-ping/ping v0.0.0-20201115131931-3300c582a663
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
@@ -52,7 +51,6 @@ require (
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
-	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.6 // indirect
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.4.1
@@ -61,8 +59,8 @@ require (
 	github.com/mozillazg/go-pinyin v0.18.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
-	github.com/prometheus/client_golang v1.7.1
-	github.com/prometheus/common v0.13.0
+	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/common v0.26.0
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/robfig/cron v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -89,21 +87,15 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	helm.sh/helm/v3 v3.6.1
 	k8s.io/api v0.22.0
-	k8s.io/apiextensions-apiserver v0.21.0
+	k8s.io/apiextensions-apiserver v0.22.0
 	k8s.io/apimachinery v0.22.0
-	k8s.io/cli-runtime v0.21.0
+	k8s.io/cli-runtime v0.22.0
 	k8s.io/client-go v0.22.0
 	k8s.io/kubernetes v1.13.12
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
-replace (
-	k8s.io/api => k8s.io/api v0.21.0
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.21.0
-	k8s.io/apimachinery => k8s.io/apimachinery v0.21.0
-	k8s.io/client-go => k8s.io/client-go v0.21.0
-	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.7.0
-)
+replace sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.7.0
 
 replace github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.8
 

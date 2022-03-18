@@ -442,6 +442,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
 	clusterInfo.Architectures = loadInfo.Architectures
+	clusterInfo.SupportGpu = constant.StatusDisabled
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Hosts: []kubeUtil.Host{kubeUtil.Host(loadInfo.ApiServer)},
