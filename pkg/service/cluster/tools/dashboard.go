@@ -49,7 +49,15 @@ func (d Dashboard) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(d.Cluster.HelmClient, d.Tool, constant.DashboardChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(d.Cluster.Namespace, constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, d.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultDashboardIngressName,
+		url:     constant.DefaultDashboardIngress,
+		service: constant.DefaultDashboardServiceName,
+		port:    9090,
+		version: d.Cluster.Spec.Version,
+	}
+	if err := createRoute(d.Cluster.Namespace, ingressItem, d.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(d.Cluster.Namespace, constant.DefaultDashboardDeploymentName, 1, d.Cluster.KubeClient); err != nil {

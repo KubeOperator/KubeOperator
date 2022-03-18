@@ -91,7 +91,15 @@ func (g Grafana) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(g.Cluster.HelmClient, g.Tool, constant.GrafanaChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(g.Cluster.Namespace, constant.DefaultGrafanaIngressName, constant.DefaultGrafanaIngress, constant.DefaultGrafanaServiceName, 80, g.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultGrafanaIngressName,
+		url:     constant.DefaultGrafanaIngress,
+		service: constant.DefaultGrafanaServiceName,
+		port:    80,
+		version: g.Cluster.Spec.Version,
+	}
+	if err := createRoute(g.Cluster.Namespace, ingressItem, g.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(g.Cluster.Namespace, constant.DefaultGrafanaDeploymentName, 1, g.Cluster.KubeClient); err != nil {

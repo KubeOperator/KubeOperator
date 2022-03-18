@@ -45,7 +45,15 @@ func (k Gatekeeper) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(k.Cluster.HelmClient, k.Tool, constant.GatekeeperChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(k.Cluster.Namespace, constant.DefaultGatekeeperIngressName, constant.DefaultGatekeeperIngress, constant.DefaultGatekeeperServiceName, 80, k.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultGatekeeperIngressName,
+		url:     constant.DefaultGatekeeperIngress,
+		service: constant.DefaultGatekeeperServiceName,
+		port:    80,
+		version: k.Cluster.Spec.Version,
+	}
+	if err := createRoute(k.Cluster.Namespace, ingressItem, k.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultGatekeeperDeploymentName, 1, k.Cluster.KubeClient); err != nil {

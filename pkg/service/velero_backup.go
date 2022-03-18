@@ -4,6 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -13,9 +17,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type VeleroBackupService interface {
@@ -410,7 +411,7 @@ func (v veleroBackupService) GetClusterConfig(cluster string) (string, error) {
 	if err != nil {
 		return filePath, err
 	}
-	file.WriteString(config)
+	_, _ = file.WriteString(config)
 	defer file.Close()
 
 	return filePath, err

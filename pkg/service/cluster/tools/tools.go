@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -15,7 +17,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"helm.sh/helm/v3/pkg/strvals"
-	"k8s.io/api/networking/v1beta1"
+
+	netv1 "k8s.io/api/networking/v1"
+	netv1beta1 "k8s.io/api/networking/v1beta1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -35,6 +40,14 @@ type Cluster struct {
 	helmRepoPort int
 	HelmClient   helm.Interface
 	KubeClient   *kubernetes.Clientset
+}
+
+type Ingress struct {
+	name    string
+	url     string
+	service string
+	port    int
+	version string
 }
 
 func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string) (*Cluster, error) {
@@ -197,32 +210,57 @@ func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes
 	return nil
 }
 
-func createRoute(namespace string, ingressName string, ingressUrl string, serviceName string, port int, kubeClient *kubernetes.Clientset) error {
-	if err := preCreateRoute(namespace, ingressName, kubeClient); err != nil {
+func createRoute(namespace string, ingressInfo *Ingress, kubeClient *kubernetes.Clientset) error {
+	if err := preCreateRoute(namespace, ingressInfo.name, kubeClient); err != nil {
 		return err
 	}
 	service, err := kubeClient.CoreV1().
 		Services(namespace).
-		Get(context.TODO(), serviceName, metav1.GetOptions{})
+		Get(context.TODO(), ingressInfo.service, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	ingress := v1beta1.Ingress{
+
+	ingressInfo.service = service.Name
+	if isApiV1(ingressInfo.version) {
+		ingress := newNetworkV1(namespace, ingressInfo)
+		if _, err = kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, metav1.CreateOptions{}); err != nil {
+			return err
+		}
+	} else {
+		ingress := newNetworkV1bate1(namespace, ingressInfo)
+		if _, err = kubeClient.NetworkingV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, metav1.CreateOptions{}); err != nil {
+			return err
+		}
+	}
+	logger.Log.Infof("create route %s successful", ingressInfo.name)
+	return nil
+}
+
+func newNetworkV1(namespace string, ingressInfo *Ingress) *netv1.Ingress {
+	pathType := netv1.PathTypePrefix
+	ingress := netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      ingressName,
+			Name:      ingressInfo.name,
 			Namespace: namespace,
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{
 				{
-					Host: ingressUrl,
-					IngressRuleValue: v1beta1.IngressRuleValue{
-						HTTP: &v1beta1.HTTPIngressRuleValue{
-							Paths: []v1beta1.HTTPIngressPath{
+					Host: ingressInfo.url,
+					IngressRuleValue: netv1.IngressRuleValue{
+						HTTP: &netv1.HTTPIngressRuleValue{
+							Paths: []netv1.HTTPIngressPath{
 								{
-									Backend: v1beta1.IngressBackend{
-										ServiceName: service.Name,
-										ServicePort: intstr.FromInt(port),
+									Path:     "/",
+									PathType: &pathType,
+									Backend: netv1.IngressBackend{
+										Service: &netv1.IngressServiceBackend{
+											Name: ingressInfo.service,
+											Port: netv1.ServiceBackendPort{
+												Number: int32(ingressInfo.port),
+											},
+										},
 									},
 								},
 							},
@@ -232,12 +270,47 @@ func createRoute(namespace string, ingressName string, ingressUrl string, servic
 			},
 		},
 	}
-	_, err = kubeClient.NetworkingV1beta1().Ingresses(namespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
-	if err != nil {
-		return err
+	return &ingress
+}
+
+func newNetworkV1bate1(namespace string, ingressInfo *Ingress) *netv1beta1.Ingress {
+	ingress := netv1beta1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      ingressInfo.name,
+			Namespace: namespace,
+		},
+		Spec: netv1beta1.IngressSpec{
+			Rules: []netv1beta1.IngressRule{
+				{
+					Host: ingressInfo.url,
+					IngressRuleValue: netv1beta1.IngressRuleValue{
+						HTTP: &netv1beta1.HTTPIngressRuleValue{
+							Paths: []netv1beta1.HTTPIngressPath{
+								{
+									Backend: netv1beta1.IngressBackend{
+										ServiceName: ingressInfo.service,
+										ServicePort: intstr.FromInt(int(ingressInfo.port)),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-	logger.Log.Infof("create route %s successful", ingressName)
-	return nil
+	return &ingress
+}
+
+func isApiV1(version1 string) bool {
+	version1 = strings.ReplaceAll(version1, "v", "")
+
+	verTag1 := strings.Split(version1, ".")
+	if len(verTag1) < 3 {
+		return false
+	}
+	itemVersion, _ := strconv.Atoi(verTag1[1])
+	return itemVersion > 18
 }
 
 func waitForRunning(namespace string, deploymentName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {

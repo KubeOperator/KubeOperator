@@ -69,7 +69,15 @@ func (k Kubeapps) Install(toolDetail model.ClusterToolDetail) error {
 	if err := installChart(k.Cluster.HelmClient, k.Tool, constant.KubeappsChartName, toolDetail.ChartVersion); err != nil {
 		return err
 	}
-	if err := createRoute(k.Cluster.Namespace, constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, k.Cluster.KubeClient); err != nil {
+
+	ingressItem := &Ingress{
+		name:    constant.DefaultKubeappsIngressName,
+		url:     constant.DefaultKubeappsIngress,
+		service: constant.DefaultKubeappsServiceName,
+		port:    80,
+		version: k.Cluster.Spec.Version,
+	}
+	if err := createRoute(k.Cluster.Namespace, ingressItem, k.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForRunning(k.Cluster.Namespace, constant.DefaultKubeappsDeploymentName, 1, k.Cluster.KubeClient); err != nil {
@@ -138,15 +146,15 @@ func (k Kubeapps) valuseV762Binding(imageMap map[string]interface{}, isInstall b
 			logger.Log.Infof("delete deployment kubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps-internal-dashboard", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deploymentkubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("delete deploymentkubeapps-internal-assetsvc from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 		if err := k.Cluster.KubeClient.AppsV1().Deployments(k.Cluster.Namespace).Delete(context.TODO(), "kubeapps-internal-kubeops", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deployment kubeapps-internal-kubeops from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("delete deployment kubeapps-internal-kubeops from %s failed, err: %v", k.Cluster.Namespace, err)
 		}
 
 		postgresqlSecret, err := k.Cluster.KubeClient.CoreV1().Secrets(k.Cluster.Namespace).Get(context.TODO(), "kubeapps-db", metav1.GetOptions{})
 		if err != nil {
-			logger.Log.Info("get kubeapps-db secrets from %s failed, err: %v", k.Cluster.Namespace, err)
+			logger.Log.Infof("get kubeapps-db secrets from %s failed, err: %v", k.Cluster.Namespace, err)
 			return values
 		}
 		password := postgresqlSecret.Data["postgresql-password"]
