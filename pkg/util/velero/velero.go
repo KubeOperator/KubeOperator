@@ -31,9 +31,10 @@ func GetDescribe(name, operate string, args []string) ([]byte, error) {
 
 func Delete(name, operate string, args []string) ([]byte, error) {
 	command := "echo y| /usr/local/bin/velero delete " + operate + " " + name
-	del := []string{"-c", command}
-	args = append(del, args...)
-	return ExecCommand("/bin/bash", args)
+	for _, value := range args {
+		command = command + " " + value
+	}
+	return ExecCommand(command, []string{})
 }
 
 func Create(name, operate string, args []string) ([]byte, error) {
@@ -57,7 +58,12 @@ func Install(args []string) ([]byte, error) {
 func ExecCommand(command string, args []string) ([]byte, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	cmd := exec.CommandContext(ctx, command, args...)
+	var cmd *exec.Cmd
+	if len(args) == 0 {
+		cmd = exec.CommandContext(ctx, "/bin/bash", "-c", command)
+	} else {
+		cmd = exec.CommandContext(ctx, command, args...)
+	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return []byte{}, err
