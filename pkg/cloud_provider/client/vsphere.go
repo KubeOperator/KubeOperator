@@ -508,38 +508,35 @@ func (v *vSphereClient) ListDatastores() ([]DatastoreResult, error) {
 	}
 	client := v.Client.Client
 	ctx := context.TODO()
-	m := view.NewManager(client)
 
-	vi, err := m.CreateContainerView(ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
+	f := find.NewFinder(client, true)
+	dc, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	if err != nil {
+		return nil, err
+	}
+	f.SetDatacenter(dc)
+
+	dss, err := f.DatastoreList(ctx, "*")
+	if err != nil {
+		return nil, err
+	}
+	var objs []types.ManagedObjectReference
+
+	for _, ds := range dss {
+		objs = append(objs, ds.Reference())
+	}
+	var datastores []mo.Datastore
+	pc := property.DefaultCollector(v.Client.Client)
+	err = pc.Retrieve(ctx, objs, []string{"summary", "name"}, &datastores)
 	if err != nil {
 		return result, err
 	}
-	defer func() {
-		if err := vi.Destroy(ctx); err != nil {
-			logger.Log.Errorf("vSphereClient Destroy failed, error: %s", err.Error())
-		}
-	}()
-	var clusters []mo.ClusterComputeResource
-	err = vi.Retrieve(ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
-	if err != nil {
-		return result, err
-	}
-	var dss []mo.Datastore
-	for _, d := range clusters {
-		if d.Name == v.Vars["cluster"].(string) {
-			pc := property.DefaultCollector(v.Client.Client)
-			err := pc.Retrieve(ctx, d.ComputeResource.Datastore, []string{"summary", "name"}, &dss)
-			if err != nil {
-				return result, err
-			}
-		}
-	}
 
-	for i := range dss {
+	for i := range datastores {
 		result = append(result, DatastoreResult{
-			Name:      dss[i].Summary.Name,
-			Capacity:  int(dss[i].Summary.Capacity / (1024 * 1024 * 1024)),
-			FreeSpace: int(dss[i].Summary.FreeSpace / (1024 * 1024 * 1024)),
+			Name:      datastores[i].Summary.Name,
+			Capacity:  int(datastores[i].Summary.Capacity / (1024 * 1024 * 1024)),
+			FreeSpace: int(datastores[i].Summary.FreeSpace / (1024 * 1024 * 1024)),
 		})
 	}
 
