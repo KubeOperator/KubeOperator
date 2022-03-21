@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/KubeOperator/KubeOperator/pkg/util/velero"
+
 type VeleroBackup struct {
 	Name                    string
 	Cluster                 string
@@ -26,4 +28,8 @@ type VeleroInstall struct {
 type ResourceQuota struct {
 	Cpu    int `json:"cpu"`
 	Memory int `json:"memory"`
+}
+
+type VeleroBackupList struct {
+	Items []velero.VeleroBackup `json:"items"`
 }

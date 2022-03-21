@@ -3,6 +3,7 @@ package velero
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"os/exec"
 	"time"
@@ -10,11 +11,20 @@ import (
 
 const defaultVeleroPath = "/usr/local/bin/velero"
 
-func Get(operate string, args []string) ([]byte, error) {
+func Get(operate string, args []string) ([]VeleroBackup, error) {
+	var backups VeleroBackupList
 	operates := []string{"get", operate}
 	args = append(operates, args...)
 	args = append(args, "-o", "json")
-	return ExecCommand(defaultVeleroPath, args)
+
+	result, err := ExecCommand(defaultVeleroPath, args)
+	if err != nil {
+		return backups.Items, err
+	}
+	if err := json.Unmarshal(result, &backups); err != nil {
+		return backups.Items, err
+	}
+	return backups.Items, nil
 }
 
 func GetLogs(name, operate string, args []string) ([]byte, error) {
@@ -93,4 +103,40 @@ func ExecCommand(command string, args []string) ([]byte, error) {
 		_ = stdout.Close()
 		return []byte("time out"), errors.New("read log time out")
 	}
+}
+
+type VeleroBackupList struct {
+	ApiVersion string         `json:"apiVersion"`
+	Items      []VeleroBackup `json:"items"`
+}
+
+type VeleroBackup struct {
+	Metadata VeleroMeta   `json:"metadata"`
+	Spec     BackupSpec   `json:"spec"`
+	Status   VeleroStatus `json:"status"`
+}
+
+type VeleroMeta struct {
+	Name              string `json:"name"`
+	Type              string `json:"type"`
+	NameSpace         string `json:"nameSpace"`
+	CreationTimestamp string `json:"creationTimestamp"`
+}
+
+type BackupSpec struct {
+	IncludedNamespaces      []string `json:"includedNamespaces"`
+	ExcludedNamespaces      []string `json:"excludedNamespaces"`
+	IncludedResources       []string `json:"includedResources"`
+	ExcludedResources       []string `json:"excludedResources"`
+	IncludeClusterResources *bool    `json:"includeClusterResources"`
+	TTL                     string   `json:"ttl"`
+	StorageLocation         string   `json:"storageLocation"`
+	Schedule                string   `json:"schedule"`
+}
+
+type VeleroStatus struct {
+	StartTimestamp      string   `json:"startTimestamp"`
+	CompletionTimestamp string   `json:"completionTimestamp"`
+	Phase               string   `json:"phase"`
+	ValidationErrors    []string `json:"validationErrors"`
 }

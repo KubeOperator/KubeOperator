@@ -19,8 +19,7 @@ func NewClusterVeleroBackupController() *ClusterVeleroBackupController {
 
 func (c ClusterVeleroBackupController) Get() (interface{}, error) {
 	clusterName := c.Ctx.Params().GetString("cluster")
-	operate := c.Ctx.Params().GetString("operate")
-	return c.VeleroBackupService.Get(clusterName, operate)
+	return c.VeleroBackupService.GetBackups(clusterName)
 }
 
 func (c ClusterVeleroBackupController) GetLogs() (string, error) {

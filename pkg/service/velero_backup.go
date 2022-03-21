@@ -21,7 +21,7 @@ import (
 
 type VeleroBackupService interface {
 	Create(operate string, backup dto.VeleroBackup) (string, error)
-	Get(cluster, operate string) (map[string]interface{}, error)
+	GetBackups(cluster string) (*dto.VeleroBackupList, error)
 	GetLogs(cluster, name, operate string) (string, error)
 	GetDescribe(cluster, name, operate string) (string, error)
 	Delete(cluster, name, operate string) (string, error)
@@ -65,28 +65,38 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 	return string(result), err
 }
 
-func (v veleroBackupService) Get(cluster, operate string) (map[string]interface{}, error) {
-
-	err := v.checkValid(cluster)
-	if err != nil {
+func (v veleroBackupService) GetBackups(cluster string) (*dto.VeleroBackupList, error) {
+	if err := v.checkValid(cluster); err != nil {
 		return nil, nil
 	}
 
-	var result map[string]interface{}
+	var result dto.VeleroBackupList
 	config, err := v.GetClusterConfig(cluster)
 	if err != nil {
-		return result, err
+		return &result, err
 	}
 	args := []string{"--kubeconfig", config}
-	res, err := velero.Get(operate, args)
+
+	schedules, err := velero.Get("schedule", args)
 	if err != nil {
-		return result, err
+		return &result, err
 	}
-	err = json.Unmarshal(res, &result)
+
+	backups, err := velero.Get("backup", args)
 	if err != nil {
-		return result, err
+		return &result, err
 	}
-	return result, err
+
+	for _, item := range schedules {
+		item.Metadata.Type = "schedule"
+		result.Items = append(result.Items, item)
+	}
+	for _, item := range backups {
+		item.Metadata.Type = "backups"
+		result.Items = append(result.Items, item)
+	}
+
+	return &result, err
 }
 
 func (v veleroBackupService) GetLogs(cluster, name, operate string) (string, error) {
@@ -428,7 +438,7 @@ func (v veleroBackupService) handleArgs(backup dto.VeleroBackup) []string {
 	args = append(configArg, args...)
 
 	if len(backup.Schedule) > 0 {
-		schedule := "--schedule=\"" + backup.Schedule + "\""
+		schedule := "--schedule=" + backup.Schedule
 		args = append(args, schedule)
 	}
 
