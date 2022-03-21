@@ -428,7 +428,7 @@ func (v veleroBackupService) handleArgs(backup dto.VeleroBackup) []string {
 	args = append(configArg, args...)
 
 	if len(backup.Schedule) > 0 {
-		schedule := "--schedule=\"" + backup.Schedule + "\""
+		schedule := "--schedule=" + backup.Schedule
 		args = append(args, schedule)
 	}
 
