@@ -322,6 +322,9 @@ func (v veleroBackupService) UnInstall(cluster string) error {
 	if err != nil {
 		return err
 	}
+	if err := db.DB.Where("cluster = ?", cluster).Delete(&model.ClusterVelero{}).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
