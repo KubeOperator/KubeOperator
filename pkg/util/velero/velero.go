@@ -21,6 +21,16 @@ func Get(operate string, args []string) ([]VeleroBackup, error) {
 	if err != nil {
 		return backups.Items, err
 	}
+
+	var backItem VeleroBackup
+	if err := json.Unmarshal(result, &backItem); err != nil {
+		return backups.Items, err
+	}
+	if backItem.Spec != nil {
+		backups.Items = append(backups.Items, backItem)
+		return backups.Items, err
+	}
+
 	if err := json.Unmarshal(result, &backups); err != nil {
 		return backups.Items, err
 	}
@@ -117,32 +127,8 @@ type VeleroBackupList struct {
 }
 
 type VeleroBackup struct {
-	Metadata VeleroMeta   `json:"metadata"`
-	Spec     BackupSpec   `json:"spec"`
-	Status   VeleroStatus `json:"status"`
-}
-
-type VeleroMeta struct {
-	Name              string `json:"name"`
-	Type              string `json:"type"`
-	NameSpace         string `json:"nameSpace"`
-	CreationTimestamp string `json:"creationTimestamp"`
-}
-
-type BackupSpec struct {
-	IncludedNamespaces      []string `json:"includedNamespaces"`
-	ExcludedNamespaces      []string `json:"excludedNamespaces"`
-	IncludedResources       []string `json:"includedResources"`
-	ExcludedResources       []string `json:"excludedResources"`
-	IncludeClusterResources *bool    `json:"includeClusterResources"`
-	TTL                     string   `json:"ttl"`
-	StorageLocation         string   `json:"storageLocation"`
-	Schedule                string   `json:"schedule"`
-}
-
-type VeleroStatus struct {
-	StartTimestamp      string   `json:"startTimestamp"`
-	CompletionTimestamp string   `json:"completionTimestamp"`
-	Phase               string   `json:"phase"`
-	ValidationErrors    []string `json:"validationErrors"`
+	Kind     string                 `json:"kind"`
+	Metadata map[string]interface{} `json:"metadata"`
+	Spec     map[string]interface{} `json:"spec"`
+	Status   map[string]interface{} `json:"status"`
 }

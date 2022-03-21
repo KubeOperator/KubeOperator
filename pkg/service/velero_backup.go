@@ -7,7 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -33,6 +35,7 @@ type VeleroBackupService interface {
 type veleroBackupService struct {
 	ClusterService           ClusterService
 	BackupAccountService     BackupAccountService
+	clusterLogService        ClusterLogService
 	SystemRegistryRepository repository.SystemRegistryRepository
 }
 
@@ -40,28 +43,39 @@ func NewVeleroBackupService() VeleroBackupService {
 	return &veleroBackupService{
 		ClusterService:           NewClusterService(),
 		BackupAccountService:     NewBackupAccountService(),
+		clusterLogService:        NewClusterLogService(),
 		SystemRegistryRepository: repository.NewSystemRegistryRepository(),
 	}
 }
 
 func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (string, error) {
-
 	var (
 		result []byte
 		err    error
 	)
 
+	var clog model.ClusterLog
 	if len(backup.BackupName) > 0 {
 		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
 		if err != nil {
 			return string(result), err
 		}
+
+		clog.Type = constant.ClusterLogTypeVeleroRestore
 	} else {
 		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
 		if err != nil {
 			return string(result), err
 		}
+
+		clog.Type = constant.ClusterLogTypeVeleroBackup
 	}
+
+	clog.StartTime = time.Now()
+	clog.EndTime = time.Now()
+	clog.Status = constant.ClusterLogStatusSuccess
+	err = v.clusterLogService.Save(backup.Cluster, &clog)
+
 	return string(result), err
 }
 
@@ -86,15 +100,8 @@ func (v veleroBackupService) GetBackups(cluster string) (*dto.VeleroBackupList, 
 	if err != nil {
 		return &result, err
 	}
-
-	for _, item := range schedules {
-		item.Metadata.Type = "schedule"
-		result.Items = append(result.Items, item)
-	}
-	for _, item := range backups {
-		item.Metadata.Type = "backups"
-		result.Items = append(result.Items, item)
-	}
+	result.Items = backups
+	result.Items = append(result.Items, schedules...)
 
 	return &result, err
 }

@@ -11,11 +11,13 @@ const (
 	ClusterUpgrading    = "Upgrading"
 	//日志类型
 
-	ClusterLogTypeAddNode    = "ADD_NODE"
-	ClusterLogTypeDeleteNode = "DELETE_NODE"
-	ClusterLogTypeBackup     = "CLUSTER_BACKUP"
-	ClusterLogTypeRestore    = "CLUSTER_RESTORE"
-	ClusterLogTypeUpgrade    = "CLUSTER_UPGRADE"
+	ClusterLogTypeAddNode       = "ADD_NODE"
+	ClusterLogTypeDeleteNode    = "DELETE_NODE"
+	ClusterLogTypeBackup        = "CLUSTER_BACKUP"
+	ClusterLogTypeRestore       = "CLUSTER_RESTORE"
+	ClusterLogTypeVeleroBackup  = "CLUSTER_VELERO_BACKUP"
+	ClusterLogTypeVeleroRestore = "CLUSTER_VELERO_RESTORE"
+	ClusterLogTypeUpgrade       = "CLUSTER_UPGRADE"
 
 	ClusterLogStatusSuccess = "SUCCESS"
 	ClusterLogStatusFailed  = "FAILED"
