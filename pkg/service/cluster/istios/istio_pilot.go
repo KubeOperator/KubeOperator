@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PilotImageName = "istio/pilot:1.8.0"
+	PilotImageName = "istio/pilot:1.11.8"
 )
 
 type PilotInterface struct {

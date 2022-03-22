@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	EgressImage = "istio/proxyv2:1.8.0"
+	EgressImage = "istio/proxyv2:1.11.8"
 )
 
 type EgressInterface struct {

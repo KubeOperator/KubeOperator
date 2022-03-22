@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	IngressImage = "istio/proxyv2:1.8.0"
+	IngressImage = "istio/proxyv2:1.11.8"
 )
 
 type IngressInterface struct {

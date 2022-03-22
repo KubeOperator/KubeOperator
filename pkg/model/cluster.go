@@ -238,25 +238,25 @@ func (c Cluster) PrepareIstios() []ClusterIstio {
 	return []ClusterIstio{
 		{
 			Name:     "base",
-			Version:  "v1.8.0",
+			Version:  "v1.11.8",
 			Describe: "",
 			Status:   constant.ClusterWaiting,
 		},
 		{
 			Name:     "pilot",
-			Version:  "v1.8.0",
+			Version:  "v1.11.8",
 			Describe: "",
 			Status:   constant.ClusterWaiting,
 		},
 		{
 			Name:     "ingress",
-			Version:  "v1.8.0",
+			Version:  "v1.11.8",
 			Describe: "",
 			Status:   constant.ClusterWaiting,
 		},
 		{
 			Name:     "egress",
-			Version:  "v1.8.0",
+			Version:  "v1.11.8",
 			Describe: "",
 			Status:   constant.ClusterWaiting,
 		},
