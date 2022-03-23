@@ -26,7 +26,6 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     }
 
     @Output() statusDetailEvent = new EventEmitter<Cluster>();
-    @Output() importEvent = new EventEmitter();
     @Output() upgradeEvent = new EventEmitter();
     @Output() healthCheckEvent = new EventEmitter();
     timer;
@@ -55,10 +54,6 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
     
     onCancel() {
         this.repoAlert = false;
-    }
-
-    onImport() {
-        this.importEvent.emit();
     }
 
     onNodeDetail(item: Cluster) {

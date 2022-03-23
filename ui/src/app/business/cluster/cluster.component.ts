@@ -4,7 +4,6 @@ import {ClusterListComponent} from './cluster-list/cluster-list.component';
 import {ClusterDeleteComponent} from './cluster-delete/cluster-delete.component';
 import {Cluster} from './cluster';
 import {ClusterConditionComponent} from './cluster-condition/cluster-condition.component';
-import {ClusterImportComponent} from './cluster-import/cluster-import.component';
 import {ClusterUpgradeComponent} from './cluster-upgrade/cluster-upgrade.component';
 import {ClusterHealthCheckComponent} from "./cluster-health-check/cluster-health-check.component";
 
@@ -30,9 +29,6 @@ export class ClusterComponent implements OnInit {
     @ViewChild(ClusterListComponent, {static: true})
     list: ClusterListComponent;
 
-    @ViewChild(ClusterImportComponent, {static: true})
-    import: ClusterImportComponent;
-
     @ViewChild(ClusterUpgradeComponent, {static: true})
     upgrade: ClusterUpgradeComponent;
 
@@ -48,10 +44,6 @@ export class ClusterComponent implements OnInit {
 
     openHealthCheck(cluster: Cluster) {
         this.healthCheck.open(cluster);
-    }
-
-    openImport() {
-        this.import.open();
     }
 
     openDelete(items: Cluster[]) {

@@ -30,7 +30,6 @@ import {IstioDisableComponent} from './cluster-detail/istio/istio-disable/istio-
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
 import {MonitorDashboardComponent} from './cluster-detail/monitor/monitor-dashboard/monitor-dashboard.component';
-import {ClusterImportComponent} from './cluster-import/cluster-import.component';
 import {StorageClassCreateComponent} from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create.component';
 import {PersistentVolumeCreateComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create.component';
 import {PersistentVolumeCreateHostPathComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
@@ -90,7 +89,6 @@ import {PersistentVolumeDeleteComponent} from './cluster-detail/storage/persiste
         NodeListComponent, NodeDetailComponent, PersistentVolumeClaimListComponent,
         StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent, IstioComponent, IstioListComponent, IstioDisableComponent,
         MonitorComponent, MonitorDashboardComponent,
-        ClusterImportComponent,
         StorageClassCreateComponent,
         PersistentVolumeCreateComponent,
         PersistentVolumeCreateHostPathComponent,

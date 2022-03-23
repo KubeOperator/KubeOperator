@@ -11,10 +11,6 @@
                 {{"APP_DELETE"|translate}}
             </button>
         </div>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="onImport()">
-            <clr-icon shape="import" size="16"></clr-icon>
-            {{"APP_IMPORT"|translate}}
-        </button>
         <button type="button" class="btn btn-sm btn-secondary" (click)="onUpgrade(selected[0])"
                 [disabled]="selected.length!==1">
             <clr-icon shape="circle-arrow"></clr-icon>

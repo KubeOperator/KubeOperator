@@ -23,7 +23,6 @@ type ClusterController struct {
 	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
 	ClusterLogService                service.ClusterLogService
-	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
@@ -38,7 +37,6 @@ func NewClusterController() *ClusterController {
 		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
 		ClusterLogService:                service.NewClusterLogService(),
-		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
@@ -272,36 +270,6 @@ func (c ClusterController) Delete(name string) error {
 
 	go kolog.Save(c.Ctx, constant.DELETE_CLUSTER, name)
 	return c.ClusterService.Delete(name, force)
-}
-
-// Import Cluster
-// @Tags clusters
-// @Summary Import a cluster
-// @Description import a cluster
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Router /clusters/import/ [post]
-func (c ClusterController) PostImport() error {
-	var req dto.ClusterImport
-	err := c.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-	validate := validator.New()
-	if err := validate.RegisterValidation("koname", koregexp.CheckNamePattern); err != nil {
-		return err
-	}
-	if err := validate.RegisterValidation("clustername", koregexp.CheckClusterNamePattern); err != nil {
-		return err
-	}
-	if err := validate.Struct(req); err != nil {
-		return err
-	}
-
-	go kolog.Save(c.Ctx, constant.IMPORT_CLUSTER, req.Name)
-
-	return c.ClusterImportService.Import(req)
 }
 
 // Delete Clusters

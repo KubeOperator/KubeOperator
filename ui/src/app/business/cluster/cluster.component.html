@@ -1,11 +1,10 @@
 <div class="row">
     <app-cluster-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-                      (statusDetailEvent)="openStatusDetail($event)" (importEvent)="openImport()"
+                      (statusDetailEvent)="openStatusDetail($event)"
                       (upgradeEvent)="openUpgrade($event)"
                       (healthCheckEvent)="openHealthCheck($event)"></app-cluster-list>
     <app-cluster-create (created)="refresh()"></app-cluster-create>
     <app-cluster-delete (deleted)="refresh()"></app-cluster-delete>
-    <app-cluster-import (imported)="refresh()"></app-cluster-import>
     <app-cluster-condition (retry)="refresh()"></app-cluster-condition>
     <app-cluster-upgrade (upgrade)="refresh()"></app-cluster-upgrade>
     <app-cluster-health-check></app-cluster-health-check>
