@@ -234,10 +234,7 @@ func saveIstio(istio *model.ClusterIstio) error {
 }
 
 func getNs(endpoints []kubernetes.Host, secret dto.ClusterSecret, namespace string) error {
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&secret.KubeConf)
 	if err != nil {
 		return err
 	}
@@ -271,10 +268,10 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetes.Host, secret
 		return p, err
 	}
 	p.HelmClient = helmClient
-	kubeClient, _ := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&secret.KubeConf)
+	if err != nil {
+		return p, err
+	}
 	p.KubeClient = kubeClient
 	return p, nil
 }

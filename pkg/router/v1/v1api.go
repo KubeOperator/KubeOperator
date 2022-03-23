@@ -45,7 +45,6 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/project/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())
 	mvc.New(AuthScope.Party("/project/members")).HandleError(ErrorHandler).Handle(controller.NewProjectMemberController())
 	WhiteScope = v1.Party("/")
-	WhiteScope.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
 	WhiteScope.Get("/captcha", generateCaptcha)
 	mvc.New(WhiteScope.Party("/theme")).HandleError(ErrorHandler).Handle(controller.NewThemeController())
 

@@ -6,6 +6,7 @@ type ClusterSecret struct {
 	ID              string
 	KubeadmToken    string `gorm:"type:text(65535)" json:"kubeadmToken"`
 	KubernetesToken string `gorm:"type:text(65535)" json:"kubernetesToken"`
+	KubeConf        string `gorm:"type:text(65535)" json:"kubeConf"`
 }
 
 func (n *ClusterSecret) BeforeCreate() (err error) {

@@ -119,10 +119,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
 
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: hosts,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&secret.KubeConf)
 	if err != nil {
 		return tool, err
 	}

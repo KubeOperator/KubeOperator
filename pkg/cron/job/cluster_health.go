@@ -37,30 +37,12 @@ func (c *ClusterHealthCheck) Run() {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			log.Infof("test cluster  %s api  ", cs[item].Name)
-			endpoints, err := c.clusterService.GetApiServerEndpoints(cs[item].Name)
-			if err != nil {
-				log.Errorf("get cluster %s endpoint error %s", cs[item].Name, err.Error())
-				return
-			}
 			secret, err := c.clusterService.GetSecrets(cs[item].Name)
 			if err != nil {
 				log.Errorf("get cluster %s secret error %s", cs[item].Name, err.Error())
 				return
 			}
-			_, err = kubeUtil.SelectAliveHost(endpoints)
-			if err != nil {
-				log.Errorf("ping cluster %s api error %s", cs[item].Name, err.Error())
-				cs[item].Cluster.Status.Phase = constant.StatusLost
-				if err := db.DB.Save(&cs[item].Cluster.Status).Error; err != nil {
-					log.Errorf("save cluster %s status error %s", cs[item].Name, err.Error())
-					return
-				}
-				return
-			}
-			client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-				Hosts: endpoints,
-				Token: secret.KubernetesToken,
-			})
+			client, err := kubeUtil.NewKubernetesClient(&secret.KubeConf)
 			if err != nil {
 				log.Errorf("get cluster %s api client error %s", cs[item].Name, err.Error())
 				return

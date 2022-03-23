@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -10,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 )
 
@@ -147,5 +150,38 @@ func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
 		return err
 	}
 	secret.KubernetesToken = token
+
+	kubeConf, err := c.getKubeconfig(cluster.Name)
+	if err != nil {
+		return err
+	}
+	secret.KubeConf = kubeConf
+
 	return c.clusterSecretRepo.Save(&secret)
+}
+
+func (c clusterInitService) getKubeconfig(name string) (string, error) {
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return "", err
+	}
+	m, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
+	if err != nil {
+		return "", err
+	}
+	cfg := m.ToSSHConfig()
+	s, err := ssh.New(&cfg)
+	if err != nil {
+		return "", err
+	}
+	bf, err := kubeconfig.ReadKubeConfigFile(s)
+	if err != nil {
+		return "", err
+	}
+	configStr := string(bf)
+
+	lbAddr := fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort)
+	newStr := strings.ReplaceAll(configStr, "127.0.0.1:8443", lbAddr)
+
+	return newStr, nil
 }

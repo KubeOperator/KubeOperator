@@ -16,9 +16,7 @@ import (
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
 )
 
@@ -32,7 +30,6 @@ type ClusterService interface {
 	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
-	GetKubeconfig(name string) (string, error)
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
@@ -537,25 +534,4 @@ func (c clusterService) Batch(batch dto.ClusterBatch, force bool) error {
 		}
 	}
 	return nil
-}
-
-func (c clusterService) GetKubeconfig(name string) (string, error) {
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return "", err
-	}
-	m, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
-	if err != nil {
-		return "", err
-	}
-	cfg := m.ToSSHConfig()
-	s, err := ssh.New(&cfg)
-	if err != nil {
-		return "", err
-	}
-	bf, err := kubeconfig.ReadKubeConfigFile(s)
-	if err != nil {
-		return "", err
-	}
-	return string(bf), nil
 }

@@ -125,18 +125,6 @@ func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
 		Level: constant.ClusterHealthLevelSuccess,
 	}
 	clusterService := NewClusterService()
-	endpoints, err := clusterService.GetApiServerEndpoints(c.Name)
-	if err != nil {
-		result.Msg = fmt.Sprintf("get cluster %s endpoint error %s", c.Name, err.Error())
-		result.Level = constant.ClusterHealthLevelError
-		return result
-	}
-	_, err = kubeUtil.SelectAliveHost(endpoints)
-	if err != nil {
-		result.Msg = fmt.Sprintf("get cluster %s alive host error %s", c.Name, err.Error())
-		result.Level = constant.ClusterHealthLevelError
-		return result
-	}
 	secret, err := clusterService.GetSecrets(c.Name)
 	if err != nil {
 		result.Msg = fmt.Sprintf("get cluster %s alive host error %s", c.Name, err.Error())
@@ -144,10 +132,7 @@ func checkKubernetesApiServer(c model.Cluster) dto.ClusterHealthHook {
 		return result
 	}
 	c.Secret = secret.ClusterSecret
-	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: endpoints,
-		Token: c.Secret.KubernetesToken,
-	})
+	client, err := kubeUtil.NewKubernetesClient(&secret.KubeConf)
 	if err != nil {
 		result.Msg = fmt.Sprintf("get cluster %s client error %s", c.Name, err.Error())
 		result.Level = constant.ClusterHealthLevelError

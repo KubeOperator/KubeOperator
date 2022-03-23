@@ -49,10 +49,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, secret model
 		return nil, err
 	}
 	c.HelmClient = helmClient
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: hosts,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&secret.KubeConf)
 	if err != nil {
 		return nil, err
 	}
