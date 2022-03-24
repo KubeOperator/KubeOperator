@@ -34,25 +34,25 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 FROM kubeoperator/euleros:2.1
 ARG GOARCH
 
-RUN echo > /etc/yum.repos.d/Euler-Base.repo \
-    && echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo \
-    && yum install -y wget
+RUN if [ "$GOARCH" = "amd64" ] ; then \
+        echo > /etc/yum.repos.d/Euler-Base.repo; \
+        echo -e "[base]\nname=EulerOS-2.0SP5 base\nbaseurl=http://mirrors.huaweicloud.com/euler/2.5/os/x86_64/\nenabled=1\ngpgcheck=1\ngpgkey=http://mirrors.huaweicloud.com/euler/2.5/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
+    fi
 
-WORKDIR /usr/local/bin
+RUN if [ "$GOARCH" = "arm64" ] ; then \
+        echo > /etc/yum.repos.d/Euler-Base.repo; \
+        echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
+    fi
 
-RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && chmod 500 validator_linux_$GOARCH
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_arm64 \
-    && chmod 500 encrypt_linux_arm64
-
-WORKDIR /tmp
-
-RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polaris.tar.gz \
-    && tar zxvf ./polaris.tar.gz \
-    && mv ./polaris-1.2.1/checks/ /checks
-
-RUN yum remove -y wget \
-    && yum clean all \
-    && rm -rf /var/cache/yum/*
+RUN cd /usr/local/bin && \
+    yum install -y wget && \
+    wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
+    wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
+    chmod 500 validator_linux_$GOARCH && \
+    chmod 500 encrypt_linux_$GOARCH && \
+    yum remove -y wget && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
 
 WORKDIR /
 
