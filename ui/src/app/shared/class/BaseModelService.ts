@@ -113,7 +113,9 @@ export abstract class BaseModelService<T extends BaseModel> {
     }
 
     getCsrf(): String {
+        var offset = new Date().getTimezoneOffset()
         var thisTime = new Date()
+        thisTime.setMinutes(thisTime.getMinutes() + offset)
         let formateDay = (day) => {
           return String(day).replace(/(^\d{1}$)/,'0$1')
         }

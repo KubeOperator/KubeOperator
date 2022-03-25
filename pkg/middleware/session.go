@@ -101,8 +101,8 @@ func getUserRole(user *dto.SessionUser) ([]string, error) {
 
 func getClientCsrf(r *http.Request) bool {
 	cs := r.Header.Get("X-CSRF-TOKEN")
-	timeNow := time.Now().Format("01-02 15:04")
-	timeAMinuteAgo := time.Now().Add(-1 * time.Minute).Format("01-02 15:04")
+	timeNow := time.Now().UTC().Format("01-02 15:04")
+	timeAMinuteAgo := time.Now().UTC().Add(-1 * time.Minute).Format("01-02 15:04")
 
 	return (md5Str("kubeoperator"+timeNow) == cs || md5Str("kubeoperator"+timeAMinuteAgo) == cs)
 }
