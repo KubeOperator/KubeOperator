@@ -34,7 +34,7 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 FROM kubeoperator/euleros:2.1
 ARG GOARCH
 
-RUN useradd kops && usermod -aG kops kops
+RUN useradd -u 2004 kops && usermod -aG kops kops
 
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         echo > /etc/yum.repos.d/Euler-Base.repo; \
