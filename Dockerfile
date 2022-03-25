@@ -34,6 +34,8 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 FROM kubeoperator/euleros:2.1
 ARG GOARCH
 
+RUN useradd kops && usermod -aG kops kops
+
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         echo > /etc/yum.repos.d/Euler-Base.repo; \
         echo -e "[base]\nname=EulerOS-2.0SP5 base\nbaseurl=http://mirrors.huaweicloud.com/euler/2.5/os/x86_64/\nenabled=1\ngpgcheck=1\ngpgkey=http://mirrors.huaweicloud.com/euler/2.5/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
@@ -48,23 +50,26 @@ RUN cd /usr/local/bin && \
     yum install -y wget && \
     wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
     wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
-    chmod 500 validator_linux_$GOARCH && \
-    chmod 500 encrypt_linux_$GOARCH && \
     yum remove -y wget && \
     yum clean all && \
     rm -rf /var/cache/yum/*
 
 WORKDIR /
 
-COPY --from=stage-build /build/ko/dist/etc /etc/
+COPY --from=stage-build /build/ko/dist/home /home/
+COPY --from=stage-build /build/ko/dist/usr /usr/
 COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
 ENV ZONEINFO /opt/zoneinfo.zip
 
-COPY --from=stage-build /build/ko/dist/etc /etc/
-COPY --from=stage-build /build/ko/dist/usr /usr/
+RUN cd /usr/local/bin && \
+    chmod -R 550 ko-server validator_linux_$GOARCH encrypt_linux_$GOARCH && \
+    chown -R kops:kops ko-server validator_linux_$GOARCH encrypt_linux_$GOARCH && \
+    chown -R kops:kops /home/kops
 
-RUN chmod 550 /usr/local/bin/ko-server
+WORKDIR /home/kops
 
 EXPOSE 8080
+
+USER kops
 
 CMD ["ko-server"]

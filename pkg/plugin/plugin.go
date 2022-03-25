@@ -20,7 +20,7 @@ func GetPlugin(name string) *plugin.Plugin {
 }
 
 const (
-	releasePluginDir = "/usr/local/lib/ko/plugin"
+	releasePluginDir = "/home/kops/config/plugin"
 	localPluginDir   = "./plugin"
 )
 

@@ -38,7 +38,7 @@ var (
 var (
 	ResourceDir          = "resource"
 	ChartsDir            = path.Join(ResourceDir, "charts")
-	DefaultDataDir       = "/var/ko/data"
+	DefaultDataDir       = "/home/kops/data"
 	DefaultAnsibleLogDir = path.Join(DefaultDataDir, "ansible")
 	BackupDir            = path.Join(DefaultDataDir, "backup")
 	DefaultRepositoryDir = path.Join(DefaultDataDir, "git")

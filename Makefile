@@ -6,9 +6,9 @@ BUILDDIR=$(BASEPATH)/dist
 GOGINDATA=go-bindata
 
 KO_SERVER_NAME=ko-server
-KO_CONFIG_DIR=etc/ko
+KO_CONFIG_DIR=home/kops/config
 KO_BIN_DIR=usr/local/bin
-KO_DATA_DIR=usr/local/lib/ko
+KO_DATA_DIR=home/kops/config
 
 GOPROXY="https://goproxy.cn,direct"
 

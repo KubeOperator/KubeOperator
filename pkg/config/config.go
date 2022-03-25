@@ -10,7 +10,7 @@ import (
 func Init() {
 	viper.SetConfigName("app")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/ko")
+	viper.AddConfigPath("/home/kops/config")
 	_ = viper.ReadInConfig()
 	splitOsEnv()
 }

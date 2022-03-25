@@ -19,7 +19,7 @@ const (
 )
 
 const (
-	releaseMigrationDir = "/usr/local/lib/ko/migration"
+	releaseMigrationDir = "/home/kops/config/migration"
 	localMigrationDir   = "./migration"
 )
 
