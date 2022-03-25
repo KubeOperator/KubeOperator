@@ -227,11 +227,11 @@ func (u userService) UserAuth(name string, password []byte, isSystem bool) (user
 	}
 
 	success, err := validateOldPassword(dbUser, password)
-	if dbUser.IsFirst {
-		return &dbUser, WithoutChangePwd
-	}
 	if !success || err != nil {
 		return &dbUser, err
+	}
+	if dbUser.IsFirst {
+		return &dbUser, WithoutChangePwd
 	}
 	return &dbUser, nil
 }
