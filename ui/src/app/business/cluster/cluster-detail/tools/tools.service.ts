@@ -29,4 +29,7 @@ export class ToolsService {
         return this.http.post<any>(this.baseUrl.replace('{operation}', 'disable').replace('{cluster_name}', clusterName), item);
     }
 
+    getNodeport(clusterName: string, name: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl.replace('{operation}', 'port').replace('{cluster_name}', clusterName) + "/" + name);
+    }
 }

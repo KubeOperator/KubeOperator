@@ -5,6 +5,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {ClusterTool} from "../../tools/tools";
 import * as echarts from 'echarts';
 import { NodeService } from '../../node/node.service';
+import { ToolsService } from '../../tools/tools.service';
+
 
 @Component({
     selector: 'app-monitor-dashboard',
@@ -30,7 +32,7 @@ export class MonitorDashboardComponent implements OnInit {
     networkDateList: string[];
     networkValueList: any[] = [];
 
-    constructor(private nodeService: NodeService, private service: MonitorService, private sanitizer: DomSanitizer) {
+    constructor(private nodeService: NodeService, private toolService: ToolsService, private service: MonitorService, private sanitizer: DomSanitizer) {
     }
 
     ngOnInit(): void {
@@ -39,10 +41,14 @@ export class MonitorDashboardComponent implements OnInit {
                 return item.ip;
             })
             this.selectNode = this.nodes[0]
-            this.load();
+            this.toolService.getNodeport(this.currentCluster.name, "prometheus").subscribe(data => {
+                this.service.baseUrl = "http://" + data.nodeHost +  ":" + data.nodePort + "/"
+                this.load();
+            }, error => {
+                console.log(error)
+            });
         }, error => {
             this.loading = false;
-            // this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         })
     }
 
@@ -63,7 +69,7 @@ export class MonitorDashboardComponent implements OnInit {
     getCPUDatas (start: Number, end: Number) {
         this.cpuDateList = [];
         this.cpuValueList = [];
-        this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '"system"', start.toString(), end.toString()).subscribe(data => {
+        this.service.QueryCPU((this.selectNode + ':9100'), '"system"', start.toString(), end.toString()).subscribe(data => {
             if (data.data.result.length === 0) {
                 this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
                 return;
@@ -79,7 +85,7 @@ export class MonitorDashboardComponent implements OnInit {
             this.cpuValueList.push(this.addSeries(itemDatas, 'Busy System'));
             this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
             
-            this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '"user"', start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryCPU((this.selectNode + ':9100'), '"user"', start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[];
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return Number(item[1]).toFixed(2);
@@ -88,7 +94,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
             })
 
-            this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '"iowait"', start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryCPU((this.selectNode + ':9100'), '"iowait"', start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[];
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return Number(item[1]).toFixed(2);
@@ -97,7 +103,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
             })
 
-            this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '"idle"', start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryCPU((this.selectNode + ':9100'), '"idle"', start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[];
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return Number(item[1]).toFixed(2);
@@ -106,7 +112,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.initCharts('cpuChart', 'CPU Basic', this.cpuDateList, this.cpuValueList, '%');
             })
 
-            this.service.QueryCPU(this.currentCluster.name, (this.selectNode + ':9100'), '~".*irq"', start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryCPU((this.selectNode + ':9100'), '~".*irq"', start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[];
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return Number(item[1]).toFixed(2);
@@ -120,7 +126,7 @@ export class MonitorDashboardComponent implements OnInit {
     getMemeryDatas (start: Number, end: Number) {
         this.memeryDateList = [];
         this.memeryValueList = [];
-        this.service.QueryMemeryTotal(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+        this.service.QueryMemeryTotal((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
             if (data.data.result.length === 0) {
                 this.initCharts('memeryChart', 'Memery Basic', this.memeryDateList, this.memeryValueList, 'GiB');
                 return;
@@ -134,7 +140,7 @@ export class MonitorDashboardComponent implements OnInit {
                 return (Number(item[1]) / 1024 / 1024 / 1024).toFixed(2);
             })
 
-            this.service.QueryMemeryUsed(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryMemeryUsed((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[]
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return (Number(item[1]) / 1024 / 1024 / 1024).toFixed(2);
@@ -142,7 +148,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.memeryValueList.push(this.addSeries(itemDatas, 'RAM Used'));
                 this.initCharts('memeryChart', 'Memery Basic', this.memeryDateList, this.memeryValueList, 'GiB');
             })
-            this.service.QueryMemeryCacheBuffer(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryMemeryCacheBuffer((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[]
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return (Number(item[1]) / 1024 / 1024 / 1024).toFixed(2);
@@ -150,7 +156,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.memeryValueList.push(this.addSeries(itemDatas, 'RAM Cache + Buffer'));
                 this.initCharts('memeryChart', 'Memery Basic', this.memeryDateList, this.memeryValueList, 'GiB');
             })
-            this.service.QueryMemeryFree(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryMemeryFree((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[]
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return (Number(item[1]) / 1024 / 1024 / 1024).toFixed(2);
@@ -158,7 +164,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.memeryValueList.push(this.addSeries(itemDatas, 'RAM Free'));
                 this.initCharts('memeryChart', 'Memery Basic', this.memeryDateList, this.memeryValueList, 'GiB');
             })
-            this.service.QueryMemerySWAPUsed(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryMemerySWAPUsed((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
                 let itemDatas: string[]
                 itemDatas = data.data.result[0].values.map(function (item) {
                     return (Number(item[1]) / 1024 / 1024 / 1024).toFixed(2);
@@ -175,7 +181,7 @@ export class MonitorDashboardComponent implements OnInit {
     getDiskDatas (start: Number, end: Number) {
         this.diskDateList = [];
         this.diskValueList = [];
-        this.service.QueryDisk(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+        this.service.QueryDisk((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
             if (data.data.result.length === 0) {
                 this.initCharts('diskChart', 'Disk Space Used Basic', this.diskDateList, this.diskValueList, '%');
                 return;
@@ -196,7 +202,7 @@ export class MonitorDashboardComponent implements OnInit {
     getNetworkDatas (start: Number, end: Number) {
         this.networkDateList = [];
         this.networkValueList = [];
-        this.service.QueryNetworkRecv(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+        this.service.QueryNetworkRecv((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
             if (data.data.result.length === 0) {
                 this.initCharts('networkChart', 'Network Traffic Basic', this.networkDateList, this.networkValueList, 'kb/s');
                 return;
@@ -214,7 +220,7 @@ export class MonitorDashboardComponent implements OnInit {
                 this.initCharts('networkChart', 'Network Traffic Basic', this.networkDateList, this.networkValueList, 'kb/s');
             }
 
-            this.service.QueryNetworkTrans(this.currentCluster.name, (this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
+            this.service.QueryNetworkTrans((this.selectNode + ':9100'), start.toString(), end.toString()).subscribe(data => {
                 for (const res of data.data.result) {
                     let itemDatas: string[];
                     itemDatas = res.values.map(function (item) {

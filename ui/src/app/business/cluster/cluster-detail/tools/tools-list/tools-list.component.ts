@@ -93,7 +93,9 @@ export class ToolsListComponent implements OnInit, OnDestroy {
     }
 
     openFrame(item: ClusterTool) {
-        window.open(item.url.replace('{cluster_name}', this.currentCluster.name), '_blank');
+        this.service.getNodeport(this.currentCluster.name, item.name).subscribe(data => {
+            window.open("http://" + data.nodeHost +  ":" + data.nodePort + "/", '_blank');
+        });
     }
 
     polling() {

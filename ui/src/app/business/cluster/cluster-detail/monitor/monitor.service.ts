@@ -6,7 +6,7 @@ import {Observable} from 'rxjs';
     providedIn: 'root'
 })
 export class MonitorService {
-    baseUrl = '/proxy/prometheus/{cluster_name}/';
+    baseUrl = '';
     
     cpuCommon = 'api/v1/query_range?query=sum by(instance)(irate(node_cpu_seconds_total{instance="{instance}", mode={mode}}[5m])) * 100&start={start}&end={end}&step=300'
     
@@ -23,34 +23,34 @@ export class MonitorService {
     
     constructor(private http: HttpClient) {}
 
-    QueryCPU(clusterName: string, node: string,mode: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.cpuCommon.replace(/{instance}/g, node).replace(/{mode}/g, mode).replace('{start}', start).replace('{end}', end));
+    QueryCPU(node: string,mode: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.cpuCommon.replace(/{instance}/g, node).replace(/{mode}/g, mode).replace('{start}', start).replace('{end}', end));
     }
 
-    QueryMemeryTotal(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.memeryTotal.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryMemeryTotal(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.memeryTotal.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
-    QueryMemeryUsed(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.memeryUsed.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryMemeryUsed(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.memeryUsed.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
-    QueryMemeryCacheBuffer(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.memeryCacheBuffer.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryMemeryCacheBuffer(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.memeryCacheBuffer.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
-    QueryMemeryFree(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.memeryFree.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryMemeryFree(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.memeryFree.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
-    QueryMemerySWAPUsed(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.memerySWAPUsed.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
-    }
-
-    QueryDisk(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.disk.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryMemerySWAPUsed(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.memerySWAPUsed.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
 
-    QueryNetworkRecv(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.networkRecv.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    QueryDisk(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.disk.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
-    QueryNetworkTrans(clusterName: string, node: string, start: string, end: string): Observable<any> {
-        return this.http.get<any>(this.baseUrl.replace('{cluster_name}', clusterName) + this.networkTrans.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+
+    QueryNetworkRecv(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.networkRecv.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
+    }
+    QueryNetworkTrans(node: string, start: string, end: string): Observable<any> {
+        return this.http.get<any>(this.baseUrl + this.networkTrans.replace(/{instance}/g, node).replace('{start}', start).replace('{end}', end));
     }
 }

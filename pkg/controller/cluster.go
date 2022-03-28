@@ -250,6 +250,14 @@ func (c ClusterController) PostToolUpgradeBy(clusterName string) (*dto.ClusterTo
 	return &cts, nil
 }
 
+func (c ClusterController) GetToolPortBy(clusterName, toolName string) (dto.ToolPort, error) {
+	po, err := c.ClusterToolService.GetNodePort(clusterName, toolName)
+	if err != nil {
+		return po, err
+	}
+	return po, nil
+}
+
 func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {

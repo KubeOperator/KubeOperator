@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -22,6 +23,7 @@ type ClusterToolService interface {
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Upgrade(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
+	GetNodePort(clusterName, tool string) (dto.ToolPort, error)
 }
 
 func NewClusterToolService() ClusterToolService {
@@ -34,6 +36,53 @@ func NewClusterToolService() ClusterToolService {
 type clusterToolService struct {
 	toolRepo       repository.ClusterToolRepository
 	clusterService ClusterService
+}
+
+func (c clusterToolService) GetNodePort(clusterName, toolName string) (dto.ToolPort, error) {
+	var (
+		cluster   model.Cluster
+		tool      model.ClusterTool
+		svcName   string
+		namespace string
+	)
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+		return dto.ToolPort{}, err
+	}
+	if err := db.DB.Where("name = ?", toolName).First(&tool).Error; err != nil {
+		return dto.ToolPort{}, err
+	}
+
+	valueMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(tool.Vars), &valueMap)
+	if _, ok := valueMap["namespace"]; ok {
+		namespace = fmt.Sprint(valueMap["namespace"])
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&cluster.Secret.KubeConf)
+	if err != nil {
+		return dto.ToolPort{}, err
+	}
+	switch toolName {
+	case "prometheus":
+		svcName = constant.DefaultPrometheusServiceName
+	case "kubeapps":
+		svcName = constant.DefaultKubeappsServiceName
+	case "grafana":
+		svcName = constant.DefaultGrafanaServiceName
+	case "loki":
+		svcName = constant.DefaultLokiServiceName
+	case "dashboard":
+		svcName = constant.DefaultDashboardServiceName
+	case "logging":
+		svcName = constant.DefaultLoggingServiceName
+	}
+	d, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(), svcName, metav1.GetOptions{})
+	if err != nil {
+		return dto.ToolPort{}, err
+	}
+	if len(d.Spec.Ports) != 0 {
+		return dto.ToolPort{NodeHost: cluster.Spec.KubeRouter, NodePort: d.Spec.Ports[0].NodePort}, nil
+	}
+	return dto.ToolPort{}, fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
 }
 
 func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) {

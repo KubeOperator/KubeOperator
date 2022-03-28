@@ -1,13 +1,12 @@
 package proxy
 
 import (
-	"crypto/tls"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/kataras/iris/v12/context"
 )
 
 func LoggingProxy(ctx context.Context) {
@@ -17,22 +16,20 @@ func LoggingProxy(ctx context.Context) {
 		_, _ = ctx.JSON(http.StatusBadRequest)
 		return
 	}
-	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
+
+	nodeInfo, err := clusterToolService.GetNodePort(clusterName, "loki")
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
-	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint.Address))
+
+	u, err := url.Parse(fmt.Sprintf("http://%s:%v", nodeInfo.NodeHost, nodeInfo.NodePort))
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
+
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	req := ctx.Request()
-	req.Host = fmt.Sprintf(constant.DefaultLoggingIngress)
-	req.URL.Path = proxyPath
-	proxy.ServeHTTP(ctx.ResponseWriter(), req)
+	ctx.Request().URL.Path = proxyPath
+	proxy.ServeHTTP(ctx.ResponseWriter(), ctx.Request())
 }

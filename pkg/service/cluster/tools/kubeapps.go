@@ -99,7 +99,7 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]
 	_, repoIP, _ := c.GetRepoIP("amd64")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:8081/repository/kubeapps", repoIP)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("https://%s:8081/repository/kubeapps", repoIP)
 	values["useHelm3"] = true
 	values["postgresql.enabled"] = true
 	values["postgresql.image.repository"] = imageMap["postgresql_image_name"]
@@ -124,7 +124,7 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]
 	delete(values, "postgresql.image.tag")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:8081/repository/kubeapps", repoIP)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("https://%s:8081/repository/kubeapps", repoIP)
 
 	return values
 }
