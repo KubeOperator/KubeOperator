@@ -43,6 +43,7 @@ func (e EFK) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool)
 	values["fluentd-elasticsearch.imageTag"] = imageMap["fluentd_image_tag"]
 	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", e.LocalHostName, e.LocalRepositoryPort, imageMap["elasticsearch_image_name"])
 	values["elasticsearch.imageTag"] = imageMap["elasticsearch_image_tag"]
+	values["elasticsearch.service.type"] = "NodePort"
 
 	if isInstall {
 		if _, ok := values["elasticsearch.esJavaOpts.item"]; !ok {

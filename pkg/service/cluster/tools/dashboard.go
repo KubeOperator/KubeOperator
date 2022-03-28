@@ -48,6 +48,7 @@ func (d Dashboard) setDefaultValue(toolDetail model.ClusterToolDetail) {
 	values["metricsScraper.image.tag"] = imageMap["metrics_image_tag"]
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", d.LocalHostName, d.LocalRepositoryPort, imageMap["dashboard_image_name"])
 	values["image.tag"] = imageMap["dashboard_image_tag"]
+	values["service.type"] = "NodePort"
 	str, err := json.Marshal(&values)
 	if err != nil {
 		log.Errorf("json marshal falied : %v", values)

@@ -98,6 +98,7 @@ func (k Kubeapps) valuseV372Binding(imageMap map[string]interface{}) map[string]
 	var c helm2.Client
 	_, repoIP, _ := c.GetRepoIP("amd64")
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
+	values["service.type"] = "NodePort"
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
 	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("https://%s:8081/repository/kubeapps", repoIP)
 	values["useHelm3"] = true
@@ -125,6 +126,7 @@ func (k Kubeapps) valuseV501Binding(imageMap map[string]interface{}) map[string]
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalHostName, k.LocalRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
 	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("https://%s:8081/repository/kubeapps", repoIP)
+	values["frontend.service.type"] = "NodePort"
 
 	return values
 }

@@ -43,6 +43,7 @@ func (l Loki) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall bool
 	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", l.LocalHostName, l.LocalRepositoryPort, imageMap["promtail_image_name"])
 	values["loki.image.tag"] = imageMap["loki_image_tag"]
 	values["promtail.image.tag"] = imageMap["promtail_image_tag"]
+	values["loki.service.type"] = "NodePort"
 
 	if isInstall {
 		if _, ok := values["loki.persistence.size"]; ok {

@@ -49,6 +49,7 @@ func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstal
 	values["nodeExporter.image.tag"] = imageMap["exporter_image_tag"]
 	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalHostName, p.LocalRepositoryPort, imageMap["prometheus_image_name"])
 	values["server.image.tag"] = imageMap["prometheus_image_tag"]
+	values["server.service.type"] = "NodePort"
 
 	if isInstall {
 		if _, ok := values["server.retention"]; ok {

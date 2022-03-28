@@ -52,6 +52,7 @@ func (g Grafana) setDefaultValue(toolDetail model.ClusterToolDetail, isInstall b
 	passwdEncrypt, _ := encrypt.StringDecryptWithSalt(passwd)
 	values["adminPassword"] = passwdEncrypt
 
+	values["service.type"] = "NodePort"
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", g.LocalHostName, g.LocalRepositoryPort, imageMap["grafana_image_name"])
 	values["image.tag"] = imageMap["grafana_image_tag"]
 	values["initChownData.enabled"] = true
