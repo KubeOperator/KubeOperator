@@ -9,15 +9,15 @@ import (
 	"github.com/kataras/iris/v12/context"
 )
 
-func LoggingProxy(ctx context.Context) {
+func PrometheusProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
-	proxyPath := ctx.Params().Get("p")
 	if clusterName == "" {
 		_, _ = ctx.JSON(http.StatusBadRequest)
 		return
 	}
+	proxyPath := ctx.Params().Get("p")
 
-	nodeInfo, err := clusterToolService.GetNodePort(clusterName, "logging")
+	nodeInfo, err := clusterToolService.GetNodePort(clusterName, "prometheus")
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return

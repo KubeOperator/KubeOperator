@@ -71,14 +71,8 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kube
 		return NewLoki(c, tool)
 	case "grafana":
 		if enable {
-			prometheusNs, err := getGrafanaSourceNs(cluster, "prometheus")
-			if err != nil {
-				return nil, err
-			}
-			lokiNs, err := getGrafanaSourceNs(cluster, "loki")
-			if err != nil {
-				return nil, err
-			}
+			prometheusNs := getGrafanaSourceNs(cluster, "prometheus")
+			lokiNs := getGrafanaSourceNs(cluster, "loki")
 			return NewGrafana(c, tool, prometheusNs, lokiNs)
 		} else {
 			return NewGrafana(c, tool, "", "")
@@ -273,22 +267,25 @@ func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h 
 	return nil
 }
 
-func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) (string, error) {
+func getGrafanaSourceNs(cluster model.Cluster, sourceFrom string) string {
 	var sourceData model.ClusterTool
 	if err := db.DB.
 		Where("cluster_id = ? AND status = ? AND name = ?", cluster.ID, "Running", sourceFrom).
 		Find(&sourceData).Error; err != nil {
-		return "", err
+		log.Infof("search running %s form db failed, err: %v", sourceFrom, err)
+		return ""
 	}
 	sourceVars := map[string]interface{}{}
 	if len(sourceData.Vars) != 0 {
 		if err := json.Unmarshal([]byte(sourceData.Vars), &sourceVars); err != nil {
-			return "", err
+			log.Infof("json unmarshal failed, err: %v", err)
+			return ""
 		}
 	}
 	sp, ok := sourceVars["namespace"]
 	if !ok {
-		return "", fmt.Errorf("获取prometheus ns 失败")
+		log.Infof("%s vars has no namespace", sourceFrom)
+		return ""
 	}
-	return sp.(string), nil
+	return sp.(string)
 }
