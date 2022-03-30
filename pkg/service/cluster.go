@@ -10,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"github.com/sirupsen/logrus"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -64,6 +65,7 @@ func NewClusterService() ClusterService {
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
 		messageService:             NewMessageService(),
 		ntpServerRepo:              repository.NewNtpServerRepository(),
+		systemSettingService:       NewSystemSettingService(),
 	}
 }
 
@@ -81,6 +83,7 @@ type clusterService struct {
 	projectResourceRepository  repository.ProjectResourceRepository
 	messageService             MessageService
 	ntpServerRepo              repository.NtpServerRepository
+	systemSettingService       SystemSettingService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -591,6 +594,7 @@ func getNodeCIDRMaskSize(maxNodePodNum int) (int, error) {
 
 func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	logger.Log.Infof("start to delete cluster %s, isforce: %v", name, force)
+	go c.deleteKubePi(name)
 	cluster, err := c.Get(name)
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
@@ -830,4 +834,32 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	newStr := strings.ReplaceAll(configStr, "127.0.0.1:8443", lbAddr)
 
 	return newStr, nil
+}
+
+func (c clusterService) deleteKubePi(name string) {
+	logger.Log.Infof("start to delete kubepi client info")
+	ss, err := c.systemSettingService.ListByTab("KUBEPI")
+	if err != nil {
+		logger.Log.Errorf("get kubepi login info failed, err: %v", err)
+		return
+	}
+	apiServer, err := c.GetApiServerEndpoint(name)
+	if err != nil {
+		logger.Log.Errorf("get api server endpoint failed, err: %v", err)
+		return
+	}
+	kubepiClient := kubepi.GetClient()
+	if _, ok := ss.Vars["KUBEPI_USERNAME"]; ok {
+		username := ss.Vars["KUBEPI_USERNAME"]
+		password := ss.Vars["KUBEPI_PASSWORD"]
+		if username != "" && password != "" {
+			kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
+		}
+	}
+	if err := kubepiClient.Close(name, string(apiServer)); err != nil {
+		logger.Log.Errorf("close kubepi client failed, err: %v", err)
+		return
+	}
+
+	logger.Log.Infof("delete kubepi client info success")
 }

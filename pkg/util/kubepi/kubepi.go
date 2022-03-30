@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/spf13/viper"
 )
 
 var client Interface
@@ -25,6 +26,7 @@ func GetClient(ops ...Option) Interface {
 
 type Interface interface {
 	Open(name, apiServer, token string) (Opener, error)
+	Close(name, apiServer string) error
 	SetOptions(...Option)
 }
 
@@ -291,6 +293,39 @@ func (k *KubePi) ensureImport(name, apiServer, token string) error {
 	return nil
 }
 
+func (k *KubePi) ensureDelete(name, apiServer string) error {
+	if err := k.login(); err != nil {
+		return err
+	}
+
+	exists, _ := k.isClusterExists(name, apiServer)
+	if !exists {
+		return nil
+	}
+
+	url := fmt.Sprintf("http://%s:%d/kubepi/api/v1/clusters/%s", k.Host, k.Port, name)
+	client := http.Client{}
+
+	request, err := http.NewRequest(http.MethodDelete, url, nil)
+	request.AddCookie(k.sessionCookie)
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	rb, err := ioutil.ReadAll(resp.Body)
+	var ir ImportResponse
+	if err := json.Unmarshal(rb, &ir); err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return err
+	}
+	return nil
+}
+
 type Opener struct {
 	SessionCookie *http.Cookie
 	Redirect      string
@@ -304,4 +339,13 @@ func (k *KubePi) Open(name, apiServer, token string) (Opener, error) {
 	}
 	url := fmt.Sprintf("/kubepi/dashboard?cluster=%s", name)
 	return Opener{SessionCookie: k.sessionCookie, Redirect: url}, nil
+}
+
+func (k *KubePi) Close(name, apiServer string) error {
+	k.mutex.Lock()
+	defer k.mutex.Unlock()
+	if err := k.ensureDelete(name, apiServer); err != nil {
+		return err
+	}
+	return nil
 }
