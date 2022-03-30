@@ -491,7 +491,8 @@ func (c clusterNodeService) createNodeModels(cluster *model.Cluster, currentNode
 	}
 	for _, host := range hosts {
 		var name string
-		if cluster.NodeNameRule == constant.NodeNameRuleDefault {
+		switch cluster.NodeNameRule {
+		case constant.NodeNameRuleDefault:
 			for i := 1; i < len(currentNodes)+len(hosts); i++ {
 				name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, i)
 				if _, ok := hash[name]; ok {
@@ -500,8 +501,14 @@ func (c clusterNodeService) createNodeModels(cluster *model.Cluster, currentNode
 				hash[name] = nil
 				break
 			}
-		} else {
+		case constant.NodeNameRuleIP:
 			name = host.Ip
+			if _, ok := hash[name]; ok {
+				continue
+			}
+			hash[name] = nil
+		case constant.NodeNameRuleHostName:
+			name = host.Name
 			if _, ok := hash[name]; ok {
 				continue
 			}
