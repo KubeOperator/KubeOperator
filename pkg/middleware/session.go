@@ -20,13 +20,13 @@ import (
 func SessionMiddleware(ctx context.Context) {
 	var sessionID = session.GloablSessionMgr.CheckCookieValid(ctx.ResponseWriter(), ctx.Request())
 	if sessionID == "" {
-		errorHandler(ctx, errors.New("session invalid !"))
+		errorHandler(ctx, http.StatusUnauthorized, errors.New("session invalid !"))
 		return
 	}
 
 	u, ok := session.GloablSessionMgr.GetSessionVal(sessionID, constant.SessionUserKey)
 	if !ok {
-		errorHandler(ctx, errors.New("session invalid !"))
+		errorHandler(ctx, http.StatusUnauthorized, errors.New("session invalid !"))
 		return
 	}
 
@@ -43,9 +43,13 @@ func SessionMiddleware(ctx context.Context) {
 		}
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("ipfrom", ip)
-		if ctx.Request().Method == "POST" {
-			ctx.Values().Set("hasCsrf", getClientCsrf(ctx.Request()))
+		if ctx.Request().Method != "GET" {
+			if !getClientCsrf(ctx.Request()) {
+				errorHandler(ctx, http.StatusBadRequest, errors.New("The request was denied access due to CSRF defenses"))
+				return
+			}
 		}
+
 		ctx.Values().Set("operator", user.User.Name)
 		ctx.Next()
 		return
@@ -53,7 +57,7 @@ func SessionMiddleware(ctx context.Context) {
 	ctx.Next()
 }
 
-func errorHandler(ctx context.Context, err error) {
+func errorHandler(ctx context.Context, code int, err error) {
 	if err == nil {
 		return
 	}
@@ -61,7 +65,7 @@ func errorHandler(ctx context.Context, err error) {
 	response := &dto.Response{
 		Msg: err.Error(),
 	}
-	ctx.StatusCode(http.StatusUnauthorized)
+	ctx.StatusCode(code)
 	_, _ = ctx.JSON(response)
 }
 
@@ -101,10 +105,10 @@ func getUserRole(user *dto.SessionUser) ([]string, error) {
 
 func getClientCsrf(r *http.Request) bool {
 	cs := r.Header.Get("X-CSRF-TOKEN")
-	timeNow := time.Now().UTC().Format("01-02 15:04")
-	timeAMinuteAgo := time.Now().UTC().Add(-1 * time.Minute).Format("01-02 15:04")
+	timeNow := time.Now().UTC().Format("01-02 15:04:05")
+	timeASecAgo := time.Now().UTC().Add(-1 * time.Second).Format("01-02 15:04:05")
 
-	return (md5Str("kubeoperator"+timeNow) == cs || md5Str("kubeoperator"+timeAMinuteAgo) == cs)
+	return (md5Str("kubeoperator"+timeNow) == cs || md5Str("kubeoperator"+timeASecAgo) == cs)
 }
 
 func md5Str(str string) string {

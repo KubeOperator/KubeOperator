@@ -3,7 +3,6 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Page} from './Page';
 import {Batch} from './Batch';
-import { Md5 } from 'ts-md5';
 
 export abstract class BaseModelService<T extends BaseModel> {
 
@@ -53,12 +52,7 @@ export abstract class BaseModelService<T extends BaseModel> {
         const options = {};
         if (projectName) {
             options['headers'] = {
-                project: encodeURI(projectName),
-                "X-CSRF-TOKEN": this.getCsrf()
-            };
-        } else {
-            options['headers'] = {
-                "X-CSRF-TOKEN": this.getCsrf()
+                project: encodeURI(projectName)
             };
         }
         return this.http.post<T>(url, item, options);
@@ -110,17 +104,6 @@ export abstract class BaseModelService<T extends BaseModel> {
             }
         }));
         return url;
-    }
-
-    getCsrf(): String {
-        var offset = new Date().getTimezoneOffset()
-        var thisTime = new Date()
-        thisTime.setMinutes(thisTime.getMinutes() + offset)
-        let formateDay = (day) => {
-          return String(day).replace(/(^\d{1}$)/,'0$1')
-        }
-        var kk = formateDay(thisTime.getMonth() + 1) + "-" + formateDay(thisTime.getDate()) + " " + formateDay(thisTime.getHours()) + ":" + formateDay(thisTime.getMinutes())
-        return (Md5.hashStr("kubeoperator" + kk))
     }
 }
 
