@@ -30,6 +30,8 @@ const (
 	StatusDisabled      = "disable"
 	StatusEnabled       = "enable"
 
+	TaskCancel = "task cancel"
+
 	DefaultPassword = "kubeoperator@admin123"
 )
 
