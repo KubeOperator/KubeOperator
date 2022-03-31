@@ -216,7 +216,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		return result, err
 	}
 
-	url := constant.LocalRepositoryDomainName + strconv.Itoa(registry.RegistryPort) + "/"
+	url := constant.LocalRepositoryDomainName + ":" + strconv.Itoa(registry.RegistryPort) + "/"
 
 	if backupAccount.Type == "OSS" {
 		args = append(args, "--provider", "alibabacloud")
