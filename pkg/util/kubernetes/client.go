@@ -85,7 +85,7 @@ func SelectAliveHost(hosts []Host) (Host, error) {
 		wg.Add(1)
 		go func(h Host) {
 			defer wg.Done()
-			err := net.TcpPing(string(h), true)
+			err := net.TcpPing(string(h))
 			if err != nil {
 				log.Warnf("dial host %s error %s", h, err.Error())
 				return
