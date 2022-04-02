@@ -475,8 +475,6 @@ definitions:
         type: boolean
       isAdmin:
         type: boolean
-      isFirst:
-        type: boolean
       language:
         type: string
       name:
@@ -707,11 +705,9 @@ definitions:
 info:
   contact:
     name: Fit2cloud Support
-    url: https://www.fit2cloud.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://kubeoperator.io
   title: KubeOperator Restful API
 paths:
   /auth/session/:
@@ -1108,19 +1104,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete cluster list
-      tags:
-      - clusters
-  /clusters/import/:
-    post:
-      consumes:
-      - application/json
-      description: import a cluster
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Import a cluster
       tags:
       - clusters
   /clusters/node/{clusterName}:

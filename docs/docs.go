@@ -17,10 +17,8 @@ var doc = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://kubeoperator.io",
         "contact": {
-            "name": "Fit2cloud Support",
-            "url": "https://www.fit2cloud.com"
+            "name": "Fit2cloud Support"
         },
         "license": {
             "name": "Apache 2.0",
@@ -631,27 +629,6 @@ var doc = `{
                         }
                     }
                 ],
-                "responses": {}
-            }
-        },
-        "/clusters/import/": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "import a cluster",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "clusters"
-                ],
-                "summary": "Import a cluster",
                 "responses": {}
             }
         },
@@ -2236,9 +2213,6 @@ var doc = `{
                     "type": "boolean"
                 },
                 "isAdmin": {
-                    "type": "boolean"
-                },
-                "isFirst": {
                     "type": "boolean"
                 },
                 "language": {

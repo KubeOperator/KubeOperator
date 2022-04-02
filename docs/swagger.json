@@ -2,10 +2,8 @@
     "swagger": "2.0",
     "info": {
         "title": "KubeOperator Restful API",
-        "termsOfService": "http://kubeoperator.io",
         "contact": {
-            "name": "Fit2cloud Support",
-            "url": "https://www.fit2cloud.com"
+            "name": "Fit2cloud Support"
         },
         "license": {
             "name": "Apache 2.0",
@@ -614,27 +612,6 @@
                         }
                     }
                 ],
-                "responses": {}
-            }
-        },
-        "/clusters/import/": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "import a cluster",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "clusters"
-                ],
-                "summary": "Import a cluster",
                 "responses": {}
             }
         },
@@ -2219,9 +2196,6 @@
                     "type": "boolean"
                 },
                 "isAdmin": {
-                    "type": "boolean"
-                },
-                "isFirst": {
                     "type": "boolean"
                 },
                 "language": {
