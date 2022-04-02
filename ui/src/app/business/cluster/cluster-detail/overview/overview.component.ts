@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {ClusterService} from '../../cluster.service';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {KubernetesService} from '../../kubernetes.service';
@@ -12,8 +11,7 @@ import {V1Deployment, V1Namespace, V1Node, V1Pod} from '@kubernetes/client-node'
 })
 export class OverviewComponent implements OnInit {
 
-    constructor(private service: ClusterService,
-                private route: ActivatedRoute,
+    constructor(private route: ActivatedRoute,
                 private kubernetesService: KubernetesService) {
     }
 
@@ -43,13 +41,29 @@ export class OverviewComponent implements OnInit {
     }
 
     listNameSpaces() {
-        this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "namespacelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.namespaces = data.items;
         });
     }
 
     listPods() {
-        this.kubernetesService.listPod(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "podlist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.pods = data.items;
             for (const pod of this.pods) {
                 this.containerNumber = this.containerNumber + pod.spec.containers.length;
@@ -59,7 +73,15 @@ export class OverviewComponent implements OnInit {
     }
 
     listNodes() {
-        this.kubernetesService.listNodes(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "nodelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.nodes = data.items;
             for (const node of this.nodes) {
                 this.cpuTotal = this.cpuTotal + Number(node.status.capacity.cpu);
@@ -73,13 +95,21 @@ export class OverviewComponent implements OnInit {
     }
 
     listDeployment() {
-        this.kubernetesService.listDeployment(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "deploymentlist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.deployments = data.items;
         });
     }
 
     listNodesUsage() {
-        this.kubernetesService.listNodesUsage(this.currentCluster.name).subscribe(data => {
+        this.kubernetesService.getMetrics(this.currentCluster.name).subscribe(data => {
             const metrics = data.items;
             for (const me of metrics) {
                 const c = me.usage.cpu.replace('n', '');

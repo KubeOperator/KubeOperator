@@ -117,3 +117,26 @@ export class ClusterRecoverItem {
     result: string;
     msg: string;
 }
+
+export class SourceSearch {
+	cluster: string;
+	kind: string;
+	name: string;
+	namespace: string;
+	limit: number;
+	continue: string;
+}
+
+export class SourceCreate {
+	cluster: string;
+	kind: string;
+	namespace: string;
+    info: any;
+}
+
+export class SourceDelete {
+	cluster: string;
+	kind: string;
+	name: string;
+	namespace: string;
+}

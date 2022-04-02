@@ -33,7 +33,15 @@ export class PersistentVolumeClaimListComponent implements OnInit {
 
     list() {
         this.loading = true;
-        this.service.listPersistentVolumeClaims(this.currentCluster.name, this.namespace, this.continueToken).subscribe(data => {
+        let search = {
+            kind: "pvlist",
+            cluster: this.currentCluster.name,
+            continue: this.continueToken,
+            limit: 10,
+            namespace: this.namespace,
+            name: "",
+        }
+        this.service.listResource(search).subscribe(data => {
             this.loading = false;
             this.items = data.items;
             this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';
@@ -42,7 +50,15 @@ export class PersistentVolumeClaimListComponent implements OnInit {
 
     listNamespace() {
         this.loading = true;
-        this.service.listNamespaces(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "namespacelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.service.listResource(search).subscribe(data => {
             this.namespaces = data.items;
             if (this.namespace === '') {
                 this.namespace = this.items[0].metadata.name;

@@ -43,7 +43,13 @@ export class NamespaceCreateComponent implements OnInit {
     onSubmit() {
         const item = this.newV1NameSpace();
         this.isSubmitGoing = true;
-        this.service.createNamespace(this.currentCluster.name, item).subscribe(res => {
+        let create = {
+            cluster: this.currentCluster.name,
+            kind: "namespace",
+            namespace: "",
+            info: item,
+        }
+        this.service.createResourceNs(create).subscribe(data => {
             this.opened = false;
             this.isSubmitGoing = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);

@@ -38,7 +38,15 @@ export class EventComponent implements OnInit {
         this.loading = true;
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(res => {
+            let search = {
+                kind: "namespacelist",
+                cluster: this.currentCluster.name,
+                continue: "",
+                limit: 0,
+                namespace: "",
+                name: "",
+            }
+            this.kubernetesService.listResource(search).subscribe(res => {
                 this.namespaces = res.items;
                 if (this.namespaces.length > 0) {
                     const namespace = this.namespaces[0];
@@ -62,7 +70,15 @@ export class EventComponent implements OnInit {
 
     listEvents(namespace) {
         this.loading = true;
-        this.kubernetesService.listEvents(this.currentCluster.name, this.continueToken, namespace).subscribe(res => {
+        let search = {
+            kind: "eventlist",
+            cluster: this.currentCluster.name,
+            continue: this.continueToken,
+            limit: 30,
+            namespace: namespace,
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(res => {
             this.events = res.items;
             this.loading = false;
             this.nextToken = res.metadata[this.kubernetesService.continueTokenKey] ? res.metadata[this.kubernetesService.continueTokenKey] : '';
@@ -70,7 +86,15 @@ export class EventComponent implements OnInit {
     }
 
     getNpdExists() {
-        this.kubernetesService.listPod(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "podlist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             const pods = data.items;
             for (const pod of pods) {
                 if (pod.metadata.generateName === 'node-problem-detector-') {

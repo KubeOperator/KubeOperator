@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
+	metricsclientset "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 type Host string
@@ -31,6 +32,23 @@ func NewKubernetesClient(conf *string) (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return kubernetes.NewForConfig(config)
+}
+
+func NewMetricClient(conf *string) (*metricsclientset.Clientset, error) {
+	apiConfig, err := pauseConfigApi(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	getter := func() (*api.Config, error) {
+		return apiConfig, nil
+	}
+
+	config, err := clientcmd.BuildConfigFromKubeconfigGetter("", getter)
+	if err != nil {
+		return nil, err
+	}
+	return metricsclientset.NewForConfig(config)
 }
 
 func NewKubernetesExtensionClient(conf *string) (*extensionClientSet.Clientset, error) {

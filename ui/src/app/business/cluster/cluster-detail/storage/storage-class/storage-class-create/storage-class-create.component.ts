@@ -108,7 +108,13 @@ export class StorageClassCreateComponent implements OnInit {
         }
         if (this.provisioner.type === 'glusterfs') {
             const mySecret = this.NewV1Secrets();
-            this.kubernetesService.createSecret(this.currentCluster.name, this.item.parameters['secretNamespace'], mySecret).subscribe(data => {
+            let create = {
+                cluster: this.currentCluster.name,
+                kind: "secret",
+                namespace: this.item.parameters['secretNamespace'],
+                info: mySecret,
+            }
+            this.kubernetesService.createResourceSecret(create).subscribe(data => {
                 if (this.item.parameters['restuserkey']) {
                     delete this.item.parameters['restuserkey'];
                 }
@@ -123,7 +129,15 @@ export class StorageClassCreateComponent implements OnInit {
     }
 
     checkSecrets(){
-        this.kubernetesService.getSecretByName(this.currentCluster.name, this.item.parameters['secretName'], this.item.parameters['secretNamespace']).subscribe(data => {
+        let search = {
+            kind: "secret",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: this.item.parameters['secretNamespace'],
+            name: this.item.parameters['secretName'],
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.isSecretsExit = true;
         }, error => {
             this.isSecretsExit = false;
@@ -141,7 +155,13 @@ export class StorageClassCreateComponent implements OnInit {
         if (this.item.parameters['storagePolicyType']) {
             delete this.item.parameters['storagePolicyType'];
         }
-        this.kubernetesService.createStorageClass(this.currentCluster.name, this.item).subscribe(data => {
+        let create = {
+            cluster: this.currentCluster.name,
+            kind: "storageclass",
+            namespace: "",
+            info: this.item,
+        }
+        this.kubernetesService.createResourceSc(create).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;

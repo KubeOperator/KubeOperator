@@ -35,6 +35,7 @@ export class ToolsEnableComponent implements OnInit {
     nodeList: string[] = [];
     buttonLoading = false;
     passwordPattern = PasswordPattern;
+
     @ViewChild('itemForm') itemForm: NgForm;
     @Output() enabled = new EventEmitter();
     @Input() currentCluster: Cluster;
@@ -90,12 +91,28 @@ export class ToolsEnableComponent implements OnInit {
         this.item = item;
     }
     listStorageClass() {
-        this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
+        let search = {
+            kind: "storageclasslist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.storageClazz = data.items;
         });
     }
     listNamespaces() {
-        this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "namespacelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.namespaceList = [];
             data.items.forEach(item => {
                 this.namespaceList.push(item.metadata.name);
@@ -103,7 +120,15 @@ export class ToolsEnableComponent implements OnInit {
         });
     }
     listNode() {
-        this.kubernetesService.listNodes(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "nodelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.nodeList = [];
             data.items.forEach(item => {
                 this.nodeList.push(item.metadata.name);

@@ -1686,6 +1686,7 @@ k8s.io/kubectl v0.21.0 h1:WZXlnG/yjcE4LWO2g6ULjFxtzK6H1TKzsfaBFuVIhNg=
 k8s.io/kubectl v0.21.0/go.mod h1:EU37NukZRXn1TpAkMUoy8Z/B2u6wjHDS4aInsDzVvks=
 k8s.io/kubernetes v1.13.12 h1:PFEEOVYtKvQUGIUYkF7QqbuOgz4QJ5I4KOisgF4hf6o=
 k8s.io/kubernetes v1.13.12/go.mod h1:ocZa8+6APFNC2tX1DZASIbocyYT5jHzqFVsY5aoB7Jk=
+k8s.io/metrics v0.21.0 h1:uwS3CgheLKaw3PTpwhjMswnm/PMqeLbdLH88VI7FMQQ=
 k8s.io/metrics v0.21.0/go.mod h1:L3Ji9EGPP1YBbfm9sPfEXSpnj8i24bfQbAFAsW0NueQ=
 k8s.io/utils v0.0.0-20201110183641-67b214c5f920 h1:CbnUZsM497iRC5QMVkHwyl8s2tB3g7yaSHkYPkpgelw=
 k8s.io/utils v0.0.0-20201110183641-67b214c5f920/go.mod h1:jPW/WVKK9YHAvNhRxK0md/EJ228hCsBRufyofKtW8HA=

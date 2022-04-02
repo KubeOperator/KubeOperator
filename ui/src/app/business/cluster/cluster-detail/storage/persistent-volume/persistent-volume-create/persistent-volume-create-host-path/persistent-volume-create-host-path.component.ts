@@ -80,7 +80,13 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
             delete this.item.spec['nodeAffinity'];
         }
         this.item.spec.capacity['storage'] += 'Gi';
-        this.kubernetesService.createPersistentVolume(this.currentCluster.name, this.item).subscribe(data => {
+        let create = {
+            cluster: this.currentCluster.name,
+            kind: "pv",
+            namespace: "",
+            info: this.item,
+        }
+        this.kubernetesService.createResourcePv(create).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;

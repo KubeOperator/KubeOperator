@@ -45,7 +45,13 @@ export class PersistentVolumeDeleteComponent implements OnInit {
 
     onSubmit() {
         this.isSubmitGoing = true;
-        this.kubernetesService.deletePersistentVolume(this.currentCluster.name, this.deleteName).subscribe(res => {
+        let deleteInfo = {
+            cluster: this.currentCluster.name,
+            kind: "pv",
+            name: this.deleteName,
+            namespace: "",
+        }
+        this.kubernetesService.deleteResource(deleteInfo).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;
             this.isSubmitGoing = false;

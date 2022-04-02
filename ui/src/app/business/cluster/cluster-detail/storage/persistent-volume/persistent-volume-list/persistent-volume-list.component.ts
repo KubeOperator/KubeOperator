@@ -29,7 +29,15 @@ export class PersistentVolumeListComponent implements OnInit {
 
     list() {
         this.loading = true;
-        this.service.listPersistentVolumes(this.currentCluster.name, this.continueToken).subscribe(data => {
+        let search = {
+            kind: "pvlist",
+            cluster: this.currentCluster.name,
+            continue: this.continueToken,
+            limit: 10,
+            namespace: "",
+            name: "",
+        }
+        this.service.listResource(search).subscribe(data => {
             this.loading = false;
             this.items = data.items;
             this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';

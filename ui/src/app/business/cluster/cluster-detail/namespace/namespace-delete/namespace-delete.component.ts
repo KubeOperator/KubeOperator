@@ -49,7 +49,13 @@ export class NamespaceDeleteComponent implements OnInit {
                     }
                 }
                 if (exitStr === '') {
-                    this.service.deleteNamespace(this.currentCluster.name, this.namespace).subscribe(res => {
+                    let deleteInfo = {
+                        cluster: this.currentCluster.name,
+                        kind: "namespace",
+                        name: this.namespace,
+                        namespace: "",
+                    }
+                    this.service.deleteResource(deleteInfo).subscribe(res => {
                         this.opened = false;
                         this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
                         this.deleted.emit();

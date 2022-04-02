@@ -15,6 +15,7 @@ export class NamespaceListComponent implements OnInit {
     selected = [];
     items: V1Namespace[] = [];
     page = 1;
+    
     @Output() deleteEvent = new EventEmitter<string>();
     @Output() createEvent = new EventEmitter<string>();
     defaultNamespaces: string[] = ['default', 'kube-node-lease', 'kube-operator', 'kube-public', 'kube-system', 'istio-system'];
@@ -30,7 +31,15 @@ export class NamespaceListComponent implements OnInit {
 
     refresh() {
         this.loading = true;
-        this.service.listNamespaces(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "namespacelist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.service.listResource(search).subscribe(data => {
             this.loading = false;
             this.items = data.items;
         });

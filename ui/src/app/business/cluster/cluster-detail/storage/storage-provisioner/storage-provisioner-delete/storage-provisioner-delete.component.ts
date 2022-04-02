@@ -36,7 +36,15 @@ export class StorageProvisionerDeleteComponent implements OnInit {
 
     onSubmit() {
         this.submitGoing = true;
-        this.kubernetesService.listStorageClass(this.currentCluster.name).subscribe(data => {
+        let search = {
+            kind: "storageclasslist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.submitGoing = false;
             const scs = data.items;
             let result = true;

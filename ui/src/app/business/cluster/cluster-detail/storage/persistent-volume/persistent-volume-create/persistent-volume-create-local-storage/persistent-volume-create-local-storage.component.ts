@@ -57,7 +57,15 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
 
     reset() {
         this.isSubmitGoing = false;
-        this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
+        let search = {
+            kind: "storageclasslist",
+            cluster: this.currentCluster.name,
+            continue: "",
+            limit: 0,
+            namespace: "",
+            name: "",
+        }
+        this.kubernetesService.listResource(search).subscribe(data => {
             this.storageClazz = data.items.filter((sc) => {
                 return sc.provisioner === 'kubernetes.io/no-provisioner';
             });
@@ -95,7 +103,13 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
             this.item.spec.storageClassName = this.storageClassName;
         }
         this.item.spec.capacity['storage'] += 'Gi';
-        this.kubernetesService.createPersistentVolume(this.currentCluster.name, this.item).subscribe(data => {
+        let create = {
+            cluster: this.currentCluster.name,
+            kind: "pv",
+            namespace: "",
+            info: this.item,
+        }
+        this.kubernetesService.createResourcePv(create).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;

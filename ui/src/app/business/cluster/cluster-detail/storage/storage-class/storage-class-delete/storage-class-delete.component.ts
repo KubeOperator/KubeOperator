@@ -48,9 +48,13 @@ export class StorageClassDeleteComponent implements OnInit {
         this.submitGoing = true;
 
         if (this.deleteClass.provisioner === 'kubernetes.io/glusterfs') {
-            const namespace = this.deleteClass.parameters.secretNamespace;
-            const secretName = this.deleteClass.parameters.secretName;
-            this.kubernetesService.deleteSecret(this.currentCluster.name, namespace, secretName).subscribe(res => {
+            let deleteInfo = {
+                cluster: this.currentCluster.name,
+                kind: "secret",
+                name: this.deleteClass.parameters.secretName,
+                namespace: this.deleteClass.parameters.secretNamespace,
+            }
+            this.kubernetesService.deleteResource(deleteInfo).subscribe(res => {
                 this.delete();
             }, error => {
                 this.submitGoing = false;
@@ -62,7 +66,13 @@ export class StorageClassDeleteComponent implements OnInit {
     }
 
     delete() {
-        this.kubernetesService.deleteStorageClass(this.currentCluster.name, this.deleteName).subscribe(res => {
+        let deleteInfo = {
+            cluster: this.currentCluster.name,
+            kind: "storageclass",
+            name: this.deleteName,
+            namespace: "",
+        }
+        this.kubernetesService.deleteResource(deleteInfo).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;
             this.submitGoing = false;
