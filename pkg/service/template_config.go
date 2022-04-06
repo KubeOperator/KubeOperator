@@ -2,18 +2,21 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 )
 
 type TemplateConfigService interface {
 	List() ([]dto.TemplateConfig, error)
 	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
+	Create(creation dto.TemplateConfigCreate) (*dto.TemplateConfig, error)
 }
 
 type templateConfigService struct {
@@ -29,8 +32,39 @@ func (t *templateConfigService) List() ([]dto.TemplateConfig, error) {
 	return configs, err
 }
 
-func (t *templateConfigService) Create(config dto.TemplateConfig) (dto.TemplateConfig, error) {
-	return config, db.DB.Create(config).Error
+func (t *templateConfigService) Get(name string) (*dto.TemplateConfig, error) {
+	var (
+		mo     model.TemplateConfig
+		config dto.TemplateConfig
+	)
+	if err := db.DB.Where("name = ?", name).First(mo).Error; err != nil {
+		return nil, err
+	}
+
+	m := make(map[string]interface{})
+	config.TemplateConfig = mo
+	if err := json.Unmarshal([]byte(mo.Config), &m); err != nil {
+		logger.Log.Errorf("templateConfigService Get json.Unmarshal failed, error: %s", err.Error())
+	}
+	config.ConfigVars = m
+	return &config, nil
+}
+
+func (t *templateConfigService) Create(creation dto.TemplateConfigCreate) (*dto.TemplateConfig, error) {
+
+	old, _ := t.Get(creation.Name)
+	if old != nil && old.ID != "" {
+		return nil, errors.New("NAME_EXISTS")
+	}
+	config, _ := json.Marshal(creation.Config)
+	mo := model.TemplateConfig{
+		Config:    string(config),
+		BaseModel: common.BaseModel{},
+		Name:      creation.Name,
+		Type:      creation.Type,
+	}
+
+	return &dto.TemplateConfig{TemplateConfig: mo}, db.DB.Create(&mo).Error
 }
 
 func (t *templateConfigService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {

@@ -3,9 +3,11 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -21,7 +23,7 @@ func NewTemplateConfigController() *TemplateConfigController {
 }
 
 // List TemplateConfigs
-// @Tags TemplateConfig
+// @Tags templateConfigs
 // @Summary Show all TemplateConfigs
 // @Description 获取所有的模板配置
 // @Accept  json
@@ -62,6 +64,29 @@ func (t TemplateConfigController) Update() (dto.TemplateConfig, error) {
 	return dto.TemplateConfig{}, nil
 }
 
-func (t TemplateConfigController) Create() (dto.TemplateConfig, error) {
-	return dto.TemplateConfig{}, nil
+// Create TemplateConfig
+// @Tags templateConfigs
+// @Summary Create a TemplateConfig
+// @Description 创建模版
+// @Accept  json
+// @Produce  json
+// @Param request body dto.TemplateConfigCreate true "request"
+// @Success 200 {object} dto.TemplateConfig
+// @Security ApiKeyAuth
+// @Router /template/create [post]
+
+func (t TemplateConfigController) PostCreate() (*dto.TemplateConfig, error) {
+
+	var req dto.TemplateConfigCreate
+	if err := t.Ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, err
+	}
+	operator := t.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.CREATE_TEMPLATE, req.Name)
+
+	return t.TemplateConfigService.Create(req)
 }

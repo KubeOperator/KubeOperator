@@ -92,6 +92,9 @@ const (
 	DELETE_IP_POOL       = "删除IP池|Delete IP Pool"
 	CREATE_IP            = "添加IP"
 	DELETE_IP            = "删除Ip"
+	CREATE_TEMPLATE      = "创建模版"
+	DELETE_TEMPLATE      = "删除模版"
+	UPRATE_TEMPLATE      = "更新模版"
 
 	// 用户
 	CREATE_USER          = "添加用户|Create user"
