@@ -133,6 +133,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/backupaccounts",
 			"/api/v1/backupaccounts/{**}",
 			"/api/v1/projects/{**}/{resources,members}",
+			"/api/v1/templates",
+			"/api/v1/templates/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -159,6 +161,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/vmconfigs/search",
 			"/api/v1/hosts/search",
 			"/api/v1/backupaccounts/search",
+			"/api/v1/templates/search",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{
