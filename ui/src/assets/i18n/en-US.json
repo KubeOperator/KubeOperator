@@ -165,7 +165,6 @@
   "APP_NETWORK_GATEWAY": "Gateway",
   "APP_NETWORK_DNS1": "DNS 1",
   "APP_NETWORK_DNS2": "DNS 2",
-  "APP_NETWORK_DNS_HELPER": "For example:: 114.114.114.114",
   "APP_ZONE_CREATE": "Create Zone",
   "APP_REQUIRED_ERROR": "This field is required",
   "APP_ENABLE_STORAGE": "Enable Storage",

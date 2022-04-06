@@ -30,14 +30,12 @@
                 <input clrInput size=45 type="text" [(ngModel)]="item.dns1" name="dns1"
                        required>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_NETWORK_DNS2'|translate}}</label>
                 <input clrInput size=45 type="text" [(ngModel)]="item.dns2" name="dns2"
                        required>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
         </form>
         <app-modal-alert></app-modal-alert>
