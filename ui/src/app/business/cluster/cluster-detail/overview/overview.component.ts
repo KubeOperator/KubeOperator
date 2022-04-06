@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {KubernetesService} from '../../kubernetes.service';
 import {V1Deployment, V1Namespace, V1Node, V1Pod} from '@kubernetes/client-node';
+import {OverViewData} from '../../cluster'
 
 @Component({
     selector: 'app-overview',
@@ -16,11 +17,8 @@ export class OverviewComponent implements OnInit {
     }
 
     currentCluster: Cluster;
-    namespaces: V1Namespace[] = [];
-    pods: V1Pod[] = [];
     nodes: V1Node[] = [];
-    deployments: V1Deployment[] = [];
-    containerNumber = 0;
+    overViewData: OverViewData;
     cpuTotal = 0;
     cpuUsage = 0;
     cpuUsagePercent = 0.0;
@@ -34,15 +32,13 @@ export class OverviewComponent implements OnInit {
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.listNameSpaces();
-            this.listNodes();
-            this.listDeployment();
+            this.loadDatas();
         });
     }
 
-    listNameSpaces() {
+    loadDatas() {
         let search = {
-            kind: "namespacelist",
+            kind: "overviewdatas",
             cluster: this.currentCluster.name,
             continue: "",
             limit: 0,
@@ -50,25 +46,8 @@ export class OverviewComponent implements OnInit {
             name: "",
         }
         this.kubernetesService.listResource(search).subscribe(data => {
-            this.namespaces = data.items;
-        });
-    }
-
-    listPods() {
-        let search = {
-            kind: "podlist",
-            cluster: this.currentCluster.name,
-            continue: "",
-            limit: 0,
-            namespace: "",
-            name: "",
-        }
-        this.kubernetesService.listResource(search).subscribe(data => {
-            this.pods = data.items;
-            for (const pod of this.pods) {
-                this.containerNumber = this.containerNumber + pod.spec.containers.length;
-            }
-            this.podUsagePercent = (this.pods.length / this.podLimit) * 100;
+            this.overViewData = data;
+            this.listNodes()
         });
     }
 
@@ -89,22 +68,8 @@ export class OverviewComponent implements OnInit {
                 this.memTotal = this.memTotal + Number(mem);
                 this.podLimit = this.podLimit + Number(node.status.capacity.pods);
             }
+            this.podUsagePercent = (this.overViewData.pods / this.podLimit) * 100;
             this.listNodesUsage();
-            this.listPods();
-        });
-    }
-
-    listDeployment() {
-        let search = {
-            kind: "deploymentlist",
-            cluster: this.currentCluster.name,
-            continue: "",
-            limit: 0,
-            namespace: "",
-            name: "",
-        }
-        this.kubernetesService.listResource(search).subscribe(data => {
-            this.deployments = data.items;
         });
     }
 

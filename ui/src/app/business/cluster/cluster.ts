@@ -140,3 +140,11 @@ export class SourceDelete {
 	name: string;
 	namespace: string;
 }
+
+export class OverViewData {
+	deployments: number;
+    nodes: number;
+    namespaces: number;
+    pods: number;
+    containers: number;
+}

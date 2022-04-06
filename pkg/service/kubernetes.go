@@ -40,8 +40,8 @@ func (k kubernetesService) Get(req dto.SourceSearch) (interface{}, error) {
 
 	switch req.Kind {
 	case "namespacelist":
-		pods, err := client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-		return pods, err
+		ns, err := client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+		return ns, err
 	case "podlist":
 		pods, err := client.CoreV1().Pods(req.Namespace).List(context.TODO(), metav1.ListOptions{})
 		return pods, err
@@ -75,12 +75,47 @@ func (k kubernetesService) Get(req dto.SourceSearch) (interface{}, error) {
 			storageclass, err := client.CoreV1().PersistentVolumes().List(context.TODO(), metav1.ListOptions{})
 			return storageclass, err
 		}
-	case "deploymentlist":
+	case "overviewdatas":
+		var overDatas OverViewData
 		deployments, err := client.AppsV1().Deployments(req.Namespace).List(context.TODO(), metav1.ListOptions{})
-		return deployments, err
+		if err != nil {
+			return overDatas, err
+		}
+		overDatas.Deployments = len(deployments.Items)
+
+		pods, err := client.CoreV1().Pods(req.Namespace).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return overDatas, err
+		}
+		overDatas.Pods = len(pods.Items)
+		for _, po := range pods.Items {
+			overDatas.Containers += len(po.Spec.Containers)
+		}
+
+		ns, err := client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return overDatas, err
+		}
+		overDatas.Namespaces = len(ns.Items)
+
+		nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return overDatas, err
+		}
+		overDatas.Nodes = len(nodes.Items)
+
+		return overDatas, err
 	}
 
 	return dto.SourceList{}, nil
+}
+
+type OverViewData struct {
+	Deployments int `json:"deployments"`
+	Nodes       int `json:"nodes"`
+	Namespaces  int `json:"namespaces"`
+	Pods        int `json:"pods"`
+	Containers  int `json:"containers"`
 }
 
 func (k kubernetesService) GetMetric(cluster string) (interface{}, error) {
