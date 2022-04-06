@@ -10,9 +10,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/containerd/containerd/log"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/spf13/viper"
 )
+
+var log = logger.Default
 
 func padding(plaintext []byte, blockSize int) []byte {
 	if blockSize == 0 {
@@ -101,7 +103,7 @@ func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[
 				if ok {
 					passwdEncrypt, err := StringEncryptWithSalt(passwd)
 					if err != nil {
-						log.L.Errorf("string decrypt failed")
+						log.Errorf("string decrypt failed")
 					}
 					vars[key] = passwdEncrypt
 				}
@@ -112,7 +114,7 @@ func VarsEncrypt(operation string, str string, vars map[string]interface{}) map[
 				if ok {
 					passwdEncrypt, err := StringEncryptWithSalt(passwd)
 					if err != nil {
-						log.L.Errorf("string decrypt failed")
+						log.Errorf("string decrypt failed")
 					}
 					vars[key] = passwdEncrypt
 				}
@@ -133,7 +135,7 @@ func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[
 				if ok {
 					passwdDecrypt, err := StringDecryptWithSalt(passwd)
 					if err != nil {
-						log.L.Errorf("string decrypt failed")
+						log.Error("string decrypt failed")
 					}
 					vars[key] = passwdDecrypt
 				}
@@ -144,7 +146,7 @@ func VarsDecrypt(operation string, str string, vars map[string]interface{}) map[
 				if ok {
 					passwdDecrypt, err := StringDecryptWithSalt(passwd)
 					if err != nil {
-						log.L.Errorf("string decrypt failed")
+						log.Error("string decrypt failed")
 					}
 					vars[key] = passwdDecrypt
 				}

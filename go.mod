@@ -15,7 +15,6 @@ require (
 	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
-	github.com/containerd/containerd v1.4.4
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20220317163658-f5c0d0953e10 // indirect
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
