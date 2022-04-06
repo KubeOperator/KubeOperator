@@ -79,6 +79,7 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+	aul.Password = ""
 
 	ip := middleware.GetClientPublicIP(s.Ctx.Request())
 	if len(ip) == 0 {
@@ -114,6 +115,7 @@ func (s *SessionController) PostSystem() (*dto.Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+	aul.Password = ""
 
 	ip := middleware.GetClientPublicIP(s.Ctx.Request())
 	if len(ip) == 0 {
