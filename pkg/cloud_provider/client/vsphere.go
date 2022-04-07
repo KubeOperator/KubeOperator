@@ -93,9 +93,12 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	networks := make([]string, len(nws))
-	for i, value := range nws {
-		networks[i], _ = v.getNetworkName(value.Reference())
+	networks := []string{}
+	for _, value := range nws {
+		if value.Reference().Type == "Network" {
+			network, _ := v.getNetworkName(value.Reference())
+			networks = append(networks, network)
+		}
 	}
 
 	hs, err := f.HostSystemList(todo, "*")
