@@ -104,3 +104,16 @@ func (t TemplateConfigController) PostCreate() (*dto.TemplateConfig, error) {
 func (t TemplateConfigController) GetBy(name string) (*dto.TemplateConfig, error) {
 	return t.TemplateConfigService.Get(name)
 }
+
+// Delete TemplateConfig
+// @Tags templateConfigs
+// @Summary Delete a templateConfig
+// @Description 删除模版配置
+// @Accept  json
+// @Produce  json
+// @Param name path string true "模版名称"
+// @Security ApiKeyAuth
+// @Router /templates/{name} [delete]
+func (t TemplateConfigController) DeleteBy(name string) error {
+	return t.TemplateConfigService.Delete(name)
+}
