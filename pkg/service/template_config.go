@@ -19,6 +19,7 @@ type TemplateConfigService interface {
 	Create(creation dto.TemplateConfigCreate) (*dto.TemplateConfig, error)
 	Get(name string) (*dto.TemplateConfig, error)
 	Delete(name string) error
+	Update(name string, update dto.TemplateConfig) (*dto.TemplateConfig, error)
 }
 
 type templateConfigService struct {
@@ -71,6 +72,21 @@ func (t *templateConfigService) Create(creation dto.TemplateConfigCreate) (*dto.
 
 func (t *templateConfigService) Delete(name string) error {
 	return db.DB.Where("name = ?", name).Delete(&model.TemplateConfig{}).Error
+}
+
+func (t *templateConfigService) Update(name string, update dto.TemplateConfig) (*dto.TemplateConfig, error) {
+	var (
+		template model.TemplateConfig
+	)
+	if err := db.DB.Where("name = ?", name).First(&template).Error; err != nil {
+		return nil, err
+	}
+	vars, _ := json.Marshal(update.ConfigVars)
+	template.Config = string(vars)
+	if err := db.DB.Save(&template).Error; err != nil {
+		return nil, err
+	}
+	return &update, nil
 }
 
 func (t *templateConfigService) Page(num, size int, conditions condition.Conditions) (*page.Page, error) {

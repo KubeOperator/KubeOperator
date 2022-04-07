@@ -56,12 +56,29 @@ func (t TemplateConfigController) PostSearch() (*page.Page, error) {
 	}
 }
 
-func (t TemplateConfigController) Delete() error {
-	return nil
-}
-
-func (t TemplateConfigController) Update() (dto.TemplateConfig, error) {
-	return dto.TemplateConfig{}, nil
+// Update TemplateConfig
+// @Tags templateConfigs
+// @Summary Update a TemplateConfig
+// @Description 更新模板配置
+// @Accept  json
+// @Produce  json
+// @Param request body dto.TemplateConfig true "request"
+// @Param name path string true "模板配置名称"
+// @Success 200 {object} dto.TemplateConfig
+// @Security ApiKeyAuth
+// @Router /templates/{name} [patch]
+func (t TemplateConfigController) PatchBy(name string) (*dto.TemplateConfig, error) {
+	var req dto.TemplateConfig
+	err := t.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return t.TemplateConfigService.Update(name, req)
 }
 
 // Create TemplateConfig
