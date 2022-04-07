@@ -10,7 +10,7 @@ type TemplateConfig struct {
 	ID     string `json:"-" gorm:"type:varchar(64)"`
 	Name   string `json:"name"`
 	Type   string `json:"type"`
-	Config string `json:"config"`
+	Config string `json:"-"`
 }
 
 func (t *TemplateConfig) BeforeCreate() (err error) {

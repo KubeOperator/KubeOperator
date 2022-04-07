@@ -17,6 +17,7 @@ type TemplateConfigService interface {
 	List() ([]dto.TemplateConfig, error)
 	Page(num, size int, conditions condition.Conditions) (*page.Page, error)
 	Create(creation dto.TemplateConfigCreate) (*dto.TemplateConfig, error)
+	Get(name string) (*dto.TemplateConfig, error)
 }
 
 type templateConfigService struct {
@@ -37,7 +38,7 @@ func (t *templateConfigService) Get(name string) (*dto.TemplateConfig, error) {
 		mo     model.TemplateConfig
 		config dto.TemplateConfig
 	)
-	if err := db.DB.Where("name = ?", name).First(mo).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).First(&mo).Error; err != nil {
 		return nil, err
 	}
 

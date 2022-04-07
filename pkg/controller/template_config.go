@@ -30,7 +30,7 @@ func NewTemplateConfigController() *TemplateConfigController {
 // @Produce  json
 // @Success 200 {object} []dto.TemplateConfig
 // @Security ApiKeyAuth
-// @Router /template/search [post]
+// @Router /templates/search [post]
 func (t TemplateConfigController) PostSearch() (*page.Page, error) {
 
 	p, _ := t.Ctx.Values().GetBool("page")
@@ -73,7 +73,7 @@ func (t TemplateConfigController) Update() (dto.TemplateConfig, error) {
 // @Param request body dto.TemplateConfigCreate true "request"
 // @Success 200 {object} dto.TemplateConfig
 // @Security ApiKeyAuth
-// @Router /template/create [post]
+// @Router /templates/create [post]
 
 func (t TemplateConfigController) PostCreate() (*dto.TemplateConfig, error) {
 
@@ -89,4 +89,18 @@ func (t TemplateConfigController) PostCreate() (*dto.TemplateConfig, error) {
 	go kolog.Save(operator, constant.CREATE_TEMPLATE, req.Name)
 
 	return t.TemplateConfigService.Create(req)
+}
+
+// Get TemplateConfig
+// @Tags templateConfigs
+// @Summary Show a TemplateConfig
+// @Description 获取单个模版配置
+// @Accept  json
+// @Produce  json
+// @Param name path string true "模版名称"
+// @Success 200 {object} dto.TemplateConfig
+// @Security ApiKeyAuth
+// @Router /templates/{name} [get]
+func (t TemplateConfigController) GetBy(name string) (*dto.TemplateConfig, error) {
+	return t.TemplateConfigService.Get(name)
 }
