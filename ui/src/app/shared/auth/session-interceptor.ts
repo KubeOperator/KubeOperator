@@ -30,11 +30,12 @@ export class SessionInterceptor implements HttpInterceptor {
         let formateDay = (day) => {
             return String(day).replace(/(^\d{1}$)/,'0$1')
         }
-        let month = formateDay(new Date().getUTCMonth() + 1)
-        let date = formateDay(new Date().getUTCDate())
-        let hour = formateDay(new Date().getUTCHours())
-        let minute = formateDay(new Date().getUTCMinutes())
-        let second = formateDay(new Date().getUTCSeconds())
+        let dateNow = new Date()
+        let month = formateDay(dateNow.getUTCMonth() + 1)
+        let date = formateDay(dateNow.getUTCDate())
+        let hour = formateDay(dateNow.getUTCHours())
+        let minute = formateDay(dateNow.getUTCMinutes())
+        let second = formateDay(dateNow.getUTCSeconds())
         var kk = month + "-" + date + " " + hour + ":" + minute + ":" + second
         console.log(kk, Md5.hashStr("kubeoperator" + kk))
         
