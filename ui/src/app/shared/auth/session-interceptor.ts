@@ -27,13 +27,16 @@ export class SessionInterceptor implements HttpInterceptor {
     }
 
     encrypt() {
-        var offset = new Date().getTimezoneOffset()
-        var thisTime = new Date()
-        thisTime.setMinutes(thisTime.getMinutes() + offset)
         let formateDay = (day) => {
-          return String(day).replace(/(^\d{1}$)/,'0$1')
+            return String(day).replace(/(^\d{1}$)/,'0$1')
         }
-        var kk = formateDay(thisTime.getMonth() + 1) + "-" + formateDay(thisTime.getDate()) + " " + formateDay(thisTime.getHours()) + ":" + formateDay(thisTime.getMinutes()) + ":" + formateDay(thisTime.getSeconds())
+        let month = formateDay(new Date().getUTCMonth() + 1)
+        let date = formateDay(new Date().getUTCDate())
+        let hour = formateDay(new Date().getUTCHours())
+        let minute = formateDay(new Date().getUTCMinutes())
+        let second = formateDay(new Date().getUTCSeconds())
+        var kk = month + "-" + date + " " + hour + ":" + minute + ":" + second
+        console.log(kk, Md5.hashStr("kubeoperator" + kk))
         
         return Md5.hashStr("kubeoperator" + kk)
     }
