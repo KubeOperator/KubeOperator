@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"crypto/md5"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -43,10 +46,23 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 	if !ok {
 		return nil, errors.New("type aassertion failed")
 	}
+
+	timeNow := time.Now().Format("01-02 15:04:05")
+	token := md5Str("kubeoperator" + timeNow)
+	user.CsrfToken = token
+	session.GloablSessionMgr.SetSessionVal(sessionID, constant.SessionUserKey, user)
+
 	if user.User.IsFirst {
 		return nil, service.WithoutChangePwd
 	}
 	return user, nil
+}
+
+func md5Str(str string) string {
+	data := []byte(str)
+	has := md5.Sum(data)
+	md5str := fmt.Sprintf("%x", has)
+	return md5str
 }
 
 // Login

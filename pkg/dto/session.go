@@ -26,8 +26,9 @@ type SessionUser struct {
 }
 
 type Profile struct {
-	User  SessionUser `json:"user"`
-	Token string      `json:"token,omitempty"`
+	User      SessionUser `json:"user"`
+	Token     string      `json:"token,omitempty"`
+	CsrfToken string      `json:"cs,omitempty"`
 }
 
 type Captcha struct {

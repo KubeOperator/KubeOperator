@@ -26,6 +26,7 @@ export class AdminAuthService implements CanActivateChild, CanActivate {
         return new Observable<boolean>((observer) => {
             this.sessionService.getProfile().subscribe(res => {
                 if (res != null && res.user.isAdmin) {
+                    localStorage.setItem("cs", res.cs)
                     observer.next(true);
                     observer.complete();
                 } else {

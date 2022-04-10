@@ -22,6 +22,7 @@ export class NavigationComponent implements OnInit {
         this.hasLicense = this.businessLicenseService.licenseValid;
         this.sessionService.getProfile().subscribe(res => {
             this.user = res.user;
+            localStorage.setItem("cs", res.cs)
         }, error => {
             this.sessionService.clear();
             this.router.navigateByUrl(CommonRoutes.LOGIN).then();

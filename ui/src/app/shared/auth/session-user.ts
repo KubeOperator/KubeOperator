@@ -12,6 +12,7 @@ export class SessionUser {
 export class Profile {
     user: SessionUser;
     token: string;
+    cs: string;
     roleMenus: RoleMenu[] = [];
     permissions: Permission[] = [];
 }

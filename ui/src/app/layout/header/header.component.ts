@@ -50,6 +50,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     getProfile() {
         this.sessionService.getProfile().subscribe(res => {
             if (res != null) {
+                localStorage.setItem("cs", res.cs)
                 this.user = res.user;
                 this.hasLicense = this.businessLicenseService.licenseValid;
                 if (this.hasLicense) {

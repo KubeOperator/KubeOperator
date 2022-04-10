@@ -1,13 +1,11 @@
 package middleware
 
 import (
-	"crypto/md5"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -43,8 +41,8 @@ func SessionMiddleware(ctx context.Context) {
 		}
 		ctx.Values().Set("user", user.User)
 		ctx.Values().Set("ipfrom", ip)
-		if ctx.Request().Method != "GET" {
-			if !getClientCsrf(ctx.Request()) {
+		if !user.User.IsFirst && ctx.Request().Method != "GET" {
+			if ctx.Request().Header.Get("X-CSRF-TOKEN") != user.CsrfToken {
 				errorHandler(ctx, http.StatusBadRequest, errors.New("The request was denied access due to CSRF defenses"))
 				return
 			}
@@ -101,22 +99,6 @@ func getUserRole(user *dto.SessionUser) ([]string, error) {
 		roles = append(roles, constant.SystemRoleUser)
 	}
 	return roles, nil
-}
-
-func getClientCsrf(r *http.Request) bool {
-	cs := r.Header.Get("X-CSRF-TOKEN")
-	timeNow := time.Now()
-	timeNowUTC := timeNow.UTC().Format("01-02 15:04:05")
-	timeASecAgoUTC := timeNow.UTC().Add(-1 * time.Second).Format("01-02 15:04:05")
-
-	return (md5Str("kubeoperator"+timeNowUTC) == cs || md5Str("kubeoperator"+timeASecAgoUTC) == cs)
-}
-
-func md5Str(str string) string {
-	data := []byte(str)
-	has := md5.Sum(data)
-	md5str := fmt.Sprintf("%x", has)
-	return md5str
 }
 
 func GetClientIP(r *http.Request) string {

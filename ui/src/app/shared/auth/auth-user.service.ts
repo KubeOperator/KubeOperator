@@ -26,6 +26,7 @@ export class AuthUserService implements CanActivate, CanActivateChild {
         return new Observable<boolean>((observer) => {
             this.sessionService.getProfile().subscribe(res => {
                 if (res != null) {
+                    localStorage.setItem("cs", res.cs)
                     observer.next(true);
                     observer.complete();
                 } else {
