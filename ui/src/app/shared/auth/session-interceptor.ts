@@ -12,7 +12,10 @@ export class SessionInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if (req.method !== 'GET') {
-            req = req.clone({ headers: req.headers.set('X-CSRF-TOKEN', localStorage.getItem("cs"))});
+            let cs = localStorage.getItem("cs")
+            if (cs) {
+                req = req.clone({ headers: req.headers.set('X-CSRF-TOKEN', cs)});
+            }
         }
 
         if (req.url.startsWith('/api')) {
