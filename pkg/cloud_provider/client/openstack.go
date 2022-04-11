@@ -402,7 +402,7 @@ func (v *openStackClient) UploadImage() error {
 	return nil
 }
 
-func (v *openStackClient) DefaultImageExist() (bool, error) {
+func (v *openStackClient) ImageExist(template string) (bool, error) {
 	return false, nil
 }
 

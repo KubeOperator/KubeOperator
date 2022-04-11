@@ -25,7 +25,7 @@ type zoneRepository struct {
 
 func (z zoneRepository) Get(name string) (model.Zone, error) {
 	var zone model.Zone
-	if err := db.DB.Where("name = ?", name).First(&zone).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).Preload("Region").First(&zone).Error; err != nil {
 		return zone, err
 	}
 	return zone, nil

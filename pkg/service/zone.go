@@ -36,21 +36,24 @@ type ZoneService interface {
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListByRegionName(regionName string) ([]dto.Zone, error)
 	ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudDatastore, error)
+	UploadImage(zoneName string) error
 }
 
 type zoneService struct {
-	zoneRepo             repository.ZoneRepository
-	regionRepo           repository.RegionRepository
-	systemSettingService SystemSettingService
-	ipPoolService        IpPoolService
+	zoneRepo              repository.ZoneRepository
+	regionRepo            repository.RegionRepository
+	systemSettingService  SystemSettingService
+	ipPoolService         IpPoolService
+	templateConfigService TemplateConfigService
 }
 
 func NewZoneService() ZoneService {
 	return &zoneService{
-		zoneRepo:             repository.NewZoneRepository(),
-		systemSettingService: NewSystemSettingService(),
-		regionRepo:           repository.NewRegionRepository(),
-		ipPoolService:        NewIpPoolService(),
+		zoneRepo:              repository.NewZoneRepository(),
+		systemSettingService:  NewSystemSettingService(),
+		regionRepo:            repository.NewRegionRepository(),
+		ipPoolService:         NewIpPoolService(),
+		templateConfigService: NewTemplateConfigService(),
 	}
 }
 
@@ -269,14 +272,19 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		Status:       constant.Ready,
 	}
 
-	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+	var templateType string
+	if param["templateType"] != nil {
+		templateType = param["templateType"].(string)
+	}
+
+	if templateType == "default" || templateType == "template_config" {
 		zone.Status = constant.Initializing
 	}
 	err = z.zoneRepo.Save(&zone)
 	if err != nil {
 		return nil, err
 	}
-	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+	if templateType == "default" || templateType == "template_config" {
 		go z.uploadZoneImage(creation)
 	}
 	return &dto.Zone{Zone: zone}, err
@@ -391,12 +399,34 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 	return result, nil
 }
 
+func (z zoneService) UploadImage(zoneName string) error {
+	zone, err := z.zoneRepo.Get(zoneName)
+	if err != nil {
+		return err
+	}
+	if zone.Status == constant.Ready {
+		return nil
+	}
+
+	zone.Status = constant.Initializing
+	if err = z.zoneRepo.Save(&zone); err != nil {
+		return err
+	}
+
+	create := dto.ZoneCreate{
+		Name:       zone.Name,
+		RegionName: zone.Region.Name,
+	}
+	go z.uploadZoneImage(create)
+	return nil
+}
+
 func (z zoneService) uploadZoneImage(creation dto.ZoneCreate) {
 	zone, err := z.zoneRepo.Get(creation.Name)
 	if err != nil {
 		logger.Log.Error(err)
 	}
-	err = z.uploadImage(creation)
+	err = z.uploadImage(creation.RegionName, creation.Name)
 	if err != nil {
 		logger.Log.Error(err)
 		zone.Status = constant.UploadImageError
@@ -409,8 +439,12 @@ func (z zoneService) uploadZoneImage(creation dto.ZoneCreate) {
 	}
 }
 
-func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
-	region, err := NewRegionService().Get(creation.RegionName)
+func (z zoneService) uploadImage(regionName, zoneName string) error {
+	region, err := NewRegionService().Get(regionName)
+	if err != nil {
+		return err
+	}
+	zone, err := z.Get(zoneName)
 	if err != nil {
 		return err
 	}
@@ -424,7 +458,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	regionVars := region.RegionVars.(map[string]interface{})
 	regionVars["datacenter"] = region.Datacenter
 	if region.Provider == constant.VSphere {
-		zoneVars := creation.CloudVars.(map[string]interface{})
+		zoneVars := zone.CloudVars.(map[string]interface{})
 		//if zoneVars["cluster"] != nil {
 		//	regionVars["cluster"] = zoneVars["cluster"]
 		//}
@@ -443,14 +477,34 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["hostSystem"] != nil {
 			regionVars["hostSystem"] = zoneVars["hostSystem"]
 		}
-		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip, port)
-		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip, port)
+		regionVars["imageName"] = zoneVars["imageName"]
+		if zoneVars["templateType"] != nil && zoneVars["templateType"].(string) == "template_config" {
+			config, err := z.templateConfigService.Get(zoneVars["templateConfig"].(string))
+			if err != nil {
+				return err
+			}
+			regionVars["ovfPath"] = config.ConfigVars["ovf_path"]
+			regionVars["vmdkPath"] = config.ConfigVars["vmdk_path"]
+		} else {
+			regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip, port)
+			regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip, port)
+		}
 	}
 	if region.Provider == constant.OpenStack {
-		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip, port)
+		zoneVars := zone.CloudVars.(map[string]interface{})
+		regionVars["imageName"] = zoneVars["imageName"]
+		if zoneVars["templateType"] != nil && zoneVars["templateType"].(string) == "template_config" {
+			config, err := z.templateConfigService.Get(zoneVars["templateConfig"].(string))
+			if err != nil {
+				return err
+			}
+			regionVars["imagePath"] = config.ConfigVars["qcow2_path"]
+		} else {
+			regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip, port)
+		}
 	}
 	if region.Provider == constant.FusionCompute {
-		zoneVars := creation.CloudVars.(map[string]interface{})
+		zoneVars := zone.CloudVars.(map[string]interface{})
 		if zoneVars["cluster"] != nil {
 			regionVars["cluster"] = zoneVars["cluster"]
 		}
@@ -460,11 +514,12 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["portgroup"] != nil {
 			regionVars["portgroup"] = zoneVars["portgroup"]
 		}
+		regionVars["imageName"] = zoneVars["imageName"]
 	}
 
 	cloudClient := cloud_provider.NewCloudClient(regionVars)
 	if cloudClient != nil {
-		result, err := cloudClient.DefaultImageExist()
+		result, err := cloudClient.ImageExist(regionVars["imageName"].(string))
 		if err != nil {
 			return err
 		}
@@ -472,7 +527,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			return nil
 		}
 		if region.Provider == constant.FusionCompute {
-			zoneVars := creation.CloudVars.(map[string]interface{})
+			zoneVars := zone.CloudVars.(map[string]interface{})
 			nfsVars := make(map[string]interface{})
 			nfsVars["type"] = "SFTP"
 			nfsVars["address"] = zoneVars["nfsAddress"]

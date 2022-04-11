@@ -56,6 +56,25 @@ func (t TemplateConfigController) PostSearch() (*page.Page, error) {
 	}
 }
 
+func (t TemplateConfigController) Get() (*page.Page, error) {
+	p, _ := t.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := t.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := t.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return t.TemplateConfigService.Page(num, size, condition.TODO())
+	} else {
+		var page page.Page
+		items, err := t.TemplateConfigService.List()
+		if err != nil {
+			return nil, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return &page, nil
+	}
+
+}
+
 // Update TemplateConfig
 // @Tags templateConfigs
 // @Summary Update a TemplateConfig

@@ -292,7 +292,7 @@ func (f *fusionComputeClient) UploadImage() error {
 	return nil
 }
 
-func (f *fusionComputeClient) DefaultImageExist() (bool, error) {
+func (f *fusionComputeClient) ImageExist(template string) (bool, error) {
 	siteName := f.Vars["datacenter"].(string)
 	c := f.newFusionComputeClient()
 	if err := c.Connect(); err != nil {

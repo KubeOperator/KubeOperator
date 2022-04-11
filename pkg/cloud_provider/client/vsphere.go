@@ -316,6 +316,7 @@ func (v *vSphereClient) UploadImage() error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 	o, err := ioutil.ReadAll(file)
 	if err != nil {
 		return err
@@ -372,7 +373,7 @@ func (v *vSphereClient) UploadImage() error {
 		}
 	}
 
-	vm, _ := f.VirtualMachine(ctx, constant.VSphereImageName)
+	vm, _ := f.VirtualMachine(ctx, v.Vars["imageName"].(string))
 	if vm != nil {
 		return nil
 	}
@@ -419,8 +420,10 @@ func (v *vSphereClient) UploadImage() error {
 		}
 		err = lease.Upload(ctx, i, file, opts)
 		if err != nil {
+			file.Close()
 			return err
 		}
+		file.Close()
 	}
 
 	err = lease.Complete(ctx)
@@ -428,7 +431,7 @@ func (v *vSphereClient) UploadImage() error {
 		return err
 	}
 
-	template, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	template, err := f.VirtualMachine(ctx, v.Vars["imageName"].(string))
 	if err != nil {
 		return err
 	}
@@ -452,7 +455,7 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 	return f, size, nil
 }
 
-func (v *vSphereClient) DefaultImageExist() (bool, error) {
+func (v *vSphereClient) ImageExist(template string) (bool, error) {
 	if err := v.GetConnect(); err != nil {
 		return false, err
 	}
@@ -465,7 +468,7 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 	}
 	f.SetDatacenter(datacenter)
 
-	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	vm, err := f.VirtualMachine(ctx, template)
 	if err != nil {
 		return false, nil
 	}

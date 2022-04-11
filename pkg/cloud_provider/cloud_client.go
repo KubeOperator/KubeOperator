@@ -12,7 +12,7 @@ type CloudClient interface {
 	ListFlavors() ([]interface{}, error)
 	GetIpInUsed(network string) ([]string, error)
 	UploadImage() error
-	DefaultImageExist() (bool, error)
+	ImageExist(template string) (bool, error)
 	CreateDefaultFolder() error
 	ListDatastores() ([]client.DatastoreResult, error)
 }

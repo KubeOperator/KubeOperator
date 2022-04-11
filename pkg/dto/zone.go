@@ -49,3 +49,7 @@ type CloudDatastore struct {
 	Capacity  int    `json:"capacity"`
 	FreeSpace int    `json:"freeSpace"`
 }
+
+type ZoneUpload struct {
+	Name string `json:"name" validate:"required"`
+}

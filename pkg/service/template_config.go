@@ -31,8 +31,17 @@ func NewTemplateConfigService() TemplateConfigService {
 
 func (t *templateConfigService) List() ([]dto.TemplateConfig, error) {
 	var configs []dto.TemplateConfig
-	err := db.DB.Find(&configs).Error
-	return configs, err
+	if err := db.DB.Find(&configs).Error; err != nil {
+		return nil, err
+	}
+	for i, config := range configs {
+		m := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(config.Config), &m); err != nil {
+			logger.Log.Errorf("templateConfigService Get json.Unmarshal failed, error: %s", err.Error())
+		}
+		configs[i].ConfigVars = m
+	}
+	return configs, nil
 }
 
 func (t *templateConfigService) Get(name string) (*dto.TemplateConfig, error) {
