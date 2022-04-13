@@ -29,8 +29,6 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
-
 FROM kubeoperator/euleros:2.1
 ARG GOARCH
 
@@ -48,7 +46,7 @@ RUN if [ "$GOARCH" = "arm64" ] ; then \
 
 RUN cd /usr/local/bin && \
     yum install -y wget && \
-    wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
+    wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
     wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
     yum remove -y wget && \
     yum clean all && \

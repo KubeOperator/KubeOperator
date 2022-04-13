@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"crypto/md5"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -14,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/session"
 	"github.com/KubeOperator/KubeOperator/pkg/util/captcha"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 	"github.com/spf13/viper"
@@ -48,7 +47,7 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 	}
 
 	timeNow := time.Now().Format("01-02 15:04:05")
-	token := md5Str("kubeoperator" + timeNow)
+	token := encrypt.Md5Str("kubeoperator" + timeNow)
 	user.CsrfToken = token
 	session.GloablSessionMgr.SetSessionVal(sessionID, constant.SessionUserKey, user)
 
@@ -56,13 +55,6 @@ func (s *SessionController) Get() (*dto.Profile, error) {
 		return nil, service.WithoutChangePwd
 	}
 	return user, nil
-}
-
-func md5Str(str string) string {
-	data := []byte(str)
-	has := md5.Sum(data)
-	md5str := fmt.Sprintf("%x", has)
-	return md5str
 }
 
 // Login

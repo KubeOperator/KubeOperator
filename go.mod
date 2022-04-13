@@ -70,6 +70,7 @@ require (
 	github.com/storyicon/grbac v0.0.0-20200224041032-a0461737df7e
 	github.com/swaggo/swag v1.6.5
 	github.com/valyala/fasthttp v1.14.0 // indirect
+	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/vmware/govmomi v0.23.0
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	github.com/youtube/vitess v2.1.1+incompatible // indirect

@@ -10,8 +10,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
-	"github.com/KubeOperator/KubeOperator/pkg/plugin"
-	"github.com/KubeOperator/KubeOperator/pkg/plugin/xpack"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/KubeOperator/KubeOperator/pkg/server/hook"
 	"github.com/KubeOperator/KubeOperator/pkg/session"
@@ -46,7 +44,6 @@ func Phases() []Phase {
 			Password: viper.GetString("db.password"),
 		},
 		&data.InitDataPhase{},
-		&plugin.InitPluginDBPhase{},
 		&cron.InitCronPhase{
 			Enable: viper.GetBool("cron.enable"),
 		},
@@ -68,10 +65,6 @@ func Start() error {
 		log.Infof("start phase [%s] success", phase.PhaseName())
 	}
 	s := router.Server()
-	// load xpack plugin must behead router init,so can not create an phase for it.
-	if err := xpack.LoadXpackPlugin(); err != nil {
-		log.Error("xpack load failed, xpack can not be registered")
-	}
 	bind := fmt.Sprintf("%s:%d",
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))

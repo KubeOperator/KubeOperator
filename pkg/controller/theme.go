@@ -20,3 +20,11 @@ func NewThemeController() *ThemeController {
 func (l *ThemeController) Get() (*dto.Theme, error) {
 	return l.ThemeService.GetConsumerTheme()
 }
+
+func (t *ThemeController) Post() (*dto.Theme, error) {
+	var theme dto.Theme
+	if err := t.Ctx.ReadJSON(&theme); err != nil {
+		return nil, err
+	}
+	return t.ThemeService.SaveConsumerTheme(theme)
+}
