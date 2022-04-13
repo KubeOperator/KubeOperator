@@ -10,6 +10,9 @@ RUN npm run-script build
 FROM nginx:alpine
 ARG GOARCH
 
+ENV ENV="/root/.ashrc"
+RUN echo 'umask 0027' >> /root/.ashrc
+
 RUN echo > /etc/apk/repositories && echo -e "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main\nhttps://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && apk update && apk upgrade
 
 RUN apk del curl
