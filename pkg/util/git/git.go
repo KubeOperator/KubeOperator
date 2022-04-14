@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
-	"k8s.io/kubernetes/third_party/forked/etcd237/pkg/fileutil"
 )
 
 type Credential struct {
@@ -18,7 +18,7 @@ type Credential struct {
 }
 
 func CloneRepository(url string, path string, branch string, auth transport.AuthMethod) error {
-	exists := fileutil.Exist(path)
+	exists := file.Exists(path)
 	if exists {
 		return fmt.Errorf("path: %s already exists", path)
 	}
