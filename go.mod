@@ -106,3 +106,5 @@ replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.
 replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.12
 
 replace github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.2.1
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
