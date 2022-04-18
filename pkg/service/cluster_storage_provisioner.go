@@ -23,13 +23,14 @@ import (
 )
 
 const (
-	oceanStor           = "10-plugin-cluster-storage-oceanstor.yml"
-	externalCephStorage = "10-plugin-cluster-storage-external-ceph.yml"
-	NfsStorage          = "10-plugin-cluster-storage-nfs.yml"
-	rookCephStorage     = "10-plugin-cluster-storage-rook-ceph.yml"
-	vsphereStorage      = "10-plugin-cluster-storage-vsphere.yml"
-	cinderStorage       = "10-plugin-cluster-storage-cinder.yml"
-	glusterfsStorage    = "10-plugin-cluster-storage-glusterfs.yml"
+	oceanStor              = "10-plugin-cluster-storage-oceanstor.yml"
+	externalCephRbdStorage = "10-plugin-cluster-storage-external-ceph.yml"
+	externalCephFsStorage  = "10-plugin-cluster-storage-external-ceph-fs.yml"
+	NfsStorage             = "10-plugin-cluster-storage-nfs.yml"
+	rookCephStorage        = "10-plugin-cluster-storage-rook-ceph.yml"
+	vsphereStorage         = "10-plugin-cluster-storage-vsphere.yml"
+	cinderStorage          = "10-plugin-cluster-storage-cinder.yml"
+	glusterfsStorage       = "10-plugin-cluster-storage-glusterfs.yml"
 )
 
 type ClusterStorageProvisionerService interface {
@@ -211,9 +212,9 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
-	case "external-ceph":
+	case "external-ceph-rbd":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephStorage, "", writer); err != nil {
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephRbdStorage, "", writer); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
@@ -222,7 +223,22 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "external-ceph", client); err != nil {
+		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-rbd", client); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
+			return
+		}
+	case "external-ceph-fs":
+		admCluster.Kobe.SetVar("storage_fs_provisioner_name", provisioner.Name)
+		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephFsStorage, "", writer); err != nil {
+			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
+			return
+		}
+		provisioner.Status = constant.StatusWaiting
+		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
+			logger.Log.Errorf("save provisioner status err: %s", err.Error())
+			return
+		}
+		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-fs", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
