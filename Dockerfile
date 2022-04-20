@@ -45,6 +45,8 @@ RUN if [ "$GOARCH" = "arm64" ] ; then \
     fi
 
 RUN cd /usr/local/bin && \
+    yum update -y && \
+    yum upgrade -y && \
     yum install -y wget && \
     wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
     wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
