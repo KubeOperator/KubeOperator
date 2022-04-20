@@ -34,6 +34,15 @@ ARG GOARCH
 
 RUN useradd -u 2004 kops && usermod -aG kops kops
 
+RUN userdel sync || true && userdel shutdown || true && userdel halt || true && userdel operator || true
+RUN echo 'auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900' >> /etc/pam.d/system-auth && \
+    echo 'auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900' >> /etc/pam.d/password-auth && \
+    echo 'password    requisite     pam_cracklib.so try_first_pass retry=3 minlen=14 dcredit=-1 ucredit=-1 ocredit=-1 lcredit=-1' >> /etc/pam.d/password-auth && \
+    echo 'password    required     pam_pwhistory.so remember=5' >> /etc/pam.d/password-auth && \
+    sed -i '/account/caccount     required      pam_unix.so try_first_pass' /etc/pam.d/password-auth
+RUN find / -regex '.*\.pem\|.*\.crt\|.*\.p12\|.*\.pfx\|.gitignore' -type f|xargs rm -rf && \
+    rm -rf /etc/ssh/*key* /usr/bin/lua
+
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         echo > /etc/yum.repos.d/Euler-Base.repo; \
         echo -e "[base]\nname=EulerOS-2.0SP5 base\nbaseurl=http://mirrors.huaweicloud.com/euler/2.5/os/x86_64/\nenabled=1\ngpgcheck=1\ngpgkey=http://mirrors.huaweicloud.com/euler/2.5/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
