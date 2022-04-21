@@ -21,7 +21,7 @@ type clusterManifestRepository struct {
 
 func (c clusterManifestRepository) Get(version string) (model.ClusterManifest, error) {
 	var manifest model.ClusterManifest
-	err := db.DB.Where("version = ?", version).First(&manifest).Error
+	err := db.DB.Where(model.ClusterManifest{Version: version}).First(&manifest).Error
 	return manifest, err
 }
 
@@ -33,7 +33,7 @@ func (c clusterManifestRepository) List() ([]model.ClusterManifest, error) {
 
 func (c clusterManifestRepository) ListByStatus() ([]model.ClusterManifest, error) {
 	var manifests []model.ClusterManifest
-	err := db.DB.Where("is_active = ?", true).Find(&manifests).Error
+	err := db.DB.Where(model.ClusterManifest{IsActive: true}).Find(&manifests).Error
 	return manifests, err
 }
 
