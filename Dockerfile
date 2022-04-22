@@ -29,7 +29,7 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-FROM kubeoperator/euleros:2.1
+FROM kubeoperator/euleros:2.2
 ARG GOARCH
 
 RUN useradd -u 2004 kops && usermod -aG kops kops
@@ -54,11 +54,9 @@ RUN if [ "$GOARCH" = "arm64" ] ; then \
     fi
 
 RUN cd /usr/local/bin && \
-    yum update -y && \
-    yum upgrade -y && \
     yum install -y wget && \
-    wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
-    wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
+    wget --no-check-certificate https://kubeoperator.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
+    wget --no-check-certificate https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
     yum remove -y wget && \
     yum clean all && \
     rm -rf /var/cache/yum/* /etc/yum.repos.d/Euler-Base.repo /usr/bin/cpio && \
