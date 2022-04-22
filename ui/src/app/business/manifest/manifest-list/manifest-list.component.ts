@@ -22,6 +22,13 @@ export class ManifestListComponent implements OnInit {
     @Output() alertEvent = new EventEmitter();
 
     ngOnInit(): void {
+        document.oncontextmenu =function () {return false; };
+        document.onkeydown=function(){
+            var e=window.event||arguments[0];
+            if(e.ctrlKey||e.keyCode==83){
+                return false;
+            }
+        };
         this.refresh();
     }
 

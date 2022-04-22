@@ -27,6 +27,13 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
     }
 
     ngOnInit(): void {
+        document.oncontextmenu =function () {return false; };
+        document.onkeydown=function(){
+            var e=window.event||arguments[0];
+            if(e.ctrlKey||e.keyCode==83){
+                return false;
+            }
+        };
         super.ngOnInit();
         this.polling();
     }

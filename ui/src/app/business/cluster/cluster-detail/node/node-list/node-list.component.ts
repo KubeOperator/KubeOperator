@@ -34,6 +34,13 @@ export class NodeListComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        document.oncontextmenu =function () {return false; };
+        document.onkeydown=function(){
+            var e=window.event||arguments[0];
+            if(e.ctrlKey||e.keyCode==83){
+                return false;
+            }
+        };
         this.refresh();
         this.polling();
     }

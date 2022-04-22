@@ -20,6 +20,13 @@ export class SystemLogComponent implements OnInit {
     constructor(private service: SystemLogService, public translate: TranslateService) {}
 
     ngOnInit(): void {
+        document.oncontextmenu =function () {return false; };
+        document.onkeydown=function(){
+            var e=window.event||arguments[0];
+            if(e.ctrlKey||e.keyCode==83){
+                return false;
+            }
+        };
     }
     
     get inProgress(): boolean {

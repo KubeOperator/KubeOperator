@@ -16,7 +16,6 @@ import (
 )
 
 func SessionMiddleware(ctx context.Context) {
-	ctx.Request().Header.Add("Cache-Control", "no-store")
 	var sessionID = session.GloablSessionMgr.CheckCookieValid(ctx.ResponseWriter(), ctx.Request())
 	if sessionID == "" {
 		errorHandler(ctx, http.StatusUnauthorized, errors.New("session invalid !"))
