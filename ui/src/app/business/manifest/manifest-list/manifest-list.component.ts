@@ -25,7 +25,7 @@ export class ManifestListComponent implements OnInit {
         document.oncontextmenu =function () {return false; };
         document.onkeydown=function(){
             var e=window.event||arguments[0];
-            if(e.ctrlKey||e.keyCode==83){
+            if(e.metaKey&&e.keyCode==83){
                 return false;
             }
         };
