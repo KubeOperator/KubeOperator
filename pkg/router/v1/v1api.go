@@ -21,8 +21,10 @@ var log = logger.Default
 func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
 	authParty := v1.Party("/auth")
+	authParty.Use(middleware.LanguageMiddleware)
 	mvc.New(authParty.Party("/session")).HandleError(ErrorHandler).Handle(controller.NewSessionController())
 	AuthScope = v1.Party("/")
+	authParty.Use(middleware.LanguageMiddleware)
 	AuthScope.Use(middleware.SessionMiddleware)
 	AuthScope.Use(middleware.RBACMiddleware())
 	AuthScope.Use(middleware.PagerMiddleware)
