@@ -40,8 +40,8 @@ RUN echo 'auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time
     echo 'password    requisite     pam_cracklib.so try_first_pass retry=3 minlen=14 dcredit=-1 ucredit=-1 ocredit=-1 lcredit=-1' >> /etc/pam.d/password-auth && \
     echo 'password    required     pam_pwhistory.so remember=5' >> /etc/pam.d/password-auth && \
     sed -i '/account/caccount     required      pam_unix.so try_first_pass' /etc/pam.d/password-auth
-RUN find / -regex '.*\.pem\|.*\.crt\|.*\.p12\|.*\.pfx\|.gitignore' -type f|xargs rm -rf && \
-    rm -rf /etc/ssh/*key* /usr/bin/lua
+RUN find / -regex '.*\.pem\|.*\.crt\|.*\.p12\|.*\.pfx\|.*\gitignore' -type f|xargs rm -rf && \
+    rm -rf /etc/ssh/*key* /usr/bin/lua /usr/share/doc/rsync/savetransfer.c /usr/share/lemon/lempar.c
 
 RUN if [ "$GOARCH" = "amd64" ] ; then \
         echo > /etc/yum.repos.d/Euler-Base.repo; \

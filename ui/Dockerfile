@@ -16,6 +16,7 @@ RUN echo 'umask 0027' >> /root/.ashrc
 RUN echo > /etc/apk/repositories && echo -e "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main\nhttps://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && apk update && apk upgrade
 
 RUN deluser sync || true && deluser shutdown || true && deluser halt || true && deluser operator || true
+RUN find / -regex '.*\.pem\|.*\.crt\|.*\.p12\|.*\.pfx\|.*\gitignore' -type f|xargs rm -rf
 
 RUN apk del curl
 
