@@ -87,7 +87,6 @@ require (
 	k8s.io/apimachinery v0.22.0
 	k8s.io/cli-runtime v0.22.0
 	k8s.io/client-go v0.22.0
-	k8s.io/kubernetes v1.13.12
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 

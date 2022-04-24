@@ -1,9 +1,10 @@
 package data
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"k8s.io/kubernetes/third_party/forked/etcd237/pkg/fileutil"
 	"os"
+
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 )
 
 var initDirs = []string{
@@ -16,7 +17,7 @@ type InitDataPhase struct{}
 
 func (i *InitDataPhase) Init() error {
 	for _, d := range initDirs {
-		if !fileutil.Exist(d) {
+		if !file.Exists(d) {
 			err := os.MkdirAll(d, 0755)
 			if err != nil {
 				return err
