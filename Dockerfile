@@ -50,8 +50,7 @@ RUN cd /usr/local/bin && \
     wget --no-check-certificate https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
     yum remove -y wget && \
     yum clean all && \
-    rm -rf /var/cache/yum/* /etc/yum.repos.d/Euler-Base.repo /usr/bin/cpio && \
-    rpm -e --nodeps curl
+    rm -rf /var/cache/yum/* /etc/yum.repos.d/Euler-Base.repo
 
 WORKDIR /
 
