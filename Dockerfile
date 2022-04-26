@@ -29,30 +29,10 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-FROM kubeoperator/euleros:2.2
+FROM kubeoperator/server:euler2sp10-20220111
 ARG GOARCH
 
 RUN useradd -u 2004 kops && usermod -aG kops kops
-
-RUN if [ "$GOARCH" = "amd64" ] ; then \
-        echo > /etc/yum.repos.d/Euler-Base.repo; \
-        echo -e "[base]\nname=EulerOS-2.0SP5 base\nbaseurl=http://mirrors.huaweicloud.com/euler/2.5/os/x86_64/\nenabled=1\ngpgcheck=1\ngpgkey=http://mirrors.huaweicloud.com/euler/2.5/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
-    fi
-
-RUN if [ "$GOARCH" = "arm64" ] ; then \
-        echo > /etc/yum.repos.d/Euler-Base.repo; \
-        echo -e "[base]\nname=EulerOS-2.0SP8 base\nbaseurl=http://repo.huaweicloud.com/euler/2.8/os/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=http://repo.huaweicloud.com/euler/2.8/os/RPM-GPG-KEY-EulerOS" >> /etc/yum.repos.d/Euler-Base.repo; \
-    fi
-
-RUN cd /usr/local/bin && \
-    yum install -y wget && \
-    wget --no-check-certificate https://kubeoperator.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_$GOARCH && \
-    wget --no-check-certificate https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_linux_$GOARCH && \
-    yum remove -y wget && \
-    yum clean all && \
-    rm -rf /var/cache/yum/* /etc/yum.repos.d/Euler-Base.repo
-
-WORKDIR /
 
 COPY --from=stage-build /build/ko/dist/home /home/
 COPY --from=stage-build /build/ko/dist/usr /usr/
