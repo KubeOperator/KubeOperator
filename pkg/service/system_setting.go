@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/nexus"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -247,9 +249,26 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 		Find(&mos).Error; err != nil {
 		return nil, err
 	}
+	var wg sync.WaitGroup
 	for _, mo := range mos {
-		systemRegistryDto = append(systemRegistryDto, dto.SystemRegistry{SystemRegistry: mo})
+		wg.Add(1)
+		itemDto := dto.SystemRegistry{SystemRegistry: mo}
+		go func(repo model.SystemRegistry) {
+			if err := nexus.CheckConn(
+				"admin",
+				repo.NexusPassword,
+				fmt.Sprintf("%s://%s:%d", repo.Protocol, repo.Hostname, repo.RepoPort),
+			); err != nil {
+				itemDto.Status = constant.StatusFailed
+				itemDto.Message = err.Error()
+			} else {
+				itemDto.Status = constant.StatusSuccess
+			}
+			systemRegistryDto = append(systemRegistryDto, itemDto)
+			wg.Done()
+		}(mo)
 	}
+	wg.Wait()
 	p.Items = systemRegistryDto
 	return &p, nil
 }

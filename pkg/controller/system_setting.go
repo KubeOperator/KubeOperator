@@ -2,8 +2,10 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
+	"github.com/KubeOperator/KubeOperator/pkg/util/nexus"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -314,6 +316,24 @@ func (s SystemSettingController) PostRegistryBatch() error {
 	}
 	go kolog.Save(operator, constant.DELETE_REGISTRY, delCres)
 	return err
+}
+
+func (s SystemSettingController) PostRegistryCheckConn() error {
+	var req dto.SystemRegistryConn
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+
+	if err := nexus.CheckConn(req.Username, req.Password, fmt.Sprintf("%s://%s:%d", req.Protocol, req.Hostname, req.RepoPort)); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Delete Registry

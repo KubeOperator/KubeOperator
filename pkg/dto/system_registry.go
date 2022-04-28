@@ -4,6 +4,8 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type SystemRegistry struct {
 	model.SystemRegistry
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 type SystemRegistryCreate struct {
@@ -40,4 +42,12 @@ type RepoChangePassword struct {
 	ID       string `json:"id"`
 	Password string `json:"password"`
 	Original string `json:"original"`
+}
+
+type SystemRegistryConn struct {
+	Hostname string `json:"hostname" validate:"required"`
+	Protocol string `json:"protocol" validate:"required"`
+	RepoPort int    `json:"repoPort" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
