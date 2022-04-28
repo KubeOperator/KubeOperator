@@ -11,6 +11,7 @@ import {Injectable} from '@angular/core';
 export class SessionInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        req = req.clone({ headers: req.headers.set('Cache-Control', "no-cache, no-store, must-revalidate")});
         if (req.method !== 'GET') {
             let cs = localStorage.getItem("cs")
             if (cs) {
