@@ -32,6 +32,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/credentials")).HandleError(ErrorHandler).Handle(controller.NewCredentialController())
 	mvc.New(AuthScope.Party("/hosts")).HandleError(ErrorHandler).Handle(controller.NewHostController())
 	mvc.New(AuthScope.Party("/users")).HandleError(ErrorHandler).Handle(controller.NewUserController())
+	mvc.New(AuthScope.Party("/dashboard")).HandleError(ErrorHandler).Handle(controller.NewKubePiController())
 	mvc.New(AuthScope.Party("/regions")).HandleError(ErrorHandler).Handle(controller.NewRegionController())
 	mvc.New(AuthScope.Party("/zones")).HandleError(ErrorHandler).Handle(controller.NewZoneController())
 	mvc.New(AuthScope.Party("/plans")).HandleError(ErrorHandler).Handle(controller.NewPlanController())

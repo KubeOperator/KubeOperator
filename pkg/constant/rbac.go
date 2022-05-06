@@ -82,6 +82,8 @@ var Roles = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
+			"/api/v1/dashboard/{**}",
+			"/api/v1/dashboard/{**}/{**}",
 			"/api/v1/projects/{**}",
 			"/api/v1/projects/{**}/{resources,members}/{**}",
 			"/api/v1/multicluster/repositories",

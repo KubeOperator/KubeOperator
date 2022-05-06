@@ -25,8 +25,10 @@ func GetClient(ops ...Option) Interface {
 }
 
 type Interface interface {
+	CheckLogin() error
 	Open(name, apiServer, token string) (Opener, error)
 	Close(name, apiServer string) error
+	SearchUsers() (*ListUser, error)
 	SetOptions(...Option)
 }
 
@@ -145,6 +147,42 @@ func (k *KubePi) isLogin() (bool, error) {
 	return ils.Data, nil
 }
 
+func (k *KubePi) checkInfo() error {
+	url := fmt.Sprintf("http://%s:%d/kubepi/api/v1/sessions", k.Host, k.Port)
+	cred := credential{
+		Username: k.Username,
+		Password: k.Password,
+	}
+
+	js, err := json.Marshal(cred)
+	if err != nil {
+		return err
+	}
+	request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(js))
+	if err != nil {
+		return err
+	}
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var lr LoginResponse
+	err = json.Unmarshal(bs, &lr)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("login error: %s", lr.Message)
+	}
+	return nil
+}
+
 func (k *KubePi) login() error {
 	login, err := k.isLogin()
 	if err != nil {
@@ -197,6 +235,12 @@ func (k *KubePi) login() error {
 type ImportResponse struct {
 	Message string `json:"message"`
 	Success bool   `json:"success"`
+}
+
+type ListUser struct {
+	Data    []interface{} `json:"data"`
+	Success bool          `json:"success"`
+	Message string        `json:"message"`
 }
 
 type ListClustersResponse struct {
@@ -293,6 +337,34 @@ func (k *KubePi) ensureImport(name, apiServer, token string) error {
 	return nil
 }
 
+func (k *KubePi) searchUsers() (*ListUser, error) {
+	if err := k.login(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("http://%s:%d/kubepi/api/v1/users", k.Host, k.Port)
+	client := http.Client{}
+
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	request.AddCookie(k.sessionCookie)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	rb, err := ioutil.ReadAll(resp.Body)
+	var ir ListUser
+	if err := json.Unmarshal(rb, &ir); err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, err
+	}
+	return &ir, nil
+}
+
 func (k *KubePi) ensureDelete(name, apiServer string) error {
 	if err := k.login(); err != nil {
 		return err
@@ -341,6 +413,15 @@ func (k *KubePi) Open(name, apiServer, token string) (Opener, error) {
 	return Opener{SessionCookie: k.sessionCookie, Redirect: url}, nil
 }
 
+func (k *KubePi) CheckLogin() error {
+	k.mutex.Lock()
+	defer k.mutex.Unlock()
+	if err := k.checkInfo(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (k *KubePi) Close(name, apiServer string) error {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
@@ -348,4 +429,14 @@ func (k *KubePi) Close(name, apiServer string) error {
 		return err
 	}
 	return nil
+}
+
+func (k *KubePi) SearchUsers() (*ListUser, error) {
+	k.mutex.Lock()
+	defer k.mutex.Unlock()
+	users, err := k.searchUsers()
+	if err != nil {
+		return users, err
+	}
+	return users, nil
 }
