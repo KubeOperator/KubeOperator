@@ -84,6 +84,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/dashboard/{**}",
 			"/api/v1/dashboard/{**}/{**}",
+			"/api/v1/dashboard/{**}/{**}/{**}",
 			"/api/v1/projects/{**}",
 			"/api/v1/projects/{**}/{resources,members}/{**}",
 			"/api/v1/multicluster/repositories",
@@ -94,7 +95,7 @@ var Roles = loader.AdvancedRules{
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
-			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager},
+			AuthorizedRoles: []string{RoleAdmin, RoleProjectManager, RoleClusterManager},
 			AllowAnyone:     false,
 		},
 	},

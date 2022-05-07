@@ -51,6 +51,7 @@ NAME_PASSWORD_SAME_FAILED: "Username cannot be the same as password"
 NAME_PASSWORD_ERROR: "wrong user name or password"
 EMAIL_EXIST: "Email already exists"
 NO_KUBEPI_ADMIN: "Please set the kubepi amdin password in system Settings first"
+NO_KUBEPI_PROJECT: "Please first set the kubePI login information in the project management"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"

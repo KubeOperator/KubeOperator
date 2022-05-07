@@ -18,7 +18,7 @@ type KubepiService interface {
 	BindKubePi(req dto.BindKubePI) error
 	GetKubePiBind(req dto.SearchBind) (*dto.BindResponse, error)
 	CheckConn(req dto.CheckConn) error
-	LoadInfo(name string) (*ConnInfo, error)
+	LoadInfo(project, cluster string, isAdmin bool) (*ConnInfo, error)
 }
 
 func NewKubepiService() KubepiService {
@@ -104,15 +104,28 @@ func (s *kubepiService) CheckConn(req dto.CheckConn) error {
 	return kubepiClient.CheckLogin()
 }
 
-func (s *kubepiService) LoadInfo(name string) (*ConnInfo, error) {
+func (s *kubepiService) LoadInfo(project, cluster string, isAdmin bool) (*ConnInfo, error) {
 	var bind model.KubepiBind
-	if err := db.DB.Where("cluster = ? AND source_type = ?", name, constant.ResourceCluster).First(&bind).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+	if isAdmin {
+		if err := db.DB.Where("source_type = ?", "ADMIN").First(&bind).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("NO_KUBEPI_ADMIN")
+			}
+			return nil, err
+		}
+		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil
+	}
+	if err := db.DB.Where("cluster = ? AND source_type = ?", cluster, constant.ResourceCluster).First(&bind).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	if bind.ID != "" {
 		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil
 	}
-	if err := db.DB.Where("cluster = ? AND source_type = ?", name, constant.ResourceProject).First(&bind).Error; err != nil {
+
+	if err := db.DB.Where("project = ? AND source_type = ?", project, constant.ResourceProject).First(&bind).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("NO_KUBEPI_PROJECT")
+		}
 		return nil, err
 	}
 	return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil

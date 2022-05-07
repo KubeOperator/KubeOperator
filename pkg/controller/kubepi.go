@@ -65,16 +65,18 @@ func (p KubePiController) PostCheckConn() error {
 	return p.KubePiService.CheckConn(req)
 }
 
-func (p KubePiController) GetJumpBy(name string) (*dto.Dashboard, error) {
-	ss, err := p.KubePiService.LoadInfo(name)
+func (p KubePiController) GetJumpBy(project string, cluster string) (*dto.Dashboard, error) {
+	user := p.Ctx.Values().Get("user")
+	roleStr, _ := user.(dto.SessionUser)
+	ss, err := p.KubePiService.LoadInfo(project, cluster, roleStr.IsAdmin)
 	if err != nil {
 		return nil, err
 	}
-	secrets, err := p.ClusterService.GetSecrets(name)
+	secrets, err := p.ClusterService.GetSecrets(cluster)
 	if err != nil {
 		return nil, err
 	}
-	apiServer, err := p.ClusterService.GetApiServerEndpoint(name)
+	apiServer, err := p.ClusterService.GetApiServerEndpoint(cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +89,7 @@ func (p KubePiController) GetJumpBy(name string) (*dto.Dashboard, error) {
 	if username != "" && password != "" {
 		kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
 	}
-	opener, err := kubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
+	opener, err := kubepiClient.Open(cluster, string(apiServer), secrets.KubernetesToken)
 	if err != nil {
 		return nil, err
 	}
