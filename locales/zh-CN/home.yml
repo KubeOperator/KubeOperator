@@ -50,6 +50,7 @@ EMAIL_NOT_MATCH: "邮件匹配失败！"
 NAME_PASSWORD_SAME_FAILED: "用户名不能与密码相同"
 NAME_PASSWORD_ERROR: "用户名或密码错误"
 EMAIL_EXIST: "邮箱已存在"
+NO_KUBEPI_ADMIN: "请先在系统设置中设置 kubepi amdin 密码"
 
 
 #region

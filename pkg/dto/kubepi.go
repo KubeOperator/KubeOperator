@@ -2,7 +2,8 @@ package dto
 
 type BindKubePI struct {
 	SourceType   string `json:"sourceType"`
-	Source       string `json:"source"`
+	Project      string `json:"project"`
+	Cluster      string `json:"cluster"`
 	BindUser     string `json:"bindUser"`
 	BindPassword string `json:"bindPassword"`
 }
@@ -14,11 +15,13 @@ type CheckConn struct {
 
 type SearchBind struct {
 	SourceType string `json:"sourceType"`
-	Source     string `json:"source"`
+	Project    string `json:"project"`
+	Cluster    string `json:"cluster"`
 }
 
 type BindResponse struct {
 	SourceType string `json:"sourceType"`
-	Source     string `json:"source"`
+	Project    string `json:"project"`
+	Cluster    string `json:"cluster"`
 	BindUser   string `json:"bindUser"`
 }

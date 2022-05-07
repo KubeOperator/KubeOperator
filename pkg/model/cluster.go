@@ -82,6 +82,10 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
+	if err := tx.Where("cluster = ?", cluster.Name).Delete(&KubepiBind{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	var (
 		hostIDList []string

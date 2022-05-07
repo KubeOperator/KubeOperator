@@ -2,13 +2,14 @@ package encrypt
 
 import (
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"testing"
+
+	"github.com/KubeOperator/KubeOperator/pkg/config"
 )
 
 func TestStringEncrypt(t *testing.T) {
 	config.Init()
-	p, err := StringEncrypt("")
+	p, err := StringEncrypt("kubepi")
 	if err != nil {
 		t.Fatal(err)
 	}

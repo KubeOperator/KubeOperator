@@ -39,7 +39,7 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
 	github.com/icza/dyno v0.0.0-20210726202311-f1bafe5d9996
 	github.com/imkira/go-interpol v1.1.0 // indirect
-	github.com/iris-contrib/jade v1.1.4
+	github.com/iris-contrib/jade v1.1.4 // indirect
 	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
 	github.com/iris-contrib/schema v0.0.6 // indirect
 	github.com/iris-contrib/swagger/v12 v12.0.1

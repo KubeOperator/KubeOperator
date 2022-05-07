@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"gopkg.in/yaml.v3"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -34,7 +32,6 @@ type ClusterController struct {
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
 	BackupAccountService             service.BackupAccountService
-	SystemSettingService             service.SystemSettingService
 }
 
 func NewClusterController() *ClusterController {
@@ -49,7 +46,6 @@ func NewClusterController() *ClusterController {
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
 		BackupAccountService:             service.NewBackupAccountService(),
-		SystemSettingService:             service.NewSystemSettingService(),
 	}
 }
 
@@ -680,42 +676,4 @@ func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterReco
 
 func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {
 	return c.BackupAccountService.ListByClusterName(name)
-}
-
-func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) {
-	ss, err := c.SystemSettingService.ListByTab("KUBEPI")
-	if err != nil {
-		return nil, err
-	}
-	secrets, err := c.ClusterService.GetSecrets(name)
-	if err != nil {
-		return nil, err
-	}
-	apiServer, err := c.ClusterService.GetApiServerEndpoint(name)
-	if err != nil {
-		return nil, err
-	}
-	kubepiClient := kubepi.GetClient()
-	if _, ok := ss.Vars["KUBEPI_USERNAME"]; ok {
-		username := ss.Vars["KUBEPI_USERNAME"]
-		password := ss.Vars["KUBEPI_PASSWORD"]
-		if username != "" && password != "" {
-			kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
-		}
-	}
-	opener, err := kubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
-	if err != nil {
-		return nil, err
-	}
-	c.Ctx.SetCookie(&http.Cookie{
-		Name:     opener.SessionCookie.Name,
-		Value:    opener.SessionCookie.Value,
-		Path:     opener.SessionCookie.Path,
-		Expires:  opener.SessionCookie.Expires,
-		HttpOnly: opener.SessionCookie.HttpOnly,
-		SameSite: opener.SessionCookie.SameSite,
-		MaxAge:   opener.SessionCookie.MaxAge,
-	})
-	return &dto.Dashboard{Url: opener.Redirect}, nil
-
 }
