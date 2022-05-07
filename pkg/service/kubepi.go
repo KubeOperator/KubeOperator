@@ -57,19 +57,20 @@ func (c kubepiService) GetKubePiUser() (*kubepi.ListUser, error) {
 
 func (s *kubepiService) BindKubePi(req dto.BindKubePI) error {
 	var record model.KubepiBind
+	password, err := encrypt.StringEncrypt(req.BindPassword)
+	if err != nil {
+		return err
+	}
 	_ = db.DB.Where("source_type = ? AND project = ? AND cluster = ?", req.SourceType, req.Project, req.Cluster).First(&record).Error
 	if record.ID != "" {
-		if req.BindUser != record.BindUser || req.BindPassword != record.BindPassword {
-			record.BindPassword = req.BindPassword
+		if req.BindUser != record.BindUser || password != record.BindPassword {
+			record.BindPassword = password
 			record.BindUser = req.BindUser
 			return db.DB.Save(&record).Error
 		}
 		return nil
 	}
-	password, err := encrypt.StringEncrypt(req.BindPassword)
-	if err != nil {
-		return err
-	}
+
 	bind := &model.KubepiBind{
 		SourceType:   req.SourceType,
 		Project:      req.Project,

@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS `ko_kubepi_bind` (
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `id` varchar(255)  NOT NULL,
-  `source_type` varchar(64)  DEFAULT NULL,
-  `project` varchar(64)  DEFAULT NULL,
-  `cluster` varchar(64)  DEFAULT NULL,
-  `bind_user` varchar(64)DEFAULT NULL,
-  `bind_password` varchar(64)DEFAULT NULL,
-  PRIMARY KEY (`id`)
+    `created_at` datetime DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    `id` varchar(255) NOT NULL,
+    `source_type` varchar(64) DEFAULT NULL,
+    `project` varchar(64) DEFAULT NULL,
+    `cluster` varchar(64) DEFAULT NULL,
+    `bind_user` varchar(64) DEFAULT NULL,
+    `bind_password` varchar(64) DEFAULT NULL,
+    PRIMARY KEY (`id`)
 );
 
 insert into
@@ -17,7 +17,7 @@ insert into
         `bind_user`,
         `bind_password`,
         `created_at`,
-        `updated_at`,
+        `updated_at`
     )
 VALUES
     (

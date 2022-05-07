@@ -38,9 +38,6 @@ func (p KubePiController) PostBind() error {
 	if err := p.KubePiService.BindKubePi(req); err != nil {
 		return err
 	}
-
-	// operator := p.Ctx.Values().GetString("operator")
-	// go kolog.Save(operator, constant.BIND_PROJECT_MEMBER, projectName)
 	return nil
 }
 
