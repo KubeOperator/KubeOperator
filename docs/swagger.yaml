@@ -6,8 +6,7 @@ definitions:
         type: string
       operator:
         type: string
-      value:
-        type: object
+      value: {}
     type: object
   condition.Conditions:
     additionalProperties:
@@ -23,8 +22,7 @@ definitions:
         type: string
       credential:
         type: string
-      credentialVars:
-        type: object
+      credentialVars: {}
       id:
         type: string
       name:
@@ -46,8 +44,7 @@ definitions:
         items:
           type: string
         type: array
-      credentialVars:
-        type: object
+      credentialVars: {}
       name:
         type: string
       projects:
@@ -66,8 +63,7 @@ definitions:
     properties:
       bucket:
         type: string
-      credentialVars:
-        type: object
+      credentialVars: {}
       id:
         type: string
       name:
@@ -87,8 +83,7 @@ definitions:
     type: object
   dto.CloudRegionResponse:
     properties:
-      result:
-        type: object
+      result: {}
     type: object
   dto.Cluster:
     properties:
@@ -110,6 +105,8 @@ definitions:
         type: string
       name:
         type: string
+      nodeNameRule:
+        type: string
       nodeSize:
         type: integer
       preStatus:
@@ -124,7 +121,6 @@ definitions:
         type: string
       spec:
         $ref: '#/definitions/model.ClusterSpec'
-        type: object
       status:
         type: string
       updatedAt:
@@ -148,12 +144,10 @@ definitions:
     properties:
       backupAccount:
         $ref: '#/definitions/model.BackupAccount'
-        type: object
       clusterName:
         type: string
       file:
         $ref: '#/definitions/model.ClusterBackupFile'
-        type: object
       name:
         type: string
     required:
@@ -190,10 +184,14 @@ definitions:
       clusterName:
         type: string
       cron:
+        maximum: 300
+        minimum: 1
         type: integer
       id:
         type: string
       saveNum:
+        maximum: 100
+        minimum: 1
         type: integer
       status:
         type: string
@@ -259,6 +257,8 @@ definitions:
         type: string
       networkType:
         type: string
+      nodeNameRule:
+        type: string
       nodeportAddress:
         type: string
       nodes:
@@ -283,7 +283,93 @@ definitions:
         type: string
     required:
     - name
+    - nodeNameRule
     - version
+    type: object
+  dto.ClusterImport:
+    properties:
+      apiServer:
+        type: string
+      architectures:
+        type: string
+      clusterInfo:
+        $ref: '#/definitions/dto.clusterInfo'
+      isKoCluster:
+        type: boolean
+      name:
+        type: string
+      projectName:
+        type: string
+      router:
+        type: string
+      token:
+        type: string
+    type: object
+  dto.ClusterLoad:
+    properties:
+      apiServer:
+        type: string
+      architectures:
+        type: string
+      name:
+        type: string
+      router:
+        type: string
+      token:
+        type: string
+    type: object
+  dto.ClusterLoadInfo:
+    properties:
+      architectures:
+        type: string
+      enableDnsCache:
+        type: string
+      ingressControllerType:
+        type: string
+      kubeApiServerPort:
+        type: integer
+      kubeMaxPods:
+        type: integer
+      kubeNetworkNodePrefix:
+        type: integer
+      kubePodSubnet:
+        type: string
+      kubeProxyMode:
+        type: string
+      kubeServiceNodePortRange:
+        type: string
+      kubeServiceSubnet:
+        type: string
+      kubernetesAudit:
+        type: string
+      lbKubeApiserverIp:
+        type: string
+      lbMode:
+        type: string
+      masterScheduleType:
+        type: string
+      maxNodeNum:
+        type: integer
+      maxNodePodNum:
+        type: integer
+      name:
+        type: string
+      networkType:
+        type: string
+      nodeNameRule:
+        type: string
+      nodeportAddress:
+        type: string
+      nodes:
+        items:
+          $ref: '#/definitions/dto.NodesFromK8s'
+        type: array
+      runtimeType:
+        type: string
+      supportGpu:
+        type: string
+      version:
+        type: string
     type: object
   dto.ClusterManifest:
     properties:
@@ -440,6 +526,8 @@ definitions:
         type: string
       datastore:
         type: string
+      flexIp:
+        type: string
       gpuInfo:
         type: string
       gpuNum:
@@ -481,8 +569,9 @@ definitions:
         type: string
       credential:
         $ref: '#/definitions/dto.CredentialOfHostCreate'
-        type: object
       credentialId:
+        type: string
+      flexIp:
         type: string
       ip:
         type: string
@@ -509,8 +598,9 @@ definitions:
     properties:
       credential:
         $ref: '#/definitions/dto.CredentialOfHostCreate'
-        type: object
       credentialId:
+        type: string
+      flexIp:
         type: string
       ip:
         type: string
@@ -541,7 +631,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/model.IpPool'
-        type: object
       ipPoolId:
         type: string
       status:
@@ -641,19 +730,20 @@ definitions:
         type: string
       dirty:
         type: boolean
-      info:
-        type: string
       ip:
+        description: Info v1.Node `json:"info"`
         type: string
       message:
         type: string
       name:
         type: string
-      pre_status:
+      preStatus:
         type: string
       role:
         type: string
       status:
+        type: string
+      statusId:
         type: string
       updatedAt:
         type: string
@@ -674,6 +764,8 @@ definitions:
         type: array
       operation:
         type: string
+      statusID:
+        type: string
       supportGpu:
         type: string
     type: object
@@ -683,6 +775,59 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  dto.NodesFromK8s:
+    properties:
+      architecture:
+        type: string
+      credentialID:
+        type: string
+      ip:
+        type: string
+      name:
+        type: string
+      port:
+        type: integer
+      role:
+        type: string
+    type: object
+  dto.NtpServer:
+    properties:
+      address:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.NtpServerCreate:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    required:
+    - address
+    - name
+    - status
+    type: object
+  dto.NtpServerUpdate:
+    properties:
+      address:
+        type: string
+      status:
+        type: string
+    required:
+    - address
+    - status
     type: object
   dto.Plan:
     properties:
@@ -694,8 +839,7 @@ definitions:
         type: string
       name:
         type: string
-      planVars:
-        type: object
+      planVars: {}
       projects:
         items:
           type: string
@@ -721,8 +865,7 @@ definitions:
         type: string
       name:
         type: string
-      planVars:
-        type: object
+      planVars: {}
       projects:
         items:
           type: string
@@ -743,8 +886,7 @@ definitions:
     type: object
   dto.PlanUpdate:
     properties:
-      planVars:
-        type: object
+      planVars: {}
       projects:
         items:
           type: string
@@ -759,7 +901,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.SessionUser'
-        type: object
     type: object
   dto.Project:
     properties:
@@ -857,8 +998,7 @@ definitions:
         type: string
       provider:
         type: string
-      regionVars:
-        type: object
+      regionVars: {}
       updatedAt:
         type: string
       vars:
@@ -872,8 +1012,7 @@ definitions:
         type: string
       provider:
         type: string
-      regionVars:
-        type: object
+      regionVars: {}
     required:
     - datacenter
     - name
@@ -882,8 +1021,7 @@ definitions:
     type: object
   dto.RegionDatacenterRequest:
     properties:
-      regionVars:
-        type: object
+      regionVars: {}
     required:
     - regionVars
     type: object
@@ -895,13 +1033,21 @@ definitions:
         type: string
       provider:
         type: string
-      regionVars:
-        type: object
+      regionVars: {}
     required:
     - datacenter
     - name
     - provider
     - regionVars
+    type: object
+  dto.RepoChangePassword:
+    properties:
+      id:
+        type: string
+      original:
+        type: string
+      password:
+        type: string
     type: object
   dto.SessionUser:
     properties:
@@ -912,6 +1058,8 @@ definitions:
       isActive:
         type: boolean
       isAdmin:
+        type: boolean
+      isSuper:
         type: boolean
       language:
         type: string
@@ -934,6 +1082,8 @@ definitions:
         type: string
       id:
         type: string
+      message:
+        type: string
       nexusPassword:
         type: string
       protocol:
@@ -944,6 +1094,8 @@ definitions:
         type: integer
       repoPort:
         type: integer
+      status:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -1010,6 +1162,20 @@ definitions:
     required:
     - tab
     - vars
+    type: object
+  dto.TemplateConfig:
+    properties:
+      config:
+        additionalProperties: true
+        type: object
+      createdAt:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
     type: object
   dto.User:
     properties:
@@ -1096,8 +1262,12 @@ definitions:
   dto.VmConfigCreate:
     properties:
       cpu:
+        maximum: 1000
+        minimum: 1
         type: integer
       memory:
+        maximum: 1000
+        minimum: 1
         type: integer
       name:
         type: string
@@ -1111,8 +1281,12 @@ definitions:
   dto.VmConfigUpdate:
     properties:
       cpu:
+        maximum: 1000
+        minimum: 1
         type: integer
       memory:
+        maximum: 1000
+        minimum: 1
         type: integer
       name:
         type: string
@@ -1124,11 +1298,7 @@ definitions:
     type: object
   dto.Zone:
     properties:
-      _:
-        $ref: '#/definitions/model.Credential'
-        type: object
-      cloudVars:
-        type: object
+      cloudVars: {}
       createdAt:
         type: string
       credentialId:
@@ -1139,7 +1309,6 @@ definitions:
         type: string
       ipPool:
         $ref: '#/definitions/dto.IpPool'
-        type: object
       ipPoolId:
         type: string
       ipPoolName:
@@ -1161,8 +1330,7 @@ definitions:
     type: object
   dto.ZoneCreate:
     properties:
-      cloudVars:
-        type: object
+      cloudVars: {}
       credentialName:
         type: string
       ipPoolName:
@@ -1178,8 +1346,7 @@ definitions:
     type: object
   dto.ZoneUpdate:
     properties:
-      cloudVars:
-        type: object
+      cloudVars: {}
       credentialName:
         type: string
       id:
@@ -1196,6 +1363,87 @@ definitions:
     - ipPoolName
     - name
     - regionID
+    type: object
+  dto.clusterInfo:
+    properties:
+      architectures:
+        type: string
+      calicoIpv4PoolIpip:
+        type: string
+      ciliumNativeRoutingCidr:
+        type: string
+      ciliumTunnelMode:
+        type: string
+      ciliumVersion:
+        type: string
+      containerdStorageDIr:
+        type: string
+      dnsCacheVersion:
+        type: string
+      dockerStorageDIr:
+        type: string
+      dockerSubnet:
+        type: string
+      enableDnsCache:
+        type: string
+      flannelBackend:
+        type: string
+      helmVersion:
+        type: string
+      ingressControllerType:
+        type: string
+      kubeApiServerPort:
+        type: integer
+      kubeMaxPods:
+        type: integer
+      kubeNetworkNodePrefix:
+        type: integer
+      kubePodSubnet:
+        type: string
+      kubeProxyMode:
+        type: string
+      kubeServiceNodePortRange:
+        type: string
+      kubeServiceSubnet:
+        type: string
+      kubernetesAudit:
+        type: string
+      lbKubeApiserverIp:
+        type: string
+      lbMode:
+        type: string
+      maxNodeNum:
+        type: integer
+      maxNodePodNum:
+        type: integer
+      name:
+        type: string
+      networkCidr:
+        type: string
+      networkInterface:
+        type: string
+      networkType:
+        type: string
+      nodeNameRule:
+        type: string
+      nodeportAddress:
+        type: string
+      nodes:
+        items:
+          $ref: '#/definitions/dto.NodesFromK8s'
+        type: array
+      provider:
+        type: string
+      runtimeType:
+        type: string
+      supportGpu:
+        type: string
+      version:
+        type: string
+      yumOperate:
+        type: string
+    required:
+    - version
     type: object
   model.BackupAccount:
     properties:
@@ -1314,25 +1562,6 @@ definitions:
       yumOperate:
         type: string
     type: object
-  model.Credential:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-      privateKey:
-        type: string
-      type:
-        type: string
-      updatedAt:
-        type: string
-      username:
-        type: string
-    type: object
   model.Ip:
     properties:
       address:
@@ -1425,8 +1654,7 @@ definitions:
     type: object
   page.Page:
     properties:
-      items:
-        type: object
+      items: {}
       total:
         type: integer
     type: object
@@ -1448,6 +1676,7 @@ paths:
       description: Logout
       produces:
       - application/json
+      responses: {}
       summary: Logout
       tags:
       - auth
@@ -1485,6 +1714,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a backupAccount
@@ -1618,6 +1848,7 @@ paths:
       description: delete a BackupFile by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a BackupFile
@@ -1638,7 +1869,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Backup CLuster
@@ -1659,7 +1891,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Restore CLuster
@@ -1751,8 +1984,20 @@ paths:
       consumes:
       - application/json
       description: delete a cluster by name
+      parameters:
+      - description: 是否强制（true, false）
+        in: query
+        name: force
+        required: true
+        type: string
+      - description: 是否卸载（true, false）
+        in: query
+        name: uninstall
+        required: true
+        type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a cluster
@@ -1779,11 +2024,43 @@ paths:
       consumes:
       - application/json
       description: import a cluster
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterImport'
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Import a cluster
+      tags:
+      - clusters
+  /clusters/load:
+    post:
+      consumes:
+      - application/json
+      description: Upgrade a cluster
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterLoad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ClusterLoadInfo'
+      security:
+      - ApiKeyAuth: []
+      summary: Load cluster info
       tags:
       - clusters
   /clusters/name/{projectNames}:
@@ -1810,6 +2087,7 @@ paths:
       description: Get cluster nodes
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Get cluster nodes
@@ -1847,24 +2125,74 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Batch delete or create cluster node
       tags:
       - clusters
-  /clusters/node/recreate/{clusterName}/{node}:
+  /clusters/node/recreate/{clusterName}:
     post:
       consumes:
       - application/json
       description: Recreate cluster node
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NodeBatch'
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Recreate cluster node
+      tags:
+      - clusters
+  /clusters/search:
+    post:
+      consumes:
+      - application/json
+      description: 过滤集群
+      parameters:
+      - description: conditions
+        in: body
+        name: conditions
+        required: true
+        schema:
+          $ref: '#/definitions/condition.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Search cluster
+      tags:
+      - clusters
+  /clusters/status/{clusterName}/{nodeName}:
+    get:
+      consumes:
+      - application/json
+      description: Get cluster node status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Node'
+      security:
+      - ApiKeyAuth: []
+      summary: Get cluster node status
       tags:
       - clusters
   /clusters/upgrade:
@@ -1882,7 +2210,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Upgrade a cluster
@@ -1981,6 +2310,7 @@ paths:
       description: 通过名称删除单个凭据
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a credential
@@ -2105,6 +2435,7 @@ paths:
       description: delete a host by name
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a host
@@ -2141,7 +2472,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Sync hosts
@@ -2154,6 +2486,7 @@ paths:
       description: download template file for import hosts
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Download Host Template File
@@ -2166,6 +2499,7 @@ paths:
       description: Upload File for import hosts
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Upload File for import
@@ -2253,6 +2587,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a IpPool
@@ -2344,6 +2679,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a Ip
@@ -2474,6 +2810,95 @@ paths:
       summary: Update a manifest
       tags:
       - manifest
+  /ntp:
+    post:
+      consumes:
+      - application/json
+      description: 创建ntpServer
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NtpServerCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NtpServer'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a NtpServer
+      tags:
+      - NtpServer
+  /ntp/{name}:
+    patch:
+      consumes:
+      - application/json
+      description: 更新NtpServer
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NtpServerUpdate'
+      - description: 名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NtpServer'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a Registry
+      tags:
+      - NtpServer
+  /ntp/{name}/:
+    delete:
+      consumes:
+      - application/json
+      description: delete a  Registry by name
+      parameters:
+      - description: CPU 架构
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a Registry
+      tags:
+      - NtpServer
+  /ntpServer:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show ntpServer
+      tags:
+      - ntpServer
   /plans:
     get:
       consumes:
@@ -2521,6 +2946,7 @@ paths:
       description: 删除部署计划
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a plan
@@ -2654,7 +3080,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       security:
       - ApiKeyAuth: []
       summary: Delete a project
@@ -2794,6 +3221,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete cLusterMember
@@ -2888,6 +3316,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete clusterResource
@@ -2959,6 +3388,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete projectMember
@@ -3038,6 +3468,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete projectResource
@@ -3119,6 +3550,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a region
@@ -3400,6 +3832,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a Registry
@@ -3428,6 +3861,28 @@ paths:
       summary: Show a Registry
       tags:
       - SystemSetting
+  /settings/registry/change/password:
+    post:
+      consumes:
+      - application/json
+      description: 更新 Nexus 密码
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RepoChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Change user password
+      tags:
+      - SystemSetting
   /settings/registry/search:
     post:
       consumes:
@@ -3452,6 +3907,94 @@ paths:
       summary: Search  Registry
       tags:
       - SystemSetting
+  /templates/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除模版配置
+      parameters:
+      - description: 模版名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a templateConfig
+      tags:
+      - templateConfigs
+    get:
+      consumes:
+      - application/json
+      description: 获取单个模版配置
+      parameters:
+      - description: 模版名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TemplateConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a TemplateConfig
+      tags:
+      - templateConfigs
+    patch:
+      consumes:
+      - application/json
+      description: 更新模板配置
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TemplateConfig'
+      - description: 模板配置名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TemplateConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a TemplateConfig
+      tags:
+      - templateConfigs
+  /templates/search:
+    post:
+      consumes:
+      - application/json
+      description: 获取所有的模板配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TemplateConfig'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Show all TemplateConfigs
+      tags:
+      - templateConfigs
   /users:
     get:
       consumes:
@@ -3505,6 +4048,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a user
@@ -3655,6 +4199,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a vmConfig
@@ -3787,6 +4332,7 @@ paths:
         type: string
       produces:
       - application/json
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: Delete a zone

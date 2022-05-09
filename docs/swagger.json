@@ -59,7 +59,8 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Logout"
+                "summary": "Logout",
+                "responses": {}
             }
         },
         "/backupAccounts/{name}/": {
@@ -88,7 +89,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -318,7 +320,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -352,7 +356,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -373,7 +379,8 @@
                 "tags": [
                     "backupFiles"
                 ],
-                "summary": "Delete a BackupFile"
+                "summary": "Delete a BackupFile",
+                "responses": {}
             }
         },
         "/cluster/backup/strategy/": {
@@ -525,7 +532,58 @@
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Import a cluster"
+                "summary": "Import a cluster",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterImport"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/clusters/load": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upgrade a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Load cluster info",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterLoad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterLoadInfo"
+                        }
+                    }
+                }
             }
         },
         "/clusters/name/{projectNames}": {
@@ -586,11 +644,13 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
-        "/clusters/node/recreate/{clusterName}/{node}": {
+        "/clusters/node/recreate/{clusterName}": {
             "post": {
                 "security": [
                     {
@@ -608,8 +668,21 @@
                     "clusters"
                 ],
                 "summary": "Recreate cluster node",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NodeBatch"
+                        }
+                    }
+                ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -630,7 +703,8 @@
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Get cluster nodes"
+                "summary": "Get cluster nodes",
+                "responses": {}
             }
         },
         "/clusters/node/{clusterName}/{nodeName}": {
@@ -651,6 +725,73 @@
                     "clusters"
                 ],
                 "summary": "Get cluster node details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Node"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "过滤集群",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Search cluster",
+                "parameters": [
+                    {
+                        "description": "conditions",
+                        "name": "conditions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/condition.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/status/{clusterName}/{nodeName}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get cluster node status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Get cluster node status",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -691,7 +832,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -738,7 +881,24 @@
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Delete a cluster"
+                "summary": "Delete a cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "是否强制（true, false）",
+                        "name": "force",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "是否卸载（true, false）",
+                        "name": "uninstall",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/configs/{regionName}": {
@@ -936,7 +1096,8 @@
                 "tags": [
                     "credentials"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a credential",
+                "responses": {}
             }
         },
         "/host": {
@@ -1112,7 +1273,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             }
         },
@@ -1133,7 +1296,8 @@
                 "tags": [
                     "hosts"
                 ],
-                "summary": "Download Host Template File"
+                "summary": "Download Host Template File",
+                "responses": {}
             }
         },
         "/hosts/upload/": {
@@ -1153,7 +1317,8 @@
                 "tags": [
                     "hosts"
                 ],
-                "summary": "Upload File for import"
+                "summary": "Upload File for import",
+                "responses": {}
             }
         },
         "/hosts/{name}/": {
@@ -1199,7 +1364,8 @@
                 "tags": [
                     "hosts"
                 ],
-                "summary": "Delete a host"
+                "summary": "Delete a host",
+                "responses": {}
             }
         },
         "/ippools": {
@@ -1413,7 +1579,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/ippools/{name}/ips": {
@@ -1523,7 +1690,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/ippools/{name}/search": {
@@ -1688,6 +1856,149 @@
                 }
             }
         },
+        "/ntp": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建ntpServer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NtpServer"
+                ],
+                "summary": "Create a NtpServer",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NtpServerCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NtpServer"
+                        }
+                    }
+                }
+            }
+        },
+        "/ntp/{name}": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新NtpServer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NtpServer"
+                ],
+                "summary": "Update a Registry",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NtpServerUpdate"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NtpServer"
+                        }
+                    }
+                }
+            }
+        },
+        "/ntp/{name}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete a  Registry by name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NtpServer"
+                ],
+                "summary": "Delete a Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPU 架构",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ntpServer": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取用户列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ntpServer"
+                ],
+                "summary": "Show ntpServer",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/page.Page"
+                        }
+                    }
+                }
+            }
+        },
         "/plans": {
             "get": {
                 "security": [
@@ -1844,7 +2155,8 @@
                 "tags": [
                     "plans"
                 ],
-                "summary": "Delete a plan"
+                "summary": "Delete a plan",
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -2019,7 +2331,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": ""
+                    }
                 }
             },
             "patch": {
@@ -2202,7 +2516,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/projects/{project}/clusters/{cluster}/resources": {
@@ -2347,7 +2662,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/projects/{project}/members": {
@@ -2460,7 +2776,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/projects/{project}/resources": {
@@ -2621,7 +2938,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/regions": {
@@ -2828,7 +3146,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -3057,6 +3376,42 @@
                 }
             }
         },
+        "/settings/registry/change/password": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新 Nexus 密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SystemSetting"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RepoChangePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/settings/registry/search": {
             "post": {
                 "security": [
@@ -3168,7 +3523,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             }
         },
         "/settings/registry/{id}": {
@@ -3240,6 +3596,146 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.SystemSettingResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/search": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取所有的模板配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templateConfigs"
+                ],
+                "summary": "Show all TemplateConfigs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.TemplateConfig"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取单个模版配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templateConfigs"
+                ],
+                "summary": "Show a TemplateConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模版名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TemplateConfig"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除模版配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templateConfigs"
+                ],
+                "summary": "Delete a templateConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模版名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新模板配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templateConfigs"
+                ],
+                "summary": "Update a TemplateConfig",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TemplateConfig"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "模板配置名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TemplateConfig"
                         }
                     }
                 }
@@ -3440,7 +3936,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -3652,7 +4149,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -3901,7 +4399,8 @@
                         "in": "path",
                         "required": true
                     }
-                ]
+                ],
+                "responses": {}
             },
             "patch": {
                 "security": [
@@ -3959,9 +4458,7 @@
                 "operator": {
                     "type": "string"
                 },
-                "value": {
-                    "type": "object"
-                }
+                "value": {}
             }
         },
         "condition.Conditions": {
@@ -3985,9 +4482,7 @@
                 "credential": {
                     "type": "string"
                 },
-                "credentialVars": {
-                    "type": "object"
-                },
+                "credentialVars": {},
                 "id": {
                     "type": "string"
                 },
@@ -4026,9 +4521,7 @@
                         "type": "string"
                     }
                 },
-                "credentialVars": {
-                    "type": "object"
-                },
+                "credentialVars": {},
                 "name": {
                     "type": "string"
                 },
@@ -4056,9 +4549,7 @@
                 "bucket": {
                     "type": "string"
                 },
-                "credentialVars": {
-                    "type": "object"
-                },
+                "credentialVars": {},
                 "id": {
                     "type": "string"
                 },
@@ -4079,9 +4570,7 @@
         "dto.CloudRegionResponse": {
             "type": "object",
             "properties": {
-                "result": {
-                    "type": "object"
-                }
+                "result": {}
             }
         },
         "dto.Cluster": {
@@ -4114,6 +4603,9 @@
                 "name": {
                     "type": "string"
                 },
+                "nodeNameRule": {
+                    "type": "string"
+                },
                 "nodeSize": {
                     "type": "integer"
                 },
@@ -4133,7 +4625,6 @@
                     "type": "string"
                 },
                 "spec": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterSpec"
                 },
                 "status": {
@@ -4173,14 +4664,12 @@
             ],
             "properties": {
                 "backupAccount": {
-                    "type": "object",
                     "$ref": "#/definitions/model.BackupAccount"
                 },
                 "clusterName": {
                     "type": "string"
                 },
                 "file": {
-                    "type": "object",
                     "$ref": "#/definitions/model.ClusterBackupFile"
                 },
                 "name": {
@@ -4237,13 +4726,17 @@
                     "type": "string"
                 },
                 "cron": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 300,
+                    "minimum": 1
                 },
                 "id": {
                     "type": "string"
                 },
                 "saveNum": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
                 },
                 "status": {
                     "type": "string"
@@ -4254,6 +4747,7 @@
             "type": "object",
             "required": [
                 "name",
+                "nodeNameRule",
                 "version"
             ],
             "properties": {
@@ -4341,6 +4835,9 @@
                 "networkType": {
                     "type": "string"
                 },
+                "nodeNameRule": {
+                    "type": "string"
+                },
                 "nodeportAddress": {
                     "type": "string"
                 },
@@ -4372,6 +4869,135 @@
                     "type": "integer"
                 },
                 "yumOperate": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterImport": {
+            "type": "object",
+            "properties": {
+                "apiServer": {
+                    "type": "string"
+                },
+                "architectures": {
+                    "type": "string"
+                },
+                "clusterInfo": {
+                    "$ref": "#/definitions/dto.clusterInfo"
+                },
+                "isKoCluster": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "router": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterLoad": {
+            "type": "object",
+            "properties": {
+                "apiServer": {
+                    "type": "string"
+                },
+                "architectures": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "router": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterLoadInfo": {
+            "type": "object",
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "enableDnsCache": {
+                    "type": "string"
+                },
+                "ingressControllerType": {
+                    "type": "string"
+                },
+                "kubeApiServerPort": {
+                    "type": "integer"
+                },
+                "kubeMaxPods": {
+                    "type": "integer"
+                },
+                "kubeNetworkNodePrefix": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
+                "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeServiceNodePortRange": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
+                    "type": "string"
+                },
+                "kubernetesAudit": {
+                    "type": "string"
+                },
+                "lbKubeApiserverIp": {
+                    "type": "string"
+                },
+                "lbMode": {
+                    "type": "string"
+                },
+                "masterScheduleType": {
+                    "type": "string"
+                },
+                "maxNodeNum": {
+                    "type": "integer"
+                },
+                "maxNodePodNum": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "nodeNameRule": {
+                    "type": "string"
+                },
+                "nodeportAddress": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NodesFromK8s"
+                    }
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "supportGpu": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -4612,6 +5238,9 @@
                 "datastore": {
                     "type": "string"
                 },
+                "flexIp": {
+                    "type": "string"
+                },
                 "gpuInfo": {
                     "type": "string"
                 },
@@ -4678,10 +5307,12 @@
                     "type": "string"
                 },
                 "credential": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.CredentialOfHostCreate"
                 },
                 "credentialId": {
+                    "type": "string"
+                },
+                "flexIp": {
                     "type": "string"
                 },
                 "ip": {
@@ -4718,10 +5349,12 @@
             ],
             "properties": {
                 "credential": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.CredentialOfHostCreate"
                 },
                 "credentialId": {
+                    "type": "string"
+                },
+                "flexIp": {
                     "type": "string"
                 },
                 "ip": {
@@ -4760,7 +5393,6 @@
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/model.IpPool"
                 },
                 "ipPoolId": {
@@ -4915,10 +5547,8 @@
                 "dirty": {
                     "type": "boolean"
                 },
-                "info": {
-                    "type": "string"
-                },
                 "ip": {
+                    "description": "Info v1.Node `json:\"info\"`",
                     "type": "string"
                 },
                 "message": {
@@ -4927,13 +5557,16 @@
                 "name": {
                     "type": "string"
                 },
-                "pre_status": {
+                "preStatus": {
                     "type": "string"
                 },
                 "role": {
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                },
+                "statusId": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -4965,6 +5598,9 @@
                 "operation": {
                     "type": "string"
                 },
+                "statusID": {
+                    "type": "string"
+                },
                 "supportGpu": {
                     "type": "string"
                 }
@@ -4977,6 +5613,86 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NodesFromK8s": {
+            "type": "object",
+            "properties": {
+                "architecture": {
+                    "type": "string"
+                },
+                "credentialID": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NtpServer": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NtpServerCreate": {
+            "type": "object",
+            "required": [
+                "address",
+                "name",
+                "status"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NtpServerUpdate": {
+            "type": "object",
+            "required": [
+                "address",
+                "status"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -4996,9 +5712,7 @@
                 "name": {
                     "type": "string"
                 },
-                "planVars": {
-                    "type": "object"
-                },
+                "planVars": {},
                 "projects": {
                     "type": "array",
                     "items": {
@@ -5045,9 +5759,7 @@
                 "name": {
                     "type": "string"
                 },
-                "planVars": {
-                    "type": "object"
-                },
+                "planVars": {},
                 "projects": {
                     "type": "array",
                     "items": {
@@ -5072,9 +5784,7 @@
                 "projects"
             ],
             "properties": {
-                "planVars": {
-                    "type": "object"
-                },
+                "planVars": {},
                 "projects": {
                     "type": "array",
                     "items": {
@@ -5090,7 +5800,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.SessionUser"
                 }
             }
@@ -5241,9 +5950,7 @@
                 "provider": {
                     "type": "string"
                 },
-                "regionVars": {
-                    "type": "object"
-                },
+                "regionVars": {},
                 "updatedAt": {
                     "type": "string"
                 },
@@ -5270,9 +5977,7 @@
                 "provider": {
                     "type": "string"
                 },
-                "regionVars": {
-                    "type": "object"
-                }
+                "regionVars": {}
             }
         },
         "dto.RegionDatacenterRequest": {
@@ -5281,9 +5986,7 @@
                 "regionVars"
             ],
             "properties": {
-                "regionVars": {
-                    "type": "object"
-                }
+                "regionVars": {}
             }
         },
         "dto.RegionUpdate": {
@@ -5304,8 +6007,20 @@
                 "provider": {
                     "type": "string"
                 },
-                "regionVars": {
-                    "type": "object"
+                "regionVars": {}
+            }
+        },
+        "dto.RepoChangePassword": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "original": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },
@@ -5322,6 +6037,9 @@
                     "type": "boolean"
                 },
                 "isAdmin": {
+                    "type": "boolean"
+                },
+                "isSuper": {
                     "type": "boolean"
                 },
                 "language": {
@@ -5356,6 +6074,9 @@
                 "id": {
                     "type": "string"
                 },
+                "message": {
+                    "type": "string"
+                },
                 "nexusPassword": {
                     "type": "string"
                 },
@@ -5370,6 +6091,9 @@
                 },
                 "repoPort": {
                     "type": "integer"
+                },
+                "status": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -5467,6 +6191,27 @@
                     "additionalProperties": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.TemplateConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -5603,10 +6348,14 @@
             ],
             "properties": {
                 "cpu": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
                 },
                 "memory": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
                 },
                 "name": {
                     "type": "string"
@@ -5624,10 +6373,14 @@
             ],
             "properties": {
                 "cpu": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
                 },
                 "memory": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
                 },
                 "name": {
                     "type": "string"
@@ -5640,13 +6393,7 @@
         "dto.Zone": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Credential"
-                },
-                "cloudVars": {
-                    "type": "object"
-                },
+                "cloudVars": {},
                 "createdAt": {
                     "type": "string"
                 },
@@ -5660,7 +6407,6 @@
                     "type": "string"
                 },
                 "ipPool": {
-                    "type": "object",
                     "$ref": "#/definitions/dto.IpPool"
                 },
                 "ipPoolId": {
@@ -5700,9 +6446,7 @@
                 "regionName"
             ],
             "properties": {
-                "cloudVars": {
-                    "type": "object"
-                },
+                "cloudVars": {},
                 "credentialName": {
                     "type": "string"
                 },
@@ -5727,9 +6471,7 @@
                 "regionID"
             ],
             "properties": {
-                "cloudVars": {
-                    "type": "object"
-                },
+                "cloudVars": {},
                 "credentialName": {
                     "type": "string"
                 },
@@ -5743,6 +6485,128 @@
                     "type": "string"
                 },
                 "regionID": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.clusterInfo": {
+            "type": "object",
+            "required": [
+                "version"
+            ],
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "calicoIpv4PoolIpip": {
+                    "type": "string"
+                },
+                "ciliumNativeRoutingCidr": {
+                    "type": "string"
+                },
+                "ciliumTunnelMode": {
+                    "type": "string"
+                },
+                "ciliumVersion": {
+                    "type": "string"
+                },
+                "containerdStorageDIr": {
+                    "type": "string"
+                },
+                "dnsCacheVersion": {
+                    "type": "string"
+                },
+                "dockerStorageDIr": {
+                    "type": "string"
+                },
+                "dockerSubnet": {
+                    "type": "string"
+                },
+                "enableDnsCache": {
+                    "type": "string"
+                },
+                "flannelBackend": {
+                    "type": "string"
+                },
+                "helmVersion": {
+                    "type": "string"
+                },
+                "ingressControllerType": {
+                    "type": "string"
+                },
+                "kubeApiServerPort": {
+                    "type": "integer"
+                },
+                "kubeMaxPods": {
+                    "type": "integer"
+                },
+                "kubeNetworkNodePrefix": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
+                "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeServiceNodePortRange": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
+                    "type": "string"
+                },
+                "kubernetesAudit": {
+                    "type": "string"
+                },
+                "lbKubeApiserverIp": {
+                    "type": "string"
+                },
+                "lbMode": {
+                    "type": "string"
+                },
+                "maxNodeNum": {
+                    "type": "integer"
+                },
+                "maxNodePodNum": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkCidr": {
+                    "type": "string"
+                },
+                "networkInterface": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "nodeNameRule": {
+                    "type": "string"
+                },
+                "nodeportAddress": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NodesFromK8s"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "supportGpu": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "yumOperate": {
                     "type": "string"
                 }
             }
@@ -5924,35 +6788,6 @@
                 }
             }
         },
-        "model.Credential": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "privateKey": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
         "model.Ip": {
             "type": "object",
             "properties": {
@@ -6093,9 +6928,7 @@
         "page.Page": {
             "type": "object",
             "properties": {
-                "items": {
-                    "type": "object"
-                },
+                "items": {},
                 "total": {
                     "type": "integer"
                 }
