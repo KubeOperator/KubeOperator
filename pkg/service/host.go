@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/KubeOperator/KubeOperator/api"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -19,7 +20,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
-	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
 	"k8s.io/apimachinery/pkg/util/wait"
 )

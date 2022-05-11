@@ -3,15 +3,14 @@ package kobe
 import (
 	"io"
 
-	"github.com/KubeOperator/kobe/api"
-	kobeClient "github.com/KubeOperator/kobe/pkg/client"
+	"github.com/KubeOperator/KubeOperator/api"
 	"github.com/spf13/viper"
 )
 
 type Interface interface {
 	RunPlaybook(name, tag string) (string, error)
 	Watch(writer io.Writer, taskId string) error
-	GetResult(taskId string) (*api.Result, error)
+	GetResult(taskId string) (*api.KobeResult, error)
 	SetVar(key string, value string)
 }
 
@@ -22,7 +21,7 @@ type Config struct {
 type Kobe struct {
 	Project   string
 	Inventory *api.Inventory
-	client    *kobeClient.KobeClient
+	client    *KobeClient
 }
 
 func NewAnsible(c *Config) *Kobe {
@@ -32,7 +31,7 @@ func NewAnsible(c *Config) *Kobe {
 	return &Kobe{
 		Project:   "ko",
 		Inventory: c.Inventory,
-		client:    kobeClient.NewKobeClient(host, port),
+		client:    NewKobeClient(host, port),
 	}
 }
 
@@ -64,6 +63,6 @@ func (k *Kobe) Watch(writer io.Writer, taskId string) error {
 	return nil
 }
 
-func (k *Kobe) GetResult(taskId string) (*api.Result, error) {
+func (k *Kobe) GetResult(taskId string) (*api.KobeResult, error) {
 	return k.client.GetResult(taskId)
 }

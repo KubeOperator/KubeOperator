@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/api"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"github.com/KubeOperator/kobe/api"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	"k8s.io/apimachinery/pkg/util/wait"
