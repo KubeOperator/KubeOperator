@@ -48,10 +48,10 @@ WORKDIR /home/kops
 
 EXPOSE 8080
 
-USER kops
-
 RUN mkdir -p /var/kobe/conf
 COPY conf/server.p /var/kobe/conf
 RUN chown -R kops:kops /var/kobe/conf /var/kobe/conf/server.p
+
+USER kops
 
 CMD ["ko-server"]
