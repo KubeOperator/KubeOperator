@@ -106,6 +106,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			EnableDnsCache:           clusterImport.KoClusterInfo.EnableDnsCache,
 			DnsCacheVersion:          clusterImport.KoClusterInfo.DnsCacheVersion,
 			IngressControllerType:    clusterImport.KoClusterInfo.IngressControllerType,
+			KubeDnsDomain:            clusterImport.KoClusterInfo.KubeDnsDomain,
 			KubernetesAudit:          clusterImport.KoClusterInfo.KubernetesAudit,
 			DockerSubnet:             clusterImport.KoClusterInfo.DockerSubnet,
 			HelmVersion:              clusterImport.KoClusterInfo.HelmVersion,
@@ -420,11 +421,13 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 		if strings.Contains(daemonset.ObjectMeta.Name, "node-local-dns") {
 			enableDnsCache = "enable"
 		}
-		if strings.Contains(daemonset.ObjectMeta.Name, "nginx-ingress-controller") {
-			ingressControllerType = "nginx"
-		}
-		if strings.Contains(daemonset.ObjectMeta.Name, "traefik") {
-			ingressControllerType = "traefik"
+		if strings.Contains(daemonset.ObjectMeta.Name, "ingress") {
+			if strings.Contains(daemonset.ObjectMeta.Name, "nginx") {
+				ingressControllerType = "nginx"
+			}
+			if strings.Contains(daemonset.ObjectMeta.Name, "traefik") {
+				ingressControllerType = "traefik"
+			}
 		}
 	}
 	return networkType, enableDnsCache, ingressControllerType, nil
@@ -501,13 +504,13 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.KubeNetworkNodePrefix = mask
 	clusterInfo.KubeMaxPods = maxNodePodNumMap[mask]
 	clusterInfo.KubePodSubnet = data.Network.PodSubnet
+	clusterInfo.KubeDnsDomain = data.Network.DnsDomain
 	clusterInfo.MaxNodePodNum = 2 << (31 - mask)
 	if strings.Contains(clusterInfo.KubePodSubnet, "/") {
 		subnets := strings.Split(clusterInfo.KubePodSubnet, "/")
 		podMask, _ := strconv.Atoi(subnets[1])
 		clusterInfo.MaxNodeNum = (2 << (31 - podMask)) / clusterInfo.MaxNodePodNum
 	}
-	clusterInfo.KubePodSubnet = data.Network.PodSubnet
 	clusterInfo.KubeServiceSubnet = data.Network.ServiceSubnet
 	if len(data.ApiServer.ExtraArgs.AuditLogPath) == 0 {
 		clusterInfo.KubernetesAudit = "no"
@@ -569,6 +572,7 @@ type ControllerStruct struct {
 }
 
 type networkStruct struct {
+	DnsDomain     string `json:"dnsDomain"`
 	PodSubnet     string `json:"podSubnet"`
 	ServiceSubnet string `json:"serviceSubnet"`
 }

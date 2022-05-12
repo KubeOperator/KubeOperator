@@ -65,6 +65,7 @@ type ClusterCreate struct {
 	DnsCacheVersion          string       `json:"dnsCacheVersion"`
 	IngressControllerType    string       `json:"ingressControllerType"`
 	Architectures            string       `json:"architectures"`
+	KubeDnsDomain            string       `json:"kubeDnsDomain"`
 	KubernetesAudit          string       `json:"kubernetesAudit"`
 	DockerSubnet             string       `json:"dockerSubnet"`
 	Nodes                    []NodeCreate `json:"nodes"`
@@ -162,6 +163,7 @@ type ClusterLoadInfo struct {
 	NetworkType              string `json:"networkType"`
 	IngressControllerType    string `json:"ingressControllerType"`
 	EnableDnsCache           string `json:"enableDnsCache"`
+	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	RuntimeType              string `json:"runtimeType"`
 	MasterScheduleType       string `json:"masterScheduleType"`

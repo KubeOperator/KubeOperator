@@ -32,6 +32,7 @@ type clusterInfo struct {
 	DnsCacheVersion          string `json:"dnsCacheVersion"`
 	IngressControllerType    string `json:"ingressControllerType"`
 	Architectures            string `json:"architectures"`
+	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	DockerSubnet             string `json:"dockerSubnet"`
 	HelmVersion              string `json:"helmVersion"`

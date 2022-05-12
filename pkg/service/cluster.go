@@ -376,6 +376,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		DnsCacheVersion:          creation.DnsCacheVersion,
 		IngressControllerType:    creation.IngressControllerType,
 		Architectures:            creation.Architectures,
+		KubeDnsDomain:            creation.KubeDnsDomain,
 		KubernetesAudit:          creation.KubernetesAudit,
 		DockerSubnet:             creation.DockerSubnet,
 		HelmVersion:              creation.HelmVersion,

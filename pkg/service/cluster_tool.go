@@ -79,9 +79,13 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 	}
 
 	valueMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(tool.Vars), &valueMap)
+	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+		return "", err
+	}
 	if _, ok := valueMap["namespace"]; ok {
 		namespace = fmt.Sprint(valueMap["namespace"])
+	} else {
+		return "", fmt.Errorf("cant not find namespace in tool vars: %s", tool.Vars)
 	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
