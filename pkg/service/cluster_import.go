@@ -212,6 +212,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				c.handlerImportError(tx, cluster.Name, err)
 				return err
 			}
+
 		}
 		var (
 			manifest model.ClusterManifest
@@ -250,6 +251,22 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err := tx.Save(&cluster.Spec).Error; err != nil {
 		c.handlerImportError(tx, cluster.Name, err)
 		return fmt.Errorf("can not update spec %s", err.Error())
+	}
+	if len(clusterImport.KoClusterInfo.Provisioners) != 0 {
+		for _, pro := range clusterImport.KoClusterInfo.Provisioners {
+			vars, _ := json.Marshal(pro.Vars)
+			item := &model.ClusterStorageProvisioner{
+				Name:      pro.Name,
+				Type:      pro.Type,
+				Status:    pro.Status,
+				Vars:      string(vars),
+				ClusterID: cluster.ID,
+			}
+			if err := tx.Create(item).Error; err != nil {
+				c.handlerImportError(tx, cluster.Name, err)
+				return fmt.Errorf("can not import provisioner %s, error: %s", pro.Name, err.Error())
+			}
+		}
 	}
 
 	for _, tool := range tools {

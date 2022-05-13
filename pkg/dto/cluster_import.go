@@ -51,5 +51,6 @@ type clusterInfo struct {
 	KubeNetworkNodePrefix int    `json:"kubeNetworkNodePrefix"`
 	KubeServiceSubnet     string `json:"kubeServiceSubnet"`
 
-	Nodes []NodesFromK8s `json:"nodes"`
+	Nodes        []NodesFromK8s                  `json:"nodes"`
+	Provisioners []ClusterStorageProvisionerLoad `json:"provisioners"`
 }

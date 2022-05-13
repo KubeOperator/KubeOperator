@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -39,6 +40,8 @@ type ClusterStorageProvisionerService interface {
 	SyncStorageProvisioner(clusterName string, syncs []dto.ClusterStorageProvisionerSync) error
 	DeleteStorageProvisioner(clusterName string, provisioner string) error
 	BatchStorageProvisioner(clusterName string, batch dto.ClusterStorageProvisionerBatch) error
+
+	SearchDeployment(req dto.DeploymentSearch) (interface{}, error)
 }
 
 type clusterStorageProvisionerService struct {
@@ -632,4 +635,23 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, clust
 		}
 	}
 	return nil
+}
+
+func (c clusterStorageProvisionerService) SearchDeployment(req dto.DeploymentSearch) (interface{}, error) {
+	var result interface{}
+	host := strings.Replace(req.ApiServer, "http://", "", 1)
+	host = strings.Replace(host, "https://", "", 1)
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(host)},
+		Token: req.Token,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result, err = kubeClient.AppsV1().Deployments(req.Namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
