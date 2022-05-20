@@ -20,7 +20,9 @@ require (
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20220317163658-f5c0d0953e10 // indirect
 	github.com/fairwindsops/polaris v0.0.0-20210818215548-9ae4f774e98e
+	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/go-ldap/ldap v3.0.3+incompatible
@@ -44,6 +46,7 @@ require (
 	github.com/iris-contrib/schema v0.0.6 // indirect
 	github.com/iris-contrib/swagger/v12 v12.0.1
 	github.com/jinzhu/gorm v1.9.12
+	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
@@ -74,6 +77,7 @@ require (
 	github.com/youtube/vitess v2.1.1+incompatible // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
+	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/text v0.3.6
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
