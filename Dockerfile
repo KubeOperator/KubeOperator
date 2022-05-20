@@ -58,13 +58,6 @@ RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/velero/v1.7.1/velero-v
     && cp ./velero-v1.7.1-linux-$GOARCH/velero /usr/local/bin \
     && chmod +x /usr/local/bin/velero
 
-RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/kubepi/kotools/kotools_linux_amd64 \
-    && mv ./kotools_linux_amd64 /kotools
-RUN https://kubeoperator.oss-cn-beijing.aliyuncs.com/kubepi/kotools/kotools_linux_arm64 \
-    && mv ./kotools_linux_arm64 /kotools
-RUN https://kubeoperator.oss-cn-beijing.aliyuncs.com/kubepi/kotools/kotools_windows_amd64.exe \
-    && mv ./kotools_windows_amd64.exe /kotools
-
 WORKDIR /
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
