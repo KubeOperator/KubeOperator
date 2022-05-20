@@ -68,7 +68,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 - [完整文档](https://kubeoperator.io/docs/)
 - [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
-- [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
 ### 微信交流群
 
