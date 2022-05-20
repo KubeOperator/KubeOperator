@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"gopkg.in/yaml.v3"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
@@ -34,7 +32,6 @@ type ClusterController struct {
 	ClusterUpgradeService            service.ClusterUpgradeService
 	ClusterHealthService             service.ClusterHealthService
 	BackupAccountService             service.BackupAccountService
-	SystemSettingService             service.SystemSettingService
 }
 
 func NewClusterController() *ClusterController {
@@ -49,7 +46,6 @@ func NewClusterController() *ClusterController {
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 		ClusterHealthService:             service.NewClusterHealthService(),
 		BackupAccountService:             service.NewBackupAccountService(),
-		SystemSettingService:             service.NewSystemSettingService(),
 	}
 }
 
@@ -257,84 +253,6 @@ func (c ClusterController) PostUpgrade() error {
 	go kolog.Save(operator, constant.UPGRADE_CLUSTER, req.ClusterName+"("+req.Version+")")
 
 	return c.ClusterUpgradeService.Upgrade(req)
-}
-
-func (c ClusterController) GetProvisionerBy(name string) ([]dto.ClusterStorageProvisioner, error) {
-	csp, err := c.ClusterStorageProvisionerService.ListStorageProvisioner(name)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-	return csp, nil
-}
-func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStorageProvisioner, error) {
-	var req dto.ClusterStorageProvisionerCreation
-	err := c.Ctx.ReadJSON(&req)
-	if err != nil {
-		return nil, err
-	}
-	p, err := c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
-	if err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
-	}
-
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_SUPPLIER, name+"-"+req.Name+"("+req.Type+")")
-
-	return &p, nil
-}
-func (c ClusterController) PostProvisionerSyncBy(name string) error {
-	var req []dto.ClusterStorageProvisionerSync
-	err := c.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-	if err := c.ClusterStorageProvisionerService.SyncStorageProvisioner(name, req); err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return err
-	}
-
-	var proStr string
-	for _, pro := range req {
-		proStr += (pro.Name + ",")
-	}
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.SYNC_CLUSTER_STORAGE_SUPPLIER, proStr)
-
-	return nil
-}
-
-func (c ClusterController) PostProvisionerDeleteBy(clusterName string) error {
-	var item dto.ClusterStorageProvisioner
-	if err := c.Ctx.ReadJSON(&item); err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return err
-	}
-	operator := c.Ctx.Values().GetString("operator")
-	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+item.Name)
-
-	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, item.Name)
-}
-
-func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
-	var batch dto.ClusterStorageProvisionerBatch
-	if err := c.Ctx.ReadJSON(&batch); err != nil {
-		return err
-	}
-	if err := c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch); err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return err
-	}
-
-	operator := c.Ctx.Values().GetString("operator")
-	delClus := ""
-	for _, item := range batch.Items {
-		delClus += (item.Name + ",")
-	}
-	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
-
-	return nil
 }
 
 // Delete Cluster
@@ -680,42 +598,4 @@ func (c *ClusterController) PostRecoverBy(clusterName string) ([]dto.ClusterReco
 
 func (c *ClusterController) GetBackupaccountsBy(name string) ([]dto.BackupAccount, error) {
 	return c.BackupAccountService.ListByClusterName(name)
-}
-
-func (c *ClusterController) GetDashboardBy(name string) (*dto.Dashboard, error) {
-	ss, err := c.SystemSettingService.ListByTab("KUBEPI")
-	if err != nil {
-		return nil, err
-	}
-	secrets, err := c.ClusterService.GetSecrets(name)
-	if err != nil {
-		return nil, err
-	}
-	apiServer, err := c.ClusterService.GetApiServerEndpoint(name)
-	if err != nil {
-		return nil, err
-	}
-	kubepiClient := kubepi.GetClient()
-	if _, ok := ss.Vars["KUBEPI_USERNAME"]; ok {
-		username := ss.Vars["KUBEPI_USERNAME"]
-		password := ss.Vars["KUBEPI_PASSWORD"]
-		if username != "" && password != "" {
-			kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
-		}
-	}
-	opener, err := kubepiClient.Open(name, string(apiServer), secrets.KubernetesToken)
-	if err != nil {
-		return nil, err
-	}
-	c.Ctx.SetCookie(&http.Cookie{
-		Name:     opener.SessionCookie.Name,
-		Value:    opener.SessionCookie.Value,
-		Path:     opener.SessionCookie.Path,
-		Expires:  opener.SessionCookie.Expires,
-		HttpOnly: opener.SessionCookie.HttpOnly,
-		SameSite: opener.SessionCookie.SameSite,
-		MaxAge:   opener.SessionCookie.MaxAge,
-	})
-	return &dto.Dashboard{Url: opener.Redirect}, nil
-
 }

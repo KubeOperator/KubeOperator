@@ -82,6 +82,10 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
+	if err := tx.Where("cluster = ?", cluster.Name).Delete(&KubepiBind{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	var (
 		hostIDList []string
@@ -424,6 +428,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 	}
 	if c.Spec.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
+	}
+	if c.Spec.KubeDnsDomain != "" {
+		result[facts.KubeDnsDomainFactName] = c.Spec.KubeDnsDomain
 	}
 	if c.Spec.DockerSubnet != "" {
 		result[facts.DockerSubnetFactName] = c.Spec.DockerSubnet

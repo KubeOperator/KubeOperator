@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 
-	"github.com/iris-contrib/jade/testdata/imp/model"
 	"github.com/jinzhu/gorm"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -53,7 +52,10 @@ func (p *Project) BeforeDelete() (err error) {
 			return err
 		}
 	}
-	err = db.DB.Model(model.User{}).Where("current_project_id = ?", p.ID).Updates(&User{CurrentProjectID: ""}).Error
+	if err := db.DB.Where("project = ?", p.Name).Delete(&KubepiBind{}).Error; err != nil {
+		return err
+	}
+	err = db.DB.Model(User{}).Where("current_project_id = ?", p.ID).Updates(&User{CurrentProjectID: ""}).Error
 	if err != nil {
 		return err
 	}

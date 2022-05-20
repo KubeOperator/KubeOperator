@@ -16,7 +16,6 @@ import (
 	helm2 "github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	appv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -80,9 +79,13 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 	}
 
 	valueMap := map[string]interface{}{}
-	_ = json.Unmarshal([]byte(tool.Vars), &valueMap)
+	if err := json.Unmarshal([]byte(tool.Vars), &valueMap); err != nil {
+		return "", err
+	}
 	if _, ok := valueMap["namespace"]; ok {
 		namespace = fmt.Sprint(valueMap["namespace"])
+	} else {
+		return "", fmt.Errorf("cant not find namespace in tool vars: %s", tool.Vars)
 	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
@@ -268,26 +271,10 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
 
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: hosts,
-		Token: cluster.Secret.KubernetesToken,
-	})
 	if err != nil {
 		return tool, err
 	}
 	oldNamespace, namespace := c.getNamespace(cluster.ID, tool)
-	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
-	if ns.ObjectMeta.Name == "" {
-		n := &v1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: namespace,
-			},
-		}
-		_, err = kubeClient.CoreV1().Namespaces().Create(context.TODO(), n, metav1.CreateOptions{})
-		if err != nil {
-			return tool, err
-		}
-	}
 	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster, hosts, oldNamespace, namespace, true)
 	if err != nil {
 		return tool, err

@@ -93,7 +93,7 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 		resourceIds      []string
 		resources        interface{}
 	)
-	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").First(&cluster).Error; err != nil {
 		return nil, err
 	}
 	if err := db.DB.Model(&model.ClusterResource{}).
@@ -109,10 +109,18 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 		resourceIds = append(resourceIds, "1")
 	}
 
+	arch := "all"
+	if cluster.Spec.Architectures == constant.ArchARM64 {
+		arch = constant.ArchitectureOfAMD64
+	}
+	if cluster.Spec.Architectures == constant.ArchAMD64 {
+		arch = constant.ArchitectureOfARM64
+	}
+
 	switch resourceType {
 	case constant.ResourceHost:
 		var hosts []model.Host
-		if err := db.DB.Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Order("created_at desc").Find(&hosts).Error; err != nil {
+		if err := db.DB.Where("id in (?) AND architecture != ?", resourceIds, arch).Preload("Cluster").Preload("Zone").Order("created_at desc").Find(&hosts).Error; err != nil {
 			return nil, err
 		}
 		var result []dto.Host
@@ -265,7 +273,7 @@ func (c clusterResourceService) GetResources(resourceType, projectName, clusterN
 	if err := db.DB.Model(&model.Project{}).Where("name = ?", projectName).Find(&project).Error; err != nil {
 		return nil, err
 	}
-	if err := db.DB.Model(&model.Cluster{}).Where("name = ?", clusterName).Find(&cluster).Error; err != nil {
+	if err := db.DB.Model(&model.Cluster{}).Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
 		return nil, err
 	}
 
