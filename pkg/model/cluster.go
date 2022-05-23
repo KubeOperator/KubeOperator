@@ -360,6 +360,13 @@ func (c Cluster) GetKobeVars() map[string]string {
 		index := strings.Index(c.Spec.Version, "-")
 		result[facts.KubeVersionFactName] = c.Spec.Version[:index]
 	}
+	if c.NodeNameRule != "" {
+		if c.NodeNameRule == constant.NodeNameRuleIP {
+			result[facts.NodeNameRuleFactName] = c.NodeNameRule
+		} else {
+			result[facts.NodeNameRuleFactName] = constant.NodeNameRuleHostName
+		}
+	}
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
 	}
