@@ -1,56 +1,72 @@
 package ldap
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-ldap/ldap"
 )
 
-var (
-	ParamEmpty = "PARAM_EMPTY"
-)
-
-type LdapClient struct {
-	Vars map[string]string
-	Conn *ldap.Conn
+type Config struct {
+	Endpoint string `json:"ldap_address"`
+	Port     string `json:"ldap_port"`
+	UserName string `json:"ldap_username"`
+	UserDn   string `json:"ldap_dn"`
+	Password string `json:"ldap_password"`
+	Filter   string `json:"ldap_filter"`
+	Mapping  string `json:"ldap_mapping"`
 }
 
-func NewLdap(vars map[string]string) *LdapClient {
-	return &LdapClient{
-		Vars: vars,
+func (c *Config) GetAttributes() ([]string, error) {
+	m := make(map[string]string)
+	err := json.Unmarshal([]byte(c.Mapping), &m)
+	if err != nil {
+		return nil, err
 	}
+	var result []string
+	for _, v := range m {
+		result = append(result, v)
+	}
+	return result, nil
+}
+
+func (c *Config) GetMappings() (map[string]string, error) {
+	m := make(map[string]string)
+	err := json.Unmarshal([]byte(c.Mapping), &m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+type LdapClient struct {
+	Vars   map[string]string
+	Config Config
+	Conn   *ldap.Conn
+}
+
+func NewLdap(vars map[string]string) (*LdapClient, error) {
+	con, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
+	config := Config{}
+	err = json.Unmarshal(con, &config)
+	if err != nil {
+		return nil, err
+	}
+	return &LdapClient{
+		Config: config,
+	}, nil
 }
 
 func (l *LdapClient) Connect() error {
-	var endpoint string
-	var port string
-	var username string
-	var password string
-	if _, ok := l.Vars["ldap_address"]; ok {
-		endpoint = l.Vars["ldap_address"]
-	} else {
-		return errors.New(ParamEmpty)
-	}
-	if _, ok := l.Vars["ldap_port"]; ok {
-		port = l.Vars["ldap_port"]
-	} else {
-		return errors.New(ParamEmpty)
-	}
-	if _, ok := l.Vars["ldap_username"]; ok {
-		username = l.Vars["ldap_username"]
-	} else {
-		return errors.New(ParamEmpty)
-	}
-	if _, ok := l.Vars["ldap_password"]; ok {
-		password = l.Vars["ldap_password"]
-	} else {
-		return errors.New(ParamEmpty)
-	}
-	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", endpoint, port))
+	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", l.Config.Endpoint, l.Config.Port))
 	if err != nil {
 		return err
 	}
-	err = conn.Bind(username, password)
+	bindUser := l.Config.UserName + "," + l.Config.UserDn
+	err = conn.Bind(bindUser, l.Config.Password)
 	if err != nil {
 		return err
 	}
@@ -59,22 +75,10 @@ func (l *LdapClient) Connect() error {
 }
 
 func (l *LdapClient) Search() ([]*ldap.Entry, error) {
-	var dn string
-	if _, ok := l.Vars["ldap_dn"]; ok {
-		dn = l.Vars["ldap_dn"]
-	} else {
-		return nil, errors.New(ParamEmpty)
-	}
-	var userFilter string
-	if _, ok := l.Vars["ldap_filter"]; ok {
-		userFilter = l.Vars["ldap_filter"]
-	} else {
-		return nil, errors.New(ParamEmpty)
-	}
 
-	searchRequest := ldap.NewSearchRequest(dn,
+	searchRequest := ldap.NewSearchRequest(l.Config.UserDn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		userFilter,
+		l.Config.Filter,
 		[]string{"cn", "mail"},
 		nil)
 	sr, err := l.Conn.Search(searchRequest)
@@ -88,16 +92,21 @@ func (l *LdapClient) Search() ([]*ldap.Entry, error) {
 	return sr.Entries, err
 }
 
-func (l *LdapClient) Login(userName, password string) error {
-	var dn string
-	if _, ok := l.Vars["ldap_dn"]; ok {
-		dn = l.Vars["ldap_dn"]
-	} else {
-		return errors.New(ParamEmpty)
+func (l *LdapClient) Login(username, password string) error {
+
+	mappings, err := l.Config.GetMappings()
+	if err != nil {
+		return err
 	}
-	searchRequest := ldap.NewSearchRequest(dn,
+	var userFilter string
+	for k, v := range mappings {
+		if k == "Name" {
+			userFilter = "(" + v + "=" + username + ")"
+		}
+	}
+	searchRequest := ldap.NewSearchRequest(l.Config.UserDn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(objectClass=organizationalPerson)(cn=%s))", userName),
+		userFilter,
 		[]string{"dn", "cn", "uid"},
 		nil)
 	sr, err := l.Conn.Search(searchRequest)

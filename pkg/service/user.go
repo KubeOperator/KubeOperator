@@ -312,7 +312,10 @@ func (u *userService) UserAuth(name string, password string) (user *model.User, 
 		if err != nil {
 			return nil, err
 		}
-		ldapClient := ldap.NewLdap(result.Vars)
+		ldapClient, err := ldap.NewLdap(result.Vars)
+		if err != nil {
+			return nil, err
+		}
 		err = ldapClient.Connect()
 		if err != nil {
 			return nil, err

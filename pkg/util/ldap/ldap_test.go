@@ -8,32 +8,34 @@ import (
 func TestLdap(t *testing.T) {
 	vars := make(map[string]string)
 
-	vars["endpoint"] = "172.16.10.141"
-	vars["port"] = "389"
-	vars["username"] = "cn=Manager,dc=ko,dc=com"
-	vars["password"] = ""
-	vars["dn"] = "dc=ko,dc=com"
-	vars["userFilter"] = "(&(objectClass=organizationalPerson))"
+	vars["ldap_address"] = "172.16.10.89"
+	vars["ldap_port"] = "389"
+	vars["ldap_username"] = "CN=zhengkun2,CN=Users"
+	vars["ldap_password"] = "Calong@2015"
+	vars["ldap_dn"] = "DC=ko,DC=com"
+	vars["ldap_filter"] = "(&(objectClass=Person))"
 
-	ldap := NewLdap(vars)
-	err := ldap.Connect()
+	ldap, err := NewLdap(vars)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = ldap.Connect()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	result, err := ldap.Search()
+	//result, err := ldap.Search()
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//} else {
+	//	fmt.Println(result)
+	//}
+	err = ldap.Login("zhengkun2", "Calong@2015")
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println(result)
-		return
+		fmt.Println("success")
 	}
-	//err = ldap.Login("zwang","")
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}else {
-	//	fmt.Println("success")
-	//}
 }
