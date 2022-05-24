@@ -60,6 +60,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/projects/{project}/clusters/{cluster}/members")).HandleError(ErrorHandler).Handle(controller.NewClusterMemberController())
 	mvc.New(AuthScope.Party("/projects/{project}/clusters/{cluster}/resources")).HandleError(ErrorHandler).Handle(controller.NewClusterResourceController())
 	mvc.New(AuthScope.Party("/templates")).HandleError(ErrorHandler).Handle(controller.NewTemplateConfigController())
+	mvc.New(AuthScope.Party("/clusters/grade")).HandleError(ErrorHandler).Handle(controller.NewGradeController())
 	WhiteScope = v1.Party("/")
 	WhiteScope.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
 	WhiteScope.Get("/captcha", generateCaptcha)
