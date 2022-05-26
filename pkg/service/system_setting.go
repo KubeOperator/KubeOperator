@@ -254,9 +254,10 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 		wg.Add(1)
 		itemDto := dto.SystemRegistry{SystemRegistry: mo}
 		go func(repo model.SystemRegistry) {
+			pass, _ := encrypt.StringDecrypt(repo.NexusPassword)
 			if err := nexus.CheckConn(
 				"admin",
-				repo.NexusPassword,
+				pass,
 				fmt.Sprintf("%s://%s:%d", repo.Protocol, repo.Hostname, repo.RepoPort),
 			); err != nil {
 				itemDto.Status = constant.StatusFailed
