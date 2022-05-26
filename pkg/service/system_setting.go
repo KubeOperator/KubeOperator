@@ -37,7 +37,6 @@ type SystemSettingService interface {
 	UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error)
 	BatchRegistry(op dto.SystemRegistryBatchOp) error
 	DeleteRegistry(id string) error
-	ChangePassword(repo dto.RepoChangePassword) error
 }
 
 type systemSettingService struct {
@@ -199,6 +198,7 @@ func (s systemSettingService) GetRegistryByID(id string) (dto.SystemRegistry, er
 	if err != nil {
 		return dto.SystemRegistry{}, err
 	}
+	pass, _ := encrypt.StringDecrypt(r.NexusPassword)
 	systemRegistryDto := dto.SystemRegistry{
 		SystemRegistry: model.SystemRegistry{
 			ID:                 r.ID,
@@ -208,7 +208,7 @@ func (s systemSettingService) GetRegistryByID(id string) (dto.SystemRegistry, er
 			RepoPort:           r.RepoPort,
 			RegistryPort:       r.RegistryPort,
 			RegistryHostedPort: r.RegistryHostedPort,
-			NexusPassword:      r.NexusPassword,
+			NexusPassword:      pass,
 		},
 	}
 	return systemRegistryDto, nil
@@ -250,11 +250,18 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 		return nil, err
 	}
 	var wg sync.WaitGroup
-	for _, mo := range mos {
+	for i := 0; i < len(mos); i++ {
 		wg.Add(1)
-		itemDto := dto.SystemRegistry{SystemRegistry: mo}
+		itemDto := dto.SystemRegistry{SystemRegistry: mos[i]}
 		go func(repo model.SystemRegistry) {
-			pass, _ := encrypt.StringDecrypt(repo.NexusPassword)
+			pass, err := encrypt.StringDecrypt(repo.NexusPassword)
+			if err != nil {
+				itemDto.Status = constant.StatusFailed
+				itemDto.Message = err.Error()
+				systemRegistryDto = append(systemRegistryDto, itemDto)
+				wg.Done()
+				return
+			}
 			if err := nexus.CheckConn(
 				"admin",
 				pass,
@@ -267,7 +274,7 @@ func (s systemSettingService) PageRegistry(num, size int, conditions condition.C
 			}
 			systemRegistryDto = append(systemRegistryDto, itemDto)
 			wg.Done()
-		}(mo)
+		}(mos[i])
 	}
 	wg.Wait()
 	p.Items = systemRegistryDto
@@ -296,6 +303,10 @@ func (s systemSettingService) CreateRegistry(creation dto.SystemRegistryCreate) 
 }
 
 func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemRegistryUpdate) (*dto.SystemRegistry, error) {
+	password, err := encrypt.StringEncrypt(creation.NexusPassword)
+	if err != nil {
+		return nil, err
+	}
 	systemRegistry := model.SystemRegistry{
 		ID:                 creation.ID,
 		Architecture:       arch,
@@ -304,7 +315,7 @@ func (s systemSettingService) UpdateRegistry(arch string, creation dto.SystemReg
 		RepoPort:           creation.RepoPort,
 		RegistryPort:       creation.RegistryPort,
 		RegistryHostedPort: creation.RegistryHostedPort,
-		NexusPassword:      creation.NexusPassword,
+		NexusPassword:      password,
 	}
 	if err := s.systemRegistryRepo.Save(&systemRegistry); err != nil {
 		return nil, err
@@ -334,37 +345,4 @@ func (s systemSettingService) DeleteRegistry(id string) error {
 		return err
 	}
 	return nil
-}
-
-func (u *systemSettingService) ChangePassword(ch dto.RepoChangePassword) error {
-	repo, err := u.GetRegistryByID(ch.ID)
-	if err != nil {
-		return err
-	}
-	success, err := validateOldPassword(repo, ch.Original)
-	if err != nil {
-		return err
-	}
-	if !success {
-		return errOriginalNotMatch
-	}
-	repo.NexusPassword, err = encrypt.StringEncrypt(ch.Password)
-	if err != nil {
-		return err
-	}
-	if err := db.DB.Model(&model.SystemRegistry{}).Where("id = ?", repo.ID).Update(map[string]interface{}{"nexus_password": repo.NexusPassword}).Error; err != nil {
-		return err
-	}
-	return err
-}
-
-func validateOldPassword(repo dto.SystemRegistry, password string) (bool, error) {
-	oldPassword, err := encrypt.StringDecrypt(repo.NexusPassword)
-	if err != nil {
-		return false, err
-	}
-	if oldPassword != password {
-		return false, err
-	}
-	return true, err
 }

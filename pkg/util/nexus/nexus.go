@@ -21,6 +21,8 @@ func CheckConn(username, password, endpoint string) error {
 	}
 	if username != "" && password != "" {
 		request.SetBasicAuth(username, password)
+	} else {
+		return errors.New("password is required")
 	}
 
 	client := &http.Client{
