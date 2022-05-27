@@ -310,6 +310,9 @@ func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.Cluster
 		return status, err
 	}
 	status.ClusterStatus = cs
+	status.ClusterStatus.Phase = node.Status
+	status.ClusterStatus.PrePhase = node.PreStatus
+	status.ClusterStatus.Message = node.Message
 	return status, nil
 }
 
