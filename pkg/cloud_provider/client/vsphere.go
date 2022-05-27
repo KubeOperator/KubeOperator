@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"github.com/vmware/govmomi/nfc"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -391,6 +392,7 @@ func (v *vSphereClient) UploadImage() error {
 
 	cisp := types.OvfCreateImportSpecParams{
 		NetworkMapping: nmap,
+		EntityName:     v.Vars["imageName"].(string),
 	}
 	ovfClient := ovf.NewManager(client)
 	spec, err := ovfClient.CreateImportSpec(ctx, string(o), resourcePool, datastore, cisp)
@@ -413,6 +415,7 @@ func (v *vSphereClient) UploadImage() error {
 	for _, i := range info.Items {
 		file, size, err := OpenRemoteFile(v.Vars["vmdkPath"].(string))
 		if err != nil {
+			_ = CancelUpload(ctx, lease, info.DynamicData)
 			return err
 		}
 		opts := soap.Upload{
@@ -421,6 +424,7 @@ func (v *vSphereClient) UploadImage() error {
 		err = lease.Upload(ctx, i, file, opts)
 		if err != nil {
 			file.Close()
+			_ = CancelUpload(ctx, lease, info.DynamicData)
 			return err
 		}
 		file.Close()
@@ -440,6 +444,15 @@ func (v *vSphereClient) UploadImage() error {
 		return err
 	}
 	return nil
+}
+
+func CancelUpload(ctx context.Context, lease *nfc.Lease, data types.DynamicData) error {
+	return lease.Abort(ctx, &types.LocalizedMethodFault{
+		DynamicData: data,
+		Fault: &types.OvfImportFailed{
+			types.OvfImport{},
+		},
+	})
 }
 
 func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {

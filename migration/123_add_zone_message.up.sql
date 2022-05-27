@@ -1,0 +1,1 @@
+ALTER TABLE ko_zone ADD COLUMN message VARCHAR(256) DEFAULT NULL COMMENT '错误信息' AFTER ip_pool_id;

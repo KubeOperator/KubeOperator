@@ -21,6 +21,7 @@ type Zone struct {
 	RegionID     string     `json:"regionID" gorm:"type:varchar(64)"`
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`
 	IpPoolID     string     `json:"ipPoolId"`
+	Message      string     `json:"message"`
 	Region       Region     `json:"-"`
 	IpPool       IpPool     `json:"-"`
 	Credential   Credential `json:"-"`

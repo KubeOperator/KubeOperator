@@ -65,8 +65,7 @@ func (l *LdapClient) Connect() error {
 	if err != nil {
 		return err
 	}
-	bindUser := l.Config.UserName + "," + l.Config.UserDn
-	err = conn.Bind(bindUser, l.Config.Password)
+	err = conn.Bind(l.Config.UserName, l.Config.Password)
 	if err != nil {
 		return err
 	}
