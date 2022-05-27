@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/vmware/govmomi/nfc"
 	"io"
 	"io/ioutil"
@@ -393,6 +392,7 @@ func (v *vSphereClient) UploadImage() error {
 
 	cisp := types.OvfCreateImportSpecParams{
 		NetworkMapping: nmap,
+		EntityName:     v.Vars["imageName"].(string),
 	}
 	ovfClient := ovf.NewManager(client)
 	spec, err := ovfClient.CreateImportSpec(ctx, string(o), resourcePool, datastore, cisp)
