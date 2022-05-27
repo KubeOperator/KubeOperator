@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/vmware/govmomi/nfc"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -407,7 +408,6 @@ func (v *vSphereClient) UploadImage() error {
 	}
 	info, err := lease.Wait(ctx, spec.FileItem)
 	if err != nil {
-		lease.Abort(ctx, &types.LocalizedMethodFault{})
 		return err
 	}
 	u := lease.StartUpdater(ctx, info)
@@ -415,7 +415,7 @@ func (v *vSphereClient) UploadImage() error {
 	for _, i := range info.Items {
 		file, size, err := OpenRemoteFile(v.Vars["vmdkPath"].(string))
 		if err != nil {
-			lease.Abort(ctx, &types.LocalizedMethodFault{})
+			_ = CancelUpload(ctx, lease, info.DynamicData)
 			return err
 		}
 		opts := soap.Upload{
@@ -424,16 +424,7 @@ func (v *vSphereClient) UploadImage() error {
 		err = lease.Upload(ctx, i, file, opts)
 		if err != nil {
 			file.Close()
-			err2 := lease.Abort(ctx, &types.LocalizedMethodFault{
-				DynamicData: info.DynamicData,
-				Fault: &types.OvfImportFailed{
-					types.OvfImport{},
-				},
-				LocalizedMessage: err.Error(),
-			})
-			if err2 != nil {
-				fmt.Println(err2.Error())
-			}
+			_ = CancelUpload(ctx, lease, info.DynamicData)
 			return err
 		}
 		file.Close()
@@ -453,6 +444,15 @@ func (v *vSphereClient) UploadImage() error {
 		return err
 	}
 	return nil
+}
+
+func CancelUpload(ctx context.Context, lease *nfc.Lease, data types.DynamicData) error {
+	return lease.Abort(ctx, &types.LocalizedMethodFault{
+		DynamicData: data,
+		Fault: &types.OvfImportFailed{
+			types.OvfImport{},
+		},
+	})
 }
 
 func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
