@@ -430,6 +430,7 @@ func (z zoneService) uploadZoneImage(creation dto.ZoneCreate) {
 	if err != nil {
 		logger.Log.Error(err)
 		zone.Status = constant.UploadImageError
+		zone.Message = err.Error()
 	} else {
 		zone.Status = constant.Ready
 	}
