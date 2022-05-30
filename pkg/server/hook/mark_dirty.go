@@ -15,10 +15,7 @@ var stableStatus = []string{constant.StatusRunning, constant.StatusFailed, const
 
 // cluster
 func recoverClusterTask() error {
-	var (
-		statusList []model.ClusterStatus
-		nodeList   []model.ClusterNode
-	)
+	var statusList []model.ClusterStatus
 
 	logger.Log.Info("Update status to failed caused by task cancel")
 	tx := db.DB.Begin()
@@ -42,20 +39,6 @@ func recoverClusterTask() error {
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
-	}
-
-	if err := db.DB.Where("status not in (?)", stableStatus).Find(&nodeList).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	for _, node := range nodeList {
-		node.PreStatus = node.Status
-		node.Status = constant.StatusFailed
-		node.Message = constant.TaskCancel
-		if err := tx.Save(&node).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
 	}
 
 	if err := tx.Model(&model.Host{}).Where("status != ? AND status != ?", constant.StatusRunning, constant.StatusFailed).Updates(map[string]interface{}{
@@ -91,7 +74,7 @@ func recoverClusterTask() error {
 	}
 
 	var nodes []model.ClusterNode
-	if err := db.DB.Where("status not in (?)", stableStatus).Find(&nodes).Error; err != nil {
+	if err := db.DB.Where("status not in (?) AND status != ''", stableStatus).Find(&nodes).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
