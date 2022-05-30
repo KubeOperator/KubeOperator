@@ -25,8 +25,8 @@ import (
 
 const (
 	oceanStor              = "10-plugin-cluster-storage-oceanstor.yml"
-	externalCephRbdStorage = "10-plugin-cluster-storage-external-ceph.yml"
-	externalCephFsStorage  = "10-plugin-cluster-storage-external-ceph-fs.yml"
+	externalCephRbdStorage = "10-plugin-cluster-storage-external-ceph-block.yml"
+	externalCephFsStorage  = "10-plugin-cluster-storage-external-ceph-cephfs.yml"
 	NfsStorage             = "10-plugin-cluster-storage-nfs.yml"
 	rookCephStorage        = "10-plugin-cluster-storage-rook-ceph.yml"
 	vsphereStorage         = "10-plugin-cluster-storage-vsphere.yml"
