@@ -211,11 +211,12 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
+
 		if err := phases.WaitForStatefulSetsRunning("kube-system", "vsphere-csi-controller", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
-	case "external-ceph-rbd":
+	case "external-ceph-block":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephRbdStorage, "", writer); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
@@ -226,11 +227,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-rbd", client); err != nil {
+		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-block", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
-	case "external-ceph-fs":
+	case "external-cephfs":
 		admCluster.Kobe.SetVar("storage_fs_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephFsStorage, "", writer); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
@@ -241,7 +242,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-fs", client); err != nil {
+		if err := phases.WaitForDeployRunning("kube-system", "external-cephfs", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}

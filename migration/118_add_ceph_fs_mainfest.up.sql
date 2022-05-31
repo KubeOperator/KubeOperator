@@ -1,5 +1,5 @@
 update ko_cluster_storage_provisioner set name = "external-ceph-block", type = "external-ceph-block" where type = "external-ceph";
-update ko_storage_provisioner_dic set name = "external-ceph-rbd" where name = "external-ceph";
+update ko_storage_provisioner_dic set name = "external-ceph-block" where name = "external-ceph";
 
 UPDATE ko_cluster_manifest SET storage_vars='[{\"name\":\"external-ceph-block\",\"version\":\"v2.1.1-k8s1.11\"}, {\"name\":\"external-cephfs\",\"version\":\"v2.1.0-k8s1.11\"}, {\"name\":\"nfs\",\"version\":\"v3.1.0-k8s1.11\"}, {\"name\":\"vsphere\",\"version\":\"v1.0.3\"}, {\"name\":\"rook-ceph\",\"version\":\"v1.9.0\"}, {\"name\":\"oceanstor\",\"version\":\"v2.2.9\"}, {\"name\":\"cinder\",\"version\":\"v1.20.0\"}]';
 
