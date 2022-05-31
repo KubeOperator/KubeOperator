@@ -483,6 +483,9 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	if err != nil {
 		return clusterInfo, err
 	}
+	if clusterInfo.Name == "" {
+		clusterInfo.Name = loadInfo.Name
+	}
 
 	// load kubeadm-config
 	kubeAdmMap, err := kubeClient.CoreV1().ConfigMaps("kube-system").Get(context.TODO(), "kubeadm-config", metav1.GetOptions{})
