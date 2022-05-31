@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	externalCephStorage = "10-plugin-cluster-storage-external-ceph.yml"
+	externalCephStorage = "10-plugin-cluster-storage-external-ceph-block.yml"
 )
 
 type ExternalCephStoragePhase struct {
@@ -20,7 +20,7 @@ func (n ExternalCephStoragePhase) Name() string {
 
 func (n ExternalCephStoragePhase) Run(b kobe.Interface, writer io.Writer) error {
 	if n.ProvisionerName != "" {
-		b.SetVar("storage_rbd_provisioner_name", n.ProvisionerName)
+		b.SetVar("storage_block_provisioner_name", n.ProvisionerName)
 	}
 	return phases.RunPlaybookAndGetResult(b, externalCephStorage, "", writer)
 }
