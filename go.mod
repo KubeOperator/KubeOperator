@@ -98,3 +98,5 @@ replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.
 replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.12
 
 replace github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.2.1
+
+replace github.com/cespare/xxhash/v2 => github.com/cespare/xxhash/v2 v2.1.2
