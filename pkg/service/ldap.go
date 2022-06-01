@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/jinzhu/gorm"
+	"reflect"
 	"strings"
 )
 
@@ -95,21 +96,34 @@ func (l ldapService) ldapSync(creation dto.SystemSettingCreate) {
 	if err != nil {
 		logger.Log.Error(err)
 	}
-	entries, err := ldapClient.Search()
+
+	attributes, err := ldapClient.Config.GetAttributes()
 	if err != nil {
 		logger.Log.Error(err)
 	}
+	mappings, err := ldapClient.Config.GetMappings()
+	if err != nil {
+		logger.Log.Error(err)
+	}
+	entries, err := ldapClient.Search(attributes)
+	if err != nil {
+		logger.Log.Error(err)
+	}
+
 	for _, entry := range entries {
 		user := new(model.User)
+		rv := reflect.ValueOf(&user).Elem().Elem()
 		for _, at := range entry.Attributes {
-			if at.Name == "cn" {
-				user.Name = strings.Trim(at.Values[0], " ")
-			}
-			if at.Name == "mail" {
-				user.Email = strings.Trim(at.Values[0], " ")
+			for k, v := range mappings {
+				if v == at.Name && len(at.Values) > 0 {
+					fv := rv.FieldByName(k)
+					if fv.IsValid() {
+						fv.Set(reflect.ValueOf(strings.Trim(at.Values[0], " ")))
+					}
+				}
 			}
 		}
-		if user.Email == "" {
+		if user.Email == "" || user.Name == "" {
 			continue
 		}
 		user.Type = constant.Ldap
