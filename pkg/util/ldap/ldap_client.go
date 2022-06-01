@@ -73,12 +73,12 @@ func (l *LdapClient) Connect() error {
 	return err
 }
 
-func (l *LdapClient) Search() ([]*ldap.Entry, error) {
+func (l *LdapClient) Search(attributes []string) ([]*ldap.Entry, error) {
 
 	searchRequest := ldap.NewSearchRequest(l.Config.UserDn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		l.Config.Filter,
-		[]string{"cn", "mail"},
+		attributes,
 		nil)
 	sr, err := l.Conn.Search(searchRequest)
 	if err != nil {
