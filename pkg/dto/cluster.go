@@ -176,6 +176,10 @@ type ClusterLoadInfo struct {
 	KubeMaxPods           int            `json:"kubeMaxPods"`
 	KubeNetworkNodePrefix int            `json:"kubeNetworkNodePrefix"`
 	Nodes                 []NodesFromK8s `json:"nodes"`
+
+	CephFsStatus    string                          `json:"cephFsStatus"`
+	CephBlockStatus string                          `json:"cephBlockStatus"`
+	NfsProvisioners []ClusterStorageProvisionerLoad `json:"nfsProvisioners"`
 }
 
 type NodesFromK8s struct {
