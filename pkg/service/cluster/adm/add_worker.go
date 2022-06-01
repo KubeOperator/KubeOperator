@@ -173,18 +173,19 @@ func (ca *ClusterAdm) EnsureAddWorkerPost(c *Cluster) error {
 func (ca *ClusterAdm) EnsureAddWorkerStorage(c *Cluster) error {
 	var provisoners []model.ClusterStorageProvisioner
 	phase := storage.AddWorkerStoragePhase{
-		AddWorker:                     true,
-		EnableNfsProvisioner:          "disable",
-		NfsVersion:                    "4",
-		EnableGfsProvisioner:          "disable",
-		EnableExternalCephProvisioner: "disable",
+		AddWorker:                          true,
+		EnableNfsProvisioner:               "disable",
+		NfsVersion:                         "v4",
+		EnableGfsProvisioner:               "disable",
+		EnableExternalCephBlockProvisioner: "disable",
+		EnableExternalCephFsProvisioner:    "disable",
 	}
 	_ = db.DB.Where("status = ?", constant.StatusRunning).Find(&provisoners).Error
 	for _, p := range provisoners {
 		switch p.Type {
 		case "nfs":
 			phase.EnableNfsProvisioner = "enable"
-			if phase.NfsVersion == "3" {
+			if phase.NfsVersion == "v3" {
 				continue
 			}
 			var vars map[string]string
@@ -197,8 +198,11 @@ func (ca *ClusterAdm) EnsureAddWorkerStorage(c *Cluster) error {
 		case "gfs":
 			phase.EnableGfsProvisioner = "enable"
 			continue
-		case "external-ceph":
-			phase.EnableExternalCephProvisioner = "enable"
+		case "external-ceph-block":
+			phase.EnableExternalCephBlockProvisioner = "enable"
+			continue
+		case "external-cephfs":
+			phase.EnableExternalCephFsProvisioner = "enable"
 			continue
 		}
 	}

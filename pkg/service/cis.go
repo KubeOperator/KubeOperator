@@ -183,7 +183,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 	return nil
 }
 
-const kubeBenchVersion = "v0.6.5"
+const kubeBenchVersion = "v0.6.8"
 
 func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
 	taskWithResult := &model.CisTaskWithResult{CisTask: *task}

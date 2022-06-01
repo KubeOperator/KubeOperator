@@ -12,11 +12,12 @@ const (
 )
 
 type AddWorkerStoragePhase struct {
-	EnableNfsProvisioner          string
-	NfsVersion                    string
-	EnableGfsProvisioner          string
-	EnableExternalCephProvisioner string
-	AddWorker                     bool
+	EnableNfsProvisioner               string
+	NfsVersion                         string
+	EnableGfsProvisioner               string
+	EnableExternalCephBlockProvisioner string
+	EnableExternalCephFsProvisioner    string
+	AddWorker                          bool
 }
 
 func (n AddWorkerStoragePhase) Name() string {
@@ -29,7 +30,8 @@ func (n AddWorkerStoragePhase) Run(b kobe.Interface, writer io.Writer) error {
 		b.SetVar("storage_nfs_server_version", n.NfsVersion)
 	}
 	b.SetVar("enable_gfs_provisioner", n.EnableGfsProvisioner)
-	b.SetVar("enable_external_ceph_provisioner", n.EnableExternalCephProvisioner)
+	b.SetVar("enable_external_ceph_block_provisioner", n.EnableExternalCephBlockProvisioner)
+	b.SetVar("enable_external_cephfs_provisioner", n.EnableExternalCephFsProvisioner)
 	var tag string
 	if n.AddWorker {
 		tag = "add_worker"
