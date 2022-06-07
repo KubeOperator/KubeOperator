@@ -63,8 +63,8 @@ func (c clusterGpuService) HandleGPU(clusterName string, operation string) (*dto
 		status = constant.StatusTerminating
 	}
 
-	cluster.Spec.SupportGpu = status
-	if err := c.clusterSpecRepo.Save(&cluster.Spec); err != nil {
+	cluster.SpecConf.SupportGpu = status
+	if err := c.clusterSpecRepo.SaveConf(&cluster.SpecConf); err != nil {
 		return nil, err
 	}
 	var gpuInfo model.ClusterGpu
@@ -96,7 +96,7 @@ func (c clusterGpuService) HandleGPU(clusterName string, operation string) (*dto
 
 func (c clusterGpuService) handleGpu(gpuInfo model.ClusterGpu, operation string, cluster model.Cluster, writer io.Writer) {
 	client := adm.NewCluster(cluster)
-	client.Kobe.SetVar(facts.SupportGpuName, operation)
+	client.Kobe.SetVar(facts.SupportGpuFactName, operation)
 	if err := phases.RunPlaybookAndGetResult(client.Kobe, gpuOperator, "", writer); err != nil {
 		c.errHandleGpu(cluster, gpuInfo, constant.StatusFailed, err)
 		return
@@ -105,13 +105,13 @@ func (c clusterGpuService) handleGpu(gpuInfo model.ClusterGpu, operation string,
 	if operation == "disable" {
 		_ = c.clusterGpuRepo.Delete(cluster.ID)
 
-		cluster.Spec.SupportGpu = constant.StatusDisabled
-		_ = c.clusterSpecRepo.Save(&cluster.Spec)
+		cluster.SpecConf.SupportGpu = constant.StatusDisabled
+		_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 		return
 	}
 
-	cluster.Spec.SupportGpu = constant.StatusWaiting
-	_ = c.clusterSpecRepo.Save(&cluster.Spec)
+	cluster.SpecConf.SupportGpu = constant.StatusWaiting
+	_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 
 	k8sClient, err := c.getBaseParam(cluster.Name)
 	if err != nil {
@@ -127,8 +127,8 @@ func (c clusterGpuService) handleGpu(gpuInfo model.ClusterGpu, operation string,
 	gpuInfo.Status = constant.StatusRunning
 	_ = c.clusterGpuRepo.Save(&gpuInfo)
 
-	cluster.Spec.SupportGpu = constant.StatusEnabled
-	_ = c.clusterSpecRepo.Save(&cluster.Spec)
+	cluster.SpecConf.SupportGpu = constant.StatusEnabled
+	_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 }
 
 func (c clusterGpuService) errHandleGpu(cluster model.Cluster, gpuInfo model.ClusterGpu, Status string, err error) {
@@ -137,8 +137,8 @@ func (c clusterGpuService) errHandleGpu(cluster model.Cluster, gpuInfo model.Clu
 	gpuInfo.Message = err.Error()
 	_ = c.clusterGpuRepo.Save(&gpuInfo)
 
-	cluster.Spec.SupportGpu = Status
-	_ = c.clusterSpecRepo.Save(&cluster.Spec)
+	cluster.SpecConf.SupportGpu = Status
+	_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 }
 
 func (c clusterGpuService) getBaseParam(clusterName string) (*kubernetes.Clientset, error) {

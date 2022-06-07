@@ -217,7 +217,7 @@ func checkKubernetesApi(c model.Cluster) dto.ClusterHealthHook {
 		Name:  CheckK8sAPI,
 		Level: StatusSuccess,
 	}
-	isOK, err := GetClusterStatusByAPI(fmt.Sprintf("%s:%d", c.Spec.LbKubeApiserverIp, c.Spec.KubeApiServerPort))
+	isOK, err := GetClusterStatusByAPI(fmt.Sprintf("%s:%d", c.SpecConf.LbKubeApiserverIp, c.SpecConf.KubeApiServerPort))
 	if !isOK {
 		result.Msg = err
 		result.Level = StatusError
@@ -272,14 +272,14 @@ func checkKubeRouter(c model.Cluster, nodes []v1.Node) dto.ClusterHealthHook {
 	for _, node := range nodes {
 		for _, addr := range node.Status.Addresses {
 			if addr.Type == "InternalIP" {
-				if addr.Address == c.Spec.KubeRouter {
+				if addr.Address == c.SpecConf.KubeRouter {
 					isExist = true
 				}
 			}
 		}
 	}
 	if !isExist {
-		result.Msg = fmt.Sprintf("The address %s of kube router is not alived in cluster", c.Spec.KubeRouter)
+		result.Msg = fmt.Sprintf("The address %s of kube router is not alived in cluster", c.SpecConf.KubeRouter)
 		result.Level = StatusError
 	}
 	return result
@@ -351,11 +351,11 @@ func (c clusterHealthService) Recover(clusterName string, ch dto.ClusterHealth) 
 func (c clusterHealthService) recoverK8sAPI(m dto.Cluster, ri *dto.ClusterRecoverItem) {
 	var endpoints []kubeUtil.Host
 	ri.Method = RecoverAPIConn
-	if m.Spec.LbMode == constant.ClusterSourceExternal || m.Cluster.Source == constant.ClusterSourceExternal {
+	if m.SpecConf.LbMode == constant.ClusterSourceExternal || m.Cluster.Source == constant.ClusterSourceExternal {
 		ri.Result = StatusSolvedManually
 		return
 	}
-	port := m.Cluster.Spec.KubeApiServerPort
+	port := m.Cluster.SpecConf.KubeApiServerPort
 	masters, err := c.clusterNodeRepo.AllMaster(m.Cluster.ID)
 	if err != nil {
 		ri.Result = StatusFailed
@@ -374,7 +374,7 @@ func (c clusterHealthService) recoverK8sAPI(m dto.Cluster, ri *dto.ClusterRecove
 	}
 	isOk, msg := GetClusterStatusByAPI(string(aliveHost))
 	if isOk {
-		if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", m.Cluster.SpecID).Updates(map[string]interface{}{"lb_kube_apiserver_ip": strings.Split(string(aliveHost), ":")[0]}).Error; err != nil {
+		if err := db.DB.Model(&model.ClusterSpecConf{}).Where("cluster_id = ?", m.Cluster.ID).Updates(map[string]interface{}{"lb_kube_apiserver_ip": strings.Split(string(aliveHost), ":")[0]}).Error; err != nil {
 			ri.Result = StatusFailed
 			ri.Msg = err.Error()
 			return
@@ -428,7 +428,7 @@ func (c clusterHealthService) recoverKubeRouter(m dto.Cluster, ri *dto.ClusterRe
 			return
 		}
 	}
-	if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", m.Cluster.SpecID).Updates(map[string]interface{}{"kube_router": kubeRouter}).Error; err != nil {
+	if err := db.DB.Model(&model.ClusterSpecConf{}).Where("cluster_id = ?", m.Cluster.ID).Updates(map[string]interface{}{"kube_router": kubeRouter}).Error; err != nil {
 		ri.Result = StatusFailed
 		ri.Msg = err.Error()
 		return

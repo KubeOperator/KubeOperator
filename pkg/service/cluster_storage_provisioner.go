@@ -131,7 +131,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		return dp, err
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return dp, errors.New("load image pull port failed")
 		}
@@ -597,7 +597,7 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, clust
 	)
 
 	// 获取版本
-	if err := db.DB.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
+	if err := db.DB.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
 		return fmt.Errorf("can't find manifest version: %s", err.Error())
 	}
 	if err := json.Unmarshal([]byte(manifest.StorageVars), &storageVars); err != nil {

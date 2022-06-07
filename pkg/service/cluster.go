@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"strings"
 	"time"
 
@@ -21,7 +20,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
@@ -37,8 +35,6 @@ type ClusterService interface {
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
-	GetSpec(name string) (dto.ClusterSpec, error)
-	GetPlan(name string) (dto.Plan, error)
 	GetApiServerEndpoint(name string) (kubernetes.Host, error)
 	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
@@ -53,7 +49,6 @@ type ClusterService interface {
 func NewClusterService() ClusterService {
 	return &clusterService{
 		clusterRepo:                repository.NewClusterRepository(),
-		clusterSpecRepo:            repository.NewClusterSpecRepository(),
 		clusterNodeRepo:            repository.NewClusterNodeRepository(),
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
@@ -71,7 +66,6 @@ func NewClusterService() ClusterService {
 
 type clusterService struct {
 	clusterRepo                repository.ClusterRepository
-	clusterSpecRepo            repository.ClusterSpecRepository
 	clusterNodeRepo            repository.ClusterNodeRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
@@ -92,12 +86,12 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	if err != nil {
 		return clusterDTO, err
 	}
-	clusterDTO.Provider = mo.Spec.Provider
+	clusterDTO.Provider = mo.Provider
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
 	clusterDTO.Status = mo.Status.Phase
 	clusterDTO.PreStatus = mo.Status.PrePhase
-	clusterDTO.Architectures = mo.Spec.Architectures
+	clusterDTO.Architectures = mo.Architectures
 	if len(mo.MultiClusterRepositories) > 0 {
 		clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
 	}
@@ -114,12 +108,12 @@ func (c clusterService) GetClusterByProject(projectNames string) ([]dto.ClusterI
 	if len(projectNames) != 0 {
 		projectList = strings.Split(projectNames, ",")
 	}
-	if err := db.DB.Where("name in (?)", projectList).Preload("Clusters").Preload("Clusters.Spec").Find(&projects).Error; err != nil {
+	if err := db.DB.Where("name in (?)", projectList).Preload("Clusters").Preload("Clusters.SpecConf").Find(&projects).Error; err != nil {
 		return nil, err
 	}
 	for _, pro := range projects {
 		for _, clu := range pro.Clusters {
-			backdatas = append(backdatas, dto.ClusterInfo{Name: clu.Name, Provider: clu.Spec.Provider})
+			backdatas = append(backdatas, dto.ClusterInfo{Name: clu.Name, Provider: clu.Provider})
 		}
 	}
 	return backdatas, nil
@@ -142,9 +136,9 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 			Cluster:       mo,
 			NodeSize:      len(mo.Nodes),
 			Status:        mo.Status.Phase,
-			Provider:      mo.Spec.Provider,
+			Provider:      mo.Provider,
 			PreStatus:     mo.Status.PrePhase,
-			Architectures: mo.Spec.Architectures,
+			Architectures: mo.Architectures,
 		}
 		if len(mo.MultiClusterRepositories) > 0 {
 			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
@@ -175,7 +169,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 	if user.IsAdmin {
 		if err := d.Count(&page.Total).Order("created_at ASC").
 			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Offset((num - 1) * size).Limit(size).Find(&clusters).Error; err != nil {
@@ -219,7 +213,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 			Limit(size).
 			Order("created_at ASC").
 			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Find(&clusters).Error; err != nil {
@@ -232,7 +226,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 		message := ""
 		if (mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
-			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.Spec.LbKubeApiserverIp, mo.Spec.KubeApiServerPort))
+			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.SpecConf.LbKubeApiserverIp, mo.SpecConf.KubeApiServerPort))
 			if !isOK {
 				status = constant.ClusterNotReady
 				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
@@ -251,9 +245,9 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 							ProjectName:   pro.Name,
 							NodeSize:      len(mo.Nodes),
 							Status:        status,
-							Provider:      mo.Spec.Provider,
+							Provider:      mo.Provider,
 							PreStatus:     mo.Status.PrePhase,
-							Architectures: mo.Spec.Architectures,
+							Architectures: mo.Architectures,
 							Message:       message,
 						}
 						if len(mo.MultiClusterRepositories) > 0 {
@@ -316,114 +310,23 @@ func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.Cluster
 	return status, nil
 }
 
-func (c clusterService) GetSpec(name string) (dto.ClusterSpec, error) {
-	var spec dto.ClusterSpec
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return spec, err
-	}
-	cs, err := c.clusterSpecRepo.Get(cluster.SpecID)
-	if err != nil {
-		return spec, err
-	}
-	spec.ClusterSpec = cs
-	return spec, nil
-}
-
-func (c clusterService) GetPlan(name string) (dto.Plan, error) {
-	var plan dto.Plan
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return plan, err
-	}
-	p, err := c.planRepo.GetById(cluster.PlanID)
-	if err != nil {
-		return plan, err
-	}
-	plan.Plan = p
-	return plan, nil
-}
-
-var maxNodePodNumMap = map[int]int{
-	24: 110,
-	25: 64,
-	26: 32,
-	27: 16,
-}
-
 func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
 	loginfo, _ := json.Marshal(creation)
 	logger.Log.WithFields(logrus.Fields{"cluster_creation": string(loginfo)}).Debugf("start to create the cluster %s", creation.Name)
 
-	cluster := model.Cluster{
-		Name:         creation.Name,
-		NodeNameRule: creation.NodeNameRule,
-		Source:       constant.ClusterSourceLocal,
-	}
-	spec := model.ClusterSpec{
-		RuntimeType:              creation.RuntimeType,
-		DockerStorageDir:         creation.DockerStorageDIr,
-		ContainerdStorageDir:     creation.ContainerdStorageDIr,
-		NetworkType:              creation.NetworkType,
-		CiliumVersion:            creation.CiliumVersion,
-		CiliumTunnelMode:         creation.CiliumTunnelMode,
-		CiliumNativeRoutingCidr:  creation.CiliumNativeRoutingCidr,
-		Version:                  creation.Version,
-		Provider:                 creation.Provider,
-		FlannelBackend:           creation.FlannelBackend,
-		CalicoIpv4poolIpip:       creation.CalicoIpv4poolIpip,
-		KubeProxyMode:            creation.KubeProxyMode,
-		NodeportAddress:          creation.NodeportAddress,
-		KubeServiceNodePortRange: creation.KubeServiceNodePortRange,
-		EnableDnsCache:           creation.EnableDnsCache,
-		DnsCacheVersion:          creation.DnsCacheVersion,
-		IngressControllerType:    creation.IngressControllerType,
-		Architectures:            creation.Architectures,
-		KubeDnsDomain:            creation.KubeDnsDomain,
-		KubernetesAudit:          creation.KubernetesAudit,
-		DockerSubnet:             creation.DockerSubnet,
-		HelmVersion:              creation.HelmVersion,
-		NetworkInterface:         creation.NetworkInterface,
-		NetworkCidr:              creation.NetworkCidr,
-		SupportGpu:               creation.SupportGpu,
-		YumOperate:               creation.YumOperate,
-		LbMode:                   creation.LbMode,
-		LbKubeApiserverIp:        creation.LbKubeApiserverIp,
-		KubeApiServerPort:        creation.KubeApiServerPort,
-		KubePodSubnet:            creation.KubePodSubnet,
-		KubeServiceSubnet:        creation.KubeServiceSubnet,
-		MaxNodeNum:               creation.MaxNodeNum,
-		MasterScheduleType:       creation.MasterScheduleType,
-	}
+	cluster := creation.ClusterCreateDto2Mo()
 
-	nodeMask, err := getNodeCIDRMaskSize(creation.MaxNodePodNum)
-	if err != nil {
-		return nil, err
-	}
-
-	spec.KubeMaxPods = maxNodePodNumMap[nodeMask]
-	spec.KubeNetworkNodePrefix = nodeMask
-
-	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
-	secret := model.ClusterSecret{
-		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
-	}
 	tx := db.DB.Begin()
-	if err := tx.Create(&spec).Error; err != nil {
+	if err := tx.Create(&cluster.Status).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Create(&status).Error; err != nil {
+	if err := tx.Create(&cluster.Secret).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Create(&secret).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.SpecID = spec.ID
-	cluster.StatusID = status.ID
-	cluster.SecretID = secret.ID
+	cluster.StatusID = cluster.Status.ID
+	cluster.SecretID = cluster.Secret.ID
 	var project model.Project
 	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
 		tx.Rollback()
@@ -434,7 +337,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 		return nil, err
 	}
-
+	cluster.SpecConf.ClusterID = cluster.ID
 	if creation.SupportGpu == constant.StatusEnabled {
 		gpuInfo := &model.ClusterGpu{
 			ClusterID: cluster.ID,
@@ -446,9 +349,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		}
 	}
 
-	switch spec.Provider {
+	switch cluster.Provider {
 	case constant.ClusterProviderPlan:
-		spec.WorkerAmount = creation.WorkerAmount
+		cluster.SpecConf.WorkerAmount = creation.WorkerAmount
 		var plan model.Plan
 		if err := tx.Where("name = ?", creation.Plan).First(&plan).Error; err != nil {
 			tx.Rollback()
@@ -524,12 +427,21 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			n.Host = host
 			cluster.Nodes = append(cluster.Nodes, n)
 		}
-		if cluster.Spec.LbMode == constant.LbModeInternal {
-			cluster.Spec.LbKubeApiserverIp = firstMasterIP
+		if cluster.SpecConf.LbMode == constant.LbModeInternal {
+			cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
 		}
-		spec.KubeRouter = firstMasterIP
+		cluster.SpecConf.KubeRouter = firstMasterIP
 	}
-	if err := tx.Save(&spec).Error; err != nil {
+
+	if err := tx.Save(&cluster.SpecConf).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Save(&cluster.SpecRelyOn).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Save(&cluster.SpecNetwork).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -548,7 +460,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		manifest model.ClusterManifest
 		toolVars []model.VersionHelp
 	)
-	if err := tx.Where("name = ?", spec.Version).First(&manifest).Error; err != nil {
+	if err := tx.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("can find manifest version: %s", err.Error())
 	}
@@ -571,7 +483,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		}
 	}
 
-	if spec.Architectures == "amd64" {
+	if cluster.Architectures == "amd64" {
 		for _, istio := range cluster.PrepareIstios() {
 			istio.ClusterID = cluster.ID
 			err := tx.Create(&istio).Error
@@ -587,13 +499,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	if err := c.clusterInitService.Init(cluster.Name); err != nil {
 		return nil, err
 	}
-	return &dto.Cluster{Cluster: cluster}, nil
-}
-
-func getNodeCIDRMaskSize(maxNodePodNum int) (int, error) {
-	nodeCidrOccupy := math.Ceil(math.Log2(float64(maxNodePodNum)))
-	nodeCIDRMaskSize := 32 - int(nodeCidrOccupy)
-	return nodeCIDRMaskSize, nil
+	return &dto.Cluster{Cluster: *cluster}, nil
 }
 
 func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
@@ -610,7 +516,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 			cluster.Source = constant.ClusterSourceLocal
 		} else {
 			cluster.Source = constant.ClusterSourceExternal
-			if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update("provider", constant.ClusterProviderPlan).Error; err != nil {
+			if err := db.DB.Model(&model.Cluster{}).Where("id = ?", cluster.ID).Update("provider", constant.ClusterProviderPlan).Error; err != nil {
 				return err
 			}
 		}
@@ -632,7 +538,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
-			switch cluster.Spec.Provider {
+			switch cluster.Provider {
 			case constant.ClusterProviderBareMetal:
 				go c.uninstallCluster(&cluster.Cluster, force)
 			case constant.ClusterProviderPlan:
@@ -746,9 +652,9 @@ func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, erro
 	if err != nil {
 		return "", err
 	}
-	port := cluster.Spec.KubeApiServerPort
-	if cluster.Spec.LbKubeApiserverIp != "" {
-		result = kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port))
+	port := cluster.SpecConf.KubeApiServerPort
+	if cluster.SpecConf.LbKubeApiserverIp != "" {
+		result = kubernetes.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 		return result, nil
 	}
 	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
@@ -765,9 +671,9 @@ func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, e
 	if err != nil {
 		return nil, err
 	}
-	port := cluster.Spec.KubeApiServerPort
-	if cluster.Spec.LbKubeApiserverIp != "" {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port)))
+	port := cluster.SpecConf.KubeApiServerPort
+	if cluster.SpecConf.LbKubeApiserverIp != "" {
+		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port)))
 		return result, nil
 	}
 	masters, err := c.clusterNodeRepo.AllMaster(cluster.ID)
@@ -786,7 +692,7 @@ func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
 	if err != nil {
 		return endpoint, err
 	}
-	endpoint.Address = cluster.Spec.KubeRouter
+	endpoint.Address = cluster.SpecConf.KubeRouter
 	return endpoint, nil
 }
 
@@ -834,7 +740,7 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	}
 	configStr := string(bf)
 
-	lbAddr := fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort)
+	lbAddr := fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort)
 	newStr := strings.ReplaceAll(configStr, "127.0.0.1:8443", lbAddr)
 
 	return newStr, nil

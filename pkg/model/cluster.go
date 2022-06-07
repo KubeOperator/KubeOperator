@@ -15,19 +15,26 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID                       string                   `json:"-"`
-	Name                     string                   `json:"name" gorm:"not null;unique"`
-	NodeNameRule             string                   `json:"nodeNameRule"`
-	Source                   string                   `json:"source"`
-	SpecID                   string                   `json:"-"`
-	SecretID                 string                   `json:"-"`
-	StatusID                 string                   `json:"-"`
-	PlanID                   string                   `json:"-"`
-	LogId                    string                   `json:"logId"`
-	ProjectID                string                   `json:"projectID"`
-	Dirty                    bool                     `json:"dirty"`
-	Plan                     Plan                     `json:"-"`
-	Spec                     ClusterSpec              `gorm:"save_associations:false" json:"spec"`
+	ID             string `json:"-"`
+	Name           string `json:"name" gorm:"not null;unique"`
+	NodeNameRule   string `json:"nodeNameRule"`
+	Source         string `json:"source"`
+	Version        string `json:"version"`
+	UpgradeVersion string `json:"upgradeVersion"`
+	Provider       string `json:"provider"`
+	Architectures  string `json:"architectures"`
+
+	SecretID  string `json:"-"`
+	StatusID  string `json:"-"`
+	PlanID    string `json:"-"`
+	LogId     string `json:"logId"`
+	ProjectID string `json:"projectID"`
+	Dirty     bool   `json:"dirty"`
+	Plan      Plan   `json:"-"`
+
+	SpecConf                 ClusterSpecConf          `gorm:"save_associations:false" json:"-"`
+	SpecRelyOn               ClusterSpecRelyOn        `gorm:"save_associations:false" json:"-"`
+	SpecNetwork              ClusterSpecNetwork       `gorm:"save_associations:false" json:"-"`
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
 	Status                   ClusterStatus            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
@@ -47,7 +54,9 @@ func (c Cluster) BeforeDelete() error {
 	tx := db.DB.Begin()
 	if err := tx.
 		Preload("Status").
-		Preload("Spec").
+		Preload("SpecConf").
+		Preload("SpecRelyOn").
+		Preload("SpecNetwork").
 		Preload("Nodes").
 		Preload("Nodes.Host").
 		Preload("Tools").
@@ -56,15 +65,21 @@ func (c Cluster) BeforeDelete() error {
 		First(&cluster).Error; err != nil {
 		return err
 	}
-	if cluster.SpecID != "" {
-		if err := tx.Delete(&ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-		if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterGpu{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecConf{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecRelyOn{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecNetwork{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterGpu{}).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 	if cluster.StatusID != "" {
 		if err := tx.Delete(&ClusterStatus{ID: cluster.StatusID}).Error; err != nil {
@@ -95,7 +110,7 @@ func (c Cluster) BeforeDelete() error {
 		hostIDList = append(hostIDList, node.HostID)
 		hostIPList = append(hostIPList, node.Host.Ip)
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+	if cluster.Provider == constant.ClusterProviderPlan {
 		if len(hostIDList) > 0 {
 			if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDList, constant.ResourceHost).
 				Delete(&ProjectResource{}).Error; err != nil {
@@ -356,9 +371,9 @@ func (c Cluster) PrepareTools() []ClusterTool {
 
 func (c Cluster) GetKobeVars() map[string]string {
 	result := map[string]string{}
-	if c.Spec.Version != "" {
-		index := strings.Index(c.Spec.Version, "-")
-		result[facts.KubeVersionFactName] = c.Spec.Version[:index]
+	if c.Version != "" {
+		index := strings.Index(c.Version, "-")
+		result[facts.KubeVersionFactName] = c.Version[:index]
 	}
 	if c.NodeNameRule != "" {
 		if c.NodeNameRule == constant.NodeNameRuleIP {
@@ -367,99 +382,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 			result[facts.NodeNameRuleFactName] = constant.NodeNameRuleHostName
 		}
 	}
-	if c.Spec.NetworkType != "" {
-		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
-	}
-	if c.Spec.CiliumNativeRoutingCidr != "" {
-		result[facts.CiliumNativeRoutingCidrFactName] = c.Spec.CiliumNativeRoutingCidr
-	}
-	if c.Spec.CiliumTunnelMode != "" {
-		result[facts.CiliumTunnelModeFactName] = c.Spec.CiliumTunnelMode
-	}
-	if c.Spec.CiliumVersion != "" {
-		result[facts.CiliumVersionFactName] = c.Spec.CiliumVersion
-	}
-	if c.Spec.EnableDnsCache != "" {
-		result[facts.EnableDnsCacheFactName] = c.Spec.EnableDnsCache
-	}
-	if c.Spec.MasterScheduleType != "" {
-		result[facts.MasterScheduleTypeFactName] = c.Spec.MasterScheduleType
-	}
-	if c.Spec.DnsCacheVersion != "" {
-		result[facts.DnsCacheVersionFactName] = c.Spec.DnsCacheVersion
-	}
-	if c.Spec.FlannelBackend != "" {
-		result[facts.FlannelBackendFactName] = c.Spec.FlannelBackend
-	}
-	if c.Spec.CalicoIpv4poolIpip != "" {
-		result[facts.CalicoIpv4poolIpIpFactName] = c.Spec.CalicoIpv4poolIpip
-	}
-	if c.Spec.RuntimeType != "" {
-		result[facts.ContainerRuntimeFactName] = c.Spec.RuntimeType
-	}
-	if c.Spec.DockerStorageDir != "" {
-		result[facts.DockerStorageDirFactName] = c.Spec.DockerStorageDir
-	}
-	if c.Spec.ContainerdStorageDir != "" {
-		result[facts.ContainerdStorageDirFactName] = c.Spec.ContainerdStorageDir
-	}
-	if c.Spec.LbMode != "" {
-		result[facts.LbModeFactName] = c.Spec.LbMode
-	}
-	if c.Spec.LbKubeApiserverIp != "" {
-		result[facts.LbKubeApiserverIpFactName] = c.Spec.LbKubeApiserverIp
-	}
-	if c.Spec.KubeApiServerPort != 0 {
-		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.Spec.KubeApiServerPort)
-	}
-	if c.Spec.KubePodSubnet != "" {
-		result[facts.KubePodSubnetFactName] = c.Spec.KubePodSubnet
-	}
-	if c.Spec.KubeServiceSubnet != "" {
-		result[facts.KubeServiceSubnetFactName] = c.Spec.KubeServiceSubnet
-	}
-	if c.Spec.KubeMaxPods != 0 {
-		result[facts.KubeMaxPodsFactName] = strconv.Itoa(c.Spec.KubeMaxPods)
-	}
-	if c.Spec.KubeProxyMode != "" {
-		result[facts.KubeProxyModeFactName] = c.Spec.KubeProxyMode
-	}
-	if c.Spec.NodeportAddress != "" {
-		result[facts.NodeportAddressFactName] = c.Spec.NodeportAddress
-	}
-	if c.Spec.KubeServiceNodePortRange != "" {
-		result[facts.KubeServiceNodePortRangeFactName] = c.Spec.KubeServiceNodePortRange
-	}
-	if c.Spec.IngressControllerType != "" {
-		result[facts.IngressControllerTypeFactName] = c.Spec.IngressControllerType
-	}
-	if c.Spec.KubernetesAudit != "" {
-		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
-	}
-	if c.Spec.KubeDnsDomain != "" {
-		result[facts.KubeDnsDomainFactName] = c.Spec.KubeDnsDomain
-	}
-	if c.Spec.DockerSubnet != "" {
-		result[facts.DockerSubnetFactName] = c.Spec.DockerSubnet
-	}
-	if c.Spec.HelmVersion != "" {
-		result[facts.HelmVersionFactName] = c.Spec.HelmVersion
-	}
-	if c.Spec.NetworkInterface != "" {
-		result[facts.NetworkInterfaceFactName] = c.Spec.NetworkInterface
-	}
-	if c.Spec.NetworkCidr != "" {
-		result[facts.NetworkCidrFactName] = c.Spec.NetworkCidr
-	}
-	if c.Spec.SupportGpu != "" {
-		result[facts.SupportGpuName] = c.Spec.SupportGpu
-	}
-	if c.Spec.YumOperate != "" {
-		result[facts.YumRepoFactName] = c.Spec.YumOperate
-	}
-	if c.Spec.KubeNetworkNodePrefix != 0 {
-		result[facts.KubeNetworkNodePrefixFactName] = fmt.Sprint(c.Spec.KubeNetworkNodePrefix)
-	}
+	c.loadRelyonVars(result)
+	c.loadConfVars(result)
+	c.loadNetworkVars(result)
 
 	return result
 }
@@ -483,7 +408,7 @@ func (c Cluster) ParseInventory() *api.Inventory {
 				workers = append(workers, node.Name)
 			}
 		}
-		if c.Spec.LbMode == "external" {
+		if c.SpecConf.LbMode == "external" {
 			if node.Role == constant.NodeRoleNameMaster {
 				lbhosts = append(lbhosts, node.Name)
 			}
@@ -544,5 +469,105 @@ func (c Cluster) ParseInventory() *api.Inventory {
 				Vars:     map[string]string{},
 			},
 		},
+	}
+}
+
+func (c Cluster) loadNetworkVars(result map[string]string) {
+	if c.SpecNetwork.NetworkType != "" {
+		result[facts.NetworkPluginFactName] = c.SpecNetwork.NetworkType
+	}
+	if c.SpecNetwork.CiliumNativeRoutingCidr != "" {
+		result[facts.CiliumNativeRoutingCidrFactName] = c.SpecNetwork.CiliumNativeRoutingCidr
+	}
+	if c.SpecNetwork.CiliumTunnelMode != "" {
+		result[facts.CiliumTunnelModeFactName] = c.SpecNetwork.CiliumTunnelMode
+	}
+	if c.SpecNetwork.CiliumVersion != "" {
+		result[facts.CiliumVersionFactName] = c.SpecNetwork.CiliumVersion
+	}
+	if c.SpecNetwork.FlannelBackend != "" {
+		result[facts.FlannelBackendFactName] = c.SpecNetwork.FlannelBackend
+	}
+	if c.SpecNetwork.CalicoIpv4poolIpip != "" {
+		result[facts.CalicoIpv4poolIpIpFactName] = c.SpecNetwork.CalicoIpv4poolIpip
+	}
+}
+
+func (c Cluster) loadRelyonVars(result map[string]string) {
+	if c.SpecRelyOn.RuntimeType != "" {
+		result[facts.ContainerRuntimeFactName] = c.SpecRelyOn.RuntimeType
+	}
+	if c.SpecRelyOn.DockerStorageDir != "" {
+		result[facts.DockerStorageDirFactName] = c.SpecRelyOn.DockerStorageDir
+	}
+	if c.SpecRelyOn.ContainerdStorageDir != "" {
+		result[facts.ContainerdStorageDirFactName] = c.SpecRelyOn.ContainerdStorageDir
+	}
+	if c.SpecRelyOn.DockerSubnet != "" {
+		result[facts.DockerSubnetFactName] = c.SpecRelyOn.DockerSubnet
+	}
+	if c.SpecRelyOn.HelmVersion != "" {
+		result[facts.HelmVersionFactName] = c.SpecRelyOn.HelmVersion
+	}
+	if c.SpecRelyOn.IngressControllerType != "" {
+		result[facts.IngressControllerTypeFactName] = c.SpecRelyOn.IngressControllerType
+	}
+}
+
+func (c Cluster) loadConfVars(result map[string]string) {
+	if c.SpecConf.YumOperate != "" {
+		result[facts.YumRepoFactName] = c.SpecConf.YumOperate
+	}
+
+	if c.SpecConf.KubeMaxPods != 0 {
+		result[facts.KubeMaxPodsFactName] = strconv.Itoa(c.SpecConf.KubeMaxPods)
+	}
+	if c.SpecConf.KubeNetworkNodePrefix != 0 {
+		result[facts.KubeNetworkNodePrefixFactName] = fmt.Sprint(c.SpecConf.KubeNetworkNodePrefix)
+	}
+	if c.SpecConf.KubePodSubnet != "" {
+		result[facts.KubePodSubnetFactName] = c.SpecConf.KubePodSubnet
+	}
+	if c.SpecConf.KubeServiceSubnet != "" {
+		result[facts.KubeServiceSubnetFactName] = c.SpecConf.KubeServiceSubnet
+	}
+	if c.SpecConf.KubernetesAudit != "" {
+		result[facts.KubernetesAuditFactName] = c.SpecConf.KubernetesAudit
+	}
+	if c.SpecConf.NodeportAddress != "" {
+		result[facts.NodeportAddressFactName] = c.SpecConf.NodeportAddress
+	}
+	if c.SpecConf.KubeServiceNodePortRange != "" {
+		result[facts.KubeServiceNodePortRangeFactName] = c.SpecConf.KubeServiceNodePortRange
+	}
+
+	if c.SpecConf.KubeProxyMode != "" {
+		result[facts.KubeProxyModeFactName] = c.SpecConf.KubeProxyMode
+	}
+	if c.SpecConf.KubeDnsDomain != "" {
+		result[facts.KubeDnsDomainFactName] = c.SpecConf.KubeDnsDomain
+	}
+	if c.SpecConf.EnableDnsCache != "" {
+		result[facts.EnableDnsCacheFactName] = c.SpecConf.EnableDnsCache
+	}
+	if c.SpecConf.DnsCacheVersion != "" {
+		result[facts.DnsCacheVersionFactName] = c.SpecConf.DnsCacheVersion
+	}
+
+	if c.SpecConf.MasterScheduleType != "" {
+		result[facts.MasterScheduleTypeFactName] = c.SpecConf.MasterScheduleType
+	}
+	if c.SpecConf.LbMode != "" {
+		result[facts.LbModeFactName] = c.SpecConf.LbMode
+	}
+	if c.SpecConf.LbKubeApiserverIp != "" {
+		result[facts.LbKubeApiserverIpFactName] = c.SpecConf.LbKubeApiserverIp
+	}
+	if c.SpecConf.KubeApiServerPort != 0 {
+		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.SpecConf.KubeApiServerPort)
+	}
+
+	if c.SpecConf.SupportGpu != "" {
+		result[facts.SupportGpuFactName] = c.SpecConf.SupportGpu
 	}
 }

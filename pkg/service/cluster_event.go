@@ -141,7 +141,7 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 		return false, err
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return false, errors.New("load image pull port failed")
 		}

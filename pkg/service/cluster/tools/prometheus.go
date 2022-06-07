@@ -67,7 +67,7 @@ func (p Prometheus) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultPrometheusIngress,
 		service: constant.DefaultPrometheusServiceName,
 		port:    80,
-		version: p.Cluster.Spec.Version,
+		version: p.Cluster.Version,
 	}
 	if err := createRoute(p.Cluster.Namespace, ingressItem, p.Cluster.KubeClient); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (p Prometheus) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (p Prometheus) Uninstall() error {
-	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.Spec.Version, p.Cluster.HelmClient, p.Cluster.KubeClient)
+	return uninstall(p.Cluster.Namespace, p.Tool, constant.DefaultPrometheusIngressName, p.Cluster.Version, p.Cluster.HelmClient, p.Cluster.KubeClient)
 }
 
 // 11.12.1

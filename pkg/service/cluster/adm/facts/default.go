@@ -65,7 +65,7 @@ const (
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
 	NetworkCidrFactName                  = "network_cidr"
-	SupportGpuName                       = "support_gpu"
+	SupportGpuFactName                   = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
 	NtpServerName                        = "ntp_server"
 	MasterScheduleTypeFactName           = "master_schedule_type"
@@ -132,7 +132,7 @@ var DefaultFacts = map[string]string{
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
 	NetworkCidrFactName:                  "",
-	SupportGpuName:                       "disable",
+	SupportGpuFactName:                   "disable",
 	YumRepoFactName:                      "replace",
 	NtpServerName:                        "ntp1.aliyun.com",
 	MasterScheduleTypeFactName:           "enable",

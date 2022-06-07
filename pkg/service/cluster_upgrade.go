@@ -90,8 +90,8 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster error %s", err.Error())
 	}
-	cluster.Spec.UpgradeVersion = upgrade.Version
-	if err := tx.Save(&cluster.Spec).Error; err != nil {
+	cluster.UpgradeVersion = upgrade.Version
+	if err := tx.Save(&cluster).Error; err != nil {
 		tx.Rollback()
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster spec error %s", err.Error())
@@ -127,8 +127,8 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 		switch cluster.Status.Phase {
 		case constant.StatusRunning:
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
-			cluster.Spec.Version = cluster.Spec.UpgradeVersion
-			db.DB.Save(&cluster.Spec)
+			cluster.Version = cluster.UpgradeVersion
+			db.DB.Save(&cluster)
 			cancel()
 			return
 		case constant.StatusFailed:

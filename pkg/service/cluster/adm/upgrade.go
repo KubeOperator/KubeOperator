@@ -113,12 +113,12 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{
 		Upgrade: true,
 	}
-	oldManiFest, _ := GetManiFestBy(c.Spec.Version)
-	newManiFest, _ := GetManiFestBy(c.Spec.UpgradeVersion)
+	oldManiFest, _ := GetManiFestBy(c.Version)
+	newManiFest, _ := GetManiFestBy(c.UpgradeVersion)
 	oldVars := oldManiFest.GetVars()
 	newVars := newManiFest.GetVars()
 	var runtimeVersionKey = "runtime_version"
-	switch c.Spec.RuntimeType {
+	switch c.SpecRelyOn.RuntimeType {
 	case "docker":
 		runtimeVersionKey = strings.Replace(runtimeVersionKey, "runtime", "docker", -1)
 	case "containerd":
@@ -141,8 +141,8 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 	phase := initial.EtcdPhase{
 		Upgrade: true,
 	}
-	oldManiFest, _ := GetManiFestBy(c.Spec.Version)
-	newManiFest, _ := GetManiFestBy(c.Spec.UpgradeVersion)
+	oldManiFest, _ := GetManiFestBy(c.Version)
+	newManiFest, _ := GetManiFestBy(c.UpgradeVersion)
 	oldVars := oldManiFest.GetVars()
 	newVars := newManiFest.GetVars()
 	var etcdVersionKey = "etcd_version"
@@ -159,9 +159,9 @@ func (ca *ClusterAdm) EnsureUpgradeETCD(c *Cluster) error {
 }
 func (ca *ClusterAdm) EnsureUpgradeKubernetes(c *Cluster) error {
 	time.Sleep(5 * time.Second)
-	index := strings.Index(c.Spec.UpgradeVersion, "-")
+	index := strings.Index(c.UpgradeVersion, "-")
 	phase := upgrade.UpgradeClusterPhase{
-		Version: c.Spec.UpgradeVersion[:index],
+		Version: c.UpgradeVersion[:index],
 	}
 	return phase.Run(c.Kobe, c.Writer)
 

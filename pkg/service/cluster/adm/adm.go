@@ -88,7 +88,7 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	ntpServerRepo := repository.NewNtpServerRepository()
 	ntps, _ := ntpServerRepo.GetAddressStr()
 	c.Kobe.SetVar(facts.NtpServerName, ntps)
-	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
+	maniFest, _ := GetManiFestBy(c.Cluster.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for k, v := range vars {

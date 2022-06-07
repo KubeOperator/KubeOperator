@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/util/polaris"
@@ -33,8 +34,8 @@ func (g gradeService) GetGrade(clusterName string) (*dto.ClusterGrade, error) {
 
 	if cluster.Status == constant.ClusterRunning {
 		result, err := polaris.RunGrade(&polaris.Config{
-			Host:  cluster.Spec.LbKubeApiserverIp,
-			Port:  cluster.Spec.KubeApiServerPort,
+			Host:  cluster.SpecConf.LbKubeApiserverIp,
+			Port:  cluster.SpecConf.KubeApiServerPort,
 			Token: secret.KubernetesToken,
 		})
 		if err != nil {

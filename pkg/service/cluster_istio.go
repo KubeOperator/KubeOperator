@@ -163,7 +163,7 @@ func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, []k
 		secret    dto.ClusterSecret
 		err       error
 	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Find(&cluster).Error; err != nil {
 		return cluster, endpoints, secret, err
 	}
 
@@ -244,10 +244,10 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetesUtil.Host, se
 		BearerToken:   secret.KubernetesToken,
 		OldNamespace:  namespace,
 		Namespace:     namespace,
-		Architectures: cluster.Spec.Architectures,
+		Architectures: cluster.Architectures,
 	})
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return p, errors.New("load image pull port failed")
 		}

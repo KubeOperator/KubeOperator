@@ -206,7 +206,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		return result, err
 	}
 	arch := ""
-	if clusterModel.Spec.Architectures == "amd64" {
+	if clusterModel.Architectures == "amd64" {
 		arch = "x86_64"
 	} else {
 		arch = "aarch64"

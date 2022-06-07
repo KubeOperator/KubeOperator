@@ -62,7 +62,7 @@ func (c Chartmuseum) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultChartmuseumIngress,
 		service: constant.DefaultChartmuseumServiceName,
 		port:    8080,
-		version: c.Cluster.Spec.Version,
+		version: c.Cluster.Version,
 	}
 	if err := createRoute(c.Cluster.Namespace, ingressItem, c.Cluster.KubeClient); err != nil {
 		return err
@@ -79,5 +79,5 @@ func (c Chartmuseum) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (c Chartmuseum) Uninstall() error {
-	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.Spec.Version, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.Version, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }

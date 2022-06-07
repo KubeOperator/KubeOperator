@@ -50,7 +50,7 @@ func (c clusterIaasService) Init(name string) error {
 	if err != nil {
 		return err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderBareMetal || len(cluster.Nodes) > 0 {
+	if cluster.Provider == constant.ClusterProviderBareMetal || len(cluster.Nodes) > 0 {
 		return nil
 	}
 	plan, err := c.planRepo.GetById(cluster.PlanID)
@@ -174,7 +174,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		}
 		hosts = append(hosts, &host)
 	}
-	for i := 0; i < cluster.Spec.WorkerAmount; i++ {
+	for i := 0; i < cluster.SpecConf.WorkerAmount; i++ {
 		host := model.Host{
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i+1),

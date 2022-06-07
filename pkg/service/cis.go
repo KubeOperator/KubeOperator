@@ -59,7 +59,7 @@ func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
 	}
 	d := &dto.CisTaskDetail{CisTaskWithResult: cisTask, CisReport: report}
 	d.ClusterName = cls.Name
-	d.ClusterVersion = cls.Spec.Version
+	d.ClusterVersion = cls.Version
 	return d, nil
 }
 
@@ -120,7 +120,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return nil, errors.New("load image pull port of arm failed")
 		}

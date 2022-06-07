@@ -123,11 +123,11 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 				cluster.Nodes[i].Status = constant.ClusterRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}
-			cluster.Spec.KubeRouter = firstMasterIP
-			if cluster.Spec.LbMode == constant.LbModeInternal {
-				cluster.Spec.LbKubeApiserverIp = firstMasterIP
+			cluster.SpecConf.KubeRouter = firstMasterIP
+			if cluster.SpecConf.LbMode == constant.LbModeInternal {
+				cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
 			}
-			_ = c.clusterSpecRepo.Save(&cluster.Spec)
+			_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 			cancel()
 			err := c.GatherKubernetesToken(cluster.Cluster)
 			if err != nil {

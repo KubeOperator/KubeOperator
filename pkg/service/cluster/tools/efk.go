@@ -62,7 +62,7 @@ func (e EFK) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultLoggingIngress,
 		service: constant.DefaultLoggingServiceName,
 		port:    9200,
-		version: e.Cluster.Spec.Version,
+		version: e.Cluster.Version,
 	}
 	if err := createRoute(e.Cluster.Namespace, ingressItem, e.Cluster.KubeClient); err != nil {
 		return err
@@ -79,5 +79,5 @@ func (e EFK) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (e EFK) Uninstall() error {
-	return uninstall(e.Cluster.Namespace, e.Tool, constant.DefaultLoggingIngressName, e.Cluster.Spec.Version, e.Cluster.HelmClient, e.Cluster.KubeClient)
+	return uninstall(e.Cluster.Namespace, e.Tool, constant.DefaultLoggingIngressName, e.Cluster.Version, e.Cluster.HelmClient, e.Cluster.KubeClient)
 }

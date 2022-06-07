@@ -55,7 +55,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace
 		Cluster: cluster,
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return nil, errors.New("load image pull port failed")
 		}
@@ -71,7 +71,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace
 		BearerToken:   cluster.Secret.KubernetesToken,
 		OldNamespace:  oldNamespace,
 		Namespace:     namespace,
-		Architectures: cluster.Spec.Architectures,
+		Architectures: cluster.Architectures,
 	})
 	if err != nil {
 		return nil, err

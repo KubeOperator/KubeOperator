@@ -227,7 +227,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 	}
 
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+	if cluster.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
 		if err := db.DB.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
 			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
@@ -342,7 +342,7 @@ func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, currentNodes [
 
 func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []model.ClusterNode, item dto.NodeBatch) error {
 	if item.SupportGpu == "enable" {
-		if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update(map[string]interface{}{"SupportGpu": "enable"}).Error; err != nil {
+		if err := db.DB.Model(&model.ClusterSpecRelyOn{}).Where("cluster_id = ?", cluster.ID).Update(map[string]interface{}{"SupportGpu": "enable"}).Error; err != nil {
 			return err
 		}
 		if err := c.gpuService.Add(cluster.ID); err != nil {
@@ -356,7 +356,7 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 	hostNames = append(hostNames, item.Hosts...)
 
 	logger.Log.Info("start create cluster nodes")
-	switch cluster.Spec.Provider {
+	switch cluster.Provider {
 	case constant.ClusterProviderBareMetal:
 		var hosts []model.Host
 		if err := db.DB.Where("name in (?)", hostNames).
@@ -402,7 +402,7 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 		newHostIDs = append(newHostIDs, n.Host.ID)
 	}
 
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+	if cluster.Provider == constant.ClusterProviderPlan {
 		logger.Log.Info("cluster-plan start add hosts, update hosts status and infos")
 		if err := c.updataHostInfo(cluster, newNodeIDs, newHostIDs); err != nil {
 			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusFailed, constant.StatusCreating, newNodeIDs, err, false)
@@ -792,11 +792,11 @@ func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, status 
 	for j, v := range clusterVars {
 		k.Kobe.SetVar(j, v)
 	}
-	k.Kobe.SetVar(facts.SupportGpuName, cluster.Spec.SupportGpu)
+	k.Kobe.SetVar(facts.SupportGpuFactName, cluster.SpecConf.SupportGpu)
 	k.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntps, _ := c.ntpServerRepo.GetAddressStr()
 	k.Kobe.SetVar(facts.NtpServerName, ntps)
-	maniFest, _ := adm.GetManiFestBy(cluster.Spec.Version)
+	maniFest, _ := adm.GetManiFestBy(cluster.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for j, v := range vars {

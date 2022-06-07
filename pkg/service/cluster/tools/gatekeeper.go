@@ -51,7 +51,7 @@ func (k Gatekeeper) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultGatekeeperIngress,
 		service: constant.DefaultGatekeeperServiceName,
 		port:    80,
-		version: k.Cluster.Spec.Version,
+		version: k.Cluster.Version,
 	}
 	if err := createRoute(k.Cluster.Namespace, ingressItem, k.Cluster.KubeClient); err != nil {
 		return err
@@ -68,5 +68,5 @@ func (k Gatekeeper) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (k Gatekeeper) Uninstall() error {
-	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultGatekeeperIngressName, k.Cluster.Spec.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
+	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultGatekeeperIngressName, k.Cluster.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }
