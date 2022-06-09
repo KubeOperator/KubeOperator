@@ -52,10 +52,10 @@ type ClusterCreate struct {
 	CiliumTunnelMode         string       `json:"ciliumTunnelMode"`
 	CiliumNativeRoutingCidr  string       `json:"ciliumNativeRoutingCidr"`
 	RuntimeType              string       `json:"runtimeType"`
-	DockerStorageDIr         string       `json:"dockerStorageDIr"`
+	DockerStorageDir         string       `json:"dockerStorageDir"`
 	ContainerdStorageDir     string       `json:"containerdStorageDir"`
 	FlannelBackend           string       `json:"flannelBackend"`
-	CalicoIpv4poolIpip       string       `json:"calicoIpv4PoolIpip"`
+	CalicoIpv4PoolIpip       string       `json:"calicoIpv4PoolIpip"`
 	KubeProxyMode            string       `json:"kubeProxyMode"`
 	NodeportAddress          string       `json:"nodeportAddress"`
 	KubeServiceNodePortRange string       `json:"kubeServiceNodePortRange"`
@@ -71,7 +71,6 @@ type ClusterCreate struct {
 	HelmVersion              string       `json:"helmVersion"`
 	NetworkInterface         string       `json:"networkInterface"`
 	NetworkCidr              string       `json:"networkCidr"`
-	SupportGpu               string       `json:"supportGpu"`
 	YumOperate               string       `json:"yumOperate"`
 	LbMode                   string       `json:"lbMode"`
 	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
@@ -166,7 +165,6 @@ type ClusterLoadInfo struct {
 	RuntimeType              string `json:"runtimeType"`
 	MasterScheduleType       string `json:"masterScheduleType"`
 
-	SupportGpu            string         `json:"supportGpu"`
 	KubePodSubnet         string         `json:"kubePodSubnet"`
 	KubeServiceSubnet     string         `json:"kubeServiceSubnet"`
 	MaxNodeNum            int            `json:"maxNodeNum"`
@@ -204,20 +202,19 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		CiliumTunnelMode:        c.CiliumTunnelMode,
 		CiliumNativeRoutingCidr: c.CiliumNativeRoutingCidr,
 		FlannelBackend:          c.FlannelBackend,
-		CalicoIpv4poolIpip:      c.CalicoIpv4poolIpip,
+		CalicoIpv4PoolIpip:      c.CalicoIpv4PoolIpip,
 		NetworkInterface:        c.NetworkInterface,
 		NetworkCidr:             c.NetworkCidr,
 
 		Status: constant.StatusRunning,
 	}
-	cluster.SpecRelyOn = model.ClusterSpecRelyOn{
+	cluster.SpecRuntime = model.ClusterSpecRuntime{
 		RuntimeType:          c.RuntimeType,
-		DockerStorageDir:     c.DockerStorageDIr,
+		DockerStorageDir:     c.DockerStorageDir,
 		ContainerdStorageDir: c.ContainerdStorageDir,
 		DockerSubnet:         c.DockerSubnet,
 
-		IngressControllerType: c.IngressControllerType,
-		HelmVersion:           c.HelmVersion,
+		HelmVersion: c.HelmVersion,
 
 		Status: constant.StatusRunning,
 	}
@@ -231,11 +228,12 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 
 		KubeProxyMode:            c.KubeProxyMode,
 		KubeDnsDomain:            c.KubeDnsDomain,
-		EnableDnsCache:           c.EnableDnsCache,
-		DnsCacheVersion:          c.DnsCacheVersion,
 		KubernetesAudit:          c.KubernetesAudit,
 		NodeportAddress:          c.NodeportAddress,
 		KubeServiceNodePortRange: c.KubeServiceNodePortRange,
+		EnableDnsCache:           c.EnableDnsCache,
+		DnsCacheVersion:          c.DnsCacheVersion,
+		IngressControllerType:    c.IngressControllerType,
 
 		MasterScheduleType: c.MasterScheduleType,
 		LbMode:             c.LbMode,

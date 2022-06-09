@@ -82,7 +82,7 @@ type clusterService struct {
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
 	var clusterDTO dto.Cluster
-	mo, err := c.clusterRepo.Get(name)
+	mo, err := c.clusterRepo.GetWithPreload(name, []string{"Status", "SpecConf", "SpecNetwork", "SpecRuntime", "Nodes", "Nodes.Host", "Nodes.Host.Credential", "Nodes.Host.Zone", "MultiClusterRepositories"})
 	if err != nil {
 		return clusterDTO, err
 	}
@@ -337,17 +337,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 		return nil, err
 	}
-	cluster.SpecConf.ClusterID = cluster.ID
-	if creation.SupportGpu == constant.StatusEnabled {
-		gpuInfo := &model.ClusterGpu{
-			ClusterID: cluster.ID,
-			Status:    constant.StatusEnabled,
-		}
-		if err := tx.Create(&gpuInfo).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
 
 	switch cluster.Provider {
 	case constant.ClusterProviderPlan:
@@ -433,15 +422,18 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		cluster.SpecConf.KubeRouter = firstMasterIP
 	}
 
-	if err := tx.Save(&cluster.SpecConf).Error; err != nil {
+	cluster.SpecConf.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Save(&cluster.SpecRelyOn).Error; err != nil {
+	cluster.SpecRuntime.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Save(&cluster.SpecNetwork).Error; err != nil {
+	cluster.SpecNetwork.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecNetwork).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -475,7 +467,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 				break
 			}
 		}
-		tool.ClusterID = cluster.ID
 		err := tx.Create(&tool).Error
 		if err != nil {
 			tx.Rollback()
@@ -485,7 +476,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 
 	if cluster.Architectures == "amd64" {
 		for _, istio := range cluster.PrepareIstios() {
-			istio.ClusterID = cluster.ID
 			err := tx.Create(&istio).Error
 			if err != nil {
 				tx.Rollback()
@@ -538,7 +528,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
-			switch cluster.Provider {
+			switch cluster.Cluster.Provider {
 			case constant.ClusterProviderBareMetal:
 				go c.uninstallCluster(&cluster.Cluster, force)
 			case constant.ClusterProviderPlan:

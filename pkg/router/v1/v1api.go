@@ -40,7 +40,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/ntp")).HandleError(ErrorHandler).Handle(controller.NewNtpServerController())
 	mvc.New(AuthScope.Party("/logs")).HandleError(ErrorHandler).Handle(controller.NewSystemLogController())
 	mvc.New(AuthScope.Party("/projects")).HandleError(ErrorHandler).Handle(controller.NewProjectController())
-	mvc.New(AuthScope.Party("/clusters/gpu")).HandleError(ErrorHandler).Handle(controller.NewClusterGpuController())
+	// mvc.New(AuthScope.Party("/clusters/gpu")).HandleError(ErrorHandler).Handle(controller.NewClusterGpuController())
 	mvc.New(AuthScope.Party("/clusters/provisioner")).HandleError(ErrorHandler).Handle(controller.NewProvisionerController())
 	mvc.New(AuthScope.Party("/clusters/tool")).HandleError(ErrorHandler).Handle(controller.NewClusterToolController())
 	mvc.New(AuthScope.Party("/clusters/istio")).HandleError(ErrorHandler).Handle(controller.NewClusterIstioController())

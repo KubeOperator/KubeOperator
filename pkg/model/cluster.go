@@ -33,8 +33,9 @@ type Cluster struct {
 	Plan      Plan   `json:"-"`
 
 	SpecConf                 ClusterSpecConf          `gorm:"save_associations:false" json:"-"`
-	SpecRelyOn               ClusterSpecRelyOn        `gorm:"save_associations:false" json:"-"`
+	SpecRuntime              ClusterSpecRuntime       `gorm:"save_associations:false" json:"-"`
 	SpecNetwork              ClusterSpecNetwork       `gorm:"save_associations:false" json:"-"`
+	SpecComponent            []ClusterSpecComponent   `gorm:"save_associations:false" json:"-"`
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
 	Status                   ClusterStatus            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
@@ -55,7 +56,7 @@ func (c Cluster) BeforeDelete() error {
 	if err := tx.
 		Preload("Status").
 		Preload("SpecConf").
-		Preload("SpecRelyOn").
+		Preload("SpecRuntime").
 		Preload("SpecNetwork").
 		Preload("Nodes").
 		Preload("Nodes.Host").
@@ -69,7 +70,7 @@ func (c Cluster) BeforeDelete() error {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecRelyOn{}).Error; err != nil {
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecRuntime{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -256,35 +257,72 @@ func (c Cluster) BeforeDelete() error {
 func (c Cluster) PrepareIstios() []ClusterIstio {
 	return []ClusterIstio{
 		{
-			Name:     "base",
-			Version:  "v1.11.8",
-			Describe: "",
-			Status:   constant.ClusterWaiting,
+			ClusterID: c.ID,
+			Name:      "base",
+			Version:   "v1.11.8",
+			Describe:  "",
+			Status:    constant.ClusterWaiting,
 		},
 		{
-			Name:     "pilot",
-			Version:  "v1.11.8",
-			Describe: "",
-			Status:   constant.ClusterWaiting,
+			ClusterID: c.ID,
+			Name:      "pilot",
+			Version:   "v1.11.8",
+			Describe:  "",
+			Status:    constant.ClusterWaiting,
 		},
 		{
-			Name:     "ingress",
-			Version:  "v1.11.8",
-			Describe: "",
-			Status:   constant.ClusterWaiting,
+			ClusterID: c.ID,
+			Name:      "ingress",
+			Version:   "v1.11.8",
+			Describe:  "",
+			Status:    constant.ClusterWaiting,
 		},
 		{
-			Name:     "egress",
-			Version:  "v1.11.8",
-			Describe: "",
-			Status:   constant.ClusterWaiting,
+			ClusterID: c.ID,
+			Name:      "egress",
+			Version:   "v1.11.8",
+			Describe:  "",
+			Status:    constant.ClusterWaiting,
 		},
 	}
+}
+
+func (c Cluster) PrepareComponent(enableGpu, enableDnsCache, ingressController, ingressVersion string) []ClusterSpecComponent {
+	var components []ClusterSpecComponent
+	if enableGpu == constant.StatusEnabled {
+		components = append(components, ClusterSpecComponent{
+			ClusterID: c.ID,
+			Name:      "gpu",
+			Type:      "GPU",
+			Version:   "v1.7.0",
+			Status:    constant.StatusEnabled,
+		})
+	}
+	if enableGpu == constant.StatusEnabled {
+		components = append(components, ClusterSpecComponent{
+			ClusterID: c.ID,
+			Name:      "dns cache",
+			Type:      "DNS_CACHE",
+			Version:   "1.17.0",
+			Status:    constant.StatusEnabled,
+		})
+	}
+	if len(ingressController) != 0 {
+		components = append(components, ClusterSpecComponent{
+			ClusterID: c.ID,
+			Name:      ingressController,
+			Type:      "INGRESS_CONTROLLER",
+			Version:   ingressVersion,
+			Status:    constant.StatusEnabled,
+		})
+	}
+	return components
 }
 
 func (c Cluster) PrepareTools() []ClusterTool {
 	return []ClusterTool{
 		{
+			ClusterID:    c.ID,
 			Name:         "gatekeeper",
 			Version:      "v3.7.0",
 			Describe:     "OPA GateKeeper|OPA GateKeeper",
@@ -296,6 +334,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "kubeapps",
 			Version:      "v1.10.2",
 			Describe:     "应用商店|App store",
@@ -306,6 +345,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAmd64,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "prometheus",
 			Version:      "v2.18.1",
 			Describe:     "监控|Monitor",
@@ -317,6 +357,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "logging",
 			Version:      "v7.6.2",
 			Describe:     "日志|Logs",
@@ -347,6 +388,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "Chart 仓库|Chart warehouse",
@@ -357,6 +399,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "registry",
 			Version:      "v2.7.1",
 			Describe:     "镜像仓库|Image warehouse",
@@ -382,7 +425,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 			result[facts.NodeNameRuleFactName] = constant.NodeNameRuleHostName
 		}
 	}
-	c.loadRelyonVars(result)
+	c.loadRuntimeVars(result)
 	c.loadConfVars(result)
 	c.loadNetworkVars(result)
 
@@ -488,29 +531,26 @@ func (c Cluster) loadNetworkVars(result map[string]string) {
 	if c.SpecNetwork.FlannelBackend != "" {
 		result[facts.FlannelBackendFactName] = c.SpecNetwork.FlannelBackend
 	}
-	if c.SpecNetwork.CalicoIpv4poolIpip != "" {
-		result[facts.CalicoIpv4poolIpIpFactName] = c.SpecNetwork.CalicoIpv4poolIpip
+	if c.SpecNetwork.CalicoIpv4PoolIpip != "" {
+		result[facts.CalicoIpv4poolIpIpFactName] = c.SpecNetwork.CalicoIpv4PoolIpip
 	}
 }
 
-func (c Cluster) loadRelyonVars(result map[string]string) {
-	if c.SpecRelyOn.RuntimeType != "" {
-		result[facts.ContainerRuntimeFactName] = c.SpecRelyOn.RuntimeType
+func (c Cluster) loadRuntimeVars(result map[string]string) {
+	if c.SpecRuntime.RuntimeType != "" {
+		result[facts.ContainerRuntimeFactName] = c.SpecRuntime.RuntimeType
 	}
-	if c.SpecRelyOn.DockerStorageDir != "" {
-		result[facts.DockerStorageDirFactName] = c.SpecRelyOn.DockerStorageDir
+	if c.SpecRuntime.DockerStorageDir != "" {
+		result[facts.DockerStorageDirFactName] = c.SpecRuntime.DockerStorageDir
 	}
-	if c.SpecRelyOn.ContainerdStorageDir != "" {
-		result[facts.ContainerdStorageDirFactName] = c.SpecRelyOn.ContainerdStorageDir
+	if c.SpecRuntime.ContainerdStorageDir != "" {
+		result[facts.ContainerdStorageDirFactName] = c.SpecRuntime.ContainerdStorageDir
 	}
-	if c.SpecRelyOn.DockerSubnet != "" {
-		result[facts.DockerSubnetFactName] = c.SpecRelyOn.DockerSubnet
+	if c.SpecRuntime.DockerSubnet != "" {
+		result[facts.DockerSubnetFactName] = c.SpecRuntime.DockerSubnet
 	}
-	if c.SpecRelyOn.HelmVersion != "" {
-		result[facts.HelmVersionFactName] = c.SpecRelyOn.HelmVersion
-	}
-	if c.SpecRelyOn.IngressControllerType != "" {
-		result[facts.IngressControllerTypeFactName] = c.SpecRelyOn.IngressControllerType
+	if c.SpecRuntime.HelmVersion != "" {
+		result[facts.HelmVersionFactName] = c.SpecRuntime.HelmVersion
 	}
 }
 
@@ -540,18 +580,21 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	if c.SpecConf.KubeServiceNodePortRange != "" {
 		result[facts.KubeServiceNodePortRangeFactName] = c.SpecConf.KubeServiceNodePortRange
 	}
+	if c.SpecConf.DnsCacheVersion != "" {
+		result[facts.DnsCacheVersionFactName] = c.SpecConf.DnsCacheVersion
+	}
+	if c.SpecConf.EnableDnsCache != "" {
+		result[facts.EnableDnsCacheFactName] = c.SpecConf.EnableDnsCache
+	}
+	if c.SpecConf.IngressControllerType != "" {
+		result[facts.IngressControllerTypeFactName] = c.SpecConf.IngressControllerType
+	}
 
 	if c.SpecConf.KubeProxyMode != "" {
 		result[facts.KubeProxyModeFactName] = c.SpecConf.KubeProxyMode
 	}
 	if c.SpecConf.KubeDnsDomain != "" {
 		result[facts.KubeDnsDomainFactName] = c.SpecConf.KubeDnsDomain
-	}
-	if c.SpecConf.EnableDnsCache != "" {
-		result[facts.EnableDnsCacheFactName] = c.SpecConf.EnableDnsCache
-	}
-	if c.SpecConf.DnsCacheVersion != "" {
-		result[facts.DnsCacheVersionFactName] = c.SpecConf.DnsCacheVersion
 	}
 
 	if c.SpecConf.MasterScheduleType != "" {
@@ -565,9 +608,5 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	}
 	if c.SpecConf.KubeApiServerPort != 0 {
 		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.SpecConf.KubeApiServerPort)
-	}
-
-	if c.SpecConf.SupportGpu != "" {
-		result[facts.SupportGpuFactName] = c.SpecConf.SupportGpu
 	}
 }

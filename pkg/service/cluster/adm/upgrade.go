@@ -118,7 +118,7 @@ func (ca *ClusterAdm) EnsureUpgradeRuntime(c *Cluster) error {
 	oldVars := oldManiFest.GetVars()
 	newVars := newManiFest.GetVars()
 	var runtimeVersionKey = "runtime_version"
-	switch c.SpecRelyOn.RuntimeType {
+	switch c.SpecRuntime.RuntimeType {
 	case "docker":
 		runtimeVersionKey = strings.Replace(runtimeVersionKey, "runtime", "docker", -1)
 	case "containerd":

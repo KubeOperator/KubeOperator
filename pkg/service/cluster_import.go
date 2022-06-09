@@ -56,6 +56,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err != nil {
 		return err
 	}
+	cluster.ProjectID = project.ID
 
 	tx := db.DB.Begin()
 	if err := tx.Create(&cluster.Status).Error; err != nil {
@@ -173,15 +174,18 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
-	if err := tx.Save(&cluster.SpecConf).Error; err != nil {
+	cluster.SpecConf.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Save(&cluster.SpecRelyOn).Error; err != nil {
+	cluster.SpecRuntime.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Save(&cluster.SpecNetwork).Error; err != nil {
+	cluster.SpecNetwork.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecNetwork).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -254,7 +258,7 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 		return err
 	}
 	var nodesFromK8s []dto.NodesFromK8s
-	nodesFromK8s, cluster.SpecRelyOn.RuntimeType, _, err = getKubeNodes(false, c)
+	nodesFromK8s, cluster.SpecRuntime.RuntimeType, _, err = getKubeNodes(false, c)
 	if err != nil {
 		return err
 	}
@@ -265,7 +269,7 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 			Status: constant.StatusRunning,
 		})
 	}
-	cluster.SpecNetwork.NetworkType, cluster.SpecConf.EnableDnsCache, cluster.SpecRelyOn.IngressControllerType, err = getInfoFromDaemonset(c)
+	cluster.SpecNetwork.NetworkType, cluster.SpecConf.EnableDnsCache, cluster.SpecConf.IngressControllerType, err = getInfoFromDaemonset(c)
 	if err != nil {
 		return err
 	}
@@ -452,7 +456,6 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
 	clusterInfo.Architectures = loadInfo.Architectures
-	clusterInfo.SupportGpu = constant.StatusDisabled
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Hosts: []kubeUtil.Host{kubeUtil.Host(loadInfo.ApiServer)},

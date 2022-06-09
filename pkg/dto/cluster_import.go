@@ -30,10 +30,10 @@ type clusterInfo struct {
 	CiliumTunnelMode         string `json:"ciliumTunnelMode"`
 	CiliumNativeRoutingCidr  string `json:"ciliumNativeRoutingCidr"`
 	RuntimeType              string `json:"runtimeType"`
-	DockerStorageDIr         string `json:"dockerStorageDIr"`
+	DockerStorageDir         string `json:"dockerStorageDir"`
 	ContainerdStorageDir     string `json:"containerdStorageDir"`
 	FlannelBackend           string `json:"flannelBackend"`
-	CalicoIpv4poolIpip       string `json:"calicoIpv4PoolIpip"`
+	CalicoIpv4PoolIpip       string `json:"calicoIpv4PoolIpip"`
 	KubeProxyMode            string `json:"kubeProxyMode"`
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
@@ -47,7 +47,6 @@ type clusterInfo struct {
 	HelmVersion              string `json:"helmVersion"`
 	NetworkInterface         string `json:"networkInterface"`
 	NetworkCidr              string `json:"networkCidr"`
-	SupportGpu               string `json:"supportGpu"`
 	YumOperate               string `json:"yumOperate"`
 	LbMode                   string `json:"lbMode"`
 	LbKubeApiserverIp        string `json:"lbKubeApiserverIp"`
@@ -87,7 +86,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		NodeNameRule:  c.KoClusterInfo.NodeNameRule,
 		Source:        constant.ClusterSourceLocal,
 		Architectures: c.Architectures,
-		Provider:      c.KoClusterInfo.Provider,
+		Provider:      constant.ClusterProviderBareMetal,
 		Version:       c.KoClusterInfo.Version,
 	}
 	cluster.Status = model.ClusterStatus{
@@ -115,20 +114,19 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		CiliumTunnelMode:        c.KoClusterInfo.CiliumTunnelMode,
 		CiliumNativeRoutingCidr: c.KoClusterInfo.CiliumNativeRoutingCidr,
 		FlannelBackend:          c.KoClusterInfo.FlannelBackend,
-		CalicoIpv4poolIpip:      c.KoClusterInfo.CalicoIpv4poolIpip,
+		CalicoIpv4PoolIpip:      c.KoClusterInfo.CalicoIpv4PoolIpip,
 		NetworkInterface:        c.KoClusterInfo.NetworkInterface,
 		NetworkCidr:             c.KoClusterInfo.NetworkCidr,
 
 		Status: constant.StatusRunning,
 	}
-	cluster.SpecRelyOn = model.ClusterSpecRelyOn{
+	cluster.SpecRuntime = model.ClusterSpecRuntime{
 		RuntimeType:          c.KoClusterInfo.RuntimeType,
-		DockerStorageDir:     c.KoClusterInfo.DockerStorageDIr,
+		DockerStorageDir:     c.KoClusterInfo.DockerStorageDir,
 		ContainerdStorageDir: c.KoClusterInfo.ContainerdStorageDir,
 		DockerSubnet:         c.KoClusterInfo.DockerSubnet,
 
-		IngressControllerType: c.KoClusterInfo.IngressControllerType,
-		HelmVersion:           c.KoClusterInfo.HelmVersion,
+		HelmVersion: c.KoClusterInfo.HelmVersion,
 
 		Status: constant.StatusRunning,
 	}
@@ -141,11 +139,12 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 
 		KubeProxyMode:            c.KoClusterInfo.KubeProxyMode,
 		KubeDnsDomain:            c.KoClusterInfo.KubeDnsDomain,
-		EnableDnsCache:           c.KoClusterInfo.EnableDnsCache,
-		DnsCacheVersion:          c.KoClusterInfo.DnsCacheVersion,
 		KubernetesAudit:          c.KoClusterInfo.KubernetesAudit,
 		NodeportAddress:          c.KoClusterInfo.NodeportAddress,
 		KubeServiceNodePortRange: c.KoClusterInfo.KubeServiceNodePortRange,
+		EnableDnsCache:           c.KoClusterInfo.EnableDnsCache,
+		DnsCacheVersion:          c.KoClusterInfo.DnsCacheVersion,
+		IngressControllerType:    c.KoClusterInfo.IngressControllerType,
 
 		LbMode:            c.KoClusterInfo.LbMode,
 		LbKubeApiserverIp: c.KoClusterInfo.LbKubeApiserverIp,

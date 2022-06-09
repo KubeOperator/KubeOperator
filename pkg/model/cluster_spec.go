@@ -15,7 +15,7 @@ type ClusterSpecNetwork struct {
 	CiliumTunnelMode        string `json:"ciliumTunnelMode"`
 	CiliumNativeRoutingCidr string `json:"ciliumNativeRoutingCidr"`
 	FlannelBackend          string `json:"flannelBackend"`
-	CalicoIpv4poolIpip      string `json:"calicoIpv4PoolIpip"`
+	CalicoIpv4PoolIpip      string `json:"calicoIpv4PoolIpip"`
 	NetworkInterface        string `json:"networkInterface"`
 	NetworkCidr             string `json:"networkCidr"`
 
@@ -23,17 +23,16 @@ type ClusterSpecNetwork struct {
 	Message string `json:"message" gorm:"type:text(65535)"`
 }
 
-type ClusterSpecRelyOn struct {
+type ClusterSpecRuntime struct {
 	common.BaseModel
 	ID        string `json:"-"`
 	ClusterID string `json:"-"`
 
-	RuntimeType           string `json:"runtimeType"`
-	DockerStorageDir      string `json:"dockerStorageDir"`
-	ContainerdStorageDir  string `json:"containerdStorageDir"`
-	DockerSubnet          string `json:"dockerSubnet"`
-	HelmVersion           string `json:"helmVersion"`
-	IngressControllerType string `json:"ingressControllerType"`
+	RuntimeType          string `json:"runtimeType"`
+	DockerStorageDir     string `json:"dockerStorageDir"`
+	ContainerdStorageDir string `json:"containerdStorageDir"`
+	DockerSubnet         string `json:"dockerSubnet"`
+	HelmVersion          string `json:"helmVersion"`
 
 	Status  string `json:"status"`
 	Message string `json:"message" gorm:"type:text(65535)"`
@@ -55,11 +54,12 @@ type ClusterSpecConf struct {
 
 	KubeProxyMode            string `json:"kubeProxyMode"`
 	KubeDnsDomain            string `json:"kubeDnsDomain"`
-	EnableDnsCache           string `json:"enableDnsCache"`
-	DnsCacheVersion          string `json:"dnsCacheVersion"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
+	EnableDnsCache           string `json:"enableDnsCache"`
+	DnsCacheVersion          string `json:"dnsCacheVersion"`
+	IngressControllerType    string `json:"ingressControllerType"`
 
 	MasterScheduleType string `json:"masterScheduleType"`
 	LbMode             string `json:"lbMode"`
@@ -67,7 +67,20 @@ type ClusterSpecConf struct {
 	KubeApiServerPort  int    `json:"kubeApiServerPort"`
 	KubeRouter         string `json:"kubeRouter"`
 
-	SupportGpu string `json:"supportGpu"`
+	Status  string `json:"status"`
+	Message string `json:"message" gorm:"type:text(65535)"`
+}
+
+type ClusterSpecComponent struct {
+	common.BaseModel
+	ID        string `json:"-"`
+	ClusterID string `json:"-"`
+
+	Name     string `json:"name"`
+	Type     string `json:"type"` // one of [dnsCache gpu ingressController]
+	Version  string `json:"version"`
+	Describe string `json:"describe"`
+	Vars     string `json:"-"  gorm:"type:text(65535)"`
 
 	Status  string `json:"status"`
 	Message string `json:"message" gorm:"type:text(65535)"`
@@ -78,12 +91,17 @@ func (s *ClusterSpecConf) BeforeCreate() (err error) {
 	return nil
 }
 
-func (s *ClusterSpecRelyOn) BeforeCreate() (err error) {
+func (s *ClusterSpecRuntime) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return nil
 }
 
 func (s *ClusterSpecNetwork) BeforeCreate() (err error) {
+	s.ID = uuid.NewV4().String()
+	return nil
+}
+
+func (s *ClusterSpecComponent) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return nil
 }
