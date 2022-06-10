@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -41,6 +40,7 @@ type ClusterService interface {
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
+	ReCreate(name string) error
 	List() ([]dto.Cluster, error)
 	Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
 	Delete(name string, force bool, uninstall bool) error
@@ -52,15 +52,13 @@ func NewClusterService() ClusterService {
 		clusterNodeRepo:            repository.NewClusterNodeRepository(),
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
-		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
-		hostRepo:                   repository.NewHostRepository(),
 		clusterInitService:         NewClusterInitService(),
 		planRepo:                   repository.NewPlanRepository(),
-		projectRepository:          repository.NewProjectRepository(),
-		projectResourceRepository:  repository.NewProjectResourceRepository(),
 		messageService:             NewMessageService(),
 		ntpServerRepo:              repository.NewNtpServerRepository(),
 		systemSettingService:       NewSystemSettingService(),
+		clusterCreateHelper:        NewClusterCreateHelper(),
+		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 	}
 }
 
@@ -69,15 +67,13 @@ type clusterService struct {
 	clusterNodeRepo            repository.ClusterNodeRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
-	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
-	hostRepo                   repository.HostRepository
 	planRepo                   repository.PlanRepository
 	clusterInitService         ClusterInitService
-	projectRepository          repository.ProjectRepository
-	projectResourceRepository  repository.ProjectResourceRepository
 	messageService             MessageService
 	ntpServerRepo              repository.NtpServerRepository
 	systemSettingService       SystemSettingService
+	clusterCreateHelper        ClusterCreateHelper
+	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -310,186 +306,40 @@ func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.Cluster
 	return status, nil
 }
 
-func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
-	loginfo, _ := json.Marshal(creation)
-	logger.Log.WithFields(logrus.Fields{"cluster_creation": string(loginfo)}).Debugf("start to create the cluster %s", creation.Name)
-
-	cluster := creation.ClusterCreateDto2Mo()
-
-	tx := db.DB.Begin()
-	if err := tx.Create(&cluster.Status).Error; err != nil {
-		tx.Rollback()
-		return nil, err
+func (c *clusterService) ReCreate(name string) error {
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return err
 	}
-	if err := tx.Create(&cluster.Secret).Error; err != nil {
-		tx.Rollback()
-		return nil, err
+	cluster.Status, err = c.clusterStatusRepo.Get(cluster.StatusID)
+	if err != nil {
+		return err
 	}
-	cluster.StatusID = cluster.Status.ID
-	cluster.SecretID = cluster.Secret.ID
-	var project model.Project
-	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
-	}
-	cluster.ProjectID = project.ID
-	if err := tx.Create(&cluster).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	switch cluster.Provider {
-	case constant.ClusterProviderPlan:
-		cluster.SpecConf.WorkerAmount = creation.WorkerAmount
-		var plan model.Plan
-		if err := tx.Where("name = ?", creation.Plan).First(&plan).Error; err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
-		}
-		cluster.PlanID = plan.ID
-		if err := tx.Save(&cluster).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-		clusterResource := model.ClusterResource{
-			ResourceID:   plan.ID,
-			ClusterID:    cluster.ID,
-			ResourceType: constant.ResourcePlan,
-		}
-		if err := tx.Create(&clusterResource).Error; err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not create cluster  %s resource reason %s", cluster.Name, err.Error())
-		}
-	case constant.ClusterProviderBareMetal:
-		workerNo := 1
-		masterNo := 1
-		firstMasterIP := ""
-		for _, nc := range creation.Nodes {
-			n := model.ClusterNode{
-				ClusterID: cluster.ID,
-				Role:      nc.Role,
-			}
-
-			var host model.Host
-			if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("name = ?", nc.HostName).First(&host).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not find host %s cluster id ", nc.HostName)
-			}
-			host.ClusterID = cluster.ID
-			if err := tx.Save(&host).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
-			}
-
-			clusterResource := model.ClusterResource{
-				ClusterID:    cluster.ID,
-				ResourceID:   host.ID,
-				ResourceType: constant.ResourceHost,
-			}
-			if err := tx.Create(&clusterResource).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can bind host %s to cluster", nc.HostName)
-			}
-
-			switch cluster.NodeNameRule {
-			case constant.NodeNameRuleDefault:
-				if n.Role == constant.NodeRoleNameMaster {
-					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
-					if len(firstMasterIP) == 0 {
-						firstMasterIP = n.Host.Ip
-					}
-					masterNo++
-				} else {
-					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
-					workerNo++
+	if len(cluster.Status.ClusterStatusConditions) > 0 {
+		for i := range cluster.Status.ClusterStatusConditions {
+			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
+				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
+				cluster.Status.ClusterStatusConditions[i].Message = ""
+				err := c.clusterStatusConditionRepo.Save(&cluster.Status.ClusterStatusConditions[i])
+				if err != nil {
+					return err
 				}
-			case constant.NodeNameRuleIP:
-				n.Name = host.Ip
-			case constant.NodeNameRuleHostName:
-				n.Name = host.Name
-			}
-
-			n.HostID = host.ID
-			if err := tx.Create(&n).Error; err != nil {
-				return nil, fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
-			}
-			n.Host = host
-			cluster.Nodes = append(cluster.Nodes, n)
-		}
-		if cluster.SpecConf.LbMode == constant.LbModeInternal {
-			cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
-		}
-		cluster.SpecConf.KubeRouter = firstMasterIP
-	}
-
-	cluster.SpecConf.ClusterID = cluster.ID
-	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.SpecRuntime.ClusterID = cluster.ID
-	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.SpecNetwork.ClusterID = cluster.ID
-	if err := tx.Create(&cluster.SpecNetwork).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	projectResource := model.ProjectResource{
-		ResourceID:   cluster.ID,
-		ProjectID:    project.ID,
-		ResourceType: constant.ResourceCluster,
-	}
-	if err := tx.Create(&projectResource).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
-	}
-
-	var (
-		manifest model.ClusterManifest
-		toolVars []model.VersionHelp
-	)
-	if err := tx.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can find manifest version: %s", err.Error())
-	}
-	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
-	}
-	for _, tool := range cluster.PrepareTools() {
-		for _, item := range toolVars {
-			if tool.Name == item.Name {
-				tool.Version = item.Version
-				break
-			}
-		}
-		err := tx.Create(&tool).Error
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
-		}
-	}
-
-	if cluster.Architectures == "amd64" {
-		for _, istio := range cluster.PrepareIstios() {
-			err := tx.Create(&istio).Error
-			if err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not prepare cluster istio %s reason %s", istio.Name, err.Error())
 			}
 		}
 	}
-	tx.Commit()
-
-	logger.Log.Infof("init db data of cluster %s successful, now start to create cluster", cluster.Name)
-	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return nil, err
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		return err
 	}
-	return &dto.Cluster{Cluster: *cluster}, nil
+	cluster.LogId = logId
+	_ = c.clusterRepo.Save(&cluster)
+
+	logger.Log.WithFields(logrus.Fields{
+		"log_id": logId,
+	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
+
+	go c.clusterInitService.Init(cluster, writer)
+	return nil
 }
 
 func (c *clusterService) Delete(name string, force bool, uninstall bool) error {

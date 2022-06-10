@@ -2,22 +2,23 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
-	"github.com/sirupsen/logrus"
 )
 
 type ClusterInitService interface {
-	Init(name string) error
+	Init(cluster model.Cluster, writer io.Writer)
 	GatherKubernetesToken(cluster model.Cluster) error
 }
 
@@ -29,8 +30,8 @@ func NewClusterInitService() ClusterInitService {
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		clusterSpecRepo:            repository.NewClusterSpecRepository(),
-		clusterIaasService:         NewClusterIaasService(),
 		messageService:             NewMessageService(),
+		clusterCreateHelper:        NewClusterCreateHelper(),
 	}
 }
 
@@ -41,52 +42,15 @@ type clusterInitService struct {
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	clusterSpecRepo            repository.ClusterSpecRepository
-	clusterIaasService         ClusterIaasService
 	messageService             MessageService
+	clusterCreateHelper        ClusterCreateHelper
 }
 
-func (c clusterInitService) Init(name string) error {
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return err
-	}
-	cluster.Status, err = c.clusterStatusRepo.Get(cluster.StatusID)
-	if err != nil {
-		return err
-	}
-	if len(cluster.Status.ClusterStatusConditions) > 0 {
-		for i := range cluster.Status.ClusterStatusConditions {
-			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
-				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
-				cluster.Status.ClusterStatusConditions[i].Message = ""
-				err := c.clusterStatusConditionRepo.Save(&cluster.Status.ClusterStatusConditions[i])
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
-	if err != nil {
-		return err
-	}
-	cluster.LogId = logId
-	_ = c.clusterRepo.Save(&cluster)
-
-	logger.Log.WithFields(logrus.Fields{
-		"log_id": logId,
-	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
-
-	go c.do(cluster, writer)
-	return nil
-}
-
-func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
-	if len(cluster.Nodes) < 1 {
+func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
+	if cluster.Provider == constant.ClusterProviderPlan {
 		cluster.Status.Phase = constant.ClusterCreating
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		err := c.clusterIaasService.Init(cluster.Name)
-		if err != nil {
+		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
 			cluster.Status.Phase = constant.ClusterFailed
 			cluster.Status.Message = err.Error()
 			_ = c.clusterStatusRepo.Save(&cluster.Status)
@@ -95,6 +59,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 			return
 		}
 	}
+
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 	statusChan := make(chan adm.Cluster)
@@ -128,6 +93,13 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 				cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
 			}
 			_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
+
+			logger.Log.Infof("start to load tools ...")
+			if err := c.loadTools(&cluster.Cluster); err != nil {
+				logger.Log.Infof("load tool failed, err: %v!", err)
+			} else {
+				logger.Log.Infof("load tool successful !")
+			}
 			cancel()
 			err := c.GatherKubernetesToken(cluster.Cluster)
 			if err != nil {
@@ -156,6 +128,47 @@ func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, s
 	}
 }
 
+func (c clusterInitService) loadTools(cluster *model.Cluster) error {
+	var (
+		manifest model.ClusterManifest
+		toolVars []model.VersionHelp
+	)
+	tx := db.DB.Begin()
+	if err := tx.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can find manifest version: %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+	}
+	for _, tool := range cluster.PrepareTools() {
+		for _, item := range toolVars {
+			if tool.Name == item.Name {
+				tool.Version = item.Version
+				break
+			}
+		}
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
+		}
+	}
+
+	if cluster.Architectures == "amd64" {
+		for _, istio := range cluster.PrepareIstios() {
+			err := tx.Create(&istio).Error
+			if err != nil {
+				tx.Rollback()
+				return fmt.Errorf("can not prepare cluster istio %s reason %s", istio.Name, err.Error())
+			}
+		}
+	}
+	tx.Commit()
+
+	return nil
+}
 func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
 	secret, err := c.clusterSecretRepo.Get(cluster.SecretID)
 	if err != nil {

@@ -368,6 +368,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAmd64,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "loki",
 			Version:      "v2.0.0",
 			Describe:     "日志|Logs",
@@ -378,6 +379,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			ClusterID:    c.ID,
 			Name:         "grafana",
 			Version:      "v7.3.3",
 			Describe:     "监控|Monitor",

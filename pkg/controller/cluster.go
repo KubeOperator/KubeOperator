@@ -203,7 +203,7 @@ func (c ClusterController) PostInitBy(name string) error {
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.INIT_CLUSTER, name)
 
-	return c.ClusterInitService.Init(name)
+	return c.ClusterService.ReCreate(name)
 }
 
 // Load Cluster Info for import
