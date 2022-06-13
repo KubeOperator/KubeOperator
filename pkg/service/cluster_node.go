@@ -40,8 +40,7 @@ func NewClusterNodeService() ClusterNodeService {
 		ClusterService:      NewClusterService(),
 		clusterRepo:         repository.NewClusterRepository(),
 		NodeRepo:            repository.NewClusterNodeRepository(),
-		StatusRepo:          repository.NewClusterStatusRepository(),
-		StatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		taskLogService:      NewTaskLogService(),
 		HostRepo:            repository.NewHostRepository(),
 		ntpServerRepo:       repository.NewNtpServerRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
@@ -56,8 +55,7 @@ type clusterNodeService struct {
 	ClusterService      ClusterService
 	clusterRepo         repository.ClusterRepository
 	NodeRepo            repository.ClusterNodeRepository
-	StatusRepo          repository.ClusterStatusRepository
-	StatusConditionRepo repository.ClusterStatusConditionRepository
+	taskLogService      TaskLogService
 	HostRepo            repository.HostRepository
 	planService         PlanService
 	ntpServerRepo       repository.NtpServerRepository
@@ -169,6 +167,15 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 	}
 	switch item.Operation {
 	case constant.BatchOperationCreate:
+		tasklog := model.TaskLog{
+			ClusterID: cluster.ID,
+			Type:      constant.TaskLogTypeClusterNodeExtend,
+			Phase:     constant.ClusterWaiting,
+		}
+		if err := c.taskLogService.Start(&tasklog); err != nil {
+			return err
+		}
+		cluster.TaskLog = tasklog
 		return c.batchCreate(&cluster.Cluster, currentNodes, item)
 	case constant.BatchOperationDelete:
 		if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).
@@ -184,6 +191,17 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 			Find(&nodesForDelete).Error; err != nil {
 			return err
 		}
+		tasklog := model.TaskLog{
+			ClusterID: cluster.ID,
+			Type:      constant.TaskLogTypeClusterNodeShrink,
+			PrePhase:  constant.StatusFailed,
+			Phase:     constant.StatusTerminating,
+		}
+		if err := c.taskLogService.Start(&tasklog); err != nil {
+			return err
+		}
+		cluster.TaskLog = tasklog
+
 		go c.removeNodes(&cluster.Cluster, item, currentNodes, nodesForDelete)
 		return nil
 	}
@@ -222,29 +240,29 @@ func prepareRemove(item dto.NodeBatch, nodesForDelete []model.ClusterNode) ([]mo
 func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBatch, currentNodes, nodesForDelete []model.ClusterNode) {
 	notDirtyNodes, dirtyNodeIDs, nodeIDs, hostIDs, hostIPs, err := prepareRemove(item, nodesForDelete)
 	if err != nil {
-		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+		c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 	}
 
 	if cluster.Provider == constant.ClusterProviderPlan {
 		var p model.Plan
 		if err := db.DB.Where("id = ?", cluster.PlanID).First(&p).Error; err != nil {
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		planDTO, err := c.planService.Get(p.Name)
 		if err != nil {
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		cluster.Plan = planDTO.Plan
 
 		if err := c.runDeleteWorkerPlaybook(cluster, nodesForDelete, removeWorkerPlaybook); err != nil {
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
 			return
 		}
 		if err := c.destroyHosts(cluster, currentNodes, nodeIDs); err != nil {
 			if !item.IsForce {
-				c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
+				c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
 				return
 			} else {
 				logger.Log.Errorf("destroy host failed, err: %s", err.Error())
@@ -255,31 +273,31 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		tx := db.DB.Begin()
 		if err := tx.Where("id in (?)", hostIDs).Delete(&model.Host{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ProjectResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ClusterResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Model(&model.Ip{}).Where("address in (?)", hostIPs).
 			Update("status", constant.IpAvailable).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		tx.Commit()
 	} else {
 		if err := c.runDeleteWorkerPlaybook(cluster, nodesForDelete, removeWorkerPlaybook); err != nil {
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, true)
 			return
 		}
 		tx := db.DB.Begin()
@@ -295,26 +313,26 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 					notDirtyNodeIDs = append(notDirtyNodeIDs, node.ID)
 				}
 				tx.Rollback()
-				c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, notDirtyNodeIDs, err, true)
+				c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, notDirtyNodeIDs, err, true)
 				return
 			}
 		}
 		logger.Log.Info("delete all nodes successful! now start updata cluster datas")
 		if err := tx.Model(&model.Host{}).Where("id in (?)", hostIDs).Update(map[string]interface{}{"ClusterID": ""}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		if err := tx.Where("resource_id in (?) AND resource_type = ?", hostIDs, constant.ResourceHost).
 			Delete(&model.ClusterResource{}).Error; err != nil {
 			tx.Rollback()
-			c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 			return
 		}
 		tx.Commit()
 	}
 	if err := db.DB.Where("id in (?)", nodeIDs).Delete(&model.ClusterNode{}).Error; err != nil {
-		c.updateNodeStatus(constant.ClusterRemoveWorker, cluster.Name, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
+		c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusFailed, constant.StatusTerminating, nodeIDs, err, false)
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
@@ -395,29 +413,33 @@ func (c clusterNodeService) addNodes(cluster *model.Cluster, newNodes []model.Cl
 	if cluster.Provider == constant.ClusterProviderPlan {
 		logger.Log.Info("cluster-plan start add hosts, update hosts status and infos")
 		if err := c.updataHostInfo(cluster, newNodeIDs, newHostIDs); err != nil {
-			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusFailed, constant.StatusCreating, newNodeIDs, err, false)
+			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusFailed, constant.StatusCreating, newNodeIDs, err, false)
 			return
 		}
 	}
 
 	if err := c.AddWorkInit(cluster.Name, newNodes); err != nil {
-		c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.StatusFailed, constant.StatusInitializing, newNodeIDs, err, false)
+		c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusFailed, constant.StatusInitializing, newNodeIDs, err, false)
 		return
 	}
 }
 
-func (c *clusterNodeService) updateNodeStatus(operation, clusterName, status, preStatus string, nodeIDs []string, errMsg error, isDirty bool) {
+func (c *clusterNodeService) updateNodeStatus(cluster *model.Cluster, operation, status, preStatus string, nodeIDs []string, errMsg error, isDirty bool) {
 	errmsg := ""
 	if errMsg != nil {
 		errmsg = errMsg.Error()
 	}
 	if status == constant.ClusterFailed {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), clusterName, operation)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), cluster.Name, operation)
 	}
 	logger.Log.Infof("change node statu %s to %s, msg: %v", preStatus, status, errMsg)
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIDs).
 		Updates(map[string]interface{}{"Status": status, "PreStatus": preStatus, "Message": errmsg, "Dirty": isDirty}).Error; err != nil {
 		logger.Log.Errorf("can not update node status %s", err.Error())
+	}
+	if err := db.DB.Model(&model.TaskLog{}).Where("id = ?", cluster.TaskLog.ID).
+		Updates(map[string]interface{}{"Phase": status, "PrePhase": preStatus, "Message": errmsg}).Error; err != nil {
+		logger.Log.Errorf("can not update task log status %s", err.Error())
 	}
 }
 
@@ -642,12 +664,18 @@ const removeWorkerPlaybook = "96-remove-worker.yml"
 const resetWorkerPlaybook = "97-reset-worker.yml"
 
 func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode, playbookName string) error {
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	detail := model.TaskLogDetail{
+		Task:   playbookName,
+		TaskID: cluster.TaskLog.ID,
+	}
+	if err := c.taskLogService.StartDetail(&detail); err != nil {
+		return err
+	}
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		logger.Log.Error(err)
 	}
-	cluster.LogId = logId
-	db.DB.Save(cluster)
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
 	for i := range inventory.Groups {
@@ -670,98 +698,81 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntps, _ := c.ntpServerRepo.GetAddressStr()
 	k.SetVar(facts.NtpServerName, ntps)
-	err = phases.RunPlaybookAndGetResult(k, playbookName, "", writer)
-	if err != nil {
+	if err = phases.RunPlaybookAndGetResult(k, playbookName, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&detail, constant.StatusFailed, err.Error())
 		return err
 	}
+	_ = c.taskLogService.EndDetail(&detail, constant.StatusSuccess, err.Error())
 	return nil
 }
 
 func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) error {
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"TaskLog", "TaskLog.Details", "SpecConf", "SpecNetwork", "SpecRuntime"})
 	if err != nil {
 		return err
 	}
 
-	status, err := c.StatusRepo.Get(batch.StatusID)
-	status.Phase = constant.StatusInitializing
-	status.PrePhase = constant.ClusterFailed
-	if err != nil {
-		return err
-	}
-	if len(status.ClusterStatusConditions) > 0 {
-		for i := range status.ClusterStatusConditions {
-			if status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
-				status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
-				status.ClusterStatusConditions[i].Message = ""
-				err := c.StatusConditionRepo.Save(&status.ClusterStatusConditions[i])
-				if err != nil {
-					return err
-				}
+	cluster.TaskLog.Phase = constant.StatusInitializing
+	cluster.TaskLog.PrePhase = constant.ClusterFailed
+
+	if len(cluster.TaskLog.Details) > 0 {
+		for i := range cluster.TaskLog.Details {
+			if cluster.TaskLog.Details[i].Status == constant.ConditionFalse {
+				cluster.TaskLog.Details[i].Status = constant.ConditionUnknown
+				cluster.TaskLog.Details[i].Message = ""
 			}
 		}
 	}
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+		return err
+	}
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		return err
 	}
-	cluster.LogId = logId
-	_ = c.clusterRepo.Save(&cluster)
 
 	var nodes []model.ClusterNode
-	if err := db.DB.Model(&model.ClusterStatus{}).Where("id = ?", batch.StatusID).Update(map[string]interface{}{"Phase": constant.StatusInitializing, "PrePhase": constant.StatusFailed}).Error; err != nil {
-		return err
-	}
-	if err := db.DB.Where("status_id = ?", batch.StatusID).Find(&nodes).Error; err != nil {
+	if err := db.DB.Where("status_id = ?", cluster.TaskLog.ID).Find(&nodes).Error; err != nil {
 		return err
 	}
 	if err := db.DB.Model(&model.ClusterNode{}).Where("status_id = ?", batch.StatusID).
 		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusFailed}).Error; err != nil {
 		return fmt.Errorf("can not update cluster status %s", err.Error())
 	}
-	go c.doBindNodeToCluster(&cluster, &status, nodes, writer)
+	go c.doBindNodeToCluster(&cluster, nodes, writer)
 	return nil
 }
 
 func (c *clusterNodeService) AddWorkInit(clusterName string, nodes []model.ClusterNode) error {
 	logger.Log.Info("start binding nodes to cluster")
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime"})
 	if err != nil {
 		return err
 	}
 	var nodeIds []string
-	var status model.ClusterStatus
 	for _, n := range nodes {
 		nodeIds = append(nodeIds, n.ID)
 	}
-	status = model.ClusterStatus{
-		NodeClusterID:           cluster.ID,
-		Phase:                   constant.ClusterInitializing,
-		ClusterStatusConditions: []model.ClusterStatusCondition{},
-	}
-	_ = c.StatusRepo.Save(&status)
 
 	if err := db.DB.Model(&model.ClusterNode{}).Where("id in (?)", nodeIds).
-		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating, "status_id": status.ID}).Error; err != nil {
+		Updates(map[string]interface{}{"Status": constant.StatusInitializing, "PreStatus": constant.StatusCreating, "status_id": cluster.TaskLog.ID}).Error; err != nil {
 		return fmt.Errorf("can not update cluster status %s", err.Error())
 	}
 
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		return err
 	}
-	cluster.LogId = logId
-	_ = c.clusterRepo.Save(&cluster)
 
-	go c.doBindNodeToCluster(&cluster, &status, nodes, writer)
+	go c.doBindNodeToCluster(&cluster, nodes, writer)
 	return nil
 }
 
-func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, status *model.ClusterStatus, nodes []model.ClusterNode, writer io.Writer) {
+func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, nodes []model.ClusterNode, writer io.Writer) {
 	var nodeIds []string
-	k := &adm.Cluster{
-		Cluster: *cluster,
-		Writer:  writer,
+	k := &adm.AnsibleHelper{
+		Writer: writer,
 	}
 	inventory := cluster.ParseInventory()
 	for i := range inventory.Groups {
@@ -793,37 +804,41 @@ func (c *clusterNodeService) doBindNodeToCluster(cluster *model.Cluster, status 
 		}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	statusChan := make(chan *model.ClusterStatus)
 
-	go c.doHandleResp(ctx, *k, status, statusChan)
+	statusChan := make(chan adm.AnsibleHelper)
+	go c.doHandleResp(ctx, *k, statusChan)
 	for {
-		item := <-statusChan
+		result := <-statusChan
+		cluster.TaskLog.Phase = result.Status
+		cluster.TaskLog.Message = result.Message
+		cluster.TaskLog.Details = result.LogDetail
+		_ = c.taskLogService.Save(&cluster.TaskLog)
 		// 保存进度
-		_ = c.StatusRepo.Save(status)
-		switch status.Phase {
+		switch result.Status {
 		case constant.StatusRunning:
-			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.ClusterRunning, constant.ClusterInitializing, nodeIds, fmt.Errorf(item.Message), false)
+			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.ClusterRunning, constant.ClusterInitializing, nodeIds, fmt.Errorf(result.Message), false)
 			cancel()
 			return
 		case constant.StatusFailed:
-			c.updateNodeStatus(constant.ClusterAddWorker, cluster.Name, constant.ClusterFailed, constant.ClusterInitializing, nodeIds, fmt.Errorf(item.Message), false)
+			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.ClusterFailed, constant.ClusterInitializing, nodeIds, fmt.Errorf(result.Message), false)
 			cancel()
 			return
 		}
 	}
 }
 
-func (c clusterNodeService) doHandleResp(ctx context.Context, cluster adm.Cluster, status *model.ClusterStatus, statusChan chan *model.ClusterStatus) {
+func (c clusterNodeService) doHandleResp(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		err := ad.OnAddWorker(cluster, status)
+		resp, err := ad.OnAddWorker(aHelper)
 		if err != nil {
-			status.Message = err.Error()
+			aHelper.Message = err.Error()
 		}
+		aHelper.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return
-		case statusChan <- status:
+		case statusChan <- aHelper:
 		}
 		time.Sleep(5 * time.Second)
 	}

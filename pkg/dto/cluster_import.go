@@ -89,8 +89,9 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		Provider:      constant.ClusterProviderBareMetal,
 		Version:       c.KoClusterInfo.Version,
 	}
-	cluster.Status = model.ClusterStatus{
-		Phase: constant.ClusterRunning,
+	cluster.TaskLog = model.TaskLog{
+		Type:  constant.TaskLogTypeClusterImport,
+		Phase: constant.StatusWaiting,
 	}
 	cluster.SpecConf = model.ClusterSpecConf{
 		LbKubeApiserverIp: address,

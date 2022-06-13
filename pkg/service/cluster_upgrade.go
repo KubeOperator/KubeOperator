@@ -27,26 +27,29 @@ type ClusterUpgradeService interface {
 
 func NewClusterUpgradeService() ClusterUpgradeService {
 	return &clusterUpgradeService{
-		clusterService:    NewClusterService(),
-		clusterStatusRepo: repository.NewClusterStatusRepository(),
-		messageService:    NewMessageService(),
+		clusterService: NewClusterService(),
+		messageService: NewMessageService(),
+		clusterRepo:    repository.NewClusterRepository(),
+		taskLogService: NewTaskLogService(),
 	}
 }
 
 type clusterUpgradeService struct {
-	clusterService    ClusterService
-	clusterStatusRepo repository.ClusterStatusRepository
-	messageService    MessageService
+	clusterService ClusterService
+	messageService MessageService
+	clusterRepo    repository.ClusterRepository
+	taskLogService TaskLogService
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	loginfo, _ := json.Marshal(upgrade)
 	logger.Log.WithFields(logrus.Fields{"cluster_upgrade_info": string(loginfo)}).Debugf("start to upgrade the cluster %s", upgrade.ClusterName)
 
-	cluster, err := c.clusterService.Get(upgrade.ClusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(upgrade.ClusterName, []string{"TaskLog", "SpecConf", "SpecNetwork", "SpecRuntime", "Nodes", "Nodes.Host", "Nodes.Host.Credential", "Nodes.Host.Zone", "MultiClusterRepositories"})
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
 	}
+
 	if cluster.Source == constant.ClusterSourceExternal {
 		return errors.New("CLUSTER_IS_NOT_LOCAL")
 	}
@@ -56,9 +59,9 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 
 	tx := db.DB.Begin()
 	//从错误后继续
-	if cluster.Cluster.Status.Phase == constant.StatusFailed && cluster.Cluster.Status.PrePhase == constant.StatusUpgrading {
-		if err := tx.Model(&model.ClusterStatusCondition{}).
-			Where("cluster_status_id = ? AND status = ?", cluster.StatusID, constant.ConditionFalse).
+	if cluster.TaskLog.Phase == constant.StatusFailed && cluster.TaskLog.PrePhase == constant.StatusUpgrading && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
+		if err := tx.Model(&model.TaskLogDetail{}).
+			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.ConditionFalse).
 			Updates(map[string]interface{}{
 				"Status":  constant.ConditionUnknown,
 				"Message": "",
@@ -66,65 +69,58 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 			return fmt.Errorf("reset status error %s", err.Error())
 		}
 	} else {
-		if err := tx.Delete(&model.ClusterStatusCondition{}, "cluster_status_id = ?", cluster.StatusID).Error; err != nil {
-			tx.Rollback()
-			return fmt.Errorf("reset contidion err %s", err.Error())
+		cluster.TaskLog = model.TaskLog{
+			ClusterID: cluster.ID,
+			Type:      constant.TaskLogTypeClusterUpgrade,
+			StartTime: time.Now(),
 		}
 	}
 	// 修改状态
-	cluster.Cluster.Status.PrePhase = cluster.Status
-	cluster.Cluster.Status.Phase = constant.StatusUpgrading
-	if err := tx.Save(&cluster.Cluster.Status).Error; err != nil {
+	cluster.TaskLog.PrePhase = cluster.Status
+	cluster.TaskLog.Phase = constant.StatusUpgrading
+
+	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("change status err %s", err.Error())
+		return fmt.Errorf("reset contidion err %s", err.Error())
 	}
 	// 创建日志
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("create log error %s", err.Error())
-	}
-	cluster.LogId = logId
-	if err := tx.Save(&cluster.Cluster).Error; err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
-		return fmt.Errorf("save cluster error %s", err.Error())
 	}
 	cluster.UpgradeVersion = upgrade.Version
 	if err := tx.Save(&cluster).Error; err != nil {
 		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
 	// 更新工具版本状态
 	if err := c.updateToolVersion(tx, upgrade.Version, cluster.ID); err != nil {
 		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Cluster.Name, constant.ClusterUpgrade)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return err
 	}
 
 	tx.Commit()
 
 	logger.Log.Infof("update db data of cluster %s successful, now start to upgrade cluster", cluster.Name)
-	go c.do(&cluster.Cluster, writer)
+	go c.do(&cluster, writer)
 	return nil
 }
 
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
-	status, err := c.clusterService.GetStatus(cluster.Name)
-	if err != nil {
-		logger.Log.Errorf("can not get cluster %s status, error: %s", cluster.Name, err.Error())
-	}
-	cluster.Status = status.ClusterStatus
 	ctx, cancel := context.WithCancel(context.Background())
 	admCluster := adm.NewCluster(*cluster, writer)
-	statusChan := make(chan adm.Cluster)
+	statusChan := make(chan adm.AnsibleHelper)
 	go c.doUpgrade(ctx, *admCluster, statusChan)
 	for {
-		cluster := <-statusChan
+		result := <-statusChan
 		// 保存进度
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		switch cluster.Status.Phase {
+		cluster.Status = result.Status
+		cluster.Message = result.Message
+		_ = c.clusterRepo.Save(cluster)
+		switch result.Status {
 		case constant.StatusRunning:
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 			cluster.Version = cluster.UpgradeVersion
@@ -132,24 +128,25 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cancel()
 			return
 		case constant.StatusFailed:
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, cluster.Status.Message), cluster.Name, constant.ClusterUpgrade)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, result.Message), cluster.Name, constant.ClusterUpgrade)
 			cancel()
 			return
 		}
 	}
 }
-func (c clusterUpgradeService) doUpgrade(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+
+func (c clusterUpgradeService) doUpgrade(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		resp, err := ad.OnUpgrade(cluster)
+		resp, err := ad.OnUpgrade(aHelper)
 		if err != nil {
-			cluster.Status.Message = err.Error()
+			aHelper.Message = err.Error()
 		}
-		cluster.Status = resp.Status
+		aHelper.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return
-		case statusChan <- cluster:
+		case statusChan <- aHelper:
 		}
 		time.Sleep(5 * time.Second)
 	}

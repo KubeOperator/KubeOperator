@@ -26,11 +26,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	}
 	cluster.ProjectID = project.ID
 
-	if err := tx.Create(&cluster.Status).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.StatusID = cluster.Status.ID
 	if err := tx.Create(&cluster.Secret).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -53,6 +48,11 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		}
 	}
 
+	cluster.TaskLog.ClusterID = cluster.ID
+	if err := c.tasklogService.Start(&cluster.TaskLog); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 	cluster.SpecConf.ClusterID = cluster.ID
 	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
 		tx.Rollback()
@@ -79,19 +79,14 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
 	}
 
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.LogId = logId
-	if err := tx.Save(&cluster).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
 	logger.Log.WithFields(logrus.Fields{
-		"log_id": logId,
+		"log_id": cluster.TaskLog.ID,
 	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
 
 	tx.Commit()

@@ -584,7 +584,7 @@ func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kub
 	return client, nil
 }
 
-func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
+func (c clusterStorageProvisionerService) getVars(admCluster *adm.AnsibleHelper, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
 	if provisioner.Type == "glusterfs" {
 		return nil
 	}

@@ -10,21 +10,13 @@ type Cluster struct {
 	model.Cluster
 	NodeSize               int    `json:"nodeSize"`
 	ProjectName            string `json:"projectName"`
-	Status                 string `json:"status"`
 	PreStatus              string `json:"preStatus"`
-	Provider               string `json:"provider"`
-	Architectures          string `json:"architectures"`
 	MultiClusterRepository string `json:"multiClusterRepository"`
-	Message                string `json:"message"`
 }
 
 type ClusterPage struct {
 	Items []Cluster `json:"items"`
 	Total int       `json:"total"`
-}
-
-type ClusterStatus struct {
-	model.ClusterStatus
 }
 
 type ClusterSecret struct {
@@ -106,8 +98,8 @@ type IsClusterNameExist struct {
 	IsExist bool `json:"isExist"`
 }
 
-type ClusterLog struct {
-	model.ClusterLog
+type TaskLog struct {
+	model.TaskLog
 }
 
 type ClusterUpgrade struct {
@@ -243,7 +235,10 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		Status: constant.StatusRunning,
 	}
 
-	cluster.Status = model.ClusterStatus{Phase: constant.ClusterWaiting}
+	cluster.TaskLog = model.TaskLog{
+		Type:  constant.TaskLogTypeClusterCreate,
+		Phase: constant.StatusWaiting,
+	}
 	cluster.Secret = model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}

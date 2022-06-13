@@ -7,6 +7,7 @@ import (
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/kobe/api"
@@ -24,10 +25,11 @@ type Cluster struct {
 	Provider       string `json:"provider"`
 	Architectures  string `json:"architectures"`
 
+	Status  string `json:"status"`
+	Message string `json:"message" gorm:"type:text(65535)"`
+
 	SecretID  string `json:"-"`
-	StatusID  string `json:"-"`
 	PlanID    string `json:"-"`
-	LogId     string `json:"logId"`
 	ProjectID string `json:"projectID"`
 	Dirty     bool   `json:"dirty"`
 	Plan      Plan   `json:"-"`
@@ -36,8 +38,8 @@ type Cluster struct {
 	SpecRuntime              ClusterSpecRuntime       `gorm:"save_associations:false" json:"-"`
 	SpecNetwork              ClusterSpecNetwork       `gorm:"save_associations:false" json:"-"`
 	SpecComponent            []ClusterSpecComponent   `gorm:"save_associations:false" json:"-"`
+	TaskLog                  TaskLog                  `gorm:"save_associations:false" json:"-"`
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
-	Status                   ClusterStatus            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
 	Tools                    []ClusterTool            `gorm:"save_associations:false" json:"-"`
 	Istios                   []ClusterIstio           `gorm:"save_associations:false" json:"-"`
@@ -78,31 +80,6 @@ func (c Cluster) BeforeDelete() error {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterGpu{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if cluster.StatusID != "" {
-		if err := tx.Delete(&ClusterStatus{ID: cluster.StatusID}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	if err := tx.Where("node_cluster_id = ?", cluster.ID).Delete(&ClusterStatus{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if cluster.SecretID != "" {
-		if err := tx.Delete(&ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	if err := tx.Where("cluster = ?", cluster.Name).Delete(&KubepiBind{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	var (
 		hostIDList []string
 		hostIPList []string
@@ -139,119 +116,103 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
-
-	if len(cluster.Tools) > 0 {
-		if err := tx.Where("cluster_id = ?", c.ID).Delete(&ClusterTool{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	if len(cluster.Istios) > 0 {
-		if err := tx.Where("cluster_id = ?", c.ID).Delete(&ClusterIstio{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	var cisTasks []CisTask
-	if err := tx.Where("cluster_id = ?", c.ID).Find(&cisTasks).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if len(cisTasks) > 0 {
-		for _, task := range cisTasks {
-			if err := tx.Delete(&task).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
-
-	if err := tx.Where("cluster_id = ?", c.ID).Delete(&ClusterStorageProvisioner{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	if err := tx.Where("resource_id = ?", c.ID).Delete(&ProjectResource{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-
-	if err := tx.Where("cluster_id = ?", c.ID).Delete(&ClusterBackupStrategy{}).Error; err != nil {
-		tx.Rollback()
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterResource{}).Error; err != nil {
 		return err
 	}
 
-	if err := tx.Where("cluster_id = ?", c.ID).Delete(&ClusterBackupFile{}).Error; err != nil {
-		tx.Rollback()
-		return err
+	tx.Commit()
+	go cluster.DeleteClusterAbout()
+	return nil
+}
+
+func (c Cluster) DeleteClusterAbout() {
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterGpu{}).Error; err != nil {
+		logger.Log.Infof("delete gpu failed, err: %v", err)
+	}
+	if err := db.DB.Delete(&ClusterSecret{ID: c.SecretID}).Error; err != nil {
+		logger.Log.Infof("delete secret failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster = ?", c.Name).Delete(&KubepiBind{}).Error; err != nil {
+		logger.Log.Infof("delete kubepi bind failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterTool{}).Error; err != nil {
+		logger.Log.Infof("delete tools failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterIstio{}).Error; err != nil {
+		logger.Log.Infof("delete istios failed, err: %v", err)
+	}
+
+	var cisTasks []CisTask
+	if err := db.DB.Where("cluster_id = ?", c.ID).Find(&cisTasks).Error; err != nil {
+		logger.Log.Infof("delete cis tasks failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterStorageProvisioner{}).Error; err != nil {
+		logger.Log.Infof("delete provisioner failed, err: %v", err)
+	}
+
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterBackupStrategy{}).Error; err != nil {
+		logger.Log.Infof("delete backup strategy failed, err: %v", err)
+	}
+
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterBackupFile{}).Error; err != nil {
+		logger.Log.Infof("delete backup file failed, err: %v", err)
 	}
 
 	var (
 		messages   []Message
 		messageIDs []string
 	)
-	if err := tx.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Find(&messages).Error; err != nil {
-		tx.Rollback()
-		return err
+	if err := db.DB.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Find(&messages).Error; err != nil {
+		logger.Log.Infof("select message failed, err: %v", err)
 	}
 	for _, m := range messages {
 		messageIDs = append(messageIDs, m.ID)
 	}
 	if len(messageIDs) > 0 {
-		if err := tx.Where("message_id in (?)", messageIDs).Delete(&UserMessage{}).Error; err != nil {
-			tx.Rollback()
-			return err
+		if err := db.DB.Where("message_id in (?)", messageIDs).Delete(&UserMessage{}).Error; err != nil {
+			logger.Log.Infof("delete user message failed, err: %v", err)
 		}
 	}
-	if err := tx.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Delete(&Message{}).Error; err != nil {
-		tx.Rollback()
-		return err
+	if err := db.DB.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Delete(&Message{}).Error; err != nil {
+		logger.Log.Infof("delete message failed, err: %v", err)
 	}
 
-	if len(cluster.MultiClusterRepositories) > 0 {
-		for _, repo := range cluster.MultiClusterRepositories {
+	if len(c.MultiClusterRepositories) > 0 {
+		for _, repo := range c.MultiClusterRepositories {
 			var clusterMultiClusterRepository ClusterMultiClusterRepository
-			if err := tx.Where("cluster_id = ? AND multi_cluster_repository_id  = ?", c.ID, repo.ID).First(&clusterMultiClusterRepository).Error; err != nil {
-				tx.Rollback()
-				return err
+			if err := db.DB.Where("cluster_id = ? AND multi_cluster_repository_id  = ?", c.ID, repo.ID).First(&clusterMultiClusterRepository).Error; err != nil {
+				logger.Log.Infof("select multi cluster failed, err: %v", err)
 			}
-			if err := tx.Delete(&clusterMultiClusterRepository).Error; err != nil {
-				tx.Rollback()
-				return err
+			if err := db.DB.Delete(&clusterMultiClusterRepository).Error; err != nil {
+				logger.Log.Infof("delete multi cluster failed, err: %v", err)
 			}
 		}
 
 		var clusterSyncLogs []MultiClusterSyncClusterLog
-		if err := tx.Where("cluster_id = ?", c.ID).Find(&clusterSyncLogs).Error; err != nil {
-			tx.Rollback()
-			return err
+		if err := db.DB.Where("cluster_id = ?", c.ID).Find(&clusterSyncLogs).Error; err != nil {
+			logger.Log.Infof("delete multi cluster sync logs failed, err: %v", err)
 		}
 		for _, clusterLog := range clusterSyncLogs {
 			if clusterLog.ID != "" {
-				if err := tx.Delete(&clusterLog).Error; err != nil {
-					tx.Rollback()
-					return err
+				if err := db.DB.Delete(&clusterLog).Error; err != nil {
+					logger.Log.Infof("delete multi cluster logs failed, err: %v", err)
 				}
 			}
 			var clusterResourceSyncLogs []MultiClusterSyncClusterResourceLog
-			if err := tx.Where("multi_cluster_sync_cluster_log_id = ?", clusterLog.ID).Find(&clusterResourceSyncLogs).Error; err != nil {
-				return err
+			if err := db.DB.Where("multi_cluster_sync_cluster_log_id = ?", clusterLog.ID).Find(&clusterResourceSyncLogs).Error; err != nil {
+				logger.Log.Infof("select multi cluster resource sync logs failed, err: %v", err)
 			}
 			for _, resourceLog := range clusterResourceSyncLogs {
-				if err := tx.Delete(&resourceLog).Error; err != nil {
-					tx.Rollback()
-					return err
+				if err := db.DB.Delete(&resourceLog).Error; err != nil {
+					logger.Log.Infof("select multi cluster resource sync logs failed, err: %v", err)
 				}
 			}
 		}
 	}
-	if err := tx.Where("cluster_id = ?", cluster.ID).
-		Delete(&ClusterResource{}).Error; err != nil {
-		return err
-	}
-	tx.Commit()
-	return nil
 }
 
 func (c Cluster) PrepareIstios() []ClusterIstio {

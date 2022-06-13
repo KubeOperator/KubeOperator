@@ -52,7 +52,7 @@ func (c *ClusterHealthCheck) Run() {
 			_, err = kubeUtil.SelectAliveHost(endpoints)
 			if err != nil {
 				logger.Log.Error("ping cluster %s api failed: %+v", cs[i].Name, err)
-				cs[i].Cluster.Status.Phase = constant.StatusLost
+				cs[i].Cluster.Status = constant.StatusLost
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
 					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
 					return
@@ -70,15 +70,15 @@ func (c *ClusterHealthCheck) Run() {
 			_, err = client.ServerVersion()
 			if err != nil {
 				logger.Log.Error("ping cluster %s api error %s", cs[i].Name, err.Error())
-				cs[i].Cluster.Status.Phase = constant.StatusLost
+				cs[i].Cluster.Status = constant.StatusLost
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
 					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
 					return
 				}
 				return
 			}
-			if cs[i].Cluster.Status.Phase == constant.StatusLost {
-				cs[i].Cluster.Status.Phase = constant.StatusRunning
+			if cs[i].Cluster.Status == constant.StatusLost {
+				cs[i].Cluster.Status = constant.StatusRunning
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
 					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
 					return

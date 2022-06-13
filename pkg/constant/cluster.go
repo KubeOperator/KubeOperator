@@ -11,18 +11,26 @@ const (
 	ClusterUpgrading    = "Upgrading"
 	//日志类型
 
-	ClusterLogTypeAddNode       = "ADD_NODE"
-	ClusterLogTypeDeleteNode    = "DELETE_NODE"
-	ClusterLogTypeBackup        = "CLUSTER_BACKUP"
-	ClusterLogTypeRestore       = "CLUSTER_RESTORE"
-	ClusterLogTypeVeleroBackup  = "CLUSTER_VELERO_BACKUP"
-	ClusterLogTypeVeleroRestore = "CLUSTER_VELERO_RESTORE"
-	ClusterLogTypeUpgrade       = "CLUSTER_UPGRADE"
+	TaskLogTypeClusterCreate     = "CLUSTER_CREATE"
+	TaskLogTypeClusterImport     = "CLUSTER_IMPORT"
+	TaskLogTypeClusterUpgrade    = "CLUSTER_UPGRADE"
+	TaskLogTypeClusterDelete     = "CLUSTER_DELEDE"
+	TaskLogTypeClusterNodeExtend = "CLUSTER_NODE_EXTEND"
+	TaskLogTypeClusterNodeShrink = "CLUSTER_NODE_SHRINK"
+	TaskLogTypeClusterNodeDelete = "CLUSTER_NODE_DELEDE"
+	TaskLogTypeBackup            = "CLUSTER_BACKUP"
+	TaskLogTypeRestore           = "CLUSTER_RESTORE"
+	TaskLogTypeVeleroBackup      = "CLUSTER_VELERO_BACKUP"
+	TaskLogTypeVeleroRestore     = "CLUSTER_VELERO_RESTORE"
+	TaskLogTypeUpgrade           = "CLUSTER_UPGRADE"
 
-	ClusterLogStatusSuccess = "SUCCESS"
-	ClusterLogStatusFailed  = "FAILED"
-	ClusterLogStatusWaiting = "WAITING"
-	ClusterLogStatusRunning = "RUNNING"
+	TaskLogHandlerKobe = "KOBE"
+	TaskLogHandlerKotf = "KOTF"
+
+	TaskLogStatusSuccess = "SUCCESS"
+	TaskLogStatusFailed  = "FAILED"
+	TaskLogStatusWaiting = "WAITING"
+	TaskLogStatusRunning = "RUNNING"
 
 	// 表示创建资源
 	ClusterCreating      = "Creating"

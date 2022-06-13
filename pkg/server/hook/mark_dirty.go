@@ -15,25 +15,32 @@ var stableStatus = []string{constant.StatusRunning, constant.StatusFailed, const
 
 // cluster
 func recoverClusterTask() error {
-	var statusList []model.ClusterStatus
+	var taskList []model.TaskLog
 
 	logger.Log.Info("Update status to failed caused by task cancel")
 	tx := db.DB.Begin()
-	if err := db.DB.Where("phase not in (?)", stableStatus).Find(&statusList).Error; err != nil {
+	if err := db.DB.Where("phase not in (?)", stableStatus).Find(&taskList).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	for _, statu := range statusList {
-		statu.PrePhase = statu.Phase
-		statu.Phase = constant.StatusFailed
-		statu.Message = constant.TaskCancel
-		if err := tx.Save(&statu).Error; err != nil {
+	for _, task := range taskList {
+		task.PrePhase = task.Phase
+		task.Phase = constant.StatusFailed
+		task.Message = constant.TaskCancel
+		if err := tx.Save(&task).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 
-	if err := tx.Model(&model.ClusterStatusCondition{}).Where("status = ?", constant.ConditionUnknown).Updates(map[string]interface{}{
+	if err := tx.Model(&model.TaskLogDetail{}).Where("status not in (?)", stableStatus).Updates(map[string]interface{}{
+		"status":  constant.StatusFailed,
+		"message": constant.TaskCancel,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.ConditionUnknown).Updates(map[string]interface{}{
 		"status":  constant.ConditionFalse,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {
@@ -42,14 +49,6 @@ func recoverClusterTask() error {
 	}
 
 	if err := tx.Model(&model.Host{}).Where("status != ? AND status != ?", constant.StatusRunning, constant.StatusFailed).Updates(map[string]interface{}{
-		"status":  constant.StatusFailed,
-		"message": constant.TaskCancel,
-	}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Model(&model.ClusterLog{}).Where("status != ? AND status != ? AND status != ?", constant.StatusRunning, constant.StatusFailed, constant.StatusSuccess).Updates(map[string]interface{}{
 		"status":  constant.StatusFailed,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {

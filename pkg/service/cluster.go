@@ -31,8 +31,8 @@ type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
 	GetClusterByProject(projectNames string) ([]dto.ClusterInfo, error)
 	CheckExistence(name string) bool
-	GetStatus(name string) (dto.ClusterStatus, error)
-	GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
+	// GetStatus(name string) (dto.ClusterStatus, error)
+	// GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetApiServerEndpoint(name string) (kubernetes.Host, error)
 	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
@@ -48,32 +48,30 @@ type ClusterService interface {
 
 func NewClusterService() ClusterService {
 	return &clusterService{
-		clusterRepo:                repository.NewClusterRepository(),
-		clusterNodeRepo:            repository.NewClusterNodeRepository(),
-		clusterStatusRepo:          repository.NewClusterStatusRepository(),
-		clusterSecretRepo:          repository.NewClusterSecretRepository(),
-		clusterInitService:         NewClusterInitService(),
-		planRepo:                   repository.NewPlanRepository(),
-		messageService:             NewMessageService(),
-		ntpServerRepo:              repository.NewNtpServerRepository(),
-		systemSettingService:       NewSystemSettingService(),
-		clusterCreateHelper:        NewClusterCreateHelper(),
-		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		clusterRepo:          repository.NewClusterRepository(),
+		clusterNodeRepo:      repository.NewClusterNodeRepository(),
+		clusterSecretRepo:    repository.NewClusterSecretRepository(),
+		clusterInitService:   NewClusterInitService(),
+		planRepo:             repository.NewPlanRepository(),
+		messageService:       NewMessageService(),
+		ntpServerRepo:        repository.NewNtpServerRepository(),
+		systemSettingService: NewSystemSettingService(),
+		clusterCreateHelper:  NewClusterCreateHelper(),
+		tasklogService:       NewTaskLogService(),
 	}
 }
 
 type clusterService struct {
-	clusterRepo                repository.ClusterRepository
-	clusterNodeRepo            repository.ClusterNodeRepository
-	clusterStatusRepo          repository.ClusterStatusRepository
-	clusterSecretRepo          repository.ClusterSecretRepository
-	planRepo                   repository.PlanRepository
-	clusterInitService         ClusterInitService
-	messageService             MessageService
-	ntpServerRepo              repository.NtpServerRepository
-	systemSettingService       SystemSettingService
-	clusterCreateHelper        ClusterCreateHelper
-	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
+	clusterRepo          repository.ClusterRepository
+	clusterNodeRepo      repository.ClusterNodeRepository
+	clusterSecretRepo    repository.ClusterSecretRepository
+	planRepo             repository.PlanRepository
+	clusterInitService   ClusterInitService
+	messageService       MessageService
+	ntpServerRepo        repository.NtpServerRepository
+	systemSettingService SystemSettingService
+	clusterCreateHelper  ClusterCreateHelper
+	tasklogService       TaskLogService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -85,8 +83,6 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	clusterDTO.Provider = mo.Provider
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
-	clusterDTO.Status = mo.Status.Phase
-	clusterDTO.PreStatus = mo.Status.PrePhase
 	clusterDTO.Architectures = mo.Architectures
 	if len(mo.MultiClusterRepositories) > 0 {
 		clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
@@ -129,12 +125,8 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	}
 	for _, mo := range mos {
 		clusterDTO := dto.Cluster{
-			Cluster:       mo,
-			NodeSize:      len(mo.Nodes),
-			Status:        mo.Status.Phase,
-			Provider:      mo.Provider,
-			PreStatus:     mo.Status.PrePhase,
-			Architectures: mo.Architectures,
+			Cluster:  mo,
+			NodeSize: len(mo.Nodes),
 		}
 		if len(mo.MultiClusterRepositories) > 0 {
 			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
@@ -218,18 +210,15 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 	}
 
 	for _, mo := range clusters {
-		status := mo.Status.Phase
 		message := ""
-		if (mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady) && !(isPolling == "true") {
+		if (mo.Status == constant.ClusterRunning || mo.Status == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
 			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.SpecConf.LbKubeApiserverIp, mo.SpecConf.KubeApiServerPort))
 			if !isOK {
-				status = constant.ClusterNotReady
-				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", mo.ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": message})
 			}
-			if isOK && mo.Status.Phase == constant.ClusterNotReady {
-				status = constant.ClusterRunning
-				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+			if isOK && mo.Status == constant.ClusterNotReady {
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", mo.ID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
 			}
 		}
 		for _, res := range clusterResources {
@@ -237,14 +226,9 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 				for _, pro := range projects {
 					if pro.ID == res.ProjectID {
 						clusterDTO := dto.Cluster{
-							Cluster:       mo,
-							ProjectName:   pro.Name,
-							NodeSize:      len(mo.Nodes),
-							Status:        status,
-							Provider:      mo.Provider,
-							PreStatus:     mo.Status.PrePhase,
-							Architectures: mo.Architectures,
-							Message:       message,
+							Cluster:     mo,
+							ProjectName: pro.Name,
+							NodeSize:    len(mo.Nodes),
 						}
 						if len(mo.MultiClusterRepositories) > 0 {
 							clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
@@ -275,67 +259,63 @@ func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
 	return secret, nil
 }
 
-func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
-	var status dto.ClusterStatus
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return status, err
-	}
-	cs, err := c.clusterStatusRepo.Get(cluster.StatusID)
-	if err != nil {
-		return status, err
-	}
-	status.ClusterStatus = cs
-	return status, nil
-}
+// func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
+// 	var status dto.ClusterStatus
+// 	cluster, err := c.clusterRepo.Get(name)
+// 	if err != nil {
+// 		return status, err
+// 	}
+// 	cs, err := c.clusterStatusRepo.Get(cluster.StatusID)
+// 	if err != nil {
+// 		return status, err
+// 	}
+// 	status.ClusterStatus = cs
+// 	return status, nil
+// }
 
-func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.ClusterStatus, error) {
-	var status dto.ClusterStatus
-	node, err := c.clusterNodeRepo.Get(clusterName, nodeName)
-	if err != nil {
-		return status, err
-	}
-	cs, err := c.clusterStatusRepo.Get(node.StatusID)
-	if err != nil {
-		return status, err
-	}
-	status.ClusterStatus = cs
-	status.ClusterStatus.Phase = node.Status
-	status.ClusterStatus.PrePhase = node.PreStatus
-	status.ClusterStatus.Message = node.Message
-	return status, nil
-}
+// func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.ClusterStatus, error) {
+// 	var status dto.ClusterStatus
+// 	node, err := c.clusterNodeRepo.Get(clusterName, nodeName)
+// 	if err != nil {
+// 		return status, err
+// 	}
+// 	cs, err := c.clusterStatusRepo.Get(node.StatusID)
+// 	if err != nil {
+// 		return status, err
+// 	}
+// 	status.ClusterStatus = cs
+// 	status.ClusterStatus.Phase = node.Status
+// 	status.ClusterStatus.PrePhase = node.PreStatus
+// 	status.ClusterStatus.Message = node.Message
+// 	return status, nil
+// }
 
 func (c *clusterService) ReCreate(name string) error {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"TaskLog", "TaskLog.Details"})
 	if err != nil {
 		return err
 	}
-	cluster.Status, err = c.clusterStatusRepo.Get(cluster.StatusID)
-	if err != nil {
-		return err
-	}
-	if len(cluster.Status.ClusterStatusConditions) > 0 {
-		for i := range cluster.Status.ClusterStatusConditions {
-			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
-				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
-				cluster.Status.ClusterStatusConditions[i].Message = ""
-				err := c.clusterStatusConditionRepo.Save(&cluster.Status.ClusterStatusConditions[i])
+	if len(cluster.TaskLog.Details) > 0 {
+		for i := range cluster.TaskLog.Details {
+			if cluster.TaskLog.Details[i].Status == constant.ConditionFalse {
+				cluster.TaskLog.Details[i].Status = constant.ConditionUnknown
+				cluster.TaskLog.Details[i].Message = ""
+				err := c.tasklogService.Save(&cluster.TaskLog)
 				if err != nil {
 					return err
 				}
 			}
 		}
 	}
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		return err
 	}
-	cluster.LogId = logId
+	cluster.Status = cluster.TaskLog.Phase
 	_ = c.clusterRepo.Save(&cluster)
 
 	logger.Log.WithFields(logrus.Fields{
-		"log_id": logId,
+		"log_id": cluster.TaskLog.ID,
 	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
 
 	go c.clusterInitService.Init(cluster, writer)
@@ -345,7 +325,7 @@ func (c *clusterService) ReCreate(name string) error {
 func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	logger.Log.Infof("start to delete cluster %s, isforce: %v", name, force)
 	go c.deleteKubePi(name)
-	cluster, err := c.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"TaskLog", "TaskLog.Details"})
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
 	}
@@ -366,23 +346,29 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	case constant.ClusterSourceLocal:
 		switch cluster.Status {
 		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed, constant.StatusNotReady:
-			cluster.Cluster.Status.Phase = constant.StatusTerminating
-			cluster.Cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
-			condition := model.ClusterStatusCondition{
-				Name:          "DeleteCluster",
-				Status:        constant.ConditionUnknown,
-				OrderNum:      0,
-				LastProbeTime: time.Now(),
+			if cluster.TaskLog.PrePhase == constant.StatusTerminating && cluster.TaskLog.Phase == constant.StatusFailed {
+				cluster.TaskLog.Phase = constant.StatusTerminating
+			} else {
+				cluster.TaskLog.PrePhase = constant.StatusFailed
+				cluster.TaskLog.StartTime = time.Now()
+				cluster.TaskLog.Phase = constant.StatusTerminating
+				cluster.TaskLog.Details = []model.TaskLogDetail{
+					{
+						Task:          constant.TaskLogTypeClusterDelete,
+						Status:        constant.ConditionUnknown,
+						StartTime:     time.Now(),
+						LastProbeTime: time.Now(),
+					},
+				}
 			}
-			cluster.Cluster.Status.ClusterStatusConditions = append(cluster.Cluster.Status.ClusterStatusConditions, condition)
-			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
+			if err := c.tasklogService.Save(&cluster.TaskLog); err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
-			switch cluster.Cluster.Provider {
+			switch cluster.Provider {
 			case constant.ClusterProviderBareMetal:
-				go c.uninstallCluster(&cluster.Cluster, force)
+				go c.uninstallCluster(&cluster, force)
 			case constant.ClusterProviderPlan:
-				go c.destroyCluster(&cluster.Cluster, force)
+				go c.destroyCluster(&cluster, force)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -391,7 +377,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 		}
 	case constant.ClusterSourceExternal:
 		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterDelete, true, ""), cluster.Name, constant.ClusterDelete)
-		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+		if err := db.DB.Delete(&cluster).Error; err != nil {
 			return err
 		}
 	}
@@ -400,13 +386,15 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 
 func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) {
 	logger.Log.Infof("cluster %s delete failed: %+v", cluster.Name, errStr)
-	cluster.Status.Phase = constant.ClusterFailed
-	cluster.Status.Message = errStr.Error()
-	if len(cluster.Status.ClusterStatusConditions) == 1 {
-		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionFalse
-		cluster.Status.ClusterStatusConditions[0].Message = errStr.Error()
+	cluster.Status = constant.ClusterFailed
+	cluster.Message = errStr.Error()
+	cluster.TaskLog.PrePhase = constant.StatusTerminating
+	if len(cluster.TaskLog.Details) == 1 {
+		cluster.TaskLog.Details[0].Status = constant.ConditionFalse
+		cluster.TaskLog.Details[0].Message = errStr.Error()
 	}
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
+
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, errStr.Error()), cluster.Name, constant.ClusterUnInstall)
 }
 
@@ -414,12 +402,10 @@ const terminalPlaybookName = "99-reset-cluster.yml"
 
 func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 	logger.Log.Infof("start to uninstall cluster %s, isforce: %v", cluster.Name, force)
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		logger.Log.Error(err)
+		logger.Log.Error(fmt.Sprintf("%+v", err))
 	}
-	cluster.LogId = logId
-	_ = db.DB.Save(cluster)
 
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
@@ -458,12 +444,11 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 
 func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	logger.Log.Infof("start to destroy cluster %s, isforce: %v", cluster.Name, force)
-	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+
+	_, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("%+v", err))
 	}
-	cluster.LogId = logId
-	_ = db.DB.Save(cluster)
 	plan, _ := c.planRepo.GetById(cluster.PlanID)
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
 	_, err = k.Destroy(plan.Region.Vars)

@@ -59,15 +59,10 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	cluster.ProjectID = project.ID
 
 	tx := db.DB.Begin()
-	if err := tx.Create(&cluster.Status).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("can not create cluster status %s", err.Error())
-	}
 	if err := tx.Create(&cluster.Secret).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("can not create cluster secret %s", err.Error())
 	}
-	cluster.StatusID = cluster.Status.ID
 	cluster.SecretID = cluster.Secret.ID
 	if err := tx.Create(&cluster).Error; err != nil {
 		tx.Rollback()

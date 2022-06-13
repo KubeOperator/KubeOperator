@@ -26,7 +26,6 @@ type ClusterController struct {
 	ClusterInitService               service.ClusterInitService
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterNodeService               service.ClusterNodeService
-	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
 	ClusterUpgradeService            service.ClusterUpgradeService
@@ -40,7 +39,6 @@ func NewClusterController() *ClusterController {
 		ClusterInitService:               service.NewClusterInitService(),
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
-		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
 		ClusterUpgradeService:            service.NewClusterUpgradeService(),
@@ -165,13 +163,13 @@ func (c ClusterController) GetExistenceBy(name string) *dto.IsClusterNameExist {
 	return &dto.IsClusterNameExist{IsExist: isExit}
 }
 
-func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) {
-	cs, err := c.ClusterService.GetStatus(name)
-	if err != nil {
-		return nil, err
-	}
-	return &cs, nil
-}
+// func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) {
+// 	cs, err := c.ClusterService.GetStatus(name)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &cs, nil
+// }
 
 // Create Cluster
 // @Tags clusters
@@ -338,13 +336,13 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 // @Security ApiKeyAuth
 // @Success 200 {object} dto.Node
 // @Router /clusters/status/{clusterName}/{nodeName} [get]
-func (c ClusterController) GetNodeStatusBy(cluster, node string) (*dto.ClusterStatus, error) {
-	cs, err := c.ClusterService.GetNodeStatus(cluster, node)
-	if err != nil {
-		return nil, err
-	}
-	return &cs, nil
-}
+// func (c ClusterController) GetNodeStatusBy(cluster, node string) (*dto.ClusterStatus, error) {
+// 	cs, err := c.ClusterService.GetNodeStatus(cluster, node)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &cs, nil
+// }
 
 // Get Cluster Details
 // @Tags clusters
@@ -432,14 +430,14 @@ func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, 
 	return &sec, nil
 }
 
-func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
-	ls, err := c.ClusterLogService.List(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	return ls, nil
+// func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
+// 	ls, err := c.ClusterLogService.List(clusterName)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return ls, nil
 
-}
+// }
 
 func (c ClusterController) GetCisBy(clusterName string) (*page.Page, error) {
 	p, _ := c.Ctx.Values().GetBool("page")
@@ -531,30 +529,30 @@ type Log struct {
 	Msg string `json:"msg"`
 }
 
-func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
-	cluster, err := c.ClusterService.Get(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	r, err := ansible.GetAnsibleLogReader(cluster.Name, cluster.LogId)
-	if err != nil {
-		return nil, err
-	}
-	var chunk []byte
-	for {
+// func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
+// 	cluster, err := c.ClusterService.Get(clusterName)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	r, err := ansible.GetAnsibleLogReader(cluster.Name, cluster.LogId)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	var chunk []byte
+// 	for {
 
-		buffer := make([]byte, 1024)
-		n, err := r.Read(buffer)
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
-		if n == 0 {
-			break
-		}
-		chunk = append(chunk, buffer[:n]...)
-	}
-	return &Log{Msg: string(chunk)}, nil
-}
+// 		buffer := make([]byte, 1024)
+// 		n, err := r.Read(buffer)
+// 		if err != nil && err != io.EOF {
+// 			return nil, err
+// 		}
+// 		if n == 0 {
+// 			break
+// 		}
+// 		chunk = append(chunk, buffer[:n]...)
+// 	}
+// 	return &Log{Msg: string(chunk)}, nil
+// }
 
 func (c ClusterController) GetProvisionerLogBy(clusterName, logId string) (*Log, error) {
 	r, err := ansible.GetAnsibleLogReader(clusterName, logId)

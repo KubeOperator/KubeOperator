@@ -24,36 +24,34 @@ type ClusterInitService interface {
 
 func NewClusterInitService() ClusterInitService {
 	return &clusterInitService{
-		clusterRepo:                repository.NewClusterRepository(),
-		clusterNodeRepo:            repository.NewClusterNodeRepository(),
-		clusterStatusRepo:          repository.NewClusterStatusRepository(),
-		clusterSecretRepo:          repository.NewClusterSecretRepository(),
-		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
-		clusterSpecRepo:            repository.NewClusterSpecRepository(),
-		messageService:             NewMessageService(),
-		clusterCreateHelper:        NewClusterCreateHelper(),
+		clusterRepo:         repository.NewClusterRepository(),
+		clusterNodeRepo:     repository.NewClusterNodeRepository(),
+		clusterSecretRepo:   repository.NewClusterSecretRepository(),
+		clusterSpecRepo:     repository.NewClusterSpecRepository(),
+		messageService:      NewMessageService(),
+		taskLogService:      NewTaskLogService(),
+		clusterCreateHelper: NewClusterCreateHelper(),
 	}
 }
 
 type clusterInitService struct {
-	clusterRepo                repository.ClusterRepository
-	clusterNodeRepo            repository.ClusterNodeRepository
-	clusterStatusRepo          repository.ClusterStatusRepository
-	clusterSecretRepo          repository.ClusterSecretRepository
-	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
-	clusterSpecRepo            repository.ClusterSpecRepository
-	messageService             MessageService
-	clusterCreateHelper        ClusterCreateHelper
+	clusterRepo         repository.ClusterRepository
+	clusterNodeRepo     repository.ClusterNodeRepository
+	clusterSecretRepo   repository.ClusterSecretRepository
+	clusterSpecRepo     repository.ClusterSpecRepository
+	taskLogService      TaskLogService
+	messageService      MessageService
+	clusterCreateHelper ClusterCreateHelper
 }
 
 func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	if cluster.Provider == constant.ClusterProviderPlan {
-		cluster.Status.Phase = constant.ClusterCreating
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
+		cluster.TaskLog.Phase = constant.ClusterCreating
+		_ = c.taskLogService.Save(&cluster.TaskLog)
 		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
-			cluster.Status.Phase = constant.ClusterFailed
-			cluster.Status.Message = err.Error()
-			_ = c.clusterStatusRepo.Save(&cluster.Status)
+			cluster.TaskLog.Phase = constant.ClusterFailed
+			cluster.TaskLog.Message = err.Error()
+			_ = c.taskLogService.Save(&cluster.TaskLog)
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
 			return
@@ -62,20 +60,23 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
-	statusChan := make(chan adm.Cluster)
-	cluster.Status.Phase = constant.ClusterInitializing
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	statusChan := make(chan adm.AnsibleHelper)
+	cluster.TaskLog.Phase = constant.ClusterInitializing
+	_ = c.taskLogService.Save(&cluster.TaskLog)
 
 	admCluster := adm.NewCluster(cluster, writer)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
-		cluster := <-statusChan
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		switch cluster.Status.Phase {
+		result := <-statusChan
+		cluster.TaskLog.Phase = result.Status
+		cluster.TaskLog.Message = result.Message
+		cluster.TaskLog.Details = result.LogDetail
+		_ = c.taskLogService.Save(&cluster.TaskLog)
+		switch cluster.TaskLog.Phase {
 		case constant.ClusterFailed:
 			cancel()
-			logger.Log.Errorf("cluster install failed: %s", cluster.Status.Message)
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.Status.Message), cluster.Name, constant.ClusterInstall)
+			logger.Log.Errorf("cluster install failed: %s", cluster.TaskLog.Message)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.TaskLog.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
@@ -95,34 +96,34 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
 
 			logger.Log.Infof("start to load tools ...")
-			if err := c.loadTools(&cluster.Cluster); err != nil {
+			if err := c.loadTools(&cluster); err != nil {
 				logger.Log.Infof("load tool failed, err: %v!", err)
 			} else {
 				logger.Log.Infof("load tool successful !")
 			}
 			cancel()
-			err := c.GatherKubernetesToken(cluster.Cluster)
+			err := c.GatherKubernetesToken(cluster)
 			if err != nil {
-				cluster.Status.Phase = constant.ClusterNotConnected
-				cluster.Status.Message = err.Error()
+				cluster.TaskLog.Phase = constant.ClusterNotConnected
+				cluster.TaskLog.Message = err.Error()
 			}
 			return
 		}
 	}
 }
 
-func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+func (c clusterInitService) doCreate(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		resp, err := ad.OnInitialize(cluster)
+		resp, err := ad.OnInitialize(aHelper)
 		if err != nil {
-			cluster.Status.Message = err.Error()
+			aHelper.Message = err.Error()
 		}
-		cluster.Status = resp.Status
+		aHelper.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return
-		case statusChan <- cluster:
+		case statusChan <- aHelper:
 		}
 		time.Sleep(5 * time.Second)
 	}
@@ -169,6 +170,7 @@ func (c clusterInitService) loadTools(cluster *model.Cluster) error {
 
 	return nil
 }
+
 func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
 	secret, err := c.clusterSecretRepo.Get(cluster.SecretID)
 	if err != nil {

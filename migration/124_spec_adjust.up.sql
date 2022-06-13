@@ -193,6 +193,14 @@ FROM
 ALTER TABLE
     `ko`.`ko_cluster`
 ADD
+    COLUMN `status` VARCHAR(255) NULL
+AFTER
+    `source`,
+ADD
+    COLUMN `message` mediumtext NULL
+AFTER
+    `source`,
+ADD
     COLUMN `provider` VARCHAR(255) NULL
 AFTER
     `source`,
@@ -209,11 +217,15 @@ ADD
 AFTER
     `source`;
 
+
 UPDATE
     `ko_cluster` c
     JOIN `ko_cluster_spec` s ON s.id = c.spec_id
+    JOIN `ko_cluster_status` x ON x.id = c.status_id
 SET
     c.provider = s.provider,
     c.upgrade_version = s.upgrade_version,
     c.version = s.version,
-    c.architectures = s.architectures;
+    c.architectures = s.architectures,
+    c.status = x.phase,
+    c.message = x.message;
