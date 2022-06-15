@@ -194,7 +194,6 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 		tasklog := model.TaskLog{
 			ClusterID: cluster.ID,
 			Type:      constant.TaskLogTypeClusterNodeShrink,
-			PrePhase:  constant.StatusFailed,
 			Phase:     constant.StatusTerminating,
 		}
 		if err := c.taskLogService.Start(&tasklog); err != nil {
@@ -665,8 +664,8 @@ const resetWorkerPlaybook = "97-reset-worker.yml"
 
 func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nodes []model.ClusterNode, playbookName string) error {
 	detail := model.TaskLogDetail{
-		Task:   playbookName,
-		TaskID: cluster.TaskLog.ID,
+		Task:      playbookName,
+		TaskLogID: cluster.TaskLog.ID,
 	}
 	if err := c.taskLogService.StartDetail(&detail); err != nil {
 		return err
@@ -713,7 +712,6 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 	}
 
 	cluster.TaskLog.Phase = constant.StatusInitializing
-	cluster.TaskLog.PrePhase = constant.ClusterFailed
 
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {

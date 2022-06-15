@@ -49,7 +49,7 @@ type clusterCreateHelper struct {
 }
 
 func (c clusterCreateHelper) LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error {
-	workerNo, masterNo, firstMasterIP := 1, 1, ""
+	workerNo, masterNo := 1, 1
 	for _, nc := range creation.Nodes {
 		n := model.ClusterNode{
 			ClusterID: cluster.ID,
@@ -81,9 +81,6 @@ func (c clusterCreateHelper) LoadMetalNodes(creation *dto.ClusterCreate, cluster
 		case constant.NodeNameRuleDefault:
 			if n.Role == constant.NodeRoleNameMaster {
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
-				if len(firstMasterIP) == 0 {
-					firstMasterIP = n.Host.Ip
-				}
 				masterNo++
 			} else {
 				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
@@ -102,10 +99,6 @@ func (c clusterCreateHelper) LoadMetalNodes(creation *dto.ClusterCreate, cluster
 		n.Host = host
 		cluster.Nodes = append(cluster.Nodes, n)
 	}
-	if cluster.SpecConf.LbMode == constant.LbModeInternal {
-		cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
-	}
-	cluster.SpecConf.KubeRouter = firstMasterIP
 	return nil
 }
 

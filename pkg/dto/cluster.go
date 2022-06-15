@@ -187,6 +187,7 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		Architectures: c.Architectures,
 		Provider:      c.Provider,
 		Version:       c.Version,
+		Status:        constant.StatusWaiting,
 	}
 	cluster.SpecNetwork = model.ClusterSpecNetwork{
 		NetworkType:             c.NetworkType,

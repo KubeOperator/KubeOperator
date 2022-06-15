@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -61,11 +62,9 @@ func (c *AnsibleHelper) setCondition(newDetail model.TaskLogDetail) {
 }
 
 type AnsibleHelper struct {
-	PlayBookName  string
-	Status        string
-	Message       string
-	LastProbeTime time.Time
-	LogDetail     []model.TaskLogDetail
+	Status    string
+	Message   string
+	LogDetail []model.TaskLogDetail
 
 	ClusterVersion        string
 	ClusterUpgradeVersion string
@@ -76,7 +75,11 @@ type AnsibleHelper struct {
 }
 
 func NewCluster(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper {
-	c := &AnsibleHelper{}
+	c := &AnsibleHelper{
+		Status:                constant.StatusInitializing,
+		ClusterVersion:        cluster.Version,
+		ClusterUpgradeVersion: cluster.UpgradeVersion,
+	}
 	if writer != nil {
 		c.Writer = writer[0]
 	}
@@ -151,9 +154,9 @@ func NewClusterAdm() *ClusterAdm {
 	return ca
 }
 
-func (ca *ClusterAdm) OnInitialize(ansible AnsibleHelper) (AnsibleHelper, error) {
-	err := ca.Create(&ansible)
-	return ansible, err
+func (ca *ClusterAdm) OnInitialize(ansible *AnsibleHelper) error {
+	err := ca.Create(ansible)
+	return err
 }
 
 func (ca *ClusterAdm) OnUpgrade(ansible AnsibleHelper) (AnsibleHelper, error) {

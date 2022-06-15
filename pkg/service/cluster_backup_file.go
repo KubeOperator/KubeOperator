@@ -181,12 +181,9 @@ func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) e
 }
 
 func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.ClusterBackupFileCreate) {
-
 	var clog model.TaskLog
 	clog.ClusterID = cluster.ID
 	clog.Type = constant.TaskLogTypeBackup
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
 	clog.Phase = constant.StatusWaiting
 	err := c.taskLogService.Start(&clog)
 	if err != nil {
@@ -313,7 +310,6 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	var clog model.TaskLog
 	clog.ClusterID = cluster.ID
 	clog.Type = constant.TaskLogTypeRestore
-	clog.StartTime = time.Now()
 	clog.Phase = constant.StatusWaiting
 	err = c.taskLogService.Start(&clog)
 	if err != nil {

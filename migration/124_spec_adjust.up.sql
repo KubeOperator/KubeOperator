@@ -197,6 +197,10 @@ ADD
 AFTER
     `source`,
 ADD
+    COLUMN `current_task_id` VARCHAR(255) NULL
+AFTER
+    `source`,
+ADD
     COLUMN `message` mediumtext NULL
 AFTER
     `source`,

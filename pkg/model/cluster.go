@@ -28,17 +28,18 @@ type Cluster struct {
 	Status  string `json:"status"`
 	Message string `json:"message" gorm:"type:text(65535)"`
 
-	SecretID  string `json:"-"`
-	PlanID    string `json:"-"`
-	ProjectID string `json:"projectID"`
-	Dirty     bool   `json:"dirty"`
-	Plan      Plan   `json:"-"`
+	CurrentTaskID string `json:"currentTaskID"`
+	SecretID      string `json:"-"`
+	PlanID        string `json:"-"`
+	ProjectID     string `json:"projectID"`
+	Dirty         bool   `json:"dirty"`
+	Plan          Plan   `json:"-"`
 
-	SpecConf                 ClusterSpecConf          `gorm:"save_associations:false" json:"-"`
-	SpecRuntime              ClusterSpecRuntime       `gorm:"save_associations:false" json:"-"`
-	SpecNetwork              ClusterSpecNetwork       `gorm:"save_associations:false" json:"-"`
-	SpecComponent            []ClusterSpecComponent   `gorm:"save_associations:false" json:"-"`
-	TaskLog                  TaskLog                  `gorm:"save_associations:false" json:"-"`
+	SpecConf                 ClusterSpecConf          `gorm:"save_associations:false" json:"specConf"`
+	SpecRuntime              ClusterSpecRuntime       `gorm:"save_associations:false" json:"specRuntime"`
+	SpecNetwork              ClusterSpecNetwork       `gorm:"save_associations:false" json:"specNetwork"`
+	SpecComponent            []ClusterSpecComponent   `gorm:"save_associations:false" json:"specComponent"`
+	TaskLog                  TaskLog                  `gorm:"save_associations:false" json:"taskLog"`
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
 	Tools                    []ClusterTool            `gorm:"save_associations:false" json:"-"`
@@ -56,7 +57,6 @@ func (c Cluster) BeforeDelete() error {
 	cluster.ID = c.ID
 	tx := db.DB.Begin()
 	if err := tx.
-		Preload("Status").
 		Preload("SpecConf").
 		Preload("SpecRuntime").
 		Preload("SpecNetwork").

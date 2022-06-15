@@ -10,15 +10,12 @@ import (
 // log + details if apply single
 type TaskLog struct {
 	common.BaseModel
-	ID        string    `json:"id"`
-	ClusterID string    `json:"clusterID"`
-	Type      string    `json:"type"`
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	ID        string `json:"id"`
+	ClusterID string `json:"clusterID"`
+	Type      string `json:"type"`
 
-	Phase    string `json:"phase"`
-	PrePhase string `json:"prePhase"`
-	Message  string `json:"message" gorm:"type:text(65535)"`
+	Phase   string `json:"phase"`
+	Message string `json:"message" gorm:"type:text(65535)"`
 
 	Details []TaskLogDetail `json:"details"`
 }
@@ -28,9 +25,7 @@ type TaskLogDetail struct {
 	common.BaseModel
 	ID            string    `json:"id"`
 	Task          string    `json:"task"`
-	TaskID        string    `json:"taskID"`
-	StartTime     time.Time `json:"startTime"`
-	EndTime       time.Time `json:"endTime"`
+	TaskLogID     string    `json:"taskLogID"`
 	LastProbeTime time.Time `json:"lastProbeTime"`
 	Message       string    `json:"message" gorm:"type:text(65535)"`
 	Status        string    `json:"status"`

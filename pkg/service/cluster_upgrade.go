@@ -45,7 +45,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	loginfo, _ := json.Marshal(upgrade)
 	logger.Log.WithFields(logrus.Fields{"cluster_upgrade_info": string(loginfo)}).Debugf("start to upgrade the cluster %s", upgrade.ClusterName)
 
-	cluster, err := c.clusterRepo.GetWithPreload(upgrade.ClusterName, []string{"TaskLog", "SpecConf", "SpecNetwork", "SpecRuntime", "Nodes", "Nodes.Host", "Nodes.Host.Credential", "Nodes.Host.Zone", "MultiClusterRepositories"})
+	cluster, err := c.clusterRepo.GetWithPreload(upgrade.ClusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Nodes", "Nodes.Host", "Nodes.Host.Credential", "Nodes.Host.Zone", "MultiClusterRepositories"})
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
 	}
@@ -59,7 +59,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 
 	tx := db.DB.Begin()
 	//从错误后继续
-	if cluster.TaskLog.Phase == constant.StatusFailed && cluster.TaskLog.PrePhase == constant.StatusUpgrading && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
+	if cluster.TaskLog.Phase == constant.StatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
 		if err := tx.Model(&model.TaskLogDetail{}).
 			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.ConditionFalse).
 			Updates(map[string]interface{}{
@@ -72,11 +72,9 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		cluster.TaskLog = model.TaskLog{
 			ClusterID: cluster.ID,
 			Type:      constant.TaskLogTypeClusterUpgrade,
-			StartTime: time.Now(),
 		}
 	}
 	// 修改状态
-	cluster.TaskLog.PrePhase = cluster.Status
 	cluster.TaskLog.Phase = constant.StatusUpgrading
 
 	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {

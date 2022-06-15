@@ -49,9 +49,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 		cluster.TaskLog.Phase = constant.ClusterCreating
 		_ = c.taskLogService.Save(&cluster.TaskLog)
 		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
-			cluster.TaskLog.Phase = constant.ClusterFailed
-			cluster.TaskLog.Message = err.Error()
-			_ = c.taskLogService.Save(&cluster.TaskLog)
+			_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
 			return
@@ -63,6 +61,9 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	statusChan := make(chan adm.AnsibleHelper)
 	cluster.TaskLog.Phase = constant.ClusterInitializing
 	_ = c.taskLogService.Save(&cluster.TaskLog)
+	cluster.Status = constant.StatusInitializing
+	cluster.CurrentTaskID = cluster.TaskLog.ID
+	_ = c.clusterRepo.Save(&cluster)
 
 	admCluster := adm.NewCluster(cluster, writer)
 	go c.doCreate(ctx, *admCluster, statusChan)
@@ -71,15 +72,25 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 		cluster.TaskLog.Phase = result.Status
 		cluster.TaskLog.Message = result.Message
 		cluster.TaskLog.Details = result.LogDetail
-		_ = c.taskLogService.Save(&cluster.TaskLog)
+		if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+			logger.Log.Infof("save task failed %v", err)
+		}
 		switch cluster.TaskLog.Phase {
 		case constant.ClusterFailed:
 			cancel()
+			cluster.Status = result.Status
+			cluster.Message = result.Message
+			_ = c.clusterRepo.Save(&cluster)
 			logger.Log.Errorf("cluster install failed: %s", cluster.TaskLog.Message)
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.TaskLog.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
+
+			cluster.Status = result.Status
+			cluster.Message = result.Message
+			cluster.CurrentTaskID = ""
+			_ = c.clusterRepo.Save(&cluster)
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			firstMasterIP := ""
 			for i := range cluster.Nodes {
@@ -115,11 +126,9 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 func (c clusterInitService) doCreate(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		resp, err := ad.OnInitialize(aHelper)
-		if err != nil {
+		if err := ad.OnInitialize(&aHelper); err != nil {
 			aHelper.Message = err.Error()
 		}
-		aHelper.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return

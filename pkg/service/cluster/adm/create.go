@@ -43,8 +43,7 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
 				Status:        constant.ConditionUnknown,
-				LastProbeTime: time.Now(),
-				Message:       "",
+				LastProbeTime: now,
 			})
 		}
 	}

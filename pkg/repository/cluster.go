@@ -44,7 +44,6 @@ func (c clusterRepository) GetWithPreload(name string, preloads []string) (model
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
 	if err := db.DB.
-		Preload("Status").
 		Preload("SpecConf").
 		Preload("Nodes").
 		Preload("Nodes.Host").
@@ -81,7 +80,6 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 			Count(&total).
 			Offset((num - 1) * size).
 			Limit(size).
-			Preload("Status").
 			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
@@ -93,7 +91,6 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 			Count(&total).
 			Offset((num - 1) * size).
 			Limit(size).
-			Preload("Status").
 			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").

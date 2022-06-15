@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -78,7 +77,6 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 		clog.Type = constant.TaskLogTypeVeleroBackup
 	}
 
-	clog.StartTime = time.Now()
 	clog.Phase = constant.TaskLogStatusSuccess
 	err = v.taskLogService.Save(&clog)
 

@@ -12,36 +12,37 @@ func init() {
 }
 
 var stableStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost}
+var stableDetailStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost, constant.ConditionFalse, constant.ConditionTrue}
 
 // cluster
 func recoverClusterTask() error {
-	var taskList []model.TaskLog
-
 	logger.Log.Info("Update status to failed caused by task cancel")
 	tx := db.DB.Begin()
-	if err := db.DB.Where("phase not in (?)", stableStatus).Find(&taskList).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	for _, task := range taskList {
-		task.PrePhase = task.Phase
-		task.Phase = constant.StatusFailed
-		task.Message = constant.TaskCancel
-		if err := tx.Save(&task).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	if err := tx.Model(&model.TaskLogDetail{}).Where("status not in (?)", stableStatus).Updates(map[string]interface{}{
+	if err := db.DB.Model(&model.Cluster{}).Where("status not in (?)", stableStatus).Updates(map[string]interface{}{
 		"status":  constant.StatusFailed,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
+
+	if err := db.DB.Model(&model.TaskLog{}).Where("phase not in (?)", stableStatus).Updates(map[string]interface{}{
+		"phase":   constant.StatusFailed,
+		"message": constant.TaskCancel,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.ConditionUnknown).Updates(map[string]interface{}{
 		"status":  constant.ConditionFalse,
+		"message": constant.TaskCancel,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Model(&model.TaskLogDetail{}).Where("status not in (?) ", stableDetailStatus).Updates(map[string]interface{}{
+		"status":  constant.StatusFailed,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {
 		tx.Rollback()

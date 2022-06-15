@@ -7,14 +7,17 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	uuid "github.com/satori/go.uuid"
 )
 
 type TaskLogService interface {
 	List(clusterName string) ([]dto.TaskLog, error)
+	GetByID(id string) (model.TaskLog, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
 	GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.TaskLog, error)
+	NewTerminalTask(clusterID string, logtype string) (*model.TaskLog, error)
 
 	StartDetail(detail *model.TaskLogDetail) error
 	EndDetail(detail *model.TaskLogDetail, statu string, message string) error
@@ -48,6 +51,31 @@ func (c *taskLogService) List(clusterName string) ([]dto.TaskLog, error) {
 	return items, nil
 }
 
+func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
+	var tasklog model.TaskLog
+	if err := db.DB.Where("id = ?", id).Preload("Details").First(&tasklog).Error; err != nil {
+		return tasklog, err
+	}
+	return tasklog, nil
+}
+
+func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*model.TaskLog, error) {
+	task := model.TaskLog{
+		ClusterID: clusterID,
+		Type:      logtype,
+		Phase:     constant.StatusTerminating,
+		Details: []model.TaskLogDetail{
+			{
+				ID:            uuid.NewV4().String(),
+				Task:          logtype,
+				Status:        constant.ConditionUnknown,
+				LastProbeTime: time.Now(),
+			},
+		},
+	}
+	return &task, db.DB.Create(&task).Error
+}
+
 func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 	if db.DB.NewRecord(detail) {
 		return db.DB.Create(detail).Error
@@ -57,13 +85,11 @@ func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 }
 
 func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
-	detail.StartTime = time.Now()
 	detail.Status = constant.StatusWaiting
 	return db.DB.Save(detail).Error
 }
 
 func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, message string) error {
-	detail.EndTime = time.Now()
 	detail.Status = status
 	detail.Message = message
 
@@ -91,6 +117,11 @@ func (c *taskLogService) GetRunningLogWithClusterNameAndType(clusterName string,
 }
 
 func (c *taskLogService) Save(taskLog *model.TaskLog) error {
+	for i := 0; i < len(taskLog.Details); i++ {
+		if taskLog.Details[i].ID == "" {
+			taskLog.Details[i].ID = uuid.NewV4().String()
+		}
+	}
 	if db.DB.NewRecord(taskLog) {
 		return db.DB.Create(taskLog).Error
 	} else {
@@ -99,13 +130,11 @@ func (c *taskLogService) Save(taskLog *model.TaskLog) error {
 }
 
 func (c *taskLogService) Start(log *model.TaskLog) error {
-	log.StartTime = time.Now()
 	log.Phase = constant.StatusWaiting
-	return db.DB.Save(log).Error
+	return db.DB.Create(log).Error
 }
 
 func (c *taskLogService) End(log *model.TaskLog, success bool, message string) error {
-	log.EndTime = time.Now()
 	if success {
 		log.Phase = constant.TaskLogStatusSuccess
 	} else {
