@@ -16,17 +16,16 @@ import (
 
 type ClusterNode struct {
 	common.BaseModel
-	ID        string `json:"-"`
-	Name      string `json:"name"`
-	HostID    string `json:"-"`
-	Host      Host   `json:"-" gorm:"save_associations:false"`
-	ClusterID string `json:"clusterId"`
-	Role      string `json:"role"`
-	Status    string `json:"status"`
-	StatusID  string `json:"statusId"`
-	PreStatus string `json:"preStatus"`
-	Dirty     bool   `json:"dirty"`
-	Message   string `json:"message"`
+	ID            string `json:"-"`
+	Name          string `json:"name"`
+	HostID        string `json:"-"`
+	Host          Host   `json:"-" gorm:"save_associations:false"`
+	ClusterID     string `json:"clusterId"`
+	Role          string `json:"role"`
+	Status        string `json:"status"`
+	CurrentTaskID string `json:"currentTaskID"`
+	Dirty         bool   `json:"dirty"`
+	Message       string `json:"message"`
 }
 
 type Registry struct {

@@ -59,11 +59,11 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 
 	tx := db.DB.Begin()
 	//从错误后继续
-	if cluster.TaskLog.Phase == constant.StatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
+	if cluster.TaskLog.Phase == constant.TaskLogStatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
 		if err := tx.Model(&model.TaskLogDetail{}).
-			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.ConditionFalse).
+			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.TaskDetailStatusFalse).
 			Updates(map[string]interface{}{
-				"Status":  constant.ConditionUnknown,
+				"Status":  constant.TaskDetailStatusUnknown,
 				"Message": "",
 			}).Error; err != nil {
 			return fmt.Errorf("reset status error %s", err.Error())
@@ -75,7 +75,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		}
 	}
 	// 修改状态
-	cluster.TaskLog.Phase = constant.StatusUpgrading
+	cluster.TaskLog.Phase = constant.TaskLogStatusRunning
 
 	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
 		tx.Rollback()
@@ -109,7 +109,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 
 func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	ctx, cancel := context.WithCancel(context.Background())
-	admCluster := adm.NewCluster(*cluster, writer)
+	admCluster := adm.NewAnsibleHelper(*cluster, writer)
 	statusChan := make(chan adm.AnsibleHelper)
 	go c.doUpgrade(ctx, *admCluster, statusChan)
 	for {
@@ -136,11 +136,9 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 func (c clusterUpgradeService) doUpgrade(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		resp, err := ad.OnUpgrade(aHelper)
-		if err != nil {
+		if err := ad.OnUpgrade(&aHelper); err != nil {
 			aHelper.Message = err.Error()
 		}
-		aHelper.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return

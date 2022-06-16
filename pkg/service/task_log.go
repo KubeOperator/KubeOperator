@@ -19,6 +19,8 @@ type TaskLogService interface {
 	GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.TaskLog, error)
 	NewTerminalTask(clusterID string, logtype string) (*model.TaskLog, error)
 
+	IsTaskOn(clusterName string) bool
+
 	StartDetail(detail *model.TaskLogDetail) error
 	EndDetail(detail *model.TaskLogDetail, statu string, message string) error
 	SaveDetail(detail *model.TaskLogDetail) error
@@ -68,7 +70,7 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 			{
 				ID:            uuid.NewV4().String(),
 				Task:          logtype,
-				Status:        constant.ConditionUnknown,
+				Status:        constant.TaskDetailStatusUnknown,
 				LastProbeTime: time.Now(),
 			},
 		},
@@ -86,7 +88,7 @@ func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 
 func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
 	detail.Status = constant.StatusWaiting
-	return db.DB.Save(detail).Error
+	return db.DB.Create(detail).Error
 }
 
 func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, message string) error {
@@ -94,6 +96,23 @@ func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, m
 	detail.Message = message
 
 	return db.DB.Save(detail).Error
+}
+
+func (c *taskLogService) IsTaskOn(clusterName string) bool {
+	var (
+		cluster model.Cluster
+		log     model.TaskLog
+	)
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return true
+	}
+	if cluster.CurrentTaskID == "" {
+		return false
+	}
+	if err := db.DB.Where("id = ?", cluster.CurrentTaskID).First(&log).Error; err != nil {
+		return false
+	}
+	return !(log.Phase == constant.TaskLogStatusFailed || log.Phase == constant.TaskLogStatusSuccess)
 }
 
 func (c *taskLogService) GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.TaskLog, error) {
@@ -130,7 +149,7 @@ func (c *taskLogService) Save(taskLog *model.TaskLog) error {
 }
 
 func (c *taskLogService) Start(log *model.TaskLog) error {
-	log.Phase = constant.StatusWaiting
+	log.Phase = constant.TaskLogStatusWaiting
 	return db.DB.Create(log).Error
 }
 

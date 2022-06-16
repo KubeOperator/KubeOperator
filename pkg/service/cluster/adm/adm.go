@@ -74,17 +74,58 @@ type AnsibleHelper struct {
 	Kobe   kobe.Interface
 }
 
-func NewCluster(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper {
+func NewAnsibleHelper(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper {
 	c := &AnsibleHelper{
-		Status:                constant.StatusInitializing,
+		Status:                constant.TaskLogStatusRunning,
 		ClusterVersion:        cluster.Version,
 		ClusterUpgradeVersion: cluster.UpgradeVersion,
+		LogDetail:             cluster.TaskLog.Details,
 	}
 	if writer != nil {
 		c.Writer = writer[0]
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: cluster.ParseInventory(),
+	})
+	for i := range facts.DefaultFacts {
+		c.Kobe.SetVar(i, facts.DefaultFacts[i])
+	}
+	clusterVars := cluster.GetKobeVars()
+	for k, v := range clusterVars {
+		c.Kobe.SetVar(k, v)
+	}
+	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
+	ntpServerRepo := repository.NewNtpServerRepository()
+	ntps, _ := ntpServerRepo.GetAddressStr()
+	c.Kobe.SetVar(facts.NtpServerName, ntps)
+	maniFest, _ := GetManiFestBy(cluster.Version)
+	if maniFest.Name != "" {
+		vars := maniFest.GetVars()
+		for k, v := range vars {
+			c.Kobe.SetVar(k, v)
+		}
+	}
+	return c
+}
+
+func NewAnsibleHelperWithNewWorker(cluster model.Cluster, workers []string, writer ...io.Writer) *AnsibleHelper {
+	c := &AnsibleHelper{
+		Status:                constant.TaskLogStatusRunning,
+		ClusterVersion:        cluster.Version,
+		ClusterUpgradeVersion: cluster.UpgradeVersion,
+		LogDetail:             cluster.TaskLog.Details,
+	}
+	if writer != nil {
+		c.Writer = writer[0]
+	}
+	inventory := cluster.ParseInventory()
+	for i := range inventory.Groups {
+		if inventory.Groups[i].Name == "new-worker" {
+			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, workers...)
+		}
+	}
+	c.Kobe = kobe.NewAnsible(&kobe.Config{
+		Inventory: inventory,
 	})
 	for i := range facts.DefaultFacts {
 		c.Kobe.SetVar(i, facts.DefaultFacts[i])
@@ -159,14 +200,14 @@ func (ca *ClusterAdm) OnInitialize(ansible *AnsibleHelper) error {
 	return err
 }
 
-func (ca *ClusterAdm) OnUpgrade(ansible AnsibleHelper) (AnsibleHelper, error) {
-	err := ca.Upgrade(&ansible)
-	return ansible, err
+func (ca *ClusterAdm) OnUpgrade(ansible *AnsibleHelper) error {
+	err := ca.Upgrade(ansible)
+	return err
 }
 
-func (ca *ClusterAdm) OnAddWorker(ansible AnsibleHelper) (AnsibleHelper, error) {
-	err := ca.AddWorker(&ansible)
-	return ansible, err
+func (ca *ClusterAdm) OnAddWorker(ansible *AnsibleHelper) error {
+	err := ca.AddWorker(ansible)
+	return err
 }
 
 func GetManiFestBy(name string) (dto.ClusterManifest, error) {

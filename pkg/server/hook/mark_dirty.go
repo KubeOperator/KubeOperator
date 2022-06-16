@@ -12,7 +12,8 @@ func init() {
 }
 
 var stableStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost}
-var stableDetailStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost, constant.ConditionFalse, constant.ConditionTrue}
+var statleTaskStatus = []string{constant.TaskLogStatusSuccess, constant.TaskLogStatusFailed}
+var stableDetailStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost, constant.TaskDetailStatusFalse, constant.TaskDetailStatusTrue}
 
 // cluster
 func recoverClusterTask() error {
@@ -26,16 +27,16 @@ func recoverClusterTask() error {
 		return err
 	}
 
-	if err := db.DB.Model(&model.TaskLog{}).Where("phase not in (?)", stableStatus).Updates(map[string]interface{}{
-		"phase":   constant.StatusFailed,
+	if err := db.DB.Model(&model.TaskLog{}).Where("phase not in (?)", statleTaskStatus).Updates(map[string]interface{}{
+		"phase":   constant.TaskLogStatusFailed,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.ConditionUnknown).Updates(map[string]interface{}{
-		"status":  constant.ConditionFalse,
+	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.TaskDetailStatusUnknown).Updates(map[string]interface{}{
+		"status":  constant.TaskDetailStatusFalse,
 		"message": constant.TaskCancel,
 	}).Error; err != nil {
 		tx.Rollback()
@@ -79,7 +80,6 @@ func recoverClusterTask() error {
 		return err
 	}
 	for _, statu := range nodes {
-		statu.PreStatus = statu.Status
 		statu.Status = constant.StatusFailed
 		statu.Message = constant.TaskCancel
 		if err := tx.Save(&statu).Error; err != nil {

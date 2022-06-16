@@ -25,7 +25,7 @@ func (ca *ClusterAdm) Upgrade(aHelper *AnsibleHelper) error {
 		if err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          task.Task,
-				Status:        constant.ConditionFalse,
+				Status:        constant.TaskDetailStatusFalse,
 				LastProbeTime: now,
 				Message:       err.Error(),
 			})
@@ -35,17 +35,17 @@ func (ca *ClusterAdm) Upgrade(aHelper *AnsibleHelper) error {
 		}
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          task.Task,
-			Status:        constant.ConditionTrue,
+			Status:        constant.TaskDetailStatusTrue,
 			LastProbeTime: now,
 		})
 
 		nextConditionType := ca.getNextUpgradeConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
-			aHelper.Status = constant.ClusterRunning
+			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
-				Status:        constant.ConditionUnknown,
+				Status:        constant.TaskDetailStatusUnknown,
 				LastProbeTime: time.Now(),
 				Message:       "",
 			})
@@ -58,13 +58,13 @@ func (ca *ClusterAdm) getUpgradeCurrentTask(aHelper *AnsibleHelper) *model.TaskL
 	if len(aHelper.LogDetail) == 0 {
 		return &model.TaskLogDetail{
 			Task:          ca.upgradeHandlers[0].name(),
-			Status:        constant.ConditionUnknown,
+			Status:        constant.TaskDetailStatusUnknown,
 			LastProbeTime: time.Now(),
 			Message:       "",
 		}
 	}
 	for _, task := range aHelper.LogDetail {
-		if task.Status == constant.ConditionFalse || task.Status == constant.ConditionUnknown {
+		if task.Status == constant.TaskDetailStatusFalse || task.Status == constant.TaskDetailStatusUnknown {
 			return &task
 		}
 	}

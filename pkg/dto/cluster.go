@@ -10,7 +10,6 @@ type Cluster struct {
 	model.Cluster
 	NodeSize               int    `json:"nodeSize"`
 	ProjectName            string `json:"projectName"`
-	PreStatus              string `json:"preStatus"`
 	MultiClusterRepository string `json:"multiClusterRepository"`
 }
 

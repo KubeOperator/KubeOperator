@@ -17,7 +17,6 @@ const (
 	TaskLogTypeClusterDelete     = "CLUSTER_DELEDE"
 	TaskLogTypeClusterNodeExtend = "CLUSTER_NODE_EXTEND"
 	TaskLogTypeClusterNodeShrink = "CLUSTER_NODE_SHRINK"
-	TaskLogTypeClusterNodeDelete = "CLUSTER_NODE_DELEDE"
 	TaskLogTypeBackup            = "CLUSTER_BACKUP"
 	TaskLogTypeRestore           = "CLUSTER_RESTORE"
 	TaskLogTypeVeleroBackup      = "CLUSTER_VELERO_BACKUP"
@@ -27,10 +26,13 @@ const (
 	TaskLogHandlerKobe = "KOBE"
 	TaskLogHandlerKotf = "KOTF"
 
-	TaskLogStatusSuccess = "SUCCESS"
-	TaskLogStatusFailed  = "FAILED"
-	TaskLogStatusWaiting = "WAITING"
-	TaskLogStatusRunning = "RUNNING"
+	TaskLogStatusSuccess    = "SUCCESS"
+	TaskLogStatusFailed     = "FAILED"
+	TaskLogStatusRunning    = "RUNNING"
+	TaskLogStatusWaiting    = "WAITING"
+	TaskDetailStatusTrue    = "True"
+	TaskDetailStatusFalse   = "False"
+	TaskDetailStatusUnknown = "Unknown"
 
 	// 表示创建资源
 	ClusterCreating      = "Creating"
@@ -45,10 +47,6 @@ const (
 	ClusterSourceInternal   = "internal"
 	ClusterSourceExternal   = "external"
 	ClusterSourceKoExternal = "ko-external"
-
-	ConditionTrue    = "True"
-	ConditionFalse   = "False"
-	ConditionUnknown = "Unknown"
 
 	NodeRoleNameMaster = "master"
 	NodeRoleNameWorker = "worker"

@@ -45,9 +45,13 @@ type clusterInitService struct {
 }
 
 func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
+	cluster.TaskLog.Phase = constant.TaskLogStatusWaiting
+	_ = c.taskLogService.Save(&cluster.TaskLog)
+	cluster.Status = constant.StatusInitializing
+	cluster.CurrentTaskID = cluster.TaskLog.ID
+	_ = c.clusterRepo.Save(&cluster)
+
 	if cluster.Provider == constant.ClusterProviderPlan {
-		cluster.TaskLog.Phase = constant.ClusterCreating
-		_ = c.taskLogService.Save(&cluster.TaskLog)
 		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
 			_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
@@ -56,16 +60,14 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 		}
 	}
 
+	cluster.TaskLog.Phase = constant.TaskLogStatusRunning
+	cluster.TaskLog.CreatedAt = time.Now()
+	_ = c.taskLogService.Save(&cluster.TaskLog)
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 	statusChan := make(chan adm.AnsibleHelper)
-	cluster.TaskLog.Phase = constant.ClusterInitializing
-	_ = c.taskLogService.Save(&cluster.TaskLog)
-	cluster.Status = constant.StatusInitializing
-	cluster.CurrentTaskID = cluster.TaskLog.ID
-	_ = c.clusterRepo.Save(&cluster)
 
-	admCluster := adm.NewCluster(cluster, writer)
+	admCluster := adm.NewAnsibleHelper(cluster, writer)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		result := <-statusChan
@@ -76,21 +78,19 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			logger.Log.Infof("save task failed %v", err)
 		}
 		switch cluster.TaskLog.Phase {
-		case constant.ClusterFailed:
+		case constant.TaskLogStatusFailed:
 			cancel()
-			cluster.Status = result.Status
+			cluster.Status = constant.StatusFailed
 			cluster.Message = result.Message
 			_ = c.clusterRepo.Save(&cluster)
 			logger.Log.Errorf("cluster install failed: %s", cluster.TaskLog.Message)
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.TaskLog.Message), cluster.Name, constant.ClusterInstall)
 			return
-		case constant.ClusterRunning:
+		case constant.TaskLogStatusSuccess:
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
-
-			cluster.Status = result.Status
+			cluster.Status = constant.StatusRunning
 			cluster.Message = result.Message
 			cluster.CurrentTaskID = ""
-			_ = c.clusterRepo.Save(&cluster)
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			firstMasterIP := ""
 			for i := range cluster.Nodes {
@@ -115,9 +115,10 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			cancel()
 			err := c.GatherKubernetesToken(cluster)
 			if err != nil {
-				cluster.TaskLog.Phase = constant.ClusterNotConnected
-				cluster.TaskLog.Message = err.Error()
+				cluster.Status = constant.ClusterNotConnected
+				cluster.Message = err.Error()
 			}
+			_ = c.clusterRepo.Save(&cluster)
 			return
 		}
 	}

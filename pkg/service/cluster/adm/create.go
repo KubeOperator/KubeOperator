@@ -22,27 +22,27 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 		if err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          task.Task,
-				Status:        constant.ConditionFalse,
+				Status:        constant.TaskDetailStatusFalse,
 				LastProbeTime: now,
 				Message:       err.Error(),
 			})
-			aHelper.Status = constant.ClusterFailed
+			aHelper.Status = constant.TaskLogStatusFailed
 			aHelper.Message = err.Error()
 			return nil
 		}
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          task.Task,
-			Status:        constant.ConditionTrue,
+			Status:        constant.TaskDetailStatusTrue,
 			LastProbeTime: now,
 		})
 
 		nextConditionType := ca.getNextCreateConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
-			aHelper.Status = constant.ClusterRunning
+			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
-				Status:        constant.ConditionUnknown,
+				Status:        constant.TaskDetailStatusUnknown,
 				LastProbeTime: now,
 			})
 		}
@@ -54,13 +54,13 @@ func (ca *ClusterAdm) getCreateCurrentTask(aHelper *AnsibleHelper) *model.TaskLo
 	if len(aHelper.LogDetail) == 0 {
 		return &model.TaskLogDetail{
 			Task:          ca.createHandlers[0].name(),
-			Status:        constant.ConditionUnknown,
+			Status:        constant.TaskDetailStatusUnknown,
 			LastProbeTime: time.Now(),
 			Message:       "",
 		}
 	}
 	for _, detail := range aHelper.LogDetail {
-		if detail.Status == constant.ConditionFalse || detail.Status == constant.ConditionUnknown {
+		if detail.Status == constant.TaskDetailStatusFalse || detail.Status == constant.TaskDetailStatusUnknown {
 			return &detail
 		}
 	}

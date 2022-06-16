@@ -50,7 +50,7 @@ type Ingress struct {
 	version string
 }
 
-func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string) (*Cluster, error) {
+func NewAnsibleHelper(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
@@ -89,7 +89,7 @@ func NewCluster(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace
 }
 
 func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string, enable bool) (Interface, error) {
-	c, err := NewCluster(cluster, hosts, oldNamespace, namespace)
+	c, err := NewAnsibleHelper(cluster, hosts, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}

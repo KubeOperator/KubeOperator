@@ -149,7 +149,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 }
 
 func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, repoPort int) {
-	admCluster := adm.NewCluster(cluster)
+	admCluster := adm.NewAnsibleHelper(cluster)
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
 		logger.Log.Error(err)

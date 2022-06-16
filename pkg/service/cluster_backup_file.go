@@ -184,7 +184,7 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	var clog model.TaskLog
 	clog.ClusterID = cluster.ID
 	clog.Type = constant.TaskLogTypeBackup
-	clog.Phase = constant.StatusWaiting
+	clog.Phase = constant.TaskLogStatusRunning
 	err := c.taskLogService.Start(&clog)
 	if err != nil {
 		logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
@@ -200,7 +200,7 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 		logger.Log.Errorf("start cluster log failed, error: %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	}
-	admCluster := adm.NewCluster(cluster)
+	admCluster := adm.NewAnsibleHelper(cluster)
 	p := &backup.BackupClusterPhase{}
 	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
@@ -310,7 +310,7 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	var clog model.TaskLog
 	clog.ClusterID = cluster.ID
 	clog.Type = constant.TaskLogTypeRestore
-	clog.Phase = constant.StatusWaiting
+	clog.Phase = constant.TaskLogStatusRunning
 	err = c.taskLogService.Start(&clog)
 	if err != nil {
 		logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
@@ -350,7 +350,7 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 		return
 	}
 
-	admCluster := adm.NewCluster(cluster.Cluster)
+	admCluster := adm.NewAnsibleHelper(cluster.Cluster)
 	p := &backup.RestoreClusterPhase{}
 
 	err = p.Run(admCluster.Kobe, writer)
@@ -394,7 +394,7 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		var clog model.TaskLog
 		clog.ClusterID = cluster.ID
 		clog.Type = constant.TaskLogTypeRestore
-		clog.Phase = constant.StatusWaiting
+		clog.Phase = constant.TaskLogStatusRunning
 		err = c.taskLogService.Start(&clog)
 		if err != nil {
 			logger.Log.Errorf("save cluster log failed, error: %s", err.Error())
@@ -411,7 +411,7 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		}
 
-		admCluster := adm.NewCluster(cluster.Cluster)
+		admCluster := adm.NewAnsibleHelper(cluster.Cluster)
 		p := &backup.RestoreClusterPhase{}
 		err = p.Run(admCluster.Kobe, writer)
 		if err != nil {

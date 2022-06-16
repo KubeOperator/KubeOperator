@@ -77,14 +77,11 @@ type clusterService struct {
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
 	var clusterDTO dto.Cluster
-	mo, err := c.clusterRepo.GetWithPreload(name, []string{"Nodes"})
+	mo, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Nodes"})
 	if err != nil {
 		return clusterDTO, err
 	}
-	tasklog, err := c.tasklogService.GetByID(mo.CurrentTaskID)
-	if err != nil {
-		return clusterDTO, err
-	}
+	tasklog, _ := c.tasklogService.GetByID(mo.CurrentTaskID)
 	clusterDTO.Cluster.TaskLog = tasklog
 	clusterDTO.Provider = mo.Provider
 	clusterDTO.Cluster = mo
@@ -213,29 +210,28 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 		}
 	}
 
-	for _, mo := range clusters {
-		message := ""
-		if (mo.Status == constant.ClusterRunning || mo.Status == constant.ClusterNotReady) && !(isPolling == "true") {
+	for i := 0; i < len(clusters); i++ {
+		if (clusters[i].Status == constant.ClusterRunning || clusters[i].Status == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
-			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.SpecConf.LbKubeApiserverIp, mo.SpecConf.KubeApiServerPort))
+			isOK, clusters[i].Message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", clusters[i].SpecConf.LbKubeApiserverIp, clusters[i].SpecConf.KubeApiServerPort))
 			if !isOK {
-				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", mo.ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": message})
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": clusters[i].Message})
 			}
-			if isOK && mo.Status == constant.ClusterNotReady {
-				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", mo.ID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+			if isOK && clusters[i].Status == constant.ClusterNotReady {
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterRunning, "Message": ""})
 			}
 		}
 		for _, res := range clusterResources {
-			if mo.ID == res.ResourceID {
+			if clusters[i].ID == res.ResourceID {
 				for _, pro := range projects {
 					if pro.ID == res.ProjectID {
 						clusterDTO := dto.Cluster{
-							Cluster:     mo,
+							Cluster:     clusters[i],
 							ProjectName: pro.Name,
-							NodeSize:    len(mo.Nodes),
+							NodeSize:    len(clusters[i].Nodes),
 						}
-						if len(mo.MultiClusterRepositories) > 0 {
-							clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+						if len(clusters[i].MultiClusterRepositories) > 0 {
+							clusterDTO.MultiClusterRepository = clusters[i].MultiClusterRepositories[0].Name
 						}
 						page.Items = append(page.Items, clusterDTO)
 						break
@@ -296,7 +292,6 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 // 	}
 // 	status.ClusterStatus = cs
 // 	status.ClusterStatus.Phase = node.Status
-// 	status.ClusterStatus.PrePhase = node.PreStatus
 // 	status.ClusterStatus.Message = node.Message
 // 	return status, nil
 // }
@@ -313,8 +308,8 @@ func (c *clusterService) ReCreate(name string) error {
 	cluster.TaskLog = tasklog
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {
-			if cluster.TaskLog.Details[i].Status == constant.ConditionFalse {
-				cluster.TaskLog.Details[i].Status = constant.ConditionUnknown
+			if cluster.TaskLog.Details[i].Status == constant.TaskDetailStatusFalse {
+				cluster.TaskLog.Details[i].Status = constant.TaskDetailStatusUnknown
 				cluster.TaskLog.Details[i].Message = ""
 				err := c.tasklogService.Save(&cluster.TaskLog)
 				if err != nil {
@@ -395,7 +390,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) 
 	cluster.Status = constant.ClusterFailed
 	cluster.Message = errStr.Error()
 	if len(cluster.TaskLog.Details) == 1 {
-		cluster.TaskLog.Details[0].Status = constant.ConditionFalse
+		cluster.TaskLog.Details[0].Status = constant.TaskDetailStatusFalse
 		cluster.TaskLog.Details[0].Message = errStr.Error()
 	}
 	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
@@ -440,10 +435,9 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-	for _, tas := range cluster.TaskLog.Details {
-		if tas.Status == constant.ConditionUnknown {
-			tas.Status = constant.ConditionTrue
-		}
+	if len(cluster.TaskLog.Details) == 1 {
+		cluster.TaskLog.Details[0].Status = constant.TaskDetailStatusTrue
+		cluster.TaskLog.Details[0].Message = ""
 	}
 	if err := c.tasklogService.End(&cluster.TaskLog, true, ""); err != nil {
 		logger.Log.Errorf("update tasklog error %s", err.Error())
@@ -486,7 +480,7 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
 	var result kubernetes.Host
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return "", err
 	}
@@ -505,7 +499,7 @@ func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, erro
 
 func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, error) {
 	var result []kubernetes.Host
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return nil, err
 	}
