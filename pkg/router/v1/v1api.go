@@ -52,7 +52,6 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/clusters/velero/{cluster}/{operate}")).HandleError(ErrorHandler).Handle(controller.NewClusterVeleroBackupController())
 	mvc.New(AuthScope.Party("/manifests")).HandleError(ErrorHandler).Handle(controller.NewManifestController())
 	mvc.New(AuthScope.Party("/vmconfigs")).HandleError(ErrorHandler).Handle(controller.NewVmConfigController())
-	mvc.New(AuthScope.Party("/clusters/events")).HandleError(ErrorHandler).Handle(controller.NewClusterEventController())
 	mvc.New(AuthScope.Party("/ippools")).HandleError(ErrorHandler).Handle(controller.NewIpPoolController())
 	mvc.New(AuthScope.Party("/ippools/{name}/ips")).HandleError(ErrorHandler).Handle(controller.NewIpController())
 	mvc.New(AuthScope.Party("/projects/{project}/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())
