@@ -2,9 +2,10 @@ package cron
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/cron/job"
 	"github.com/robfig/cron/v3"
-	"time"
 )
 
 var Cron *cron.Cron
@@ -28,14 +29,6 @@ func (c *InitCronPhase) Init() error {
 		if err != nil {
 			return fmt.Errorf("can not add backup corn job: %s", err.Error())
 		}
-		_, err = Cron.AddJob("@every 10m", job.NewClusterEvent())
-		if err != nil {
-			return fmt.Errorf("can not add cluster event corn job: %s", err.Error())
-		}
-		//_, err = Cron.AddJob("@every 1m", job.NewClusterHealthCheck())
-		//if err != nil {
-		//	return fmt.Errorf("can not add cluster health check corn job: %s", err.Error())
-		//}
 		Cron.Start()
 	}
 	return nil
