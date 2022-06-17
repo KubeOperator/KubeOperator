@@ -330,19 +330,13 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 }
 
 func (c *clusterNodeService) updateNodeStatus(cluster *model.Cluster, operation, status string, nodeIDs []string, errMsg error) {
-	errmsg, taskSuccess, detailStatus := "", true, constant.TaskDetailStatusTrue
+	errmsg, taskSuccess := "", true
 	if errMsg != nil {
 		errmsg = errMsg.Error()
 	}
 	if status == constant.ClusterFailed {
 		taskSuccess = false
-		detailStatus = constant.TaskDetailStatusFalse
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), cluster.Name, operation)
-	}
-	for i := 0; i < len(cluster.TaskLog.Details); i++ {
-		if cluster.TaskLog.Details[i].Status == constant.TaskDetailStatusUnknown {
-			cluster.TaskLog.Details[i].Status = detailStatus
-		}
 	}
 	_ = c.taskLogService.End(&cluster.TaskLog, taskSuccess, errmsg)
 

@@ -168,7 +168,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 	tx.Commit()
-	go Do(&cluster, client, &task, localRepoPort)
+	go Do(client, &task, localRepoPort)
 	return &dto.CisTask{CisTask: task}, nil
 }
 
@@ -185,7 +185,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 
 const kubeBenchVersion = "v0.6.8"
 
-func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
+func Do(client *kubernetes.Clientset, task *model.CisTask, port int) {
 	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
 
 	taskWithResult.Status = CisTaskStatusRunning

@@ -374,10 +374,6 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) 
 	logger.Log.Infof("cluster %s delete failed: %+v", cluster.Name, errStr)
 	cluster.Status = constant.ClusterFailed
 	cluster.Message = errStr.Error()
-	if len(cluster.TaskLog.Details) == 1 {
-		cluster.TaskLog.Details[0].Status = constant.TaskDetailStatusFalse
-		cluster.TaskLog.Details[0].Message = errStr.Error()
-	}
 	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
 
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, errStr.Error()), cluster.Name, constant.ClusterUnInstall)
@@ -420,10 +416,6 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-	if len(cluster.TaskLog.Details) == 1 {
-		cluster.TaskLog.Details[0].Status = constant.TaskDetailStatusTrue
-		cluster.TaskLog.Details[0].Message = ""
-	}
 	if err := c.tasklogService.End(&cluster.TaskLog, true, ""); err != nil {
 		logger.Log.Errorf("update tasklog error %s", err.Error())
 	}
@@ -504,7 +496,7 @@ func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, e
 }
 
 func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	var endpoint dto.Endpoint
 	if err != nil {
 		return endpoint, err
@@ -538,7 +530,7 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 }
 
 func (c clusterService) GetKubeconfig(name string) (string, error) {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return "", err
 	}

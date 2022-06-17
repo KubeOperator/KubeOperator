@@ -51,10 +51,10 @@ func (c *ClusterHealthCheck) Run() {
 			}
 			_, err = kubeUtil.SelectAliveHost(endpoints)
 			if err != nil {
-				logger.Log.Error("ping cluster %s api failed: %+v", cs[i].Name, err)
+				logger.Log.Errorf("ping cluster %s api failed: %+v", cs[i].Name, err)
 				cs[i].Cluster.Status = constant.StatusLost
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
+					logger.Log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
 					return
 				}
 				return
@@ -64,7 +64,7 @@ func (c *ClusterHealthCheck) Run() {
 				Token: secret.KubernetesToken,
 			})
 			if err != nil {
-				logger.Log.Error("get cluster %s api client error %+v", cs[i].Name, err)
+				logger.Log.Errorf("get cluster %s api client error %+v", cs[i].Name, err)
 				return
 			}
 			_, err = client.ServerVersion()

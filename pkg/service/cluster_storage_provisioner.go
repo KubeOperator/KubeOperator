@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -47,12 +48,16 @@ type ClusterStorageProvisionerService interface {
 type clusterStorageProvisionerService struct {
 	provisionerRepo repository.ClusterStorageProvisionerRepository
 	clusterService  ClusterService
+	clusterRepo     repository.ClusterRepository
+	taskLogService  TaskLogService
 }
 
 func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 	return &clusterStorageProvisionerService{
 		provisionerRepo: repository.NewClusterStorageProvisionerRepository(),
 		clusterService:  NewClusterService(),
+		clusterRepo:     repository.NewClusterRepository(),
+		taskLogService:  NewTaskLogService(),
 	}
 }
 
@@ -116,7 +121,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		Status: constant.ClusterCreating,
 	}
 
-	cluster, err := c.clusterService.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return dp, err
 	}
@@ -140,15 +145,26 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 			return dp, errors.New("load image pull port failed")
 		}
 	}
+	playbook := c.loadPlayBookName(p.Type)
+	task := model.TaskLogDetail{
+		ID:            p.ID,
+		Task:          playbook,
+		ClusterID:     cluster.ID,
+		LastProbeTime: time.Now(),
+		Status:        constant.TaskLogStatusRunning,
+	}
+	if err := c.taskLogService.StartDetail(&task); err != nil {
+		return dp, fmt.Errorf("save tasklog failed, err: %v", err)
+	}
 
 	//playbook
-	go c.do(cluster.Cluster, p, registery.RegistryPort)
+	go c.do(cluster, p, task, registery.RegistryPort)
 	dp.ClusterStorageProvisioner = p
 	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
 	return dp, nil
 }
 
-func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, repoPort int) {
+func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, task model.TaskLogDetail, repoPort int) {
 	admCluster := adm.NewAnsibleHelper(cluster)
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
@@ -175,9 +191,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "nfs":
 		admCluster.Kobe.SetVar("storage_nfs_provisioner_name", provisioner.Name)
 		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -189,9 +207,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "rook-ceph":
 		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -203,9 +223,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "vsphere":
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -219,9 +241,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "external-ceph-block":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephRbdStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -234,9 +258,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "external-cephfs":
 		admCluster.Kobe.SetVar("storage_fs_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephFsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -248,9 +274,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		}
 	case "oceanstor":
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -263,9 +291,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "cinder":
 		admCluster.Kobe.SetVar("cinder_csi_version", "v1.20.0")
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, cinderStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -278,9 +308,11 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "glusterfs":
 		admCluster.Kobe.SetVar("type", provisioner.Type)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, glusterfsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
@@ -296,6 +328,28 @@ func (c clusterStorageProvisionerService) errCreateStorageProvisioner(clusterNam
 	provisioner.Status = constant.ClusterFailed
 	provisioner.Message = err.Error()
 	_ = c.provisionerRepo.Save(clusterName, &provisioner)
+}
+
+func (c clusterStorageProvisionerService) loadPlayBookName(provisionerType string) string {
+	switch provisionerType {
+	case "nfs":
+		return NfsStorage
+	case "rook-ceph":
+		return rookCephStorage
+	case "vsphere":
+		return vsphereStorage
+	case "external-ceph-block":
+		return externalCephRbdStorage
+	case "external-cephfs":
+		return rookCephStorage
+	case "oceanstor":
+		return oceanStor
+	case "cinder":
+		return cinderStorage
+	case "glusterfs":
+		return glusterfsStorage
+	}
+	return ""
 }
 
 func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName string, provisioners []dto.ClusterStorageProvisionerSync) error {

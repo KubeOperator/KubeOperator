@@ -65,7 +65,7 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 	task := model.TaskLog{
 		ClusterID: clusterID,
 		Type:      logtype,
-		Phase:     constant.StatusTerminating,
+		Phase:     constant.TaskLogStatusRunning,
 		Details: []model.TaskLogDetail{
 			{
 				ID:            uuid.NewV4().String(),
@@ -87,7 +87,6 @@ func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 }
 
 func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
-	detail.Status = constant.StatusWaiting
 	return db.DB.Create(detail).Error
 }
 
@@ -154,10 +153,18 @@ func (c *taskLogService) Start(log *model.TaskLog) error {
 }
 
 func (c *taskLogService) End(log *model.TaskLog, success bool, message string) error {
+	status := constant.TaskDetailStatusFalse
 	if success {
+		status = constant.TaskDetailStatusTrue
 		log.Phase = constant.TaskLogStatusSuccess
 	} else {
 		log.Phase = constant.TaskLogStatusFailed
+	}
+	for i := 0; i < len(log.Details); i++ {
+		if log.Details[i].Status == constant.TaskDetailStatusUnknown {
+			log.Details[i].Status = status
+			log.Details[i].Message = message
+		}
 	}
 	log.Message = message
 
