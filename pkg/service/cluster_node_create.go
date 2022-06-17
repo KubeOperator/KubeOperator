@@ -77,11 +77,11 @@ func (c clusterNodeService) batchCreate(cluster *model.Cluster, currentNodes []m
 	}
 	cluster.Nodes = append(cluster.Nodes, newNodes...)
 
-	go c.addWorkInit(cluster, newNodes, writer)
+	go c.addWorkInit(cluster, newNodes, writer, "")
 	return nil
 }
 
-func (c *clusterNodeService) addWorkInit(cluster *model.Cluster, nodes []model.ClusterNode, writer io.Writer) {
+func (c *clusterNodeService) addWorkInit(cluster *model.Cluster, nodes []model.ClusterNode, writer io.Writer, operation string) {
 	var (
 		newNodeIDs []string
 		newHostIDs []string
@@ -91,7 +91,7 @@ func (c *clusterNodeService) addWorkInit(cluster *model.Cluster, nodes []model.C
 		newHostIDs = append(newHostIDs, n.Host.ID)
 	}
 
-	if cluster.Provider == constant.ClusterProviderPlan {
+	if operation != "recreate" && cluster.Provider == constant.ClusterProviderPlan {
 		logger.Log.Info("cluster-plan start add hosts, update hosts status and infos")
 		if err := c.updataHostInfo(cluster, newNodeIDs, newHostIDs); err != nil {
 			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusFailed, newNodeIDs, err)
@@ -135,14 +135,14 @@ func (c *clusterNodeService) addWorkInit(cluster *model.Cluster, nodes []model.C
 		// 保存进度
 		switch result.Status {
 		case constant.TaskLogStatusSuccess:
+			cancel()
+			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusRunning, nodeIds, fmt.Errorf(result.Message))
 			cluster.CurrentTaskID = ""
 			_ = c.clusterRepo.Save(cluster)
-			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusRunning, nodeIds, fmt.Errorf(result.Message))
-			cancel()
 			return
 		case constant.TaskLogStatusFailed:
-			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusFailed, nodeIds, fmt.Errorf(result.Message))
 			cancel()
+			c.updateNodeStatus(cluster, constant.ClusterAddWorker, constant.StatusFailed, nodeIds, fmt.Errorf(result.Message))
 			return
 		}
 	}

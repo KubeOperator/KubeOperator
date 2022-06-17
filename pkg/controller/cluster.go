@@ -323,23 +323,6 @@ func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) 
 
 }
 
-// Get Cluster Status
-// @Tags clusters
-// @Summary Get cluster node status
-// @Description Get cluster node status
-// @Accept  json
-// @Produce  json
-// @Security ApiKeyAuth
-// @Success 200 {object} dto.Node
-// @Router /clusters/status/{clusterName}/{nodeName} [get]
-// func (c ClusterController) GetNodeStatusBy(cluster, node string) (*dto.ClusterStatus, error) {
-// 	cs, err := c.ClusterService.GetNodeStatus(cluster, node)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &cs, nil
-// }
-
 // Get Cluster Details
 // @Tags clusters
 // @Summary Get cluster node details

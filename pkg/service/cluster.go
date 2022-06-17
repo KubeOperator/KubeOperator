@@ -32,9 +32,7 @@ type ClusterService interface {
 	GetClusterByProject(projectNames string) ([]dto.ClusterInfo, error)
 	CheckExistence(name string) bool
 	GetStatus(name string) (*dto.TaskLog, error)
-	// GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
-	// GetLogBy(name string) (*dto.TaskLog, error)
 	GetApiServerEndpoint(name string) (kubernetes.Host, error)
 	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
@@ -270,6 +268,9 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 	if err != nil {
 		return nil, err
 	}
+	if cluster.CurrentTaskID == "" {
+		return &dto.TaskLog{TaskLog: model.TaskLog{}}, nil
+	}
 	tasklog, err := c.tasklogService.GetByID(cluster.CurrentTaskID)
 	if err != nil {
 		return nil, err
@@ -279,22 +280,6 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 	})
 	return &dto.TaskLog{TaskLog: tasklog}, nil
 }
-
-// func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.ClusterStatus, error) {
-// 	var status dto.ClusterStatus
-// 	node, err := c.clusterNodeRepo.Get(clusterName, nodeName)
-// 	if err != nil {
-// 		return status, err
-// 	}
-// 	cs, err := c.clusterStatusRepo.Get(node.StatusID)
-// 	if err != nil {
-// 		return status, err
-// 	}
-// 	status.ClusterStatus = cs
-// 	status.ClusterStatus.Phase = node.Status
-// 	status.ClusterStatus.Message = node.Message
-// 	return status, nil
-// }
 
 func (c *clusterService) ReCreate(name string) error {
 	cluster, err := c.clusterRepo.Get(name)

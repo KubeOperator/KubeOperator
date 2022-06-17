@@ -372,13 +372,18 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 	if isON {
 		return errors.New("TASK_IN_EXECUTION")
 	}
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
+	tasklog, err := c.taskLogService.GetByID(cluster.CurrentTaskID)
+	if err != nil {
+		return err
+	}
+	cluster.TaskLog = tasklog
 
 	var nodes []model.ClusterNode
-	if err := db.DB.Where("current_task_id = ?", cluster.TaskLog.ID).Find(&nodes).Error; err != nil {
+	if err := db.DB.Where("current_task_id = ?", cluster.CurrentTaskID).Find(&nodes).Error; err != nil {
 		return err
 	}
 	if err := db.DB.Model(&model.ClusterNode{}).Where("current_task_id = ?", batch.StatusID).
@@ -395,13 +400,6 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 		"log_id": cluster.TaskLog.ID,
 	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
 
-	tasklog, err := c.taskLogService.GetByID(cluster.CurrentTaskID)
-	if err != nil {
-		return err
-	}
-	cluster.TaskLog = tasklog
-	_ = c.clusterRepo.Save(&cluster)
-
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {
 			if cluster.TaskLog.Details[i].Status == constant.TaskDetailStatusFalse {
@@ -415,7 +413,7 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 		return err
 	}
 
-	go c.addWorkInit(&cluster, nodes, writer)
+	go c.addWorkInit(&cluster, nodes, writer, "recreate")
 	return nil
 }
 
