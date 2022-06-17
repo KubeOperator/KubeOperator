@@ -106,6 +106,7 @@ BACKUP_ACCOUNT_IS_NOT_FOUND: "%s 备份账号不存在"
 LDAP_USER_IS_NULL: "同步到的用户为0"
 LDAP_LOGIN_USER_IS_NULL: "用户不存在！"
 LDAP_DISABLE: "系统禁止LDAP用户登陆 请联系管理员！"
+LDAP_DISABLE_STATUS: "请先启用LDAP"
 
 #cis
 CIS_TASK_ALREADY_RUNNING: "已存在扫描中的任务"

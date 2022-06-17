@@ -73,14 +73,14 @@ func (l *LdapClient) Connect() error {
 	return err
 }
 
-func (l *LdapClient) Search(attributes []string) ([]*ldap.Entry, error) {
+func (l *LdapClient) Search(dn, filter string, sizeLimit, timeLimit int, attributes []string) ([]*ldap.Entry, error) {
 
-	searchRequest := ldap.NewSearchRequest(l.Config.UserDn,
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		l.Config.Filter,
+	searchRequest := ldap.NewSearchRequest(dn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, timeLimit, false,
+		filter,
 		attributes,
 		nil)
-	sr, err := l.Conn.Search(searchRequest)
+	sr, err := l.Conn.SearchWithPaging(searchRequest, uint32(sizeLimit))
 	if err != nil {
 		return nil, err
 	}

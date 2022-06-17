@@ -53,3 +53,16 @@ func (l LdapController) PostSync() error {
 	}
 	return nil
 }
+
+func (l *LdapController) PostTestConnect() (*dto.LdapResult, error) {
+	ctx := l.Ctx
+	var req dto.SystemSettingCreate
+	if err := ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+	users, err := l.LdapService.TestConnect(req)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.LdapResult{Data: users}, nil
+}

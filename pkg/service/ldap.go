@@ -1,20 +1,20 @@
 package service
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/jinzhu/gorm"
-	"reflect"
-	"strings"
+	"strconv"
 )
 
 type LdapService interface {
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 	LdapSync(creation dto.SystemSettingCreate) error
+	TestConnect(creation dto.SystemSettingCreate) (int, error)
 }
 
 type ldapService struct {
@@ -87,53 +87,109 @@ func (l ldapService) ldapValidCheck(creation dto.SystemSettingCreate) error {
 	return nil
 }
 
-func (l ldapService) ldapSync(creation dto.SystemSettingCreate) {
+func (l ldapService) ToLdap(creation dto.SystemSettingCreate) (dto.LdapSetting, error) {
+	config := dto.LdapSetting{}
+	con, err := json.Marshal(creation.Vars)
+	if err != nil {
+		return config, err
+	}
+	err = json.Unmarshal(con, &config)
+	if err != nil {
+		return config, err
+	}
+	config.SizeLimit, err = strconv.Atoi(creation.Vars["size_limit"])
+	if err != nil {
+		return config, err
+	}
+	config.TimeLimit, err = strconv.Atoi(creation.Vars["time_limit"])
+	if err != nil {
+		return config, err
+	}
+	return config, nil
+}
+
+func (l ldapService) TestConnect(creation dto.SystemSettingCreate) (int, error) {
+	users := 0
+	setting, err := l.ToLdap(creation)
+	if err != nil {
+		return users, err
+	}
+	if setting.Status != "ENABLE" {
+		return users, errors.New("请先启用LDAP")
+	}
 	ldapClient, err := ldap.NewLdap(creation.Vars)
 	if err != nil {
-		logger.Log.Error(err)
+		return users, nil
 	}
-	err = ldapClient.Connect()
-	if err != nil {
-		logger.Log.Error(err)
+	if err := ldapClient.Connect(); err != nil {
+		return users, err
 	}
-
 	attributes, err := ldapClient.Config.GetAttributes()
 	if err != nil {
-		logger.Log.Error(err)
+		return users, err
 	}
-	mappings, err := ldapClient.Config.GetMappings()
+	entries, err := ldapClient.Search(setting.UserDn, setting.Filter, setting.SizeLimit, setting.TimeLimit, attributes)
 	if err != nil {
-		logger.Log.Error(err)
+		return users, err
 	}
-	entries, err := ldapClient.Search(attributes)
-	if err != nil {
-		logger.Log.Error(err)
+	if len(entries) == 0 {
+		return users, nil
 	}
 
-	for _, entry := range entries {
-		user := new(model.User)
-		rv := reflect.ValueOf(&user).Elem().Elem()
-		for _, at := range entry.Attributes {
-			for k, v := range mappings {
-				if v == at.Name && len(at.Values) > 0 {
-					fv := rv.FieldByName(k)
-					if fv.IsValid() {
-						fv.Set(reflect.ValueOf(strings.Trim(at.Values[0], " ")))
-					}
-				}
-			}
-		}
-		if user.Email == "" || user.Name == "" {
-			continue
-		}
-		user.Type = constant.Ldap
-		user.Language = "zh-CN"
-		_, err := l.userRepo.Get(user.Name)
-		if gorm.IsRecordNotFoundError(err) {
-			err = l.userRepo.Save(user)
-			if err != nil {
-				logger.Log.Errorf("user "+user.Name+"add failed,Error:", err)
-			}
-		}
-	}
+	return len(entries), nil
+}
+
+//func (l ldapService) TestLogin(username,password string) error  {
+//
+//}
+
+func (l ldapService) ldapSync(creation dto.SystemSettingCreate) {
+	//ldapClient, err := ldap.NewLdap(creation.Vars)
+	//if err != nil {
+	//	logger.Log.Error(err)
+	//}
+	//err = ldapClient.Connect()
+	//if err != nil {
+	//	logger.Log.Error(err)
+	//}
+	//
+	//attributes, err := ldapClient.Config.GetAttributes()
+	//if err != nil {
+	//	logger.Log.Error(err)
+	//}
+	//mappings, err := ldapClient.Config.GetMappings()
+	//if err != nil {
+	//	logger.Log.Error(err)
+	//}
+	//entries, err := ldapClient.Search(attributes)
+	//if err != nil {
+	//	logger.Log.Error(err)
+	//}
+	//
+	//for _, entry := range entries {
+	//	user := new(model.User)
+	//	rv := reflect.ValueOf(&user).Elem().Elem()
+	//	for _, at := range entry.Attributes {
+	//		for k, v := range mappings {
+	//			if v == at.Name && len(at.Values) > 0 {
+	//				fv := rv.FieldByName(k)
+	//				if fv.IsValid() {
+	//					fv.Set(reflect.ValueOf(strings.Trim(at.Values[0], " ")))
+	//				}
+	//			}
+	//		}
+	//	}
+	//	if user.Email == "" || user.Name == "" {
+	//		continue
+	//	}
+	//	user.Type = constant.Ldap
+	//	user.Language = "zh-CN"
+	//	_, err := l.userRepo.Get(user.Name)
+	//	if gorm.IsRecordNotFoundError(err) {
+	//		err = l.userRepo.Save(user)
+	//		if err != nil {
+	//			logger.Log.Errorf("user "+user.Name+"add failed,Error:", err)
+	//		}
+	//	}
+	//}
 }
