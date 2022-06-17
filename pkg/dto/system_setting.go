@@ -38,3 +38,24 @@ type LdapSetting struct {
 	SizeLimit int
 	TimeLimit int
 }
+
+type LdapLogin struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LdapUser struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Available bool   `json:"available"`
+}
+
+type ImportRequest struct {
+	Users []LdapUser `json:"users"`
+}
+
+type ImportResult struct {
+	Success  bool     `json:"success"`
+	Failures []string `json:"failures"`
+	Msg      string   `json:"msg"`
+}

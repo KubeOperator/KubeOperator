@@ -14,6 +14,7 @@ type UserRepository interface {
 	Delete(name string) error
 	Batch(operation string, items []model.User) error
 	ListIsAdmin() ([]model.User, error)
+	ListNames() (map[string]bool, error)
 }
 
 type userRepository struct {
@@ -34,6 +35,19 @@ func (u userRepository) List() ([]model.User, error) {
 	var users []model.User
 	err := db.DB.Order("name").Find(&users).Error
 	return users, err
+}
+
+func (u userRepository) ListNames() (map[string]bool, error) {
+	var users []model.User
+	err := db.DB.Select("name").Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	names := make(map[string]bool, len(users))
+	for _, u := range users {
+		names[u.Name] = true
+	}
+	return names, nil
 }
 
 func (u userRepository) ListIsAdmin() ([]model.User, error) {

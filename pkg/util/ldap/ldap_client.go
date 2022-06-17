@@ -1,6 +1,7 @@
 package ldap
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +16,7 @@ type Config struct {
 	Password string `json:"ldap_password"`
 	Filter   string `json:"ldap_filter"`
 	Mapping  string `json:"ldap_mapping"`
+	TLS      string `json:"ldap_tls"`
 }
 
 func (c *Config) GetAttributes() ([]string, error) {
@@ -61,15 +63,21 @@ func NewLdap(vars map[string]string) (*LdapClient, error) {
 }
 
 func (l *LdapClient) Connect() error {
-	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", l.Config.Endpoint, l.Config.Port))
+	var err error
+	if l.Config.TLS == "ENABLE" {
+		l.Conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", l.Config.Endpoint, l.Config.Port), &tls.Config{
+			InsecureSkipVerify: true,
+		})
+	} else {
+		l.Conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", l.Config.Endpoint, l.Config.Port))
+	}
 	if err != nil {
 		return err
 	}
-	err = conn.Bind(l.Config.UserName, l.Config.Password)
+	err = l.Conn.Bind(l.Config.UserName, l.Config.Password)
 	if err != nil {
 		return err
 	}
-	l.Conn = conn
 	return err
 }
 

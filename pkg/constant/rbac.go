@@ -232,6 +232,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/users",
 			"/api/v1/users/{**}",
+			"/api/v1/ldap/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
