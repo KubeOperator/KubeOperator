@@ -214,26 +214,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			}
 
 		}
-		var (
-			manifest model.ClusterManifest
-			toolVars []model.VersionHelp
-		)
-		if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("can not find manifest version: %s", err.Error())
-		}
-		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
-		}
-		for i := 0; i < len(tools); i++ {
-			for _, item := range toolVars {
-				if tools[i].Name == item.Name {
-					tools[i].Version = item.Version
-					break
-				}
-			}
-		}
 	} else {
 		if err := gatherClusterInfo(&cluster); err != nil {
 			c.handlerImportError(tx, cluster.Name, err)
@@ -269,6 +249,27 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
+	var (
+		manifest model.ClusterManifest
+		toolVars []model.VersionHelp
+	)
+	if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
+		logger.Log.Infof("can not find manifest version: %s", err.Error())
+	}
+	if manifest.ID != "" {
+		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+			c.handlerImportError(tx, cluster.Name, err)
+			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+		}
+		for i := 0; i < len(tools); i++ {
+			for _, item := range toolVars {
+				if tools[i].Name == item.Name {
+					tools[i].Version = item.Version
+					break
+				}
+			}
+		}
+	}
 	for _, tool := range tools {
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
@@ -276,9 +277,9 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
+
 	istios := cluster.PrepareIstios()
 	for _, istio := range istios {
-		istio.ClusterID = cluster.ID
 		if err := tx.Create(&istio).Error; err != nil {
 			c.handlerImportError(tx, cluster.Name, err)
 			return fmt.Errorf("can not save istio %s", err.Error())
@@ -450,6 +451,62 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 	return networkType, enableDnsCache, ingressControllerType, nil
 }
 
+func getInfoFromDeployment(client *kubernetes.Clientset) ([]dto.ClusterStorageProvisionerLoad, string, string, error) {
+	cephFsStatus := constant.StatusDisabled
+	cephBlockStatus := constant.StatusDisabled
+	var nfsProvisioner []dto.ClusterStorageProvisionerLoad
+
+	deployments, err := client.AppsV1().Deployments("kube-system").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nfsProvisioner, cephFsStatus, cephBlockStatus, fmt.Errorf("get deployments from cluster failed: %v", err.Error())
+	}
+	for _, deploy := range deployments.Items {
+		if deploy.ObjectMeta.Name == "external-cephfs" {
+			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
+				cephFsStatus = constant.StatusRunning
+			} else {
+				cephFsStatus = constant.StatusNotReady
+			}
+			continue
+		}
+		if deploy.ObjectMeta.Name == "external-ceph-block" {
+			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
+				cephBlockStatus = constant.StatusRunning
+			} else {
+				cephBlockStatus = constant.StatusNotReady
+			}
+			continue
+		}
+		container := deploy.Spec.Template.Spec.Containers[0]
+		if strings.Contains(container.Image, "nfs-client-provisioner:v3.1.0-k8s1.11") {
+			status := constant.StatusNotReady
+			vars := make(map[string]interface{})
+			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
+				status = constant.StatusRunning
+			}
+			nfsItem := dto.ClusterStorageProvisionerLoad{
+				Name:   deploy.ObjectMeta.Name,
+				Type:   "nfs",
+				Status: status,
+				Vars:   vars,
+			}
+			for _, env := range container.Env {
+				if env.Name == "NFS_PATH" {
+					nfsItem.Vars["storage_nfs_server_path"] = env.Value
+				}
+				if env.Name == "NFS_SERVER" {
+					nfsItem.Vars["storage_nfs_server"] = env.Value
+				}
+			}
+			if version, ok := deploy.ObjectMeta.Labels["nfsVersion"]; ok {
+				nfsItem.Vars["storage_nfs_server_version"] = version
+			}
+			nfsProvisioner = append(nfsProvisioner, nfsItem)
+		}
+	}
+	return nfsProvisioner, cephFsStatus, cephBlockStatus, nil
+}
+
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
 	var clusterInfo dto.ClusterLoadInfo
 	if strings.HasSuffix(loadInfo.ApiServer, "/") {
@@ -564,6 +621,11 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 
 	// load network
 	clusterInfo.NetworkType, clusterInfo.EnableDnsCache, clusterInfo.IngressControllerType, err = getInfoFromDaemonset(kubeClient)
+	if err != nil {
+		return clusterInfo, err
+	}
+
+	clusterInfo.NfsProvisioners, clusterInfo.CephFsStatus, clusterInfo.CephBlockStatus, err = getInfoFromDeployment(kubeClient)
 	if err != nil {
 		return clusterInfo, err
 	}
