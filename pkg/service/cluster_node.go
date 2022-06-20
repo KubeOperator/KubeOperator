@@ -360,7 +360,7 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntps, _ := c.ntpServerRepo.GetAddressStr()
-	k.SetVar(facts.NtpServerName, ntps)
+	k.SetVar(facts.NtpServerFactName, ntps)
 	if err = phases.RunPlaybookAndGetResult(k, playbookName, "", writer); err != nil {
 		return err
 	}

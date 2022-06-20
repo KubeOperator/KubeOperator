@@ -143,9 +143,6 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		KubernetesAudit:          c.KoClusterInfo.KubernetesAudit,
 		NodeportAddress:          c.KoClusterInfo.NodeportAddress,
 		KubeServiceNodePortRange: c.KoClusterInfo.KubeServiceNodePortRange,
-		EnableDnsCache:           c.KoClusterInfo.EnableDnsCache,
-		DnsCacheVersion:          c.KoClusterInfo.DnsCacheVersion,
-		IngressControllerType:    c.KoClusterInfo.IngressControllerType,
 
 		LbMode:            c.KoClusterInfo.LbMode,
 		LbKubeApiserverIp: c.KoClusterInfo.LbKubeApiserverIp,

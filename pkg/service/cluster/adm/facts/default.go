@@ -62,12 +62,14 @@ const (
 	HelmV3VersionFactName                = "helm_v3_version"
 	NginxIngressVersionFactName          = "nginx_ingress_version"
 	TraefikIngressVersionFactName        = "traefik_ingress_version"
+	NpdFactName                          = "npd_server"
+	MetricsServerFactName                = "metrics_server"
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
 	NetworkCidrFactName                  = "network_cidr"
 	SupportGpuFactName                   = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
-	NtpServerName                        = "ntp_server"
+	NtpServerFactName                    = "ntp_server"
 	MasterScheduleTypeFactName           = "master_schedule_type"
 )
 
@@ -129,11 +131,13 @@ var DefaultFacts = map[string]string{
 	HelmV3VersionFactName:                "v3.2.4",
 	NginxIngressVersionFactName:          "0.33.0",
 	TraefikIngressVersionFactName:        "v2.2.1",
+	NpdFactName:                          "disable",
+	MetricsServerFactName:                "enable",
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
 	NetworkCidrFactName:                  "",
 	SupportGpuFactName:                   "disable",
 	YumRepoFactName:                      "replace",
-	NtpServerName:                        "ntp1.aliyun.com",
+	NtpServerFactName:                    "ntp1.aliyun.com",
 	MasterScheduleTypeFactName:           "enable",
 }

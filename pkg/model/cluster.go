@@ -248,35 +248,46 @@ func (c Cluster) PrepareIstios() []ClusterIstio {
 	}
 }
 
-func (c Cluster) PrepareComponent(enableGpu, enableDnsCache, ingressController, ingressVersion string) []ClusterSpecComponent {
+func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []ClusterSpecComponent {
 	var components []ClusterSpecComponent
-	if enableGpu == constant.StatusEnabled {
+	if ingressType == "traefik" {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
-			Name:      "gpu",
-			Type:      "GPU",
-			Version:   "v1.7.0",
+			Name:      "traefik",
+			Version:   "v2.6.1",
 			Status:    constant.StatusEnabled,
 		})
 	}
-	if enableGpu == constant.StatusEnabled {
+	if ingressType == "nginx" {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
-			Name:      "dns cache",
-			Type:      "DNS_CACHE",
+			Name:      "nginx",
+			Version:   "v1.1.1",
+			Status:    constant.StatusEnabled,
+		})
+	}
+	if dnsCache == constant.StatusEnabled {
+		components = append(components, ClusterSpecComponent{
+			ClusterID: c.ID,
+			Name:      "dns-cache",
 			Version:   "1.17.0",
 			Status:    constant.StatusEnabled,
 		})
 	}
-	if len(ingressController) != 0 {
+	if supportGpu == constant.StatusEnabled {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
-			Name:      ingressController,
-			Type:      "INGRESS_CONTROLLER",
-			Version:   ingressVersion,
+			Name:      "dns-cache",
+			Version:   "1.17.0",
 			Status:    constant.StatusEnabled,
 		})
 	}
+	components = append(components, ClusterSpecComponent{
+		ClusterID: c.ID,
+		Name:      "metrics-server",
+		Version:   "v0.5.0",
+		Status:    constant.StatusEnabled,
+	})
 	return components
 }
 
@@ -543,15 +554,6 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	if c.SpecConf.KubeServiceNodePortRange != "" {
 		result[facts.KubeServiceNodePortRangeFactName] = c.SpecConf.KubeServiceNodePortRange
 	}
-	if c.SpecConf.DnsCacheVersion != "" {
-		result[facts.DnsCacheVersionFactName] = c.SpecConf.DnsCacheVersion
-	}
-	if c.SpecConf.EnableDnsCache != "" {
-		result[facts.EnableDnsCacheFactName] = c.SpecConf.EnableDnsCache
-	}
-	if c.SpecConf.IngressControllerType != "" {
-		result[facts.IngressControllerTypeFactName] = c.SpecConf.IngressControllerType
-	}
 
 	if c.SpecConf.KubeProxyMode != "" {
 		result[facts.KubeProxyModeFactName] = c.SpecConf.KubeProxyMode
@@ -571,5 +573,28 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	}
 	if c.SpecConf.KubeApiServerPort != 0 {
 		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.SpecConf.KubeApiServerPort)
+	}
+}
+
+func (c Cluster) loadComponentVars(result map[string]string) {
+	for _, c := range c.SpecComponent {
+		switch c.Name {
+		case "gpu":
+			if c.Status == constant.StatusEnabled {
+				result[facts.SupportGpuFactName] = constant.StatusEnabled
+			}
+		case "nginx":
+			if c.Status == constant.StatusEnabled {
+				result[facts.IngressControllerTypeFactName] = "nginx"
+			}
+		case "traefik":
+			if c.Status == constant.StatusEnabled {
+				result[facts.IngressControllerTypeFactName] = "traefik"
+			}
+		case "dns-cache":
+			if c.Status == constant.StatusEnabled {
+				result[facts.EnableDnsCacheFactName] = constant.StatusEnabled
+			}
+		}
 	}
 }

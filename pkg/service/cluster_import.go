@@ -174,6 +174,17 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		tx.Rollback()
 		return err
 	}
+	for _, component := range cluster.SpecComponent {
+		if err := tx.Create(&component).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	cluster.SpecConf.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	cluster.SpecRuntime.ClusterID = cluster.ID
 	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
 		tx.Rollback()
@@ -264,10 +275,12 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 			Status: constant.StatusRunning,
 		})
 	}
-	cluster.SpecNetwork.NetworkType, cluster.SpecConf.EnableDnsCache, cluster.SpecConf.IngressControllerType, err = getInfoFromDaemonset(c)
+	dnsCache, ingressController := "", ""
+	cluster.SpecNetwork.NetworkType, dnsCache, ingressController, err = getInfoFromDaemonset(c)
 	if err != nil {
 		return err
 	}
+	cluster.SpecComponent = cluster.PrepareComponent(ingressController, dnsCache, constant.StatusDisabled)
 	return nil
 }
 

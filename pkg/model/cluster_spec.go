@@ -57,9 +57,6 @@ type ClusterSpecConf struct {
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
-	EnableDnsCache           string `json:"enableDnsCache"`
-	DnsCacheVersion          string `json:"dnsCacheVersion"`
-	IngressControllerType    string `json:"ingressControllerType"`
 
 	MasterScheduleType string `json:"masterScheduleType"`
 	LbMode             string `json:"lbMode"`
@@ -75,12 +72,10 @@ type ClusterSpecComponent struct {
 	common.BaseModel
 	ID        string `json:"-"`
 	ClusterID string `json:"-"`
-
-	Name     string `json:"name"`
-	Type     string `json:"type"` // one of [dnsCache gpu ingressController]
-	Version  string `json:"version"`
-	Describe string `json:"describe"`
-	Vars     string `json:"-"  gorm:"type:text(65535)"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Describe  string `json:"describe"`
+	Vars      string `json:"-"  gorm:"type:text(65535)"`
 
 	Status  string `json:"status"`
 	Message string `json:"message" gorm:"type:text(65535)"`
