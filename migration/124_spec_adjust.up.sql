@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `ko_cluster_spec_conf` (
     `kube_router` varchar(255) DEFAULT NULL,
     `support_gpu` varchar(255) DEFAULT NULL,
     `status` varchar(255) DEFAULT NULL,
-    `message` varchar(255) DEFAULT NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );
 
@@ -40,7 +40,23 @@ CREATE TABLE IF NOT EXISTS `ko_cluster_spec_runtime` (
     `docker_subnet` varchar(255) DEFAULT NULL,
     `helm_version` varchar(255) DEFAULT NULL,
     `status` varchar(255) DEFAULT NULL,
-    `message` varchar(255) DEFAULT NULL,
+    `message` mediumtext,
+    PRIMARY KEY (`id`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `ko_cluster_spec_component` (
+    `created_at` datetime DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    `id` varchar(255) NOT NULL,
+    `cluster_id` varchar(255) NOT NULL,
+    `name` varchar(255) DEFAULT NULL,
+    `type` varchar(255) DEFAULT NULL,
+    `version` varchar(255) DEFAULT NULL,
+    `describe` varchar(255) DEFAULT NULL,
+    `vars` mediumtext,
+    `status` varchar(255) DEFAULT NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );
 
@@ -58,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `ko_cluster_spec_network` (
     `network_interface` varchar(255) DEFAULT NULL,
     `network_cidr` varchar(255) DEFAULT NULL,
     `status` varchar(255) DEFAULT NULL,
-    `message` varchar(255) DEFAULT NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );
 

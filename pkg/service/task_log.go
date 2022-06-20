@@ -1,17 +1,20 @@
 package service
 
 import (
+	"sort"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
 
 type TaskLogService interface {
-	List(clusterName string) ([]dto.TaskLog, error)
+	Page(num, size int, clusterName string, logtype string) (*page.Page, error)
 	GetByID(id string) (model.TaskLog, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
@@ -33,24 +36,62 @@ func NewTaskLogService() TaskLogService {
 	return &taskLogService{}
 }
 
-func (c *taskLogService) List(clusterName string) ([]dto.TaskLog, error) {
-	var cluster model.Cluster
-	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
-		return nil, err
-	}
-	var mos []model.TaskLog
-	if err := db.DB.Where("cluster_id = ?", cluster.ID).
-		Order("created_at desc").
-		Find(&mos).
-		Error; err != nil {
-		return nil, err
+func (c *taskLogService) Page(num, size int, clusterName string, logtype string) (*page.Page, error) {
+	var (
+		datas []dto.TaskLog
+		p     page.Page
+	)
+	if logtype == "single-task" {
+		var tasklogs []model.TaskLog
+		d := db.DB.Model(model.TaskLog{})
+		if len(clusterName) != 0 {
+			var cluster model.Cluster
+			if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+				return nil, err
+			}
+			d = d.Where("cluster_id = ?", cluster.ID)
+		}
+		if err := d.Count(&p.Total).Preload("Details").Order("created_at desc").Offset((num - 1) * size).Limit(size).Find(&tasklogs).Error; err != nil {
+			return nil, err
+		}
+		for t := 0; t < len(tasklogs); t++ {
+			sort.Slice(tasklogs[t].Details, func(i, j int) bool {
+				return tasklogs[t].Details[i].CreatedAt.Before(tasklogs[t].Details[j].CreatedAt)
+			})
+			datas = append(datas, dto.TaskLog{TaskLog: tasklogs[t]})
+		}
+		p.Items = datas
+		return &p, nil
 	}
 
-	var items []dto.TaskLog
-	for _, mo := range mos {
-		items = append(items, dto.TaskLog{TaskLog: mo})
+	var tasklogs []model.TaskLogDetail
+	d := db.DB.Model(model.TaskLogDetail{}).Where("cluster_id != ?", "")
+	if len(clusterName) != 0 {
+		var cluster model.Cluster
+		if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+			return nil, err
+		}
+		d = d.Where("cluster_id = ?", cluster.ID)
 	}
-	return items, nil
+	if err := d.Count(&p.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Find(&tasklogs).Error; err != nil {
+		return nil, err
+	}
+	for t := 0; t < len(tasklogs); t++ {
+		datas = append(datas, dto.TaskLog{
+			TaskLog: model.TaskLog{
+				ID:      tasklogs[t].ID,
+				Phase:   tasklogs[t].Status,
+				Message: tasklogs[t].Message,
+				Type:    tasklogs[t].Task,
+				BaseModel: common.BaseModel{
+					CreatedAt: tasklogs[t].CreatedAt,
+					UpdatedAt: tasklogs[t].UpdatedAt,
+				},
+			},
+		})
+	}
+	p.Items = datas
+	return &p, nil
 }
 
 func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {

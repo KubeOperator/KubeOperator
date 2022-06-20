@@ -9,7 +9,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
+	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -22,7 +24,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
 )
@@ -33,8 +34,8 @@ type ClusterService interface {
 	CheckExistence(name string) bool
 	GetStatus(name string) (*dto.TaskLog, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
-	GetApiServerEndpoint(name string) (kubernetes.Host, error)
-	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
+	GetApiServerEndpoint(name string) (kubernetesUtil.Host, error)
+	GetApiServerEndpoints(name string) ([]kubernetesUtil.Host, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
@@ -43,6 +44,8 @@ type ClusterService interface {
 	List() ([]dto.Cluster, error)
 	Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
 	Delete(name string, force bool, uninstall bool) error
+
+	NewClusterClient(clusterName string) (*kubernetes.Clientset, error)
 }
 
 func NewClusterService() ClusterService {
@@ -269,7 +272,7 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 		return nil, err
 	}
 	if cluster.CurrentTaskID == "" {
-		return &dto.TaskLog{TaskLog: model.TaskLog{}}, nil
+		return &dto.TaskLog{}, nil
 	}
 	tasklog, err := c.tasklogService.GetByID(cluster.CurrentTaskID)
 	if err != nil {
@@ -278,7 +281,7 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 	sort.Slice(tasklog.Details, func(i, j int) bool {
 		return tasklog.Details[i].CreatedAt.Before(tasklog.Details[j].CreatedAt)
 	})
-	return &dto.TaskLog{TaskLog: tasklog}, nil
+	return &dto.TaskLog{}, nil
 }
 
 func (c *clusterService) ReCreate(name string) error {
@@ -397,7 +400,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntps, _ := c.ntpServerRepo.GetAddressStr()
-	k.SetVar(facts.NtpServerName, ntps)
+	k.SetVar(facts.NtpServerFactName, ntps)
 
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {
@@ -455,34 +458,34 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	}
 }
 
-func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
-	var result kubernetes.Host
+func (c clusterService) GetApiServerEndpoint(name string) (kubernetesUtil.Host, error) {
+	var result kubernetesUtil.Host
 	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return "", err
 	}
 	port := cluster.SpecConf.KubeApiServerPort
 	if cluster.SpecConf.LbKubeApiserverIp != "" {
-		result = kubernetes.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
+		result = kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 		return result, nil
 	}
 	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
 		return "", err
 	}
-	result = kubernetes.Host(fmt.Sprintf("%s:%d", master.Host.Ip, port))
+	result = kubernetesUtil.Host(fmt.Sprintf("%s:%d", master.Host.Ip, port))
 	return result, nil
 }
 
-func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, error) {
-	var result []kubernetes.Host
+func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetesUtil.Host, error) {
+	var result []kubernetesUtil.Host
 	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return nil, err
 	}
 	port := cluster.SpecConf.KubeApiServerPort
 	if cluster.SpecConf.LbKubeApiserverIp != "" {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port)))
+		result = append(result, kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port)))
 		return result, nil
 	}
 	masters, err := c.clusterNodeRepo.AllMaster(cluster.ID)
@@ -490,7 +493,7 @@ func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, e
 		return nil, err
 	}
 	for i := range masters {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", masters[i].Host.Ip, port)))
+		result = append(result, kubernetesUtil.Host(fmt.Sprintf("%s:%d", masters[i].Host.Ip, port)))
 	}
 	return result, nil
 }
@@ -511,7 +514,7 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	if err != nil {
 		return token, err
 	}
-	aliveHost, err := kubernetes.SelectAliveHost(endpoints)
+	aliveHost, err := kubernetesUtil.SelectAliveHost(endpoints)
 	if err != nil {
 		return token, err
 	}
@@ -581,4 +584,26 @@ func (c clusterService) deleteKubePi(name string) {
 	}
 
 	logger.Log.Infof("delete kubepi client info success")
+}
+
+func (c clusterService) NewClusterClient(clusterName string) (*kubernetes.Clientset, error) {
+	var client *kubernetes.Clientset
+	secret, err := c.GetSecrets(clusterName)
+	if err != nil {
+		return client, err
+	}
+
+	endpoints, err := c.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return client, err
+	}
+
+	client, err = kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Token: secret.KubernetesToken,
+		Hosts: endpoints,
+	})
+	if err != nil {
+		return client, err
+	}
+	return client, nil
 }

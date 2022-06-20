@@ -97,7 +97,7 @@ func NewAnsibleHelper(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntpServerRepo := repository.NewNtpServerRepository()
 	ntps, _ := ntpServerRepo.GetAddressStr()
-	c.Kobe.SetVar(facts.NtpServerName, ntps)
+	c.Kobe.SetVar(facts.NtpServerFactName, ntps)
 	maniFest, _ := GetManiFestBy(cluster.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
@@ -137,7 +137,7 @@ func NewAnsibleHelperWithNewWorker(cluster model.Cluster, workers []string, writ
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntpServerRepo := repository.NewNtpServerRepository()
 	ntps, _ := ntpServerRepo.GetAddressStr()
-	c.Kobe.SetVar(facts.NtpServerName, ntps)
+	c.Kobe.SetVar(facts.NtpServerFactName, ntps)
 	maniFest, _ := GetManiFestBy(cluster.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()

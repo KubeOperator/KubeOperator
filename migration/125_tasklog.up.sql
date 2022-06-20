@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `ko_task_log` (
     `cluster_id` varchar(255) NOT NULL,
     `type` varchar(255) DEFAULT NULL,
     `phase` varchar(255) NOT NULL,
-    `message` mediumtext NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );
 
@@ -18,6 +18,6 @@ CREATE TABLE IF NOT EXISTS `ko_task_log_detail` (
     `cluster_id` varchar(255) DEFAULT NULL,
     `last_probe_time` datetime DEFAULT NULL,
     `status` varchar(255) DEFAULT NULL,
-    `message` mediumtext NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );

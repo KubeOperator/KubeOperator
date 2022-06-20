@@ -97,10 +97,6 @@ type IsClusterNameExist struct {
 	IsExist bool `json:"isExist"`
 }
 
-type TaskLog struct {
-	model.TaskLog
-}
-
 type ClusterUpgrade struct {
 	ClusterName string `json:"clusterName"`
 	Version     string `json:"version"`
@@ -223,9 +219,6 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		KubernetesAudit:          c.KubernetesAudit,
 		NodeportAddress:          c.NodeportAddress,
 		KubeServiceNodePortRange: c.KubeServiceNodePortRange,
-		EnableDnsCache:           c.EnableDnsCache,
-		DnsCacheVersion:          c.DnsCacheVersion,
-		IngressControllerType:    c.IngressControllerType,
 
 		MasterScheduleType: c.MasterScheduleType,
 		LbMode:             c.LbMode,

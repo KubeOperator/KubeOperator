@@ -64,7 +64,7 @@ func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error) {
 	clusterStorageProvisionerDTOS := []dto.ClusterStorageProvisioner{}
 	// 获取 k8s client
-	client, err := c.getBaseParam(clusterName)
+	client, err := c.clusterService.NewClusterClient(clusterName)
 	if err != nil {
 		return clusterStorageProvisionerDTOS, err
 	}
@@ -171,19 +171,22 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 		logger.Log.Error(err)
 	}
 	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.ClusterInitializing).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
 
 	// 获取创建参数
 	if err := c.getVars(admCluster, cluster, provisioner); err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
 	admCluster.Kobe.SetVar("registry_port", fmt.Sprint(repoPort))
 	// 获取 k8s client
-	client, err := c.getBaseParam(cluster.Name)
+	client, err := c.clusterService.NewClusterClient(cluster.Name)
 	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create kubernetes Clientset error %s", err.Error()))
 	}
 
@@ -369,7 +372,7 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			logger.Log.Infof("gather provisioner [%s] info", provisioner.Name)
-			client, err := c.getBaseParam(clusterName)
+			client, err := c.clusterService.NewClusterClient(clusterName)
 			if err != nil {
 				logger.Log.Errorf("get kubernetes Clientset err, error: %s", err.Error())
 			}
@@ -453,7 +456,7 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}
-	client, err := c.getBaseParam(clusterName)
+	client, err := c.clusterService.NewClusterClient(clusterName)
 	if err != nil {
 		return err
 	}
@@ -614,28 +617,6 @@ func checkError(err error) bool {
 		}
 	}
 	return true
-}
-
-func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kubernetes.Clientset, error) {
-	var client *kubernetes.Clientset
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return client, err
-	}
-
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return client, err
-	}
-
-	client, err = kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Token: secret.KubernetesToken,
-		Hosts: endpoints,
-	})
-	if err != nil {
-		return client, err
-	}
-	return client, nil
 }
 
 func (c clusterStorageProvisionerService) getVars(admCluster *adm.AnsibleHelper, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {

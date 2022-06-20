@@ -69,6 +69,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/clusters/{**}/{**}/{**}/{**}/{**}/{**}",
 			"/api/v1/users/change/password",
 			"/api/v1/logs",
+			"/api/v1/tasks",
+			"/api/v1/components",
 			"/api/v1/message/{**}",
 			"/api/v1/message/{**}/check/{**}",
 			"/api/v1/message/{**}/{**}",
