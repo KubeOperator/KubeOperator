@@ -116,7 +116,7 @@ func (p Prometheus) valuse1501Binding(imageMap map[string]interface{}, isInstall
 
 	if !isInstall {
 		if err := p.Cluster.KubeClient.AppsV1().Deployments(p.Cluster.Namespace).Delete(context.TODO(), "prometheus-kube-state-metrics", metav1.DeleteOptions{}); err != nil {
-			logger.Log.Info("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", p.Cluster.Namespace, err)
+			logger.Log.Infof("delete deployment kubeapps-internal-apprepository-controller from %s failed, err: %v", p.Cluster.Namespace, err)
 		}
 	}
 
