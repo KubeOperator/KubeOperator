@@ -74,7 +74,7 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
 		return "", err
 	}
-	if err := db.DB.Where("name = ?", toolName).First(&tool).Error; err != nil {
+	if err := db.DB.Where("name = ? AND cluster_id = ?", toolName, cluster.ID).First(&tool).Error; err != nil {
 		return "", err
 	}
 
