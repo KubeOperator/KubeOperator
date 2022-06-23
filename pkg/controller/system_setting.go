@@ -298,10 +298,42 @@ func (s SystemSettingController) PostRegistryCheckConn() error {
 		return err
 	}
 
-	if err := nexus.CheckConn(req.Username, req.Password, fmt.Sprintf("%s://%s:%d", req.Protocol, req.Hostname, req.RepoPort)); err != nil {
+	if err := nexus.CheckConn(req.NexusUser, req.NexusPassword, fmt.Sprintf("%s://%s:%d", req.Protocol, req.Hostname, req.RepoPort)); err != nil {
 		return err
 	}
 	return nil
+}
+
+// Change Nexus Password
+// @Tags SystemSetting
+// @Summary Change user password
+// @Description 更新 Nexus 密码
+// @Accept  json
+// @Produce  json
+// @Param request body dto.RepoChangePassword true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /settings/registry/change/password [post]
+func (s *SystemSettingController) PostRegistryChangePassword() error {
+	var req dto.RepoChangePassword
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = s.SystemSettingService.ChangePassword(req)
+	if err != nil {
+		return err
+	}
+
+	operator := s.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.UPDATE_NEXUS_PASSWORD, "-")
+
+	return err
 }
 
 // Delete Registry
