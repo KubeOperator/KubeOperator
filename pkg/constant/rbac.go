@@ -71,6 +71,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/logs",
 			"/api/v1/tasks",
 			"/api/v1/components",
+			"/api/v1/components/{**}",
 			"/api/v1/components/{**}/{**}",
 			"/api/v1/message/{**}",
 			"/api/v1/message/{**}/check/{**}",

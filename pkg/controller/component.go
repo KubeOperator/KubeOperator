@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
@@ -29,7 +30,7 @@ func NewComponentController() *ComponentController {
 // @Accept  json
 // @Produce  json
 // @Param cluster path string true "集群名称"
-// @Success 200 {object} page.Page
+// @Success 200 {object} []dto.Component
 // @Security ApiKeyAuth
 // @Router /components/ [get]
 func (c ComponentController) Get() ([]dto.Component, error) {
@@ -44,7 +45,7 @@ func (c ComponentController) Get() ([]dto.Component, error) {
 // @Accept  json
 // @Produce  json
 // @Param request body dto.ComponentCreate true "request"
-// @Success 200 {object} dto.Credential
+// @Success 200
 // @Security ApiKeyAuth
 // @Router /components/ [post]
 func (c ComponentController) Post() error {
@@ -73,7 +74,7 @@ func (c ComponentController) Post() error {
 // @Produce  json
 // @Param cluster path string true "集群名称"
 // @Param name path string true "组件名称"
-// @Success 200 {object} dto.Credential
+// @Success 200
 // @Security ApiKeyAuth
 // @Router /components/{cluster}/{name} [delete]
 func (c ComponentController) DeleteBy(cluster, name string) error {
@@ -81,4 +82,32 @@ func (c ComponentController) DeleteBy(cluster, name string) error {
 	go kolog.Save(operator, constant.DELETE_COMPONENT, fmt.Sprintf("%s (%s)", name, cluster))
 
 	return c.ComponentService.Delete(cluster, name)
+}
+
+// Sync Component
+// @Tags components
+// @Summary Sync components
+// @Description 同步集群组件
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ComponentSync true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /components/sync [post]
+func (c ComponentController) PostSync() error {
+	var req dto.ComponentSync
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.SYNC_COMPONENT, fmt.Sprintf("%s (%s)", req.ClusterName, strings.Join(req.Names, ",")))
+
+	return c.ComponentService.Sync(&req)
 }

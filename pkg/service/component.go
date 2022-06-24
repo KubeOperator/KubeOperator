@@ -251,6 +251,11 @@ func (c componentService) Sync(syncData *dto.ComponentSync) error {
 	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&components).Error; err != nil {
 		return err
 	}
+	components, err = c.loadAllComponents(syncData.Names, cluster.ID, components)
+	if err != nil {
+		return err
+	}
+
 	if err := db.DB.Model(&model.ClusterSpecComponent{}).
 		Where("cluster_id = ? AND name in (?)", cluster.ID, syncData.Names).
 		Update("status", constant.ClusterSynchronizing).Error; err != nil {
@@ -259,6 +264,40 @@ func (c componentService) Sync(syncData *dto.ComponentSync) error {
 	go c.dosync(components, client, syncData.Names...)
 
 	return nil
+}
+
+func (c componentService) loadAllComponents(names []string, clusterID string, components []model.ClusterSpecComponent) ([]model.ClusterSpecComponent, error) {
+	var dicList []model.ComponentDic
+	if err := db.DB.Find(&dicList).Error; err != nil {
+		return components, err
+	}
+	for _, name := range names {
+		isExist := false
+		for _, com := range components {
+			if name == com.Name {
+				isExist = true
+				break
+			}
+		}
+		if !isExist {
+			for _, dic := range dicList {
+				if dic.Name == name {
+					comAdd := model.ClusterSpecComponent{
+						Name:      dic.Name,
+						ClusterID: clusterID,
+						Version:   dic.Version,
+						Type:      dic.Type,
+						Status:    constant.StatusDisabled,
+					}
+					if err := db.DB.Create(&comAdd).Error; err != nil {
+						fmt.Println(err)
+					}
+					components = append(components, comAdd)
+				}
+			}
+		}
+	}
+	return components, nil
 }
 
 func (c componentService) dosync(components []model.ClusterSpecComponent, client *kubernetes.Clientset, names ...string) {
@@ -313,20 +352,29 @@ func (c componentService) dosync(components []model.ClusterSpecComponent, client
 func (c componentService) changeStatus(components []model.ClusterSpecComponent, name, status string) {
 	for _, component := range components {
 		if name == component.Name {
-			if component.Status == constant.StatusWaiting && status == constant.StatusFailed {
-				status = constant.StatusNotReady
+			if status == constant.StatusEnabled {
+				component.Status = constant.StatusEnabled
+				_ = db.DB.Save(component).Error
+				continue
+			}
+
+			if status == constant.StatusFailed && component.Status == constant.StatusWaiting {
 				component.Status = constant.StatusNotReady
+				_ = db.DB.Save(component).Error
+				continue
 			}
-			if status == constant.StatusDisabled {
-				if component.Status != constant.StatusFailed && component.Status != constant.StatusNotReady {
-					component.Status = constant.StatusDisabled
-				}
-			} else {
-				if component.Status != constant.StatusEnabled {
-					component.Status = constant.StatusEnabled
-				}
+
+			if status == constant.StatusFailed && component.Status == constant.StatusDisabled {
+				_ = db.DB.Delete(component).Error
+				continue
 			}
-			_ = db.DB.Save(component).Error
+
+			if status == constant.StatusFailed {
+				component.Status = constant.StatusFailed
+				component.Message = "can't found resource in cluster"
+				_ = db.DB.Save(component).Error
+				continue
+			}
 		}
 	}
 }

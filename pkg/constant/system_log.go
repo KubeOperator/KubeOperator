@@ -39,7 +39,8 @@ const (
 	HEALTH_RECOVER  = "集群健康恢复|Health recover"
 
 	CREATE_COMPONENT = "添加集群组件|Create cluster component"
-	DELETE_COMPONENT = "删除集群组件|DElete cluster component"
+	DELETE_COMPONENT = "删除集群组件|Delete cluster component"
+	SYNC_COMPONENT   = "同步集群组件|Sync cluster component"
 
 	CREATE_CLUSTER_NODE = "添加集群节点|Create cluster node"
 	DELETE_CLUSTER_NODE = "删除集群节点|Delete cluster node"
