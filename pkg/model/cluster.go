@@ -254,6 +254,7 @@ func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []Cl
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
 			Name:      "traefik",
+			Type:      "Ingress Controller",
 			Version:   "v2.6.1",
 			Status:    constant.StatusEnabled,
 		})
@@ -262,6 +263,7 @@ func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []Cl
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
 			Name:      "nginx",
+			Type:      "Ingress Controller",
 			Version:   "v1.1.1",
 			Status:    constant.StatusEnabled,
 		})
@@ -270,6 +272,7 @@ func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []Cl
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
 			Name:      "dns-cache",
+			Type:      "Dns Cache",
 			Version:   "1.17.0",
 			Status:    constant.StatusEnabled,
 		})
@@ -277,14 +280,16 @@ func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []Cl
 	if supportGpu == constant.StatusEnabled {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
-			Name:      "dns-cache",
-			Version:   "1.17.0",
+			Name:      "gpu",
+			Type:      "GPU",
+			Version:   "v1.7.0",
 			Status:    constant.StatusEnabled,
 		})
 	}
 	components = append(components, ClusterSpecComponent{
 		ClusterID: c.ID,
 		Name:      "metrics-server",
+		Type:      "Metrics Server",
 		Version:   "v0.5.0",
 		Status:    constant.StatusEnabled,
 	})
@@ -402,6 +407,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 	c.loadRuntimeVars(result)
 	c.loadConfVars(result)
 	c.loadNetworkVars(result)
+	c.loadComponentVars(result)
 
 	return result
 }

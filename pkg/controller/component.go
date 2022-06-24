@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -26,9 +28,10 @@ func NewComponentController() *ComponentController {
 // @Description Show components
 // @Accept  json
 // @Produce  json
+// @Param cluster path string true "集群名称"
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /component/ [get]
+// @Router /components/ [get]
 func (c ComponentController) Get() ([]dto.Component, error) {
 	clusterName := c.Ctx.URLParam("cluster")
 	return c.ComponentService.Get(clusterName)
@@ -43,7 +46,7 @@ func (c ComponentController) Get() ([]dto.Component, error) {
 // @Param request body dto.ComponentCreate true "request"
 // @Success 200 {object} dto.Credential
 // @Security ApiKeyAuth
-// @Router /credentials/ [post]
+// @Router /components/ [post]
 func (c ComponentController) Post() error {
 	var req dto.ComponentCreate
 	err := c.Ctx.ReadJSON(&req)
@@ -60,4 +63,22 @@ func (c ComponentController) Post() error {
 	go kolog.Save(operator, constant.CREATE_COMPONENT, req.Name+req.Version)
 
 	return c.ComponentService.Create(&req)
+}
+
+// Delete Component
+// @Tags components
+// @Summary Delete a component
+// @Description 删除一个集群组件
+// @Accept  json
+// @Produce  json
+// @Param cluster path string true "集群名称"
+// @Param name path string true "组件名称"
+// @Success 200 {object} dto.Credential
+// @Security ApiKeyAuth
+// @Router /components/{cluster}/{name} [delete]
+func (c ComponentController) DeleteBy(cluster, name string) error {
+	operator := c.Ctx.Values().GetString("operator")
+	go kolog.Save(operator, constant.DELETE_COMPONENT, fmt.Sprintf("%s (%s)", name, cluster))
+
+	return c.ComponentService.Delete(cluster, name)
 }

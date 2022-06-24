@@ -94,6 +94,7 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 	}
 	return clusterStorageProvisionerDTOS, nil
 }
+
 func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName string, provisioner string) error {
 	err := c.deleteProvisioner(clusterName, provisioner)
 	if err != nil {
@@ -452,7 +453,11 @@ func (c clusterStorageProvisionerService) sync(client *kubernetes.Clientset, pro
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
 	var provisioner model.ClusterStorageProvisioner
-	db.DB.Where("name = ?", provisionerName).First(&provisioner)
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	db.DB.Where("name = ? AND cluster_id = ?", provisionerName, cluster.ID).First(&provisioner)
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}

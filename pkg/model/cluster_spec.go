@@ -73,6 +73,7 @@ type ClusterSpecComponent struct {
 	ID        string `json:"-"`
 	ClusterID string `json:"-"`
 	Name      string `json:"name"`
+	Type      string `json:"type"`
 	Version   string `json:"version"`
 	Describe  string `json:"describe"`
 	Vars      string `json:"-"  gorm:"type:text(65535)"`

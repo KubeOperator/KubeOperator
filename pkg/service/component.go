@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -16,6 +18,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/jinzhu/gorm"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -24,11 +27,14 @@ const (
 	ingressControllerPlaybook = "14-ingress-controller.yml"
 	gpuPlaybook               = "16-gpu-operator.yml"
 	dnsCachePlaybook          = "17-dns-cache.yml"
+	istioPlaybook             = "18-istio.yml"
 )
 
 type ComponentService interface {
 	Get(clusterName string) ([]dto.Component, error)
 	Create(component *dto.ComponentCreate) error
+	Delete(clusterName, name string) error
+	Sync(component *dto.ComponentSync) error
 }
 
 type componentService struct {
@@ -64,19 +70,31 @@ func (c *componentService) Get(clusterName string) ([]dto.Component, error) {
 		return nil, err
 	}
 
+	typeMap := make(map[string]bool)
 	for _, dic := range dics {
 		data := dto.Component{
 			Name:     dic.Name,
+			Type:     dic.Type,
 			Version:  dic.Version,
 			Describe: dic.Describe,
 		}
 		isExit := false
 		for _, spec := range specComponent {
+			if disabled, ok := typeMap[spec.Type]; ok {
+				if !disabled && spec.Status != constant.StatusDisabled {
+					typeMap[spec.Type] = true
+				}
+			} else {
+				if spec.Status != constant.StatusDisabled {
+					typeMap[spec.Type] = true
+				}
+			}
 			if dic.Name == spec.Name && dic.Version == spec.Version {
 				isExit = true
 				data.Status = spec.Status
 				data.Message = spec.Message
 				data.ID = spec.ID
+				data.Vars = spec.Vars
 				break
 			}
 		}
@@ -85,6 +103,11 @@ func (c *componentService) Get(clusterName string) ([]dto.Component, error) {
 			data.Message = ""
 		}
 		datas = append(datas, data)
+	}
+	for i := 0; i < len(datas); i++ {
+		if disabled, ok := typeMap[datas[i].Type]; ok {
+			datas[i].Disabled = disabled
+		}
 	}
 
 	return datas, nil
@@ -114,7 +137,7 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 	playbook := c.loadPlayBookName(creation.Name)
 	task := model.TaskLogDetail{
 		ID:            component.ID,
-		Task:          playbook,
+		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusEnabled),
 		ClusterID:     cluster.ID,
 		LastProbeTime: time.Now(),
 		Status:        constant.TaskLogStatusRunning,
@@ -123,145 +146,232 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	//playbook
-	go c.do(cluster, component, task)
+	admCluster, writer, err := c.loadAdmCluster(cluster, component, creation.Vars, constant.StatusEnabled)
+	if err != nil {
+		return err
+	}
+
+	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
+		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
+		return err
+	}
+
+	go c.docreate(admCluster, writer, task, component, cluster.Name)
 	return nil
 }
 
-func (c componentService) do(cluster model.Cluster, component model.ClusterSpecComponent, task model.TaskLogDetail) {
-	admCluster := adm.NewAnsibleHelper(cluster)
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, component.ID)
+func (c componentService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent, clusterName string) {
+	// 获取 k8s client
+	client, err := c.clusterService.NewClusterClient(clusterName)
 	if err != nil {
-		logger.Log.Error(err)
-	}
-	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).Updates(map[string]interface{}{
-		"status":  constant.StatusInitializing,
-		"message": "",
-	}).Error; err != nil {
 		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-		c.errCreateComponent(component, constant.StatusDisabled, err)
+		c.errHandlerComponent(component, constant.StatusDisabled, err)
+	}
+
+	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
+	if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
 	}
-
-	// 获取 k8s client
-	client, err := c.clusterService.NewClusterClient(cluster.Name)
-	if err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-		c.errCreateComponent(component, constant.StatusDisabled, err)
+	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	component.Status = constant.StatusWaiting
+	if err := db.DB.Save(&component).Error; err != nil {
+		logger.Log.Errorf("save component status err: %s", err.Error())
+		return
 	}
-
-	switch component.Name {
-	case "gpu":
-		admCluster.Kobe.SetVar(facts.SupportGpuFactName, constant.StatusEnabled)
-		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, gpuPlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDeployRunning("kube-operator", "gpu-operator", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	case "dns-cache":
-		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, dnsCachePlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDaemonsetRunning("kube-system", "node-local-dns", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	case "nginx":
-		admCluster.Kobe.SetVar(facts.IngressControllerTypeFactName, "nginx")
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, ingressControllerPlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDaemonsetRunning("kube-system", "nginx-ingress-controller", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	case "traefik":
-		admCluster.Kobe.SetVar(facts.IngressControllerTypeFactName, "traefik")
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, ingressControllerPlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDaemonsetRunning("kube-system", "traefik", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	case "metrics-server":
-		admCluster.Kobe.SetVar(facts.MetricsServerFactName, constant.StatusEnabled)
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, metricServerPlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDeployRunning("kube-system", "metrics-server", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	case "npd":
-		admCluster.Kobe.SetVar(facts.NpdFactName, constant.StatusEnabled)
-		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, npdPlaybook, "", writer); err != nil {
-			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
-			c.errCreateComponent(component, constant.StatusFailed, fmt.Errorf("create component failed, err: %v", err.Error()))
-			return
-		}
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
-		component.Status = constant.StatusWaiting
-		if err := db.DB.Save(&component).Error; err != nil {
-			logger.Log.Errorf("save component status err: %s", err.Error())
-			return
-		}
-		if err := phases.WaitForDaemonsetRunning("kube-system", "node-problem-detector", client); err != nil {
-			c.errCreateComponent(component, constant.StatusNotReady, fmt.Errorf("waitting component running error %s", err.Error()))
-			return
-		}
-	}
-	component.Status = constant.StatusEnabled
-	_ = db.DB.Save(&component)
+	c.dosync([]model.ClusterSpecComponent{component}, client, component.Name)
 }
 
-func (c componentService) errCreateComponent(component model.ClusterSpecComponent, status string, err error) {
+func (c componentService) Delete(clusterName, name string) error {
+	var component model.ClusterSpecComponent
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
+	if err != nil {
+		return err
+	}
+	db.DB.Where("name = ? AND cluster_id = ?", name, cluster.ID).First(&component)
+	if component.ID == "" {
+		return errors.New("not found")
+	}
+
+	playbook := c.loadPlayBookName(name)
+	task := model.TaskLogDetail{
+		ID:            fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled),
+		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusDisabled),
+		ClusterID:     cluster.ID,
+		LastProbeTime: time.Now(),
+		Status:        constant.TaskLogStatusRunning,
+	}
+	if err := c.taskLogService.StartDetail(&task); err != nil {
+		return fmt.Errorf("save tasklog failed, err: %v", err)
+	}
+
+	admCluster, writer, err := c.loadAdmCluster(cluster, component, map[string]interface{}{}, constant.StatusDisabled)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
+		Updates(map[string]interface{}{"status": constant.StatusTerminating, "message": ""}).Error; err != nil {
+		return err
+	}
+
+	go c.dodelete(admCluster, writer, task, component)
+
+	return nil
+}
+
+func (c componentService) dodelete(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent) {
+	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
+	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerComponent(component, constant.StatusFailed, err)
+		return
+	}
+	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	_ = db.DB.Where("id = ?", component.ID).Delete(&model.ClusterSpecComponent{})
+}
+
+func (c componentService) errHandlerComponent(component model.ClusterSpecComponent, status string, err error) {
 	logger.Log.Errorf(err.Error())
 	component.Status = status
 	component.Message = err.Error()
 	_ = db.DB.Save(&component)
+}
+
+func (c componentService) Sync(syncData *dto.ComponentSync) error {
+	cluster, err := c.clusterRepo.Get(syncData.ClusterName)
+	if err != nil {
+		return err
+	}
+	client, err := c.clusterService.NewClusterClient(syncData.ClusterName)
+	if err != nil {
+		return err
+	}
+	var components []model.ClusterSpecComponent
+	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&components).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Model(&model.ClusterSpecComponent{}).
+		Where("cluster_id = ? AND name in (?)", cluster.ID, syncData.Names).
+		Update("status", constant.ClusterSynchronizing).Error; err != nil {
+		return err
+	}
+	go c.dosync(components, client, syncData.Names...)
+
+	return nil
+}
+
+func (c componentService) dosync(components []model.ClusterSpecComponent, client *kubernetes.Clientset, names ...string) {
+	for _, name := range names {
+		switch name {
+		case "gpu":
+			if err := phases.WaitForDeployRunning("kube-operator", "gpu-operator", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "nginx":
+			if err := phases.WaitForDaemonsetRunning("kube-system", "nginx-ingress-controller", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "traefik":
+			if err := phases.WaitForDaemonsetRunning("kube-system", "traefik", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "dns-cache":
+			if err := phases.WaitForDaemonsetRunning("kube-system", "node-local-dns", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "metrics-server":
+			if err := phases.WaitForDeployRunning("kube-system", "metrics-server", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "npd":
+			if err := phases.WaitForDaemonsetRunning("kube-system", "node-problem-detector", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		case "istio":
+			if err := phases.WaitForDeployRunning("istio-system", "istiod", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
+		}
+	}
+}
+
+func (c componentService) changeStatus(components []model.ClusterSpecComponent, name, status string) {
+	for _, component := range components {
+		if name == component.Name {
+			if component.Status == constant.StatusWaiting && status == constant.StatusFailed {
+				status = constant.StatusNotReady
+				component.Status = constant.StatusNotReady
+			}
+			if status == constant.StatusDisabled {
+				if component.Status != constant.StatusFailed && component.Status != constant.StatusNotReady {
+					component.Status = constant.StatusDisabled
+				}
+			} else {
+				if component.Status != constant.StatusEnabled {
+					component.Status = constant.StatusEnabled
+				}
+			}
+			_ = db.DB.Save(component).Error
+		}
+	}
+}
+
+func (c componentService) loadAdmCluster(cluster model.Cluster, component model.ClusterSpecComponent, vars map[string]interface{}, operation string) (*adm.AnsibleHelper, io.Writer, error) {
+	admCluster := adm.NewAnsibleHelper(cluster)
+
+	if len(vars) != 0 {
+		for k, v := range vars {
+			if v != nil {
+				admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
+			}
+		}
+	}
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, operation))
+	if err != nil {
+		return admCluster, writer, err
+	}
+	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).Updates(map[string]interface{}{
+		"status":  constant.StatusTerminating,
+		"message": "",
+	}).Error; err != nil {
+		return admCluster, writer, err
+	}
+
+	switch component.Name {
+	case "gpu":
+		admCluster.Kobe.SetVar(facts.SupportGpuFactName, operation)
+	case "nginx":
+		admCluster.Kobe.SetVar(facts.IngressControllerTypeFactName, "nginx")
+		admCluster.Kobe.SetVar(facts.EnableNginxFactName, operation)
+	case "traefik":
+		admCluster.Kobe.SetVar(facts.IngressControllerTypeFactName, "traefik")
+		admCluster.Kobe.SetVar(facts.EnableTraefikFactName, operation)
+	case "dns-cache":
+		admCluster.Kobe.SetVar(facts.EnableDnsCacheFactName, operation)
+	case "metrics-server":
+		admCluster.Kobe.SetVar(facts.MetricsServerFactName, operation)
+	case "npd":
+		admCluster.Kobe.SetVar(facts.EnableNpdFactName, operation)
+	case "istio":
+		admCluster.Kobe.SetVar(facts.EnableIstioFactName, operation)
+	}
+	return admCluster, writer, err
 }
 
 func (c componentService) loadPlayBookName(name string) string {
@@ -276,6 +386,8 @@ func (c componentService) loadPlayBookName(name string) string {
 		return metricServerPlaybook
 	case "npd":
 		return npdPlaybook
+	case "istio":
+		return istioPlaybook
 	}
 	return ""
 }

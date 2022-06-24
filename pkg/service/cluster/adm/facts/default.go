@@ -17,7 +17,6 @@ const (
 	NodeportAddressFactName              = "nodeport_address"
 	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
 	KubeProxyModeFactName                = "kube_proxy_mode"
-	EnableDnsCacheFactName               = "enable_dns_cache"
 	DnsCacheVersionFactName              = "dns_cache_version"
 	NetworkPluginFactName                = "network_plugin"
 	CiliumVersionFactName                = "cilium_version"
@@ -50,7 +49,6 @@ const (
 	CalicoIpv4poolIpIpFactName           = "calico_ipv4pool_ipip"
 	FlannelBackendFactName               = "flannel_backend"
 	KubernetesAuditFactName              = "kubernetes_audit"
-	IngressControllerTypeFactName        = "ingress_controller_type"
 	HelmVersionFactName                  = "helm_version"
 	EtcdVersionFactName                  = "etcd_version"
 	DockerVersionFactName                = "docker_version"
@@ -62,15 +60,22 @@ const (
 	HelmV3VersionFactName                = "helm_v3_version"
 	NginxIngressVersionFactName          = "nginx_ingress_version"
 	TraefikIngressVersionFactName        = "traefik_ingress_version"
-	NpdFactName                          = "npd_server"
-	MetricsServerFactName                = "metrics_server"
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
 	NetworkCidrFactName                  = "network_cidr"
-	SupportGpuFactName                   = "support_gpu"
 	YumRepoFactName                      = "yum_operate"
 	NtpServerFactName                    = "ntp_server"
 	MasterScheduleTypeFactName           = "master_schedule_type"
+
+	ComponentOptionFactName       = "component_option"
+	IngressControllerTypeFactName = "ingress_controller_type"
+	EnableNginxFactName           = "enable_nginx"
+	EnableTraefikFactName         = "enable_traefik"
+	MetricsServerFactName         = "enable_metrics_server"
+	SupportGpuFactName            = "support_gpu"
+	EnableDnsCacheFactName        = "enable_dns_cache"
+	EnableNpdFactName             = "enable_npd"
+	EnableIstioFactName           = "enable_istio"
 )
 
 var DefaultFacts = map[string]string{
@@ -87,7 +92,6 @@ var DefaultFacts = map[string]string{
 	KubeNetworkNodePrefixFactName:        "24",
 	KubeMaxPodsFactName:                  "110",
 	KubeProxyModeFactName:                "iptables",
-	EnableDnsCacheFactName:               "enable",
 	DnsCacheVersionFactName:              "1.17.0",
 	NetworkPluginFactName:                "calico",
 	CiliumVersionFactName:                "v1.9.5",
@@ -118,7 +122,6 @@ var DefaultFacts = map[string]string{
 	KubeEphemeralStorageReservedFactName: "1G",
 	CalicoIpv4poolIpIpFactName:           "Always",
 	KubernetesAuditFactName:              "no",
-	IngressControllerTypeFactName:        "nginx",
 	FlannelBackendFactName:               "vxlan",
 	HelmVersionFactName:                  "v3",
 	EtcdVersionFactName:                  "v3.4.9",
@@ -131,13 +134,20 @@ var DefaultFacts = map[string]string{
 	HelmV3VersionFactName:                "v3.2.4",
 	NginxIngressVersionFactName:          "0.33.0",
 	TraefikIngressVersionFactName:        "v2.2.1",
-	NpdFactName:                          "disable",
-	MetricsServerFactName:                "enable",
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
 	NetworkCidrFactName:                  "",
-	SupportGpuFactName:                   "disable",
 	YumRepoFactName:                      "replace",
 	NtpServerFactName:                    "ntp1.aliyun.com",
 	MasterScheduleTypeFactName:           "enable",
+
+	ComponentOptionFactName:       "default-create",
+	IngressControllerTypeFactName: "nginx",
+	EnableNginxFactName:           "enable_nginx",
+	EnableTraefikFactName:         "enable_traefik",
+	MetricsServerFactName:         "enable",
+	SupportGpuFactName:            "disable",
+	EnableDnsCacheFactName:        "enable",
+	EnableNpdFactName:             "disable",
+	EnableIstioFactName:           "disable",
 }

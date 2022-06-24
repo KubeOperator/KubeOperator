@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 )
@@ -68,6 +69,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	statusChan := make(chan adm.AnsibleHelper)
 
 	admCluster := adm.NewAnsibleHelper(cluster, writer)
+	admCluster.Kobe.SetVar(facts.ComponentOptionFactName, "cluster-create")
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		result := <-statusChan
