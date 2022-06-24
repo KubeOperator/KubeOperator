@@ -127,12 +127,13 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 			return errors.New("COMPONENT_EXIST")
 		}
 	}
-	if component.ID == "" {
-		component = creation.ComponentCreate2Mo()
-		component.ClusterID = cluster.ID
-		if err := db.DB.Create(&component).Error; err != nil {
-			return err
-		}
+	if err := db.DB.Delete(&component).Error; err != nil {
+		return err
+	}
+	component = creation.ComponentCreate2Mo()
+	component.ClusterID = cluster.ID
+	if err := db.DB.Create(&component).Error; err != nil {
+		return err
 	}
 	playbook := c.loadPlayBookName(creation.Name)
 	task := model.TaskLogDetail{
