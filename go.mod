@@ -31,7 +31,7 @@ require (
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/flock v0.8.0
-	github.com/golang-migrate/migrate/v4 v4.12.1
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.1.3
 	github.com/gophercloud/gophercloud v0.12.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
