@@ -42,6 +42,10 @@ func (c TaskLogController) Post() (*page.Page, error) {
 	return nil, nil
 }
 
-func (c TaskLogController) GetLogBy(clusterId, logId string) (*dto.Logs, error) {
-	return c.TaskLogService.GetTaskLogs(clusterId, logId)
+func (c TaskLogController) GetLog1By(clusterId, logId string) (*dto.Logs, error) {
+	return c.TaskLogService.GetTaskLogByID(clusterId, logId)
+}
+
+func (c TaskLogController) GetLog2By(clusterName, logId string) (*dto.Logs, error) {
+	return c.TaskLogService.GetTaskLogByName(clusterName, logId)
 }

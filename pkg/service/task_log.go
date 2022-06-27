@@ -17,7 +17,8 @@ import (
 type TaskLogService interface {
 	Page(num, size int, clusterName string, logtype string) (*page.Page, error)
 	GetByID(id string) (model.TaskLog, error)
-	GetTaskLogs(clusterId, logId string) (*dto.Logs, error)
+	GetTaskLogByID(clusterId, logId string) (*dto.Logs, error)
+	GetTaskLogByName(clusterName, logId string) (*dto.Logs, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
@@ -102,12 +103,32 @@ func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
 	return tasklog, nil
 }
 
-func (c *taskLogService) GetTaskLogs(clusterId, logId string) (*dto.Logs, error) {
+func (c *taskLogService) GetTaskLogByID(clusterId, logId string) (*dto.Logs, error) {
 	var cluster model.Cluster
 	if err := db.DB.Where("id = ?", clusterId).First(&cluster).Error; err != nil {
 		return nil, err
 	}
 	r, err := ansible.GetAnsibleLogReader(cluster.Name, logId)
+	if err != nil {
+		return nil, err
+	}
+	var chunk []byte
+	for {
+		buffer := make([]byte, 1024)
+		n, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		chunk = append(chunk, buffer[:n]...)
+	}
+	return &dto.Logs{Msg: string(chunk)}, nil
+}
+
+func (c *taskLogService) GetTaskLogByName(clusterName, logId string) (*dto.Logs, error) {
+	r, err := ansible.GetAnsibleLogReader(clusterName, logId)
 	if err != nil {
 		return nil, err
 	}
