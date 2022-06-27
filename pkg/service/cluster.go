@@ -279,7 +279,7 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 		return nil, err
 	}
 	sort.Slice(tasklog.Details, func(i, j int) bool {
-		return tasklog.Details[i].StartTime > tasklog.Details[j].StartTime
+		return tasklog.Details[i].StartTime < tasklog.Details[j].StartTime
 	})
 	return &dto.TaskLog{TaskLog: tasklog}, nil
 }

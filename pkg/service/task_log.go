@@ -1,6 +1,7 @@
 package service
 
 import (
+	"io"
 	"sort"
 	"time"
 
@@ -9,12 +10,14 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	uuid "github.com/satori/go.uuid"
 )
 
 type TaskLogService interface {
 	Page(num, size int, clusterName string, logtype string) (*page.Page, error)
 	GetByID(id string) (model.TaskLog, error)
+	GetTaskLogs(clusterId, logId string) (*dto.Logs, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
@@ -97,6 +100,30 @@ func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
 		return tasklog, err
 	}
 	return tasklog, nil
+}
+
+func (c *taskLogService) GetTaskLogs(clusterId, logId string) (*dto.Logs, error) {
+	var cluster model.Cluster
+	if err := db.DB.Where("id = ?", clusterId).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	r, err := ansible.GetAnsibleLogReader(cluster.Name, logId)
+	if err != nil {
+		return nil, err
+	}
+	var chunk []byte
+	for {
+		buffer := make([]byte, 1024)
+		n, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		chunk = append(chunk, buffer[:n]...)
+	}
+	return &dto.Logs{Msg: string(chunk)}, nil
 }
 
 func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*model.TaskLog, error) {

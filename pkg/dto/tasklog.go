@@ -7,3 +7,7 @@ import (
 type TaskLog struct {
 	model.TaskLog `json:"tasklogs"`
 }
+
+type Logs struct {
+	Msg string `json:"msg"`
+}
