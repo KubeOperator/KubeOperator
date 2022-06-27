@@ -140,7 +140,7 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		ID:            component.ID,
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusEnabled),
 		ClusterID:     cluster.ID,
-		LastProbeTime: time.Now(),
+		LastProbeTime: time.Now().Unix(),
 		Status:        constant.TaskLogStatusRunning,
 	}
 	if err := c.taskLogService.StartDetail(&task); err != nil {
@@ -200,7 +200,7 @@ func (c componentService) Delete(clusterName, name string) error {
 		ID:            fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled),
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusDisabled),
 		ClusterID:     cluster.ID,
-		LastProbeTime: time.Now(),
+		LastProbeTime: time.Now().Unix(),
 		Status:        constant.TaskLogStatusRunning,
 	}
 	if err := c.taskLogService.StartDetail(&task); err != nil {

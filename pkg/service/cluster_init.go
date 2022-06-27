@@ -73,14 +73,11 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		result := <-statusChan
-		cluster.TaskLog.Phase = result.Status
-		cluster.TaskLog.Message = result.Message
-		cluster.TaskLog.Details = result.LogDetail
-		if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
-			logger.Log.Infof("save task failed %v", err)
-		}
 		switch cluster.TaskLog.Phase {
 		case constant.TaskLogStatusFailed:
+			if err := c.taskLogService.End(&cluster.TaskLog, false, result.Message); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 			cancel()
 			cluster.Status = constant.StatusFailed
 			cluster.Message = result.Message
@@ -89,6 +86,9 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.TaskLog.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.TaskLogStatusSuccess:
+			if err := c.taskLogService.End(&cluster.TaskLog, true, ""); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
 			cluster.Status = constant.StatusRunning
 			cluster.Message = result.Message
@@ -122,6 +122,13 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			}
 			_ = c.clusterRepo.Save(&cluster)
 			return
+		default:
+			cluster.TaskLog.Phase = result.Status
+			cluster.TaskLog.Message = result.Message
+			cluster.TaskLog.Details = result.LogDetail
+			if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 		}
 	}
 }

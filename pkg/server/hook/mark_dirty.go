@@ -1,6 +1,8 @@
 package hook
 
 import (
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -28,23 +30,26 @@ func recoverClusterTask() error {
 	}
 
 	if err := db.DB.Model(&model.TaskLog{}).Where("phase not in (?)", statleTaskStatus).Updates(map[string]interface{}{
-		"phase":   constant.TaskLogStatusFailed,
-		"message": constant.TaskCancel,
+		"phase":    constant.TaskLogStatusFailed,
+		"message":  constant.TaskCancel,
+		"end_time": time.Now().Unix(),
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.TaskDetailStatusUnknown).Updates(map[string]interface{}{
-		"status":  constant.TaskDetailStatusFalse,
-		"message": constant.TaskCancel,
+		"status":   constant.TaskDetailStatusFalse,
+		"message":  constant.TaskCancel,
+		"end_time": time.Now().Unix(),
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 	if err := tx.Model(&model.TaskLogDetail{}).Where("status not in (?) ", stableDetailStatus).Updates(map[string]interface{}{
-		"status":  constant.StatusFailed,
-		"message": constant.TaskCancel,
+		"status":   constant.StatusFailed,
+		"message":  constant.TaskCancel,
+		"end_time": time.Now().Unix(),
 	}).Error; err != nil {
 		tx.Rollback()
 		return err

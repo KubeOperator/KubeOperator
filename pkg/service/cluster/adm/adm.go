@@ -35,30 +35,18 @@ func (h Handler) name() string {
 }
 
 func (c *AnsibleHelper) setCondition(newDetail model.TaskLogDetail) {
-	var details []model.TaskLogDetail
-	exist := false
-	for _, detail := range c.LogDetail {
-		if detail.Task == newDetail.Task {
-			exist = true
-			if newDetail.Status != detail.Status {
-				detail.Status = newDetail.Status
-			}
-			if newDetail.Message != detail.Message {
-				detail.Message = newDetail.Message
-			}
-			if !newDetail.LastProbeTime.IsZero() && newDetail.LastProbeTime != detail.LastProbeTime {
-				detail.LastProbeTime = newDetail.LastProbeTime
-			}
-		}
-		details = append(details, detail)
+	if newDetail.Status == constant.TaskDetailStatusUnknown {
+		c.LogDetail = append(c.LogDetail, newDetail)
+		return
 	}
-	if !exist {
-		if newDetail.LastProbeTime.IsZero() {
-			newDetail.LastProbeTime = time.Now()
+	for i := 0; i < len(c.LogDetail); i++ {
+		if c.LogDetail[i].Task == newDetail.Task {
+			c.LogDetail[i].Status = newDetail.Status
+			c.LogDetail[i].Message = newDetail.Message
+			c.LogDetail[i].LastProbeTime = newDetail.LastProbeTime
+			c.LogDetail[i].EndTime = time.Now().Unix()
 		}
-		details = append(details, newDetail)
 	}
-	c.LogDetail = details
 }
 
 type AnsibleHelper struct {

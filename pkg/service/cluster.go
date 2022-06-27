@@ -279,9 +279,9 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 		return nil, err
 	}
 	sort.Slice(tasklog.Details, func(i, j int) bool {
-		return tasklog.Details[i].CreatedAt.Before(tasklog.Details[j].CreatedAt)
+		return tasklog.Details[i].StartTime > tasklog.Details[j].StartTime
 	})
-	return &dto.TaskLog{}, nil
+	return &dto.TaskLog{TaskLog: tasklog}, nil
 }
 
 func (c *clusterService) ReCreate(name string) error {

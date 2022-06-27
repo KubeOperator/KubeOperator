@@ -9,7 +9,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -56,7 +55,7 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 		}
 		for t := 0; t < len(tasklogs); t++ {
 			sort.Slice(tasklogs[t].Details, func(i, j int) bool {
-				return tasklogs[t].Details[i].CreatedAt.Before(tasklogs[t].Details[j].CreatedAt)
+				return tasklogs[t].Details[i].StartTime > tasklogs[t].Details[j].StartTime
 			})
 			datas = append(datas, dto.TaskLog{TaskLog: tasklogs[t]})
 		}
@@ -79,14 +78,12 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 	for t := 0; t < len(tasklogs); t++ {
 		datas = append(datas, dto.TaskLog{
 			TaskLog: model.TaskLog{
-				ID:      tasklogs[t].ID,
-				Phase:   tasklogs[t].Status,
-				Message: tasklogs[t].Message,
-				Type:    tasklogs[t].Task,
-				BaseModel: common.BaseModel{
-					CreatedAt: tasklogs[t].CreatedAt,
-					UpdatedAt: tasklogs[t].UpdatedAt,
-				},
+				ID:        tasklogs[t].ID,
+				Phase:     tasklogs[t].Status,
+				Message:   tasklogs[t].Message,
+				Type:      tasklogs[t].Task,
+				StartTime: tasklogs[t].StartTime,
+				EndTime:   tasklogs[t].EndTime,
 			},
 		})
 	}
@@ -107,12 +104,14 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 		ClusterID: clusterID,
 		Type:      logtype,
 		Phase:     constant.TaskLogStatusRunning,
+		StartTime: time.Now().Unix(),
 		Details: []model.TaskLogDetail{
 			{
 				ID:            uuid.NewV4().String(),
 				Task:          logtype,
 				Status:        constant.TaskDetailStatusUnknown,
-				LastProbeTime: time.Now(),
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     time.Now().Unix(),
 			},
 		},
 	}
@@ -121,6 +120,7 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 
 func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 	if db.DB.NewRecord(detail) {
+		detail.StartTime = time.Now().Unix()
 		return db.DB.Create(detail).Error
 	} else {
 		return db.DB.Save(detail).Error
@@ -128,6 +128,7 @@ func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 }
 
 func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
+	detail.StartTime = time.Now().Unix()
 	return db.DB.Create(detail).Error
 }
 
@@ -182,14 +183,16 @@ func (c *taskLogService) Save(taskLog *model.TaskLog) error {
 		}
 	}
 	if db.DB.NewRecord(taskLog) {
-		return db.DB.Create(taskLog).Error
+		taskLog.StartTime = time.Now().Unix()
+		return db.DB.Create(&taskLog).Error
 	} else {
-		return db.DB.Save(taskLog).Error
+		return db.DB.Save(&taskLog).Error
 	}
 }
 
 func (c *taskLogService) Start(log *model.TaskLog) error {
 	log.Phase = constant.TaskLogStatusWaiting
+	log.StartTime = time.Now().Unix()
 	return db.DB.Create(log).Error
 }
 
@@ -201,10 +204,12 @@ func (c *taskLogService) End(log *model.TaskLog, success bool, message string) e
 	} else {
 		log.Phase = constant.TaskLogStatusFailed
 	}
+	log.EndTime = time.Now().Unix()
 	for i := 0; i < len(log.Details); i++ {
 		if log.Details[i].Status == constant.TaskDetailStatusUnknown {
 			log.Details[i].Status = status
 			log.Details[i].Message = message
+			log.Details[i].EndTime = time.Now().Unix()
 		}
 	}
 	log.Message = message

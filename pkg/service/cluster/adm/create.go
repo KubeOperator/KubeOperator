@@ -1,6 +1,7 @@
 package adm
 
 import (
+	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
@@ -16,34 +17,39 @@ import (
 func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 	task := ca.getCreateCurrentTask(aHelper)
 	if task != nil {
-		now := time.Now()
 		f := ca.getCreateHandler(task.Task)
-		err := f(aHelper)
-		if err != nil {
+		if err := f(aHelper); err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          task.Task,
 				Status:        constant.TaskDetailStatusFalse,
-				LastProbeTime: now,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     task.StartTime,
+				EndTime:       time.Now().Unix(),
 				Message:       err.Error(),
 			})
 			aHelper.Status = constant.TaskLogStatusFailed
 			aHelper.Message = err.Error()
 			return nil
 		}
+		fmt.Printf("我的任务跑完了 %s %d \n", task.Task, time.Now().Unix())
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          task.Task,
 			Status:        constant.TaskDetailStatusTrue,
-			LastProbeTime: now,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     task.StartTime,
+			EndTime:       time.Now().Unix(),
 		})
 
 		nextConditionType := ca.getNextCreateConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
 			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
+			fmt.Printf("我的任务开始了 %s %d \n", nextConditionType, time.Now().Unix())
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
 				Status:        constant.TaskDetailStatusUnknown,
-				LastProbeTime: now,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     time.Now().Unix(),
 			})
 		}
 	}
@@ -52,12 +58,16 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 
 func (ca *ClusterAdm) getCreateCurrentTask(aHelper *AnsibleHelper) *model.TaskLogDetail {
 	if len(aHelper.LogDetail) == 0 {
-		return &model.TaskLogDetail{
+		taskItem := &model.TaskLogDetail{
 			Task:          ca.createHandlers[0].name(),
 			Status:        constant.TaskDetailStatusUnknown,
-			LastProbeTime: time.Now(),
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     time.Now().Unix(),
+			EndTime:       time.Now().Unix(),
 			Message:       "",
 		}
+		aHelper.LogDetail = append(aHelper.LogDetail, *taskItem)
+		return taskItem
 	}
 	for _, detail := range aHelper.LogDetail {
 		if detail.Status == constant.TaskDetailStatusFalse || detail.Status == constant.TaskDetailStatusUnknown {

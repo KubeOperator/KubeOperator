@@ -80,6 +80,10 @@ func (c Cluster) BeforeDelete() error {
 		tx.Rollback()
 		return err
 	}
+	if err := tx.Where("cluster_id = ?", cluster.ID).Delete(&ClusterSpecComponent{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	var (
 		hostIDList []string
 		hostIPList []string

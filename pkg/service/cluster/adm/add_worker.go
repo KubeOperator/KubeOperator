@@ -25,7 +25,8 @@ func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          detail.Task,
 				Status:        constant.TaskDetailStatusFalse,
-				LastProbeTime: now,
+				LastProbeTime: now.Unix(),
+				EndTime:       now.Unix(),
 				Message:       err.Error(),
 			})
 			aHelper.Status = constant.TaskLogStatusFailed
@@ -35,7 +36,8 @@ func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          detail.Task,
 			Status:        constant.TaskDetailStatusTrue,
-			LastProbeTime: now,
+			LastProbeTime: now.Unix(),
+			EndTime:       now.Unix(),
 		})
 
 		nextConditionType := ca.getNextAddWorkerConditionName(detail.Task)
@@ -45,7 +47,8 @@ func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
 				Status:        constant.TaskDetailStatusUnknown,
-				LastProbeTime: time.Now(),
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     time.Now().Unix(),
 				Message:       "",
 			})
 		}
@@ -58,7 +61,8 @@ func (ca *ClusterAdm) getAddWorkerCurrentTask(aHelper *AnsibleHelper) *model.Tas
 		return &model.TaskLogDetail{
 			Task:          ca.addWorkerHandlers[0].name(),
 			Status:        constant.TaskDetailStatusUnknown,
-			LastProbeTime: time.Now(),
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     time.Now().Unix(),
 			Message:       "",
 		}
 	}

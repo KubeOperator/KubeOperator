@@ -151,7 +151,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		ID:            p.ID,
 		Task:          playbook,
 		ClusterID:     cluster.ID,
-		LastProbeTime: time.Now(),
+		LastProbeTime: time.Now().Unix(),
 		Status:        constant.TaskLogStatusRunning,
 	}
 	if err := c.taskLogService.StartDetail(&task); err != nil {
