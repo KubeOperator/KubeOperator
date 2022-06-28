@@ -293,6 +293,9 @@ func (c *clusterService) ReCreate(name string) error {
 	if err != nil {
 		return err
 	}
+	if err := c.tasklogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: tasklog.ID, Message: tasklog.Message}); err != nil {
+		return err
+	}
 	cluster.TaskLog = tasklog
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {

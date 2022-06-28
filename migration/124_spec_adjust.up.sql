@@ -206,36 +206,14 @@ FROM
     `ko_cluster` c
     LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id;
 
-ALTER TABLE
-    `ko`.`ko_cluster`
-ADD
-    COLUMN `status` VARCHAR(255) NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `current_task_id` VARCHAR(255) NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `message` mediumtext NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `provider` VARCHAR(255) NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `upgrade_version` VARCHAR(255) NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `version` VARCHAR(255) NULL
-AFTER
-    `source`,
-ADD
-    COLUMN `architectures` VARCHAR(255) NULL
-AFTER
-    `source`;
+ALTER TABLE `ko`.`ko_cluster`
+ADD COLUMN `status` VARCHAR(255) NULL AFTER `source`,
+ADD COLUMN `current_task_id` VARCHAR(255) NULL AFTER `source`,
+ADD COLUMN `message` mediumtext NULL AFTER `source`,
+ADD COLUMN `provider` VARCHAR(255) NULL AFTER `source`,
+ADD COLUMN `upgrade_version` VARCHAR(255) NULL AFTER `source`,
+ADD COLUMN `version` VARCHAR(255) NULL AFTER `source`,
+ADD COLUMN `architectures` VARCHAR(255) NULL AFTER `source`;
 
 
 UPDATE
@@ -249,3 +227,85 @@ SET
     c.architectures = s.architectures,
     c.status = x.phase,
     c.message = x.message;
+
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "metrics-server" AS `name`,
+    "Metrics Server" AS `type`,
+    "v0.5.0" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c WHERE c.source = 'local' OR c.source = 'ko-external';
+
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "dns-cache" AS `name`,
+    "Dns Cache" AS `type`,
+    "1.17.0" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.enable_dns_cache = 'enable';
+
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "gpu" AS `name`,
+    "GPU" AS `type`,
+    "v1.7.0" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.support_gpu = 'enable';
+
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "traefik" AS `name`,
+    "Ingress Controller" AS `type`,
+    "v2.6.1" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.ingress_controller_type = 'traefik';
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "nginx" AS `name`,
+    "Ingress Controller" AS `type`,
+    "v1.1.1" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.ingress_controller_type = 'nginx';

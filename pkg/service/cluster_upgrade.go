@@ -68,6 +68,9 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 			}).Error; err != nil {
 			return fmt.Errorf("reset status error %s", err.Error())
 		}
+		if err := c.taskLogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: cluster.TaskLog.ID, Message: cluster.TaskLog.Message}); err != nil {
+			return err
+		}
 	} else {
 		cluster.TaskLog = model.TaskLog{
 			ClusterID: cluster.ID,

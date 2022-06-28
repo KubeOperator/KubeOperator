@@ -88,6 +88,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		Architectures: c.Architectures,
 		Provider:      constant.ClusterProviderBareMetal,
 		Version:       c.KoClusterInfo.Version,
+		Status:        constant.StatusRunning,
 	}
 	cluster.TaskLog = model.TaskLog{
 		Type:  constant.TaskLogTypeClusterImport,

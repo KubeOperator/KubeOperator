@@ -34,6 +34,14 @@ type TaskLogDetail struct {
 	Status        string `json:"status"`
 }
 
+type TaskRetryLog struct {
+	common.BaseModel
+	ID        string `json:"id"`
+	TaskLogID string `json:"taskLogID"`
+	ClusterID string `json:"clusterID"`
+	Message   string `json:"message" gorm:"type:text(65535)"`
+}
+
 func (n *TaskLog) BeforeCreate() (err error) {
 	n.ID = uuid.NewV4().String()
 	return nil

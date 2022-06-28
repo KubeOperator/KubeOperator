@@ -20,7 +20,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
-	"github.com/jinzhu/gorm"
 )
 
 type CLusterBackupFileService interface {
@@ -159,22 +158,6 @@ func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) e
 		return err
 	}
 
-	backupLog, err := c.taskLogService.GetRunningLogWithClusterNameAndType(creation.ClusterName, constant.TaskLogTypeBackup)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return err
-	}
-	if backupLog.ID != "" {
-		return errors.New("CLUSTER_IS_BACKUP")
-	}
-
-	restoreLog, err := c.taskLogService.GetRunningLogWithClusterNameAndType(creation.ClusterName, constant.TaskLogTypeRestore)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return err
-	}
-	if restoreLog.ID != "" {
-		return errors.New("CLUSTER_IS_RESTORE")
-	}
-
 	now := time.Now()
 	day := now.Format("2006-01-02-15-04")
 	fileName := cluster.Name + "-" + day + ".backup.db"
@@ -259,22 +242,6 @@ func (c cLusterBackupFileService) Restore(restore dto.ClusterBackupFileRestore) 
 	cluster, err := c.clusterRepo.GetWithPreload(restore.ClusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
-	}
-
-	backupLog, err := c.taskLogService.GetRunningLogWithClusterNameAndType(restore.ClusterName, constant.TaskLogTypeBackup)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return err
-	}
-	if backupLog.ID != "" {
-		return errors.New("CLUSTER_IS_BACKUP")
-	}
-
-	restoreLog, err := c.taskLogService.GetRunningLogWithClusterNameAndType(restore.ClusterName, constant.TaskLogTypeRestore)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return err
-	}
-	if restoreLog.ID != "" {
-		return errors.New("CLUSTER_IS_RESTORE")
 	}
 
 	file, err := c.clusterBackupFileRepo.Get(restore.Name)

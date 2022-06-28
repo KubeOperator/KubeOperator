@@ -22,7 +22,6 @@ type TaskLogService interface {
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
-	GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.TaskLog, error)
 	NewTerminalTask(clusterID string, logtype string) (*model.TaskLog, error)
 
 	IsTaskOn(clusterName string) bool
@@ -30,6 +29,8 @@ type TaskLogService interface {
 	StartDetail(detail *model.TaskLogDetail) error
 	EndDetail(detail *model.TaskLogDetail, statu string, message string) error
 	SaveDetail(detail *model.TaskLogDetail) error
+
+	SaveRetryLog(retry *model.TaskRetryLog) error
 }
 
 type taskLogService struct {
@@ -83,6 +84,7 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 		datas = append(datas, dto.TaskLog{
 			TaskLog: model.TaskLog{
 				ID:        tasklogs[t].ID,
+				ClusterID: tasklogs[t].ClusterID,
 				Phase:     tasklogs[t].Status,
 				Message:   tasklogs[t].Message,
 				Type:      tasklogs[t].Task,
@@ -183,6 +185,7 @@ func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
 func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, message string) error {
 	detail.Status = status
 	detail.Message = message
+	detail.EndTime = time.Now().Unix()
 
 	return db.DB.Save(detail).Error
 }
@@ -202,26 +205,6 @@ func (c *taskLogService) IsTaskOn(clusterName string) bool {
 		return false
 	}
 	return !(log.Phase == constant.TaskLogStatusFailed || log.Phase == constant.TaskLogStatusSuccess)
-}
-
-func (c *taskLogService) GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.TaskLog, error) {
-	var (
-		item model.Cluster
-		log  model.TaskLog
-	)
-	var cluster model.Cluster
-	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
-		return log, err
-	}
-	now := time.Now()
-	h, _ := time.ParseDuration("-12h")
-	halfDayAgo := now.Add(h)
-	if err := db.DB.Where("cluster_id = ? AND type = ? AND status = ? AND created_at BETWEEN ? AND ?", cluster.ID, logType, constant.ClusterRunning, halfDayAgo, now).
-		Find(&item).
-		Error; err != nil {
-		return log, err
-	}
-	return log, nil
 }
 
 func (c *taskLogService) Save(taskLog *model.TaskLog) error {
@@ -263,4 +246,8 @@ func (c *taskLogService) End(log *model.TaskLog, success bool, message string) e
 	log.Message = message
 
 	return db.DB.Save(log).Error
+}
+
+func (c taskLogService) SaveRetryLog(retry *model.TaskRetryLog) error {
+	return db.DB.Create(&retry).Error
 }

@@ -166,17 +166,6 @@ func (c *clusterNodeService) Batch(clusterName string, item dto.NodeBatch) error
 	}
 	switch item.Operation {
 	case constant.BatchOperationCreate:
-		tasklog := model.TaskLog{
-			ClusterID: cluster.ID,
-			Type:      constant.TaskLogTypeClusterNodeExtend,
-			Phase:     constant.StatusWaiting,
-		}
-		if err := c.taskLogService.Start(&tasklog); err != nil {
-			return err
-		}
-		cluster.TaskLog = tasklog
-		cluster.CurrentTaskID = tasklog.ID
-		_ = c.clusterRepo.Save(&cluster)
 		return c.batchCreate(&cluster, currentNodes, item)
 	case constant.BatchOperationDelete:
 		if err := db.DB.Model(&model.ClusterNode{}).Where("name in (?)", item.Nodes).
@@ -378,6 +367,9 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 	}
 	tasklog, err := c.taskLogService.GetByID(cluster.CurrentTaskID)
 	if err != nil {
+		return err
+	}
+	if err := c.taskLogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: tasklog.ID, Message: tasklog.Message}); err != nil {
 		return err
 	}
 	cluster.TaskLog = tasklog
