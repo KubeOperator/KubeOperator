@@ -210,7 +210,7 @@ func (c clusterCreateHelper) createHosts(cluster model.Cluster, plan model.Plan)
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterCreating,
+			Status:    constant.StatusCreating,
 			ClusterID: cluster.ID,
 		}
 		if plan.Region.Provider != constant.OpenStack {
@@ -229,7 +229,7 @@ func (c clusterCreateHelper) createHosts(cluster model.Cluster, plan model.Plan)
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterCreating,
+			Status:    constant.StatusCreating,
 			ClusterID: cluster.ID,
 		}
 		if plan.Region.Provider != constant.OpenStack {
@@ -302,7 +302,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 		return err
 	}
 	for i := range hosts {
-		hosts[i].Status = constant.ClusterRunning
+		hosts[i].Status = constant.StatusRunning
 	}
 	return nil
 }

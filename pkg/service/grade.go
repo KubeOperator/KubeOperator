@@ -29,7 +29,7 @@ func (g gradeService) GetGrade(clusterName string) (*dto.ClusterGrade, error) {
 		return nil, err
 	}
 
-	if cluster.Status == constant.ClusterRunning {
+	if cluster.Status == constant.StatusRunning {
 		result, err := polaris.RunGrade(&polaris.Config{
 			Host:  cluster.SpecConf.LbKubeApiserverIp,
 			Port:  cluster.SpecConf.KubeApiServerPort,

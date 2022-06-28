@@ -15,7 +15,6 @@ func init() {
 
 var stableStatus = []string{constant.StatusRunning, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost}
 var statleTaskStatus = []string{constant.TaskLogStatusSuccess, constant.TaskLogStatusFailed}
-var stableDetailStatus = []string{constant.StatusRunning, constant.TaskLogStatusSuccess, constant.StatusFailed, constant.StatusNotReady, constant.StatusLost, constant.TaskDetailStatusFalse, constant.TaskDetailStatusTrue}
 
 // cluster
 func recoverClusterTask() error {
@@ -38,17 +37,8 @@ func recoverClusterTask() error {
 		return err
 	}
 
-	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.TaskDetailStatusUnknown).Updates(map[string]interface{}{
-		"status":   constant.TaskDetailStatusFalse,
-		"message":  constant.TaskCancel,
-		"end_time": time.Now().Unix(),
-	}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Model(&model.TaskLogDetail{}).Where("status not in (?) ", stableDetailStatus).Updates(map[string]interface{}{
-		"status":   constant.StatusFailed,
+	if err := tx.Model(&model.TaskLogDetail{}).Where("status = ?", constant.TaskLogStatusRunning).Updates(map[string]interface{}{
+		"status":   constant.TaskLogStatusFailed,
 		"message":  constant.TaskCancel,
 		"end_time": time.Now().Unix(),
 	}).Error; err != nil {

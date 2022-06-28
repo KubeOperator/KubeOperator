@@ -199,7 +199,7 @@ func (c clusterNodeService) createNodeModels(cluster *model.Cluster, currentNode
 			ClusterID: cluster.ID,
 			HostID:    host.ID,
 			Role:      constant.NodeRoleNameWorker,
-			Status:    constant.ClusterWaiting,
+			Status:    constant.StatusWaiting,
 			Host:      host,
 		}
 		newNodes = append(newNodes, n)
@@ -242,7 +242,7 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 		newHost := &model.Host{
 			Name:   name,
 			Port:   22,
-			Status: constant.ClusterCreating,
+			Status: constant.StatusCreating,
 		}
 		if cluster.Plan.Region.Provider != constant.OpenStack {
 			planVars := map[string]string{}
@@ -334,7 +334,7 @@ func (c *clusterNodeService) updateNodeStatus(cluster *model.Cluster, operation,
 	if errMsg != nil {
 		errmsg = errMsg.Error()
 	}
-	if status == constant.ClusterFailed {
+	if status == constant.StatusFailed {
 		taskSuccess = false
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), cluster.Name, operation)
 	}

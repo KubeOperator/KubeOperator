@@ -132,7 +132,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 	localRepoPort := registery.RegistryPort
 
 	var clusterTasks []model.CisTask
-	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)
+	db.DB.Where("status = ? AND cluster_id = ?", constant.StatusRunning, cluster.ID).Find(&clusterTasks)
 	if len(clusterTasks) > 0 {
 		return nil, errors.New("CIS_TASK_ALREADY_RUNNING")
 	}

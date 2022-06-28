@@ -16,17 +16,17 @@ import (
 )
 
 func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
-	detail := ca.getAddWorkerCurrentTask(aHelper)
-	if detail != nil {
-		now := time.Now()
-		f := ca.getAddWorkerHandler(detail.Task)
+	task := ca.getAddWorkerCurrentTask(aHelper)
+	if task != nil {
+		f := ca.getAddWorkerHandler(task.Task)
 		err := f(aHelper)
 		if err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
-				Task:          detail.Task,
-				Status:        constant.TaskDetailStatusFalse,
-				LastProbeTime: now.Unix(),
-				EndTime:       now.Unix(),
+				Task:          task.Task,
+				Status:        constant.TaskLogStatusFailed,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     task.StartTime,
+				EndTime:       time.Now().Unix(),
 				Message:       err.Error(),
 			})
 			aHelper.Status = constant.TaskLogStatusFailed
@@ -34,22 +34,22 @@ func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
 			return nil
 		}
 		aHelper.setCondition(model.TaskLogDetail{
-			Task:          detail.Task,
-			Status:        constant.TaskDetailStatusTrue,
-			LastProbeTime: now.Unix(),
-			EndTime:       now.Unix(),
+			Task:          task.Task,
+			Status:        constant.TaskLogStatusSuccess,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     task.StartTime,
+			EndTime:       time.Now().Unix(),
 		})
 
-		nextConditionType := ca.getNextAddWorkerConditionName(detail.Task)
+		nextConditionType := ca.getNextAddWorkerConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
 			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
-				Status:        constant.TaskDetailStatusUnknown,
+				Status:        constant.TaskLogStatusRunning,
 				LastProbeTime: time.Now().Unix(),
 				StartTime:     time.Now().Unix(),
-				Message:       "",
 			})
 		}
 	}
@@ -60,14 +60,15 @@ func (ca *ClusterAdm) getAddWorkerCurrentTask(aHelper *AnsibleHelper) *model.Tas
 	if len(aHelper.LogDetail) == 0 {
 		return &model.TaskLogDetail{
 			Task:          ca.addWorkerHandlers[0].name(),
-			Status:        constant.TaskDetailStatusUnknown,
+			Status:        constant.TaskLogStatusRunning,
 			LastProbeTime: time.Now().Unix(),
 			StartTime:     time.Now().Unix(),
+			EndTime:       time.Now().Unix(),
 			Message:       "",
 		}
 	}
 	for _, detail := range aHelper.LogDetail {
-		if detail.Status == constant.TaskDetailStatusFalse || detail.Status == constant.TaskDetailStatusUnknown {
+		if detail.Status == constant.TaskLogStatusFailed || detail.Status == constant.TaskLogStatusRunning {
 			return &detail
 		}
 	}

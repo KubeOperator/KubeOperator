@@ -220,14 +220,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
-	istios := cluster.PrepareIstios()
-	for _, istio := range istios {
-		istio.ClusterID = cluster.ID
-		if err := tx.Create(&istio).Error; err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("can not save istio %s", err.Error())
-		}
-	}
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,

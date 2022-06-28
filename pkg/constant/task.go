@@ -1,0 +1,35 @@
+package constant
+
+const (
+	TaskLogTypeClusterCreate     = "CLUSTER_CREATE"
+	TaskLogTypeClusterImport     = "CLUSTER_IMPORT"
+	TaskLogTypeClusterUpgrade    = "CLUSTER_UPGRADE"
+	TaskLogTypeClusterDelete     = "CLUSTER_DELEDE"
+	TaskLogTypeClusterNodeExtend = "CLUSTER_NODE_EXTEND"
+	TaskLogTypeClusterNodeShrink = "CLUSTER_NODE_SHRINK"
+	TaskLogTypeBackup            = "CLUSTER_BACKUP"
+	TaskLogTypeRestore           = "CLUSTER_RESTORE"
+	TaskLogTypeVeleroBackup      = "CLUSTER_VELERO_BACKUP"
+	TaskLogTypeVeleroRestore     = "CLUSTER_VELERO_RESTORE"
+	TaskLogTypeUpgrade           = "CLUSTER_UPGRADE"
+
+	TaskLogStatusSuccess = "SUCCESS"
+	TaskLogStatusFailed  = "FAILED"
+	TaskLogStatusRunning = "RUNNING"
+	TaskLogStatusWaiting = "WAITING"
+
+	StatusPending       = "Pending"
+	StatusRunning       = "Running"
+	StatusNotReady      = "NotReady"
+	StatusUpgrading     = "Upgrading"
+	StatusSuccess       = "Success"
+	StatusFailed        = "Failed"
+	StatusLost          = "Lost"
+	StatusCreating      = "Creating"
+	StatusInitializing  = "Initializing"
+	StatusTerminating   = "Terminating"
+	StatusSynchronizing = "Synchronizing"
+	StatusWaiting       = "Waiting"
+	StatusDisabled      = "disable"
+	StatusEnabled       = "enable"
+)

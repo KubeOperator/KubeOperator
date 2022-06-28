@@ -35,7 +35,7 @@ func (h Handler) name() string {
 }
 
 func (c *AnsibleHelper) setCondition(newDetail model.TaskLogDetail) {
-	if newDetail.Status == constant.TaskDetailStatusUnknown {
+	if newDetail.Status == constant.TaskLogStatusRunning {
 		c.LogDetail = append(c.LogDetail, newDetail)
 		return
 	}
@@ -67,6 +67,7 @@ func NewAnsibleHelper(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper
 		Status:                constant.TaskLogStatusRunning,
 		ClusterVersion:        cluster.Version,
 		ClusterUpgradeVersion: cluster.UpgradeVersion,
+		ClusterRuntime:        cluster.SpecRuntime.RuntimeType,
 		LogDetail:             cluster.TaskLog.Details,
 	}
 	if writer != nil {

@@ -42,6 +42,11 @@ type clusterUpgradeService struct {
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
+	isON := c.taskLogService.IsTaskOn(upgrade.ClusterName)
+	if isON {
+		return errors.New("TASK_IN_EXECUTION")
+	}
+
 	loginfo, _ := json.Marshal(upgrade)
 	logger.Log.WithFields(logrus.Fields{"cluster_upgrade_info": string(loginfo)}).Debugf("start to upgrade the cluster %s", upgrade.ClusterName)
 
@@ -61,9 +66,9 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	//从错误后继续
 	if cluster.TaskLog.Phase == constant.TaskLogStatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
 		if err := tx.Model(&model.TaskLogDetail{}).
-			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.TaskDetailStatusFalse).
+			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.TaskLogStatusFailed).
 			Updates(map[string]interface{}{
-				"Status":  constant.TaskDetailStatusUnknown,
+				"Status":  constant.TaskLogStatusRunning,
 				"Message": "",
 			}).Error; err != nil {
 			return fmt.Errorf("reset status error %s", err.Error())
@@ -84,6 +89,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		tx.Rollback()
 		return fmt.Errorf("reset contidion err %s", err.Error())
 	}
+
 	// 创建日志
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
@@ -91,6 +97,8 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		return fmt.Errorf("create log error %s", err.Error())
 	}
 	cluster.UpgradeVersion = upgrade.Version
+	cluster.Status = constant.StatusUpgrading
+	cluster.CurrentTaskID = cluster.TaskLog.ID
 	if err := tx.Save(&cluster).Error; err != nil {
 		tx.Rollback()
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
@@ -121,17 +129,41 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 		cluster.Status = result.Status
 		cluster.Message = result.Message
 		_ = c.clusterRepo.Save(cluster)
-		switch result.Status {
-		case constant.StatusRunning:
+		switch cluster.TaskLog.Phase {
+		case constant.TaskLogStatusSuccess:
+			if err := c.taskLogService.End(&cluster.TaskLog, true, ""); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
+			logger.Log.Infof("cluster %s upgrade successful!", cluster.Name)
+			cluster.Status = constant.StatusRunning
+			cluster.Message = result.Message
+			cluster.CurrentTaskID = ""
+			_ = c.clusterRepo.Save(cluster)
+
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 			cluster.Version = cluster.UpgradeVersion
-			db.DB.Save(&cluster)
+			_ = db.DB.Save(&cluster).Error
 			cancel()
 			return
-		case constant.StatusFailed:
+		case constant.TaskLogStatusFailed:
+			if err := c.taskLogService.End(&cluster.TaskLog, false, result.Message); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
+			logger.Log.Infof("cluster %s upgrade failed!", cluster.Name)
+			cluster.Status = constant.StatusFailed
+			cluster.Message = result.Message
+			_ = c.clusterRepo.Save(cluster)
+
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, result.Message), cluster.Name, constant.ClusterUpgrade)
 			cancel()
 			return
+		default:
+			cluster.TaskLog.Phase = result.Status
+			cluster.TaskLog.Message = result.Message
+			cluster.TaskLog.Details = result.LogDetail
+			if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 		}
 	}
 }
@@ -172,7 +204,7 @@ func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID
 		for _, item := range toolVars {
 			if tool.Name == item.Name {
 				if tool.Version != item.Version {
-					if tool.Status == constant.ClusterWaiting {
+					if tool.Status == constant.StatusWaiting {
 						tool.Version = item.Version
 					} else {
 						tool.HigherVersion = item.Version

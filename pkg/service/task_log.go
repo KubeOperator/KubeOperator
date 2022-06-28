@@ -159,7 +159,7 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 			{
 				ID:            uuid.NewV4().String(),
 				Task:          logtype,
-				Status:        constant.TaskDetailStatusUnknown,
+				Status:        constant.TaskLogStatusRunning,
 				LastProbeTime: time.Now().Unix(),
 				StartTime:     time.Now().Unix(),
 			},
@@ -228,16 +228,16 @@ func (c *taskLogService) Start(log *model.TaskLog) error {
 }
 
 func (c *taskLogService) End(log *model.TaskLog, success bool, message string) error {
-	status := constant.TaskDetailStatusFalse
+	status := constant.TaskLogStatusFailed
 	if success {
-		status = constant.TaskDetailStatusTrue
+		status = constant.TaskLogStatusSuccess
 		log.Phase = constant.TaskLogStatusSuccess
 	} else {
 		log.Phase = constant.TaskLogStatusFailed
 	}
 	log.EndTime = time.Now().Unix()
 	for i := 0; i < len(log.Details); i++ {
-		if log.Details[i].Status == constant.TaskDetailStatusUnknown {
+		if log.Details[i].Status == constant.TaskLogStatusRunning {
 			log.Details[i].Status = status
 			log.Details[i].Message = message
 			log.Details[i].EndTime = time.Now().Unix()

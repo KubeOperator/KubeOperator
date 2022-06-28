@@ -99,7 +99,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 				if cluster.Nodes[i].Role == constant.NodeRoleNameMaster && len(firstMasterIP) == 0 {
 					firstMasterIP = cluster.Nodes[i].Host.Ip
 				}
-				cluster.Nodes[i].Status = constant.ClusterRunning
+				cluster.Nodes[i].Status = constant.StatusRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}
 			cluster.SpecConf.KubeRouter = firstMasterIP
@@ -173,16 +173,6 @@ func (c clusterInitService) loadTools(cluster *model.Cluster) error {
 		if err != nil {
 			tx.Rollback()
 			return fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
-		}
-	}
-
-	if cluster.Architectures == "amd64" {
-		for _, istio := range cluster.PrepareIstios() {
-			err := tx.Create(&istio).Error
-			if err != nil {
-				tx.Rollback()
-				return fmt.Errorf("can not prepare cluster istio %s reason %s", istio.Name, err.Error())
-			}
 		}
 	}
 	tx.Commit()

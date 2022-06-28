@@ -119,7 +119,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		Name:   creation.Name,
 		Type:   creation.Type,
 		Vars:   string(vars),
-		Status: constant.ClusterCreating,
+		Status: constant.StatusCreating,
 	}
 
 	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
@@ -171,7 +171,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	if err != nil {
 		logger.Log.Error(err)
 	}
-	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.ClusterInitializing).Error; err != nil {
+	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.StatusInitializing).Error; err != nil {
 		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
@@ -323,13 +323,13 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 			return
 		}
 	}
-	provisioner.Status = constant.ClusterRunning
+	provisioner.Status = constant.StatusRunning
 	_ = c.provisionerRepo.Save(cluster.Name, &provisioner)
 }
 
 func (c clusterStorageProvisionerService) errCreateStorageProvisioner(clusterName string, provisioner model.ClusterStorageProvisioner, err error) {
 	logger.Log.Errorf(err.Error())
-	provisioner.Status = constant.ClusterFailed
+	provisioner.Status = constant.StatusFailed
 	provisioner.Message = err.Error()
 	_ = c.provisionerRepo.Save(clusterName, &provisioner)
 }
@@ -360,10 +360,10 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 2)
 	for _, provisioner := range provisioners {
-		if provisioner.Status == constant.ClusterInitializing || provisioner.Status == constant.ClusterTerminating {
+		if provisioner.Status == constant.StatusInitializing || provisioner.Status == constant.StatusTerminating {
 			continue
 		}
-		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).Update("status", constant.ClusterSynchronizing).Error; err != nil {
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).Update("status", constant.StatusSynchronizing).Error; err != nil {
 			logger.Log.Errorf("update host status to synchronizing error: %s", err.Error())
 		}
 
@@ -381,14 +381,14 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 				logger.Log.Errorf("gather provisioner info error: %s", err.Error())
 				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
 					Updates(map[string]interface{}{
-						"status":  constant.ClusterFailed,
+						"status":  constant.StatusFailed,
 						"message": err.Error(),
 					}).Error; err != nil {
 					logger.Log.Errorf("update host status to failed error: %s", err.Error())
 				}
 			} else {
 				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
-					Updates(map[string]interface{}{"status": constant.ClusterRunning}).Error; err != nil {
+					Updates(map[string]interface{}{"status": constant.StatusRunning}).Error; err != nil {
 					logger.Log.Errorf("update host status to running error: %s", err.Error())
 				}
 			}

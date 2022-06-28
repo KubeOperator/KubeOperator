@@ -212,14 +212,14 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 	}
 
 	for i := 0; i < len(clusters); i++ {
-		if (clusters[i].Status == constant.ClusterRunning || clusters[i].Status == constant.ClusterNotReady) && !(isPolling == "true") {
+		if (clusters[i].Status == constant.StatusRunning || clusters[i].Status == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
 			isOK, clusters[i].Message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", clusters[i].SpecConf.LbKubeApiserverIp, clusters[i].SpecConf.KubeApiServerPort))
 			if !isOK {
 				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": clusters[i].Message})
 			}
 			if isOK && clusters[i].Status == constant.ClusterNotReady {
-				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterRunning, "Message": ""})
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.StatusRunning, "Message": ""})
 			}
 		}
 		for _, res := range clusterResources {
@@ -299,8 +299,8 @@ func (c *clusterService) ReCreate(name string) error {
 	cluster.TaskLog = tasklog
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {
-			if cluster.TaskLog.Details[i].Status == constant.TaskDetailStatusFalse {
-				cluster.TaskLog.Details[i].Status = constant.TaskDetailStatusUnknown
+			if cluster.TaskLog.Details[i].Status == constant.TaskLogStatusFailed {
+				cluster.TaskLog.Details[i].Status = constant.TaskLogStatusRunning
 				cluster.TaskLog.Details[i].Message = ""
 				err := c.tasklogService.Save(&cluster.TaskLog)
 				if err != nil {
@@ -378,7 +378,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 
 func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) {
 	logger.Log.Infof("cluster %s delete failed: %+v", cluster.Name, errStr)
-	cluster.Status = constant.ClusterFailed
+	cluster.Status = constant.StatusFailed
 	cluster.Message = errStr.Error()
 	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
 

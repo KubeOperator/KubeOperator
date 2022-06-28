@@ -1,7 +1,6 @@
 package adm
 
 import (
-	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
@@ -21,7 +20,7 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 		if err := f(aHelper); err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          task.Task,
-				Status:        constant.TaskDetailStatusFalse,
+				Status:        constant.TaskLogStatusFailed,
 				LastProbeTime: time.Now().Unix(),
 				StartTime:     task.StartTime,
 				EndTime:       time.Now().Unix(),
@@ -31,10 +30,9 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 			aHelper.Message = err.Error()
 			return nil
 		}
-		fmt.Printf("我的任务跑完了 %s %d \n", task.Task, time.Now().Unix())
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          task.Task,
-			Status:        constant.TaskDetailStatusTrue,
+			Status:        constant.TaskLogStatusSuccess,
 			LastProbeTime: time.Now().Unix(),
 			StartTime:     task.StartTime,
 			EndTime:       time.Now().Unix(),
@@ -44,10 +42,9 @@ func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
 		if nextConditionType == ConditionTypeDone {
 			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
-			fmt.Printf("我的任务开始了 %s %d \n", nextConditionType, time.Now().Unix())
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
-				Status:        constant.TaskDetailStatusUnknown,
+				Status:        constant.TaskLogStatusRunning,
 				LastProbeTime: time.Now().Unix(),
 				StartTime:     time.Now().Unix(),
 			})
@@ -60,7 +57,7 @@ func (ca *ClusterAdm) getCreateCurrentTask(aHelper *AnsibleHelper) *model.TaskLo
 	if len(aHelper.LogDetail) == 0 {
 		taskItem := &model.TaskLogDetail{
 			Task:          ca.createHandlers[0].name(),
-			Status:        constant.TaskDetailStatusUnknown,
+			Status:        constant.TaskLogStatusRunning,
 			LastProbeTime: time.Now().Unix(),
 			StartTime:     time.Now().Unix(),
 			EndTime:       time.Now().Unix(),
@@ -70,7 +67,7 @@ func (ca *ClusterAdm) getCreateCurrentTask(aHelper *AnsibleHelper) *model.TaskLo
 		return taskItem
 	}
 	for _, detail := range aHelper.LogDetail {
-		if detail.Status == constant.TaskDetailStatusFalse || detail.Status == constant.TaskDetailStatusUnknown {
+		if detail.Status == constant.TaskLogStatusFailed || detail.Status == constant.TaskLogStatusRunning {
 			return &detail
 		}
 	}

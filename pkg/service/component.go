@@ -259,7 +259,7 @@ func (c componentService) Sync(syncData *dto.ComponentSync) error {
 
 	if err := db.DB.Model(&model.ClusterSpecComponent{}).
 		Where("cluster_id = ? AND name in (?)", cluster.ID, syncData.Names).
-		Update("status", constant.ClusterSynchronizing).Error; err != nil {
+		Update("status", constant.StatusSynchronizing).Error; err != nil {
 		return err
 	}
 	go c.dosync(components, client, syncData.Names...)

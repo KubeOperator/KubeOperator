@@ -394,8 +394,8 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 
 	if len(cluster.TaskLog.Details) > 0 {
 		for i := range cluster.TaskLog.Details {
-			if cluster.TaskLog.Details[i].Status == constant.TaskDetailStatusFalse {
-				cluster.TaskLog.Details[i].Status = constant.TaskDetailStatusUnknown
+			if cluster.TaskLog.Details[i].Status == constant.TaskLogStatusFailed {
+				cluster.TaskLog.Details[i].Status = constant.TaskLogStatusRunning
 				cluster.TaskLog.Details[i].Message = ""
 			}
 		}

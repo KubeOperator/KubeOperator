@@ -249,7 +249,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	if err != nil {
 		return tool, err
 	}
-	mo.Status = constant.ClusterTerminating
+	mo.Status = constant.StatusTerminating
 	_ = c.toolRepo.Save(&mo)
 	go c.doUninstall(ct, &tool.ClusterTool)
 	return tool, nil
@@ -280,7 +280,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
-	mo.Status = constant.ClusterInitializing
+	mo.Status = constant.StatusInitializing
 	_ = c.toolRepo.Save(&mo)
 	go c.doInstall(ct, &tool.ClusterTool, toolDetail)
 	return tool, nil
@@ -301,7 +301,7 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
-	mo.Status = constant.ClusterUpgrading
+	mo.Status = constant.StatusUpgrading
 	mo.Version = mo.HigherVersion
 	mo.HigherVersion = ""
 	tool.ClusterTool = mo
@@ -374,11 +374,11 @@ func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool
 	err := p.Install(toolDetail)
 	if err != nil {
 		logger.Log.Errorf("install tool %s failed: %+v", tool.Name, err)
-		tool.Status = constant.ClusterFailed
+		tool.Status = constant.StatusFailed
 		tool.Message = err.Error()
 	} else {
 		logger.Log.Infof("install tool %s successful: %+v", tool.Name, err)
-		tool.Status = constant.ClusterRunning
+		tool.Status = constant.StatusRunning
 	}
 	_ = c.toolRepo.Save(tool)
 }
@@ -387,11 +387,11 @@ func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool
 	err := p.Upgrade(toolDetail)
 	if err != nil {
 		logger.Log.Errorf("upgrade tool %s failed: %+v", tool.Name, err)
-		tool.Status = constant.ClusterFailed
+		tool.Status = constant.StatusFailed
 		tool.Message = err.Error()
 	} else {
 		logger.Log.Infof("upgrade tool %s successful: %+v", tool.Name, err)
-		tool.Status = constant.ClusterRunning
+		tool.Status = constant.StatusRunning
 	}
 	_ = c.toolRepo.Save(tool)
 }
@@ -402,7 +402,7 @@ func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTo
 	} else {
 		logger.Log.Infof("uninstall tool %s successful: %+v", tool.Name, err)
 	}
-	tool.Status = constant.ClusterWaiting
+	tool.Status = constant.StatusWaiting
 	_ = c.toolRepo.Save(tool)
 }
 

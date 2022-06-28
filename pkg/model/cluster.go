@@ -43,7 +43,6 @@ type Cluster struct {
 	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
 	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
 	Tools                    []ClusterTool            `gorm:"save_associations:false" json:"-"`
-	Istios                   []ClusterIstio           `gorm:"save_associations:false" json:"-"`
 	MultiClusterRepositories []MultiClusterRepository `gorm:"many2many:cluster_multi_cluster_repository"`
 }
 
@@ -63,7 +62,6 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Nodes").
 		Preload("Nodes.Host").
 		Preload("Tools").
-		Preload("Istios").
 		Preload("MultiClusterRepositories").
 		First(&cluster).Error; err != nil {
 		return err
@@ -146,9 +144,6 @@ func (c Cluster) DeleteClusterAbout() {
 	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterTool{}).Error; err != nil {
 		logger.Log.Infof("delete tools failed, err: %v", err)
 	}
-	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterIstio{}).Error; err != nil {
-		logger.Log.Infof("delete istios failed, err: %v", err)
-	}
 
 	var cisTasks []CisTask
 	if err := db.DB.Where("cluster_id = ?", c.ID).Find(&cisTasks).Error; err != nil {
@@ -219,39 +214,6 @@ func (c Cluster) DeleteClusterAbout() {
 	}
 }
 
-func (c Cluster) PrepareIstios() []ClusterIstio {
-	return []ClusterIstio{
-		{
-			ClusterID: c.ID,
-			Name:      "base",
-			Version:   "v1.11.8",
-			Describe:  "",
-			Status:    constant.ClusterWaiting,
-		},
-		{
-			ClusterID: c.ID,
-			Name:      "pilot",
-			Version:   "v1.11.8",
-			Describe:  "",
-			Status:    constant.ClusterWaiting,
-		},
-		{
-			ClusterID: c.ID,
-			Name:      "ingress",
-			Version:   "v1.11.8",
-			Describe:  "",
-			Status:    constant.ClusterWaiting,
-		},
-		{
-			ClusterID: c.ID,
-			Name:      "egress",
-			Version:   "v1.11.8",
-			Describe:  "",
-			Status:    constant.ClusterWaiting,
-		},
-	}
-}
-
 func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []ClusterSpecComponent {
 	var components []ClusterSpecComponent
 	if ingressType == "traefik" {
@@ -307,7 +269,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "gatekeeper",
 			Version:      "v3.7.0",
 			Describe:     "OPA GateKeeper|OPA GateKeeper",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "gatekeeper.jpg",
 			Frame:        false,
 			Url:          "",
@@ -319,7 +281,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "kubeapps",
 			Version:      "v1.10.2",
 			Describe:     "应用商店|App store",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "kubeapps.png",
 			Frame:        true,
 			Url:          "/proxy/kubeapps/{cluster_name}/root",
@@ -330,7 +292,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "prometheus",
 			Version:      "v2.18.1",
 			Describe:     "监控|Monitor",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "prometheus.png",
 			Frame:        true,
 			Url:          "",
@@ -342,7 +304,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "logging",
 			Version:      "v7.6.2",
 			Describe:     "日志|Logs",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "elasticsearch.png",
 			Frame:        false,
 			Url:          "/proxy/logging/{cluster_name}/root",
@@ -353,7 +315,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "loki",
 			Version:      "v2.0.0",
 			Describe:     "日志|Logs",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "loki.png",
 			Frame:        false,
 			Url:          "/proxy/loki/{cluster_name}/root",
@@ -364,7 +326,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "grafana",
 			Version:      "v7.3.3",
 			Describe:     "监控|Monitor",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "grafana.png",
 			Frame:        true,
 			Url:          "/proxy/grafana/{cluster_name}",
@@ -375,7 +337,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "Chart 仓库|Chart warehouse",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "chartmuseum.png",
 			Frame:        false,
 			Url:          "",
@@ -386,7 +348,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Name:         "registry",
 			Version:      "v2.7.1",
 			Describe:     "镜像仓库|Image warehouse",
-			Status:       constant.ClusterWaiting,
+			Status:       constant.StatusWaiting,
 			Logo:         "registry.png",
 			Frame:        false,
 			Url:          "",
@@ -427,11 +389,11 @@ func (c Cluster) ParseInventory() *api.Inventory {
 	for _, node := range c.Nodes {
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
-			if node.Status == "" || node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.StatusRunning {
 				masters = append(masters, node.Name)
 			}
 		case constant.NodeRoleNameWorker:
-			if node.Status == "" || node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.StatusRunning {
 				workers = append(workers, node.Name)
 			}
 		}

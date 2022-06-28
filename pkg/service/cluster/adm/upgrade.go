@@ -19,26 +19,27 @@ import (
 func (ca *ClusterAdm) Upgrade(aHelper *AnsibleHelper) error {
 	task := ca.getUpgradeCurrentTask(aHelper)
 	if task != nil {
-		now := time.Now()
 		f := ca.getUpgradeHandler(task.Task)
 		err := f(aHelper)
 		if err != nil {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          task.Task,
-				Status:        constant.TaskDetailStatusFalse,
-				LastProbeTime: now.Unix(),
-				EndTime:       now.Unix(),
+				Status:        constant.TaskLogStatusFailed,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     task.StartTime,
+				EndTime:       time.Now().Unix(),
 				Message:       err.Error(),
 			})
-			aHelper.Status = constant.ClusterFailed
+			aHelper.Status = constant.StatusFailed
 			aHelper.Message = err.Error()
 			return nil
 		}
 		aHelper.setCondition(model.TaskLogDetail{
 			Task:          task.Task,
-			Status:        constant.TaskDetailStatusTrue,
-			EndTime:       now.Unix(),
-			LastProbeTime: now.Unix(),
+			Status:        constant.TaskLogStatusSuccess,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     task.StartTime,
+			EndTime:       time.Now().Unix(),
 		})
 
 		nextConditionType := ca.getNextUpgradeConditionName(task.Task)
@@ -47,10 +48,9 @@ func (ca *ClusterAdm) Upgrade(aHelper *AnsibleHelper) error {
 		} else {
 			aHelper.setCondition(model.TaskLogDetail{
 				Task:          nextConditionType,
-				Status:        constant.TaskDetailStatusUnknown,
+				Status:        constant.TaskLogStatusRunning,
 				LastProbeTime: time.Now().Unix(),
-				StartTime:     now.Unix(),
-				Message:       "",
+				StartTime:     time.Now().Unix(),
 			})
 		}
 	}
@@ -61,14 +61,15 @@ func (ca *ClusterAdm) getUpgradeCurrentTask(aHelper *AnsibleHelper) *model.TaskL
 	if len(aHelper.LogDetail) == 0 {
 		return &model.TaskLogDetail{
 			Task:          ca.upgradeHandlers[0].name(),
-			Status:        constant.TaskDetailStatusUnknown,
+			Status:        constant.TaskLogStatusRunning,
 			LastProbeTime: time.Now().Unix(),
 			StartTime:     time.Now().Unix(),
+			EndTime:       time.Now().Unix(),
 			Message:       "",
 		}
 	}
 	for _, task := range aHelper.LogDetail {
-		if task.Status == constant.TaskDetailStatusFalse || task.Status == constant.TaskDetailStatusUnknown {
+		if task.Status == constant.TaskLogStatusFailed || task.Status == constant.TaskLogStatusRunning {
 			return &task
 		}
 	}
