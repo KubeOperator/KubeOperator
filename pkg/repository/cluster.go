@@ -8,6 +8,7 @@ import (
 
 type ClusterRepository interface {
 	Get(name string) (model.Cluster, error)
+	GetWithPreload(name string, preloads []string) (model.Cluster, error)
 	List() ([]model.Cluster, error)
 	Save(cluster *model.Cluster) error
 	Delete(name string) error
@@ -23,26 +24,27 @@ type clusterRepository struct {
 
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
 	var cluster model.Cluster
-	if err := db.DB.
-		Where("name = ?", name).
-		Preload("Status").
-		Preload("Spec").
-		Preload("Nodes").
-		Preload("Nodes.Host").
-		Preload("Nodes.Host.Credential").
-		Preload("Nodes.Host.Zone").
-		Preload("MultiClusterRepositories").
-		Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", name).Find(&cluster).Error; err != nil {
 		return cluster, err
 	}
 	return cluster, nil
 }
 
+func (c clusterRepository) GetWithPreload(name string, preloads []string) (model.Cluster, error) {
+	var cluster model.Cluster
+	item := db.DB.Where("name = ?", name)
+	for _, load := range preloads {
+		item = item.Preload(load)
+	}
+	err := item.Find(&cluster).Error
+
+	return cluster, err
+}
+
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
 	if err := db.DB.
-		Preload("Status").
-		Preload("Spec").
+		Preload("SpecConf").
 		Preload("Nodes").
 		Preload("Nodes.Host").
 		Preload("Nodes.Host.Credential").
@@ -78,8 +80,7 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 			Count(&total).
 			Offset((num - 1) * size).
 			Limit(size).
-			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Find(&clusters).Error; err != nil {
@@ -90,8 +91,7 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 			Count(&total).
 			Offset((num - 1) * size).
 			Limit(size).
-			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Find(&clusters).Error; err != nil {

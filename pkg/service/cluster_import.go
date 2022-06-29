@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/icza/dyno"
 	"github.com/jinzhu/gorm"
@@ -51,97 +52,17 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err != nil {
 		return err
 	}
+	cluster, err := clusterImport.ClusterImportDto2Mo()
+	if err != nil {
+		return err
+	}
+	cluster.ProjectID = project.ID
 
-	var address string
-	var port int
-	if strings.HasSuffix(clusterImport.ApiServer, "/") {
-		clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "/", "", -1)
-	}
-	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "http://", "", -1)
-	clusterImport.ApiServer = strings.Replace(clusterImport.ApiServer, "https://", "", -1)
-	if !strings.Contains(clusterImport.ApiServer, ":") {
-		return fmt.Errorf("check whether apiserver(%s) has no ports", clusterImport.ApiServer)
-	}
-	strs := strings.Split(clusterImport.ApiServer, ":")
-	address = strs[0]
-	port, _ = strconv.Atoi(strs[1])
 	tx := db.DB.Begin()
-	cluster := model.Cluster{
-		Name:         clusterImport.Name,
-		ProjectID:    project.ID,
-		NodeNameRule: clusterImport.KoClusterInfo.NodeNameRule,
-		Source:       constant.ClusterSourceExternal,
-		Status: model.ClusterStatus{
-			Phase: constant.ClusterRunning,
-		},
-		Spec: model.ClusterSpec{
-			LbKubeApiserverIp: address,
-			KubeApiServerPort: port,
-			Architectures:     clusterImport.Architectures,
-			KubeRouter:        clusterImport.Router,
-		},
-		Secret: model.ClusterSecret{
-			KubeadmToken:    "",
-			KubernetesToken: clusterImport.Token,
-		},
-	}
-	if clusterImport.IsKoCluster {
-		cluster.Name = clusterImport.KoClusterInfo.Name
-		cluster.Source = constant.ClusterSourceKoExternal
-		cluster.Spec = model.ClusterSpec{
-			RuntimeType:              clusterImport.KoClusterInfo.RuntimeType,
-			DockerStorageDir:         clusterImport.KoClusterInfo.DockerStorageDIr,
-			ContainerdStorageDir:     clusterImport.KoClusterInfo.ContainerdStorageDIr,
-			NetworkType:              clusterImport.KoClusterInfo.NetworkType,
-			CiliumVersion:            clusterImport.KoClusterInfo.CiliumVersion,
-			CiliumTunnelMode:         clusterImport.KoClusterInfo.CiliumTunnelMode,
-			CiliumNativeRoutingCidr:  clusterImport.KoClusterInfo.CiliumNativeRoutingCidr,
-			Version:                  clusterImport.KoClusterInfo.Version,
-			Provider:                 constant.ClusterProviderBareMetal,
-			FlannelBackend:           clusterImport.KoClusterInfo.FlannelBackend,
-			CalicoIpv4poolIpip:       clusterImport.KoClusterInfo.CalicoIpv4poolIpip,
-			KubeProxyMode:            clusterImport.KoClusterInfo.KubeProxyMode,
-			NodeportAddress:          clusterImport.KoClusterInfo.NodeportAddress,
-			KubeServiceNodePortRange: clusterImport.KoClusterInfo.KubeServiceNodePortRange,
-			EnableDnsCache:           clusterImport.KoClusterInfo.EnableDnsCache,
-			DnsCacheVersion:          clusterImport.KoClusterInfo.DnsCacheVersion,
-			IngressControllerType:    clusterImport.KoClusterInfo.IngressControllerType,
-			KubeDnsDomain:            clusterImport.KoClusterInfo.KubeDnsDomain,
-			KubernetesAudit:          clusterImport.KoClusterInfo.KubernetesAudit,
-			DockerSubnet:             clusterImport.KoClusterInfo.DockerSubnet,
-			HelmVersion:              clusterImport.KoClusterInfo.HelmVersion,
-			NetworkInterface:         clusterImport.KoClusterInfo.NetworkInterface,
-			NetworkCidr:              clusterImport.KoClusterInfo.NetworkCidr,
-			SupportGpu:               clusterImport.KoClusterInfo.SupportGpu,
-			YumOperate:               clusterImport.KoClusterInfo.YumOperate,
-
-			LbMode:            clusterImport.KoClusterInfo.LbMode,
-			LbKubeApiserverIp: clusterImport.KoClusterInfo.LbKubeApiserverIp,
-			KubeApiServerPort: clusterImport.KoClusterInfo.KubeApiServerPort,
-			Architectures:     clusterImport.Architectures,
-			KubeRouter:        clusterImport.Router,
-
-			KubePodSubnet:         clusterImport.KoClusterInfo.KubePodSubnet,
-			KubeServiceSubnet:     clusterImport.KoClusterInfo.KubeServiceSubnet,
-			MaxNodeNum:            clusterImport.KoClusterInfo.MaxNodeNum,
-			KubeMaxPods:           clusterImport.KoClusterInfo.KubeMaxPods,
-			KubeNetworkNodePrefix: clusterImport.KoClusterInfo.KubeNetworkNodePrefix,
-		}
-	}
-	if err := tx.Create(&cluster.Spec).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("can not create cluster spec %s", err.Error())
-	}
-	if err := tx.Create(&cluster.Status).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("can not create cluster status %s", err.Error())
-	}
 	if err := tx.Create(&cluster.Secret).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("can not create cluster secret %s", err.Error())
 	}
-	cluster.SpecID = cluster.Spec.ID
-	cluster.StatusID = cluster.Status.ID
 	cluster.SecretID = cluster.Secret.ID
 	if err := tx.Create(&cluster).Error; err != nil {
 		tx.Rollback()
@@ -215,7 +136,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 		}
 	} else {
-		if err := gatherClusterInfo(&cluster); err != nil {
+		if err := gatherClusterInfo(cluster); err != nil {
 			c.handlerImportError(tx, cluster.Name, err)
 			return err
 		}
@@ -228,10 +149,33 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
-	if err := tx.Save(&cluster.Spec).Error; err != nil {
-		c.handlerImportError(tx, cluster.Name, err)
-		return fmt.Errorf("can not update spec %s", err.Error())
+	cluster.SpecConf.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
+	for _, component := range cluster.SpecComponent {
+		if err := tx.Create(&component).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	cluster.SpecConf.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	cluster.SpecRuntime.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	cluster.SpecNetwork.ClusterID = cluster.ID
+	if err := tx.Create(&cluster.SpecNetwork).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if len(clusterImport.KoClusterInfo.Provisioners) != 0 {
 		for _, pro := range clusterImport.KoClusterInfo.Provisioners {
 			vars, _ := json.Marshal(pro.Vars)
@@ -278,13 +222,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
-	istios := cluster.PrepareIstios()
-	for _, istio := range istios {
-		if err := tx.Create(&istio).Error; err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("can not save istio %s", err.Error())
-		}
-	}
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
@@ -310,18 +247,18 @@ func (c clusterImportService) handlerImportError(tx *gorm.DB, cluster string, er
 
 func gatherClusterInfo(cluster *model.Cluster) error {
 	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort))},
+		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort))},
 		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
 		return err
 	}
-	cluster.Spec.Version, err = getServerVersion(c, false)
+	cluster.Version, err = getServerVersion(c, false)
 	if err != nil {
 		return err
 	}
 	var nodesFromK8s []dto.NodesFromK8s
-	nodesFromK8s, cluster.Spec.RuntimeType, _, err = getKubeNodes(false, c)
+	nodesFromK8s, cluster.SpecRuntime.RuntimeType, _, err = getKubeNodes(false, c)
 	if err != nil {
 		return err
 	}
@@ -332,10 +269,12 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 			Status: constant.StatusRunning,
 		})
 	}
-	cluster.Spec.NetworkType, cluster.Spec.EnableDnsCache, cluster.Spec.IngressControllerType, err = getInfoFromDaemonset(c)
+	dnsCache, ingressController := "", ""
+	cluster.SpecNetwork.NetworkType, dnsCache, ingressController, err = getInfoFromDaemonset(c)
 	if err != nil {
 		return err
 	}
+	cluster.SpecComponent = cluster.PrepareComponent(ingressController, dnsCache, constant.StatusDisabled)
 	return nil
 }
 
@@ -519,7 +458,6 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
 	clusterInfo.Architectures = loadInfo.Architectures
-	clusterInfo.SupportGpu = constant.StatusDisabled
 
 	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Hosts: []kubeUtil.Host{kubeUtil.Host(loadInfo.ApiServer)},
@@ -579,7 +517,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.KubeServiceNodePortRange = data.ApiServer.ExtraArgs.ServiceNodePortRange
 	mask, _ := strconv.Atoi(data.Controller.ExtraArgs.NodeCidrMaskSize)
 	clusterInfo.KubeNetworkNodePrefix = mask
-	clusterInfo.KubeMaxPods = maxNodePodNumMap[mask]
+	clusterInfo.KubeMaxPods = clusterUtil.MaxNodePodNumMap[mask]
 	clusterInfo.KubePodSubnet = data.Network.PodSubnet
 	clusterInfo.KubeDnsDomain = data.Network.DnsDomain
 	clusterInfo.MaxNodePodNum = 2 << (31 - mask)

@@ -59,7 +59,7 @@ func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
 	}
 	d := &dto.CisTaskDetail{CisTaskWithResult: cisTask, CisReport: report}
 	d.ClusterName = cls.Name
-	d.ClusterVersion = cls.Spec.Version
+	d.ClusterVersion = cls.Version
 	return d, nil
 }
 
@@ -120,7 +120,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return nil, errors.New("load image pull port of arm failed")
 		}
@@ -132,7 +132,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 	localRepoPort := registery.RegistryPort
 
 	var clusterTasks []model.CisTask
-	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)
+	db.DB.Where("status = ? AND cluster_id = ?", constant.StatusRunning, cluster.ID).Find(&clusterTasks)
 	if len(clusterTasks) > 0 {
 		return nil, errors.New("CIS_TASK_ALREADY_RUNNING")
 	}
@@ -168,7 +168,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 	tx.Commit()
-	go Do(&cluster, client, &task, localRepoPort)
+	go Do(client, &task, localRepoPort)
 	return &dto.CisTask{CisTask: task}, nil
 }
 
@@ -185,7 +185,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 
 const kubeBenchVersion = "v0.6.8"
 
-func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
+func Do(client *kubernetes.Clientset, task *model.CisTask, port int) {
 	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
 
 	taskWithResult.Status = CisTaskStatusRunning

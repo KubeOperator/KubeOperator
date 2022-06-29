@@ -1,32 +1,8 @@
 package constant
 
 const (
-	ClusterRunning      = "Running"
-	ClusterInitializing = "Initializing"
 	ClusterNotConnected = "NotConnected"
-	ClusterFailed       = "Failed"
-	ClusterTerminating  = "Terminating"
 	ClusterTerminated   = "Terminated"
-	ClusterWaiting      = "Waiting"
-	ClusterUpgrading    = "Upgrading"
-	//日志类型
-
-	ClusterLogTypeAddNode       = "ADD_NODE"
-	ClusterLogTypeDeleteNode    = "DELETE_NODE"
-	ClusterLogTypeBackup        = "CLUSTER_BACKUP"
-	ClusterLogTypeRestore       = "CLUSTER_RESTORE"
-	ClusterLogTypeVeleroBackup  = "CLUSTER_VELERO_BACKUP"
-	ClusterLogTypeVeleroRestore = "CLUSTER_VELERO_RESTORE"
-	ClusterLogTypeUpgrade       = "CLUSTER_UPGRADE"
-
-	ClusterLogStatusSuccess = "SUCCESS"
-	ClusterLogStatusFailed  = "FAILED"
-	ClusterLogStatusWaiting = "WAITING"
-	ClusterLogStatusRunning = "RUNNING"
-
-	// 表示创建资源
-	ClusterCreating      = "Creating"
-	ClusterSynchronizing = "Synchronizing"
 
 	NodeNameRuleDefault  = "default"
 	NodeNameRuleHostName = "hostname"
@@ -37,10 +13,6 @@ const (
 	ClusterSourceInternal   = "internal"
 	ClusterSourceExternal   = "external"
 	ClusterSourceKoExternal = "ko-external"
-
-	ConditionTrue    = "True"
-	ConditionFalse   = "False"
-	ConditionUnknown = "Unknown"
 
 	NodeRoleNameMaster = "master"
 	NodeRoleNameWorker = "worker"

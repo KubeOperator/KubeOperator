@@ -141,3 +141,7 @@ USER_HAS_NO_RESOURCE: "user has no resource"
 
 #storage
 PROVISIONER_EXSIT: "Storage provider already exists"
+TASK_IN_EXECUTION: "A task is being executed in the current cluster. Please try again later..."
+
+#component
+COMPONENT_EXIST: "The component already exists. Do not repeat the operation.",

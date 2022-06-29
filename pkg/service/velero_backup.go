@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -34,16 +33,18 @@ type VeleroBackupService interface {
 
 type veleroBackupService struct {
 	ClusterService           ClusterService
+	clusterRepo              repository.ClusterRepository
 	BackupAccountService     BackupAccountService
-	clusterLogService        ClusterLogService
+	taskLogService           TaskLogService
 	SystemRegistryRepository repository.SystemRegistryRepository
 }
 
 func NewVeleroBackupService() VeleroBackupService {
 	return &veleroBackupService{
 		ClusterService:           NewClusterService(),
+		clusterRepo:              repository.NewClusterRepository(),
 		BackupAccountService:     NewBackupAccountService(),
-		clusterLogService:        NewClusterLogService(),
+		taskLogService:           NewTaskLogService(),
 		SystemRegistryRepository: repository.NewSystemRegistryRepository(),
 	}
 }
@@ -53,28 +54,31 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 		result []byte
 		err    error
 	)
+	cluster, err := v.clusterRepo.Get(backup.Cluster)
+	if err != nil {
+		return string(result), err
+	}
 
-	var clog model.ClusterLog
+	var clog model.TaskLog
+	clog.ClusterID = cluster.ID
 	if len(backup.BackupName) > 0 {
 		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
 		if err != nil {
 			return string(result), err
 		}
 
-		clog.Type = constant.ClusterLogTypeVeleroRestore
+		clog.Type = constant.TaskLogTypeVeleroRestore
 	} else {
 		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
 		if err != nil {
 			return string(result), err
 		}
 
-		clog.Type = constant.ClusterLogTypeVeleroBackup
+		clog.Type = constant.TaskLogTypeVeleroBackup
 	}
 
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	clog.Status = constant.ClusterLogStatusSuccess
-	err = v.clusterLogService.Save(backup.Cluster, &clog)
+	clog.Phase = constant.TaskLogStatusSuccess
+	err = v.taskLogService.Save(&clog)
 
 	return string(result), err
 }
@@ -206,7 +210,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		return result, err
 	}
 	arch := ""
-	if clusterModel.Spec.Architectures == "amd64" {
+	if clusterModel.Architectures == "amd64" {
 		arch = "x86_64"
 	} else {
 		arch = "aarch64"

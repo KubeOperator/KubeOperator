@@ -76,7 +76,7 @@ DEFAULT_PROJECT_CAN_NOT_DELETE: "默认项目不能删除！"
 PROJECT_HAS_CLUSTER: "项目关联集群！不能删除！"
 
 #node
-NODE_ALREADY_RUNNING_TASK: "其他节点数量操作正在执行, 请等待它们执行完毕."
+NODE_ALREADY_RUNNING_TASK: "其他节点操作正在执行, 请等待它们执行完毕."
 
 #backupAccount
 PARAM_EMPTY: "参数不足"
@@ -141,3 +141,7 @@ USER_HAS_NO_RESOURCE: "用户没有资源"
 
 #storage
 PROVISIONER_EXSIT: "已存在存储提供商"
+TASK_IN_EXECUTION: "当前集群有任务在执行中，请稍候重试..."
+
+#component
+COMPONENT_EXIST: "组件已存在，请勿重复操作！",

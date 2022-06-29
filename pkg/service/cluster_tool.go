@@ -71,7 +71,7 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 		svcName   string
 		namespace string
 	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).Preload("SpecConf").Preload("Secret").Find(&cluster).Error; err != nil {
 		return "", err
 	}
 	if err := db.DB.Where("name = ? AND cluster_id = ?", toolName, cluster.ID).First(&tool).Error; err != nil {
@@ -88,7 +88,7 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 		return "", fmt.Errorf("cant not find namespace in tool vars: %s", tool.Vars)
 	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
+		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.KubeRouter, cluster.SpecConf.KubeApiServerPort))},
 		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
@@ -103,25 +103,26 @@ func (c clusterToolService) GetNodePort(clusterName, toolName string) (string, e
 		return "", err
 	}
 	if len(d.Spec.Ports) != 0 {
-		return fmt.Sprintf("http://%s:%v", cluster.Spec.KubeRouter, d.Spec.Ports[0].NodePort), nil
+		return fmt.Sprintf("http://%s:%v", cluster.SpecConf.KubeRouter, d.Spec.Ports[0].NodePort), nil
 	}
 	return "", fmt.Errorf("can't get nodeport %s(%s) from cluster %s", svcName, namespace, clusterName)
 }
 
 func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, error) {
 	var (
-		cluster   model.Cluster
 		tools     []model.ClusterTool
 		backTools []dto.ClusterTool
 	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret"})
+	if err != nil {
 		return backTools, err
 	}
 	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&tools).Error; err != nil {
 		return backTools, err
 	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.Spec.KubeRouter, cluster.Spec.KubeApiServerPort))},
+		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.KubeRouter, cluster.SpecConf.KubeApiServerPort))},
 		Token: cluster.Secret.KubernetesToken,
 	})
 	if err != nil {
@@ -220,7 +221,7 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 	}
 
 	var h helm2.Client
-	err = h.SyncRepoCharts(cluster.Spec.Architectures)
+	err = h.SyncRepoCharts(cluster.Architectures)
 	return backTools, err
 }
 
@@ -248,7 +249,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	if err != nil {
 		return tool, err
 	}
-	mo.Status = constant.ClusterTerminating
+	mo.Status = constant.StatusTerminating
 	_ = c.toolRepo.Save(&mo)
 	go c.doUninstall(ct, &tool.ClusterTool)
 	return tool, nil
@@ -279,7 +280,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
-	mo.Status = constant.ClusterInitializing
+	mo.Status = constant.StatusInitializing
 	_ = c.toolRepo.Save(&mo)
 	go c.doInstall(ct, &tool.ClusterTool, toolDetail)
 	return tool, nil
@@ -300,7 +301,7 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
-	mo.Status = constant.ClusterUpgrading
+	mo.Status = constant.StatusUpgrading
 	mo.Version = mo.HigherVersion
 	mo.HigherVersion = ""
 	tool.ClusterTool = mo
@@ -346,8 +347,8 @@ func (c clusterToolService) EnableFlex(clusterName string) error {
 	if len(master.Host.FlexIp) == 0 {
 		return errors.New("CLUSTER_NO_FLEX")
 	}
-	cluster.Spec.KubeRouter = master.Host.FlexIp
-	if err := c.clusterSpecRepo.Save(&cluster.Spec); err != nil {
+	cluster.SpecConf.KubeRouter = master.Host.FlexIp
+	if err := c.clusterSpecRepo.SaveConf(&cluster.SpecConf); err != nil {
 		return err
 	}
 	return nil
@@ -362,8 +363,8 @@ func (c clusterToolService) DisableFlex(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	cluster.Spec.KubeRouter = master.Host.Ip
-	if err := c.clusterSpecRepo.Save(&cluster.Spec); err != nil {
+	cluster.SpecConf.KubeRouter = master.Host.Ip
+	if err := c.clusterSpecRepo.SaveConf(&cluster.SpecConf); err != nil {
 		return err
 	}
 	return nil
@@ -373,11 +374,11 @@ func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool
 	err := p.Install(toolDetail)
 	if err != nil {
 		logger.Log.Errorf("install tool %s failed: %+v", tool.Name, err)
-		tool.Status = constant.ClusterFailed
+		tool.Status = constant.StatusFailed
 		tool.Message = err.Error()
 	} else {
 		logger.Log.Infof("install tool %s successful: %+v", tool.Name, err)
-		tool.Status = constant.ClusterRunning
+		tool.Status = constant.StatusRunning
 	}
 	_ = c.toolRepo.Save(tool)
 }
@@ -386,11 +387,11 @@ func (c clusterToolService) doUpgrade(p tools.Interface, tool *model.ClusterTool
 	err := p.Upgrade(toolDetail)
 	if err != nil {
 		logger.Log.Errorf("upgrade tool %s failed: %+v", tool.Name, err)
-		tool.Status = constant.ClusterFailed
+		tool.Status = constant.StatusFailed
 		tool.Message = err.Error()
 	} else {
 		logger.Log.Infof("upgrade tool %s successful: %+v", tool.Name, err)
-		tool.Status = constant.ClusterRunning
+		tool.Status = constant.StatusRunning
 	}
 	_ = c.toolRepo.Save(tool)
 }
@@ -401,7 +402,7 @@ func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTo
 	} else {
 		logger.Log.Infof("uninstall tool %s successful: %+v", tool.Name, err)
 	}
-	tool.Status = constant.ClusterWaiting
+	tool.Status = constant.StatusWaiting
 	_ = c.toolRepo.Save(tool)
 }
 
@@ -428,12 +429,9 @@ func (c clusterToolService) getNamespace(clusterID string, tool dto.ClusterTool)
 }
 
 func (c clusterToolService) getBaseParams(clusterName string) (model.Cluster, []kubernetesUtil.Host, error) {
-	var (
-		cluster model.Cluster
-		host    []kubernetesUtil.Host
-		err     error
-	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").Preload("Secret").Find(&cluster).Error; err != nil {
+	var host []kubernetesUtil.Host
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret"})
+	if err != nil {
 		return cluster, host, err
 	}
 

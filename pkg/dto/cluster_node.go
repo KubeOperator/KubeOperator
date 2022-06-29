@@ -12,13 +12,12 @@ type Node struct {
 }
 
 type NodeBatch struct {
-	Hosts      []string `json:"hosts"`
-	Nodes      []string `json:"nodes"`
-	Increase   int      `json:"increase"`
-	Operation  string   `json:"operation"`
-	IsForce    bool     `json:"isForce"`
-	StatusID   string   `json:"statusID"`
-	SupportGpu string   `json:"supportGpu"`
+	Hosts     []string `json:"hosts"`
+	Nodes     []string `json:"nodes"`
+	Increase  int      `json:"increase"`
+	Operation string   `json:"operation"`
+	IsForce   bool     `json:"isForce"`
+	StatusID  string   `json:"statusID"`
 }
 
 type NodePage struct {

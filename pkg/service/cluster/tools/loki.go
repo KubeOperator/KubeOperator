@@ -62,7 +62,7 @@ func (l Loki) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultLokiIngress,
 		service: constant.DefaultLokiServiceName,
 		port:    3100,
-		version: l.Cluster.Spec.Version,
+		version: l.Cluster.Version,
 	}
 	if err := createRoute(l.Cluster.Namespace, ingressItem, l.Cluster.KubeClient); err != nil {
 		return err
@@ -79,5 +79,5 @@ func (l Loki) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (l Loki) Uninstall() error {
-	return uninstall(l.Cluster.Namespace, l.Tool, constant.DefaultLokiIngressName, l.Cluster.Spec.Version, l.Cluster.HelmClient, l.Cluster.KubeClient)
+	return uninstall(l.Cluster.Namespace, l.Tool, constant.DefaultLokiIngressName, l.Cluster.Version, l.Cluster.HelmClient, l.Cluster.KubeClient)
 }

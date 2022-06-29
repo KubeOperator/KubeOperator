@@ -285,7 +285,7 @@ func (h *hostService) Create(creation dto.HostCreate) (*dto.Host, error) {
 		Port:         creation.Port,
 		CredentialID: credential.ID,
 		Credential:   credential,
-		Status:       constant.ClusterInitializing,
+		Status:       constant.StatusInitializing,
 	}
 	if err := tx.Create(&host).Error; err != nil {
 		tx.Rollback()
@@ -371,7 +371,7 @@ func (h *hostService) Update(host dto.HostUptate) (*dto.Host, error) {
 		"FlexIp":       host.FlexIp,
 		"Port":         host.Port,
 		"CredentialID": credential.ID,
-		"Status":       constant.ClusterInitializing,
+		"Status":       constant.StatusInitializing,
 	}).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -384,7 +384,7 @@ func (h *hostService) Update(host dto.HostUptate) (*dto.Host, error) {
 		Port:         host.Port,
 		CredentialID: credential.ID,
 		Credential:   credential,
-		Status:       constant.ClusterInitializing,
+		Status:       constant.StatusInitializing,
 	}
 
 	tx.Commit()
@@ -396,11 +396,11 @@ func (h *hostService) SyncList(hosts []dto.HostSync) error {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 2)
 	for _, host := range hosts {
-		if host.HostStatus == constant.ClusterCreating || host.HostStatus == constant.ClusterInitializing || host.HostStatus == constant.ClusterSynchronizing {
+		if host.HostStatus == constant.StatusCreating || host.HostStatus == constant.StatusInitializing || host.HostStatus == constant.StatusSynchronizing {
 			continue
 		}
 		// 先更新所有待同步主机状态
-		if err := db.DB.Model(&model.Host{}).Where("name = ?", host.HostName).Update("status", constant.ClusterSynchronizing).Error; err != nil {
+		if err := db.DB.Model(&model.Host{}).Where("name = ?", host.HostName).Update("status", constant.StatusSynchronizing).Error; err != nil {
 			logger.Log.Errorf("update host status to synchronizing error: %s", err.Error())
 		}
 
@@ -426,7 +426,7 @@ func (h *hostService) Sync(name string) (dto.Host, error) {
 		return dto.Host{Host: host}, err
 	}
 	if err := h.GetHostConfig(&host); err != nil {
-		host.Status = constant.ClusterFailed
+		host.Status = constant.StatusFailed
 		host.Message = err.Error()
 		if err := syncHostInfoWithDB(&host); err != nil {
 			logger.Log.Errorf("update host info error: %s", err.Error())
@@ -434,7 +434,7 @@ func (h *hostService) Sync(name string) (dto.Host, error) {
 		}
 		return dto.Host{Host: host}, err
 	}
-	host.Status = constant.ClusterRunning
+	host.Status = constant.StatusRunning
 	if err := syncHostInfoWithDB(&host); err != nil {
 		logger.Log.Errorf("update host info error: %s", err.Error())
 		return dto.Host{Host: host}, err
@@ -556,12 +556,12 @@ func (h *hostService) GetHostMem(host *model.Host) error {
 func (h *hostService) RunGetHostConfig(host *model.Host) {
 	err := h.GetHostConfig(host)
 	if err != nil {
-		host.Status = constant.ClusterFailed
+		host.Status = constant.StatusFailed
 		host.Message = err.Error()
 		_ = h.hostRepo.Save(host)
 		return
 	}
-	host.Status = constant.ClusterRunning
+	host.Status = constant.StatusRunning
 	_ = h.hostRepo.Save(host)
 }
 
@@ -763,7 +763,7 @@ func (h *hostService) ImportHosts(file []byte) error {
 			Ip:           strings.Trim(row[1], " "),
 			Port:         port,
 			CredentialID: credential.ID,
-			Status:       constant.ClusterInitializing,
+			Status:       constant.StatusInitializing,
 			Credential:   credential,
 			ClusterID:    project.ID,
 		}

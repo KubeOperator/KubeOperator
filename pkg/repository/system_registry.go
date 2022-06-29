@@ -82,7 +82,7 @@ func (s systemRegistryRepository) Batch(operation string, items []model.SystemRe
 }
 
 func (s systemRegistryRepository) Delete(id string) error {
-	var specs []model.ClusterSpec
+	var specs []model.Cluster
 	if err := db.DB.Find(&specs).Error; err != nil {
 		return err
 	}

@@ -60,7 +60,7 @@ func (r Registry) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultRegistryIngress,
 		service: constant.DefaultRegistryServiceName,
 		port:    5000,
-		version: r.Cluster.Spec.Version,
+		version: r.Cluster.Version,
 	}
 	if err := createRoute(r.Cluster.Namespace, ingressItem, r.Cluster.KubeClient); err != nil {
 		return err
@@ -77,5 +77,5 @@ func (r Registry) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (r Registry) Uninstall() error {
-	return uninstall(r.Cluster.Namespace, r.Tool, constant.DefaultRegistryIngressName, r.Cluster.Spec.Version, r.Cluster.HelmClient, r.Cluster.KubeClient)
+	return uninstall(r.Cluster.Namespace, r.Tool, constant.DefaultRegistryIngressName, r.Cluster.Version, r.Cluster.HelmClient, r.Cluster.KubeClient)
 }

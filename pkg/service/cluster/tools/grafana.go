@@ -97,7 +97,7 @@ func (g Grafana) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultGrafanaIngress,
 		service: constant.DefaultGrafanaServiceName,
 		port:    80,
-		version: g.Cluster.Spec.Version,
+		version: g.Cluster.Version,
 	}
 	if err := createRoute(g.Cluster.Namespace, ingressItem, g.Cluster.KubeClient); err != nil {
 		return err
@@ -114,5 +114,5 @@ func (g Grafana) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (g Grafana) Uninstall() error {
-	return uninstall(g.Cluster.Namespace, g.Tool, constant.DefaultGrafanaIngressName, g.Cluster.Spec.Version, g.Cluster.HelmClient, g.Cluster.KubeClient)
+	return uninstall(g.Cluster.Namespace, g.Tool, constant.DefaultGrafanaIngressName, g.Cluster.Version, g.Cluster.HelmClient, g.Cluster.KubeClient)
 }

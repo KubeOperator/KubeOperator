@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/polaris"
 )
 
@@ -12,30 +14,26 @@ type GradeService interface {
 }
 
 type gradeService struct {
-	clusterService ClusterService
+	clusterRepo repository.ClusterRepository
 }
 
 func NewGradeService() GradeService {
 	return &gradeService{
-		clusterService: NewClusterService(),
+		clusterRepo: repository.NewClusterRepository(),
 	}
 }
 
 func (g gradeService) GetGrade(clusterName string) (*dto.ClusterGrade, error) {
-	cluster, err := g.clusterService.Get(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	secret, err := g.clusterService.GetSecrets(cluster.Name)
+	cluster, err := g.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret"})
 	if err != nil {
 		return nil, err
 	}
 
-	if cluster.Status == constant.ClusterRunning {
+	if cluster.Status == constant.StatusRunning {
 		result, err := polaris.RunGrade(&polaris.Config{
-			Host:  cluster.Spec.LbKubeApiserverIp,
-			Port:  cluster.Spec.KubeApiServerPort,
-			Token: secret.KubernetesToken,
+			Host:  cluster.SpecConf.LbKubeApiserverIp,
+			Port:  cluster.SpecConf.KubeApiServerPort,
+			Token: cluster.Secret.KubernetesToken,
 		})
 		if err != nil {
 			return nil, err

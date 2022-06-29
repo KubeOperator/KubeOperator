@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -22,7 +23,7 @@ const (
 	ConditionTypeDone = "EnsureDone"
 )
 
-type Handler func(*Cluster) error
+type Handler func(*AnsibleHelper) error
 
 func (h Handler) name() string {
 	name := runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()
@@ -33,49 +34,47 @@ func (h Handler) name() string {
 	return strings.TrimSuffix(name[i:], "-fm")
 }
 
-func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
-	var conditions []model.ClusterStatusCondition
-	exist := false
-	for _, condition := range c.Status.ClusterStatusConditions {
-		if condition.Name == newCondition.Name {
-			exist = true
-			if newCondition.Status != condition.Status {
-				condition.Status = newCondition.Status
-			}
-			if newCondition.Message != condition.Message {
-				condition.Message = newCondition.Message
-			}
-			if !newCondition.LastProbeTime.IsZero() && newCondition.LastProbeTime != condition.LastProbeTime {
-				condition.LastProbeTime = newCondition.LastProbeTime
-			}
-		}
-		conditions = append(conditions, condition)
+func (c *AnsibleHelper) setCondition(newDetail model.TaskLogDetail) {
+	if newDetail.Status == constant.TaskLogStatusRunning {
+		c.LogDetail = append(c.LogDetail, newDetail)
+		return
 	}
-	if !exist {
-		if newCondition.LastProbeTime.IsZero() {
-			newCondition.LastProbeTime = time.Now()
+	for i := 0; i < len(c.LogDetail); i++ {
+		if c.LogDetail[i].Task == newDetail.Task {
+			c.LogDetail[i].Status = newDetail.Status
+			c.LogDetail[i].Message = newDetail.Message
+			c.LogDetail[i].LastProbeTime = newDetail.LastProbeTime
+			c.LogDetail[i].EndTime = time.Now().Unix()
 		}
-		conditions = append(conditions, newCondition)
 	}
-	c.Status.ClusterStatusConditions = conditions
-
 }
 
-type Cluster struct {
-	model.Cluster
+type AnsibleHelper struct {
+	Status    string
+	Message   string
+	LogDetail []model.TaskLogDetail
+
+	ClusterVersion        string
+	ClusterUpgradeVersion string
+	ClusterRuntime        string
+
 	Writer io.Writer
 	Kobe   kobe.Interface
 }
 
-func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
-	c := &Cluster{
-		Cluster: cluster,
+func NewAnsibleHelper(cluster model.Cluster, writer ...io.Writer) *AnsibleHelper {
+	c := &AnsibleHelper{
+		Status:                constant.TaskLogStatusRunning,
+		ClusterVersion:        cluster.Version,
+		ClusterUpgradeVersion: cluster.UpgradeVersion,
+		ClusterRuntime:        cluster.SpecRuntime.RuntimeType,
+		LogDetail:             cluster.TaskLog.Details,
 	}
 	if writer != nil {
 		c.Writer = writer[0]
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
-		Inventory: c.ParseInventory(),
+		Inventory: cluster.ParseInventory(),
 	})
 	for i := range facts.DefaultFacts {
 		c.Kobe.SetVar(i, facts.DefaultFacts[i])
@@ -87,8 +86,48 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntpServerRepo := repository.NewNtpServerRepository()
 	ntps, _ := ntpServerRepo.GetAddressStr()
-	c.Kobe.SetVar(facts.NtpServerName, ntps)
-	maniFest, _ := GetManiFestBy(cluster.Spec.Version)
+	c.Kobe.SetVar(facts.NtpServerFactName, ntps)
+	maniFest, _ := GetManiFestBy(cluster.Version)
+	if maniFest.Name != "" {
+		vars := maniFest.GetVars()
+		for k, v := range vars {
+			c.Kobe.SetVar(k, v)
+		}
+	}
+	return c
+}
+
+func NewAnsibleHelperWithNewWorker(cluster model.Cluster, workers []string, writer ...io.Writer) *AnsibleHelper {
+	c := &AnsibleHelper{
+		Status:                constant.TaskLogStatusRunning,
+		ClusterVersion:        cluster.Version,
+		ClusterUpgradeVersion: cluster.UpgradeVersion,
+		LogDetail:             cluster.TaskLog.Details,
+	}
+	if writer != nil {
+		c.Writer = writer[0]
+	}
+	inventory := cluster.ParseInventory()
+	for i := range inventory.Groups {
+		if inventory.Groups[i].Name == "new-worker" {
+			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, workers...)
+		}
+	}
+	c.Kobe = kobe.NewAnsible(&kobe.Config{
+		Inventory: inventory,
+	})
+	for i := range facts.DefaultFacts {
+		c.Kobe.SetVar(i, facts.DefaultFacts[i])
+	}
+	clusterVars := cluster.GetKobeVars()
+	for k, v := range clusterVars {
+		c.Kobe.SetVar(k, v)
+	}
+	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
+	ntpServerRepo := repository.NewNtpServerRepository()
+	ntps, _ := ntpServerRepo.GetAddressStr()
+	c.Kobe.SetVar(facts.NtpServerFactName, ntps)
+	maniFest, _ := GetManiFestBy(cluster.Version)
 	if maniFest.Name != "" {
 		vars := maniFest.GetVars()
 		for k, v := range vars {
@@ -145,18 +184,18 @@ func NewClusterAdm() *ClusterAdm {
 	return ca
 }
 
-func (ca *ClusterAdm) OnInitialize(c Cluster) (Cluster, error) {
-	err := ca.Create(&c)
-	return c, err
+func (ca *ClusterAdm) OnInitialize(ansible *AnsibleHelper) error {
+	err := ca.Create(ansible)
+	return err
 }
 
-func (ca *ClusterAdm) OnUpgrade(c Cluster) (Cluster, error) {
-	err := ca.Upgrade(&c)
-	return c, err
+func (ca *ClusterAdm) OnUpgrade(ansible *AnsibleHelper) error {
+	err := ca.Upgrade(ansible)
+	return err
 }
 
-func (ca *ClusterAdm) OnAddWorker(c Cluster, status *model.ClusterStatus) error {
-	err := ca.AddWorker(&c, status)
+func (ca *ClusterAdm) OnAddWorker(ansible *AnsibleHelper) error {
+	err := ca.AddWorker(ansible)
 	return err
 }
 

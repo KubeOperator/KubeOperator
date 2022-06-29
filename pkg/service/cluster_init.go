@@ -2,158 +2,182 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
-	"github.com/sirupsen/logrus"
 )
 
 type ClusterInitService interface {
-	Init(name string) error
+	Init(cluster model.Cluster, writer io.Writer)
 	GatherKubernetesToken(cluster model.Cluster) error
 }
 
 func NewClusterInitService() ClusterInitService {
 	return &clusterInitService{
-		clusterRepo:                repository.NewClusterRepository(),
-		clusterNodeRepo:            repository.NewClusterNodeRepository(),
-		clusterStatusRepo:          repository.NewClusterStatusRepository(),
-		clusterSecretRepo:          repository.NewClusterSecretRepository(),
-		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
-		clusterSpecRepo:            repository.NewClusterSpecRepository(),
-		clusterIaasService:         NewClusterIaasService(),
-		messageService:             NewMessageService(),
+		clusterRepo:         repository.NewClusterRepository(),
+		clusterNodeRepo:     repository.NewClusterNodeRepository(),
+		clusterSecretRepo:   repository.NewClusterSecretRepository(),
+		clusterSpecRepo:     repository.NewClusterSpecRepository(),
+		messageService:      NewMessageService(),
+		taskLogService:      NewTaskLogService(),
+		clusterCreateHelper: NewClusterCreateHelper(),
 	}
 }
 
 type clusterInitService struct {
-	clusterRepo                repository.ClusterRepository
-	clusterNodeRepo            repository.ClusterNodeRepository
-	clusterStatusRepo          repository.ClusterStatusRepository
-	clusterSecretRepo          repository.ClusterSecretRepository
-	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
-	clusterSpecRepo            repository.ClusterSpecRepository
-	clusterIaasService         ClusterIaasService
-	messageService             MessageService
+	clusterRepo         repository.ClusterRepository
+	clusterNodeRepo     repository.ClusterNodeRepository
+	clusterSecretRepo   repository.ClusterSecretRepository
+	clusterSpecRepo     repository.ClusterSpecRepository
+	taskLogService      TaskLogService
+	messageService      MessageService
+	clusterCreateHelper ClusterCreateHelper
 }
 
-func (c clusterInitService) Init(name string) error {
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return err
-	}
-	cluster.Status, err = c.clusterStatusRepo.Get(cluster.StatusID)
-	if err != nil {
-		return err
-	}
-	if len(cluster.Status.ClusterStatusConditions) > 0 {
-		for i := range cluster.Status.ClusterStatusConditions {
-			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
-				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
-				cluster.Status.ClusterStatusConditions[i].Message = ""
-				err := c.clusterStatusConditionRepo.Save(&cluster.Status.ClusterStatusConditions[i])
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
-	if err != nil {
-		return err
-	}
-	cluster.LogId = logId
+func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
+	cluster.TaskLog.Phase = constant.TaskLogStatusWaiting
+	_ = c.taskLogService.Save(&cluster.TaskLog)
+	cluster.Status = constant.StatusInitializing
+	cluster.CurrentTaskID = cluster.TaskLog.ID
 	_ = c.clusterRepo.Save(&cluster)
 
-	logger.Log.WithFields(logrus.Fields{
-		"log_id": logId,
-	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
-
-	go c.do(cluster, writer)
-	return nil
-}
-
-func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
-	if len(cluster.Nodes) < 1 {
-		cluster.Status.Phase = constant.ClusterCreating
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		err := c.clusterIaasService.Init(cluster.Name)
-		if err != nil {
-			cluster.Status.Phase = constant.ClusterFailed
-			cluster.Status.Message = err.Error()
-			_ = c.clusterStatusRepo.Save(&cluster.Status)
+	if cluster.Provider == constant.ClusterProviderPlan {
+		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
+			_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
 			return
 		}
 	}
+
+	cluster.TaskLog.Phase = constant.TaskLogStatusRunning
+	cluster.TaskLog.CreatedAt = time.Now()
+	_ = c.taskLogService.Save(&cluster.TaskLog)
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
-	statusChan := make(chan adm.Cluster)
-	cluster.Status.Phase = constant.ClusterInitializing
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	statusChan := make(chan adm.AnsibleHelper)
 
-	admCluster := adm.NewCluster(cluster, writer)
+	admCluster := adm.NewAnsibleHelper(cluster, writer)
+	admCluster.Kobe.SetVar(facts.ComponentOptionFactName, "cluster-create")
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
-		cluster := <-statusChan
-		_ = c.clusterStatusRepo.Save(&cluster.Status)
-		switch cluster.Status.Phase {
-		case constant.ClusterFailed:
+		result := <-statusChan
+		switch cluster.TaskLog.Phase {
+		case constant.TaskLogStatusFailed:
+			if err := c.taskLogService.End(&cluster.TaskLog, false, result.Message); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 			cancel()
-			logger.Log.Errorf("cluster install failed: %s", cluster.Status.Message)
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.Status.Message), cluster.Name, constant.ClusterInstall)
+			cluster.Status = constant.StatusFailed
+			cluster.Message = result.Message
+			_ = c.clusterRepo.Save(&cluster)
+			logger.Log.Errorf("cluster install failed: %s", cluster.TaskLog.Message)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.TaskLog.Message), cluster.Name, constant.ClusterInstall)
 			return
-		case constant.ClusterRunning:
+		case constant.TaskLogStatusSuccess:
+			if err := c.taskLogService.End(&cluster.TaskLog, true, ""); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 			logger.Log.Infof("cluster %s install successful!", cluster.Name)
+			cluster.Status = constant.StatusRunning
+			cluster.Message = result.Message
+			cluster.CurrentTaskID = ""
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			firstMasterIP := ""
 			for i := range cluster.Nodes {
 				if cluster.Nodes[i].Role == constant.NodeRoleNameMaster && len(firstMasterIP) == 0 {
 					firstMasterIP = cluster.Nodes[i].Host.Ip
 				}
-				cluster.Nodes[i].Status = constant.ClusterRunning
+				cluster.Nodes[i].Status = constant.StatusRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}
-			cluster.Spec.KubeRouter = firstMasterIP
-			if cluster.Spec.LbMode == constant.LbModeInternal {
-				cluster.Spec.LbKubeApiserverIp = firstMasterIP
+			cluster.SpecConf.KubeRouter = firstMasterIP
+			if cluster.SpecConf.LbMode == constant.LbModeInternal {
+				cluster.SpecConf.LbKubeApiserverIp = firstMasterIP
 			}
-			_ = c.clusterSpecRepo.Save(&cluster.Spec)
+			_ = c.clusterSpecRepo.SaveConf(&cluster.SpecConf)
+
+			logger.Log.Infof("start to load tools ...")
+			if err := c.loadTools(&cluster); err != nil {
+				logger.Log.Infof("load tool failed, err: %v!", err)
+			} else {
+				logger.Log.Infof("load tool successful !")
+			}
 			cancel()
-			err := c.GatherKubernetesToken(cluster.Cluster)
+			err := c.GatherKubernetesToken(cluster)
 			if err != nil {
-				cluster.Status.Phase = constant.ClusterNotConnected
-				cluster.Status.Message = err.Error()
+				cluster.Status = constant.ClusterNotConnected
+				cluster.Message = err.Error()
 			}
+			_ = c.clusterRepo.Save(&cluster)
 			return
+		default:
+			cluster.TaskLog.Phase = result.Status
+			cluster.TaskLog.Message = result.Message
+			cluster.TaskLog.Details = result.LogDetail
+			if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+				logger.Log.Infof("save task failed %v", err)
+			}
 		}
 	}
 }
 
-func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+func (c clusterInitService) doCreate(ctx context.Context, aHelper adm.AnsibleHelper, statusChan chan adm.AnsibleHelper) {
 	ad := adm.NewClusterAdm()
 	for {
-		resp, err := ad.OnInitialize(cluster)
-		if err != nil {
-			cluster.Status.Message = err.Error()
+		if err := ad.OnInitialize(&aHelper); err != nil {
+			aHelper.Message = err.Error()
 		}
-		cluster.Status = resp.Status
 		select {
 		case <-ctx.Done():
 			return
-		case statusChan <- cluster:
+		case statusChan <- aHelper:
 		}
 		time.Sleep(5 * time.Second)
 	}
+}
+
+func (c clusterInitService) loadTools(cluster *model.Cluster) error {
+	var (
+		manifest model.ClusterManifest
+		toolVars []model.VersionHelp
+	)
+	tx := db.DB.Begin()
+	if err := tx.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can find manifest version: %s", err.Error())
+	}
+	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+	}
+	for _, tool := range cluster.PrepareTools() {
+		for _, item := range toolVars {
+			if tool.Name == item.Name {
+				tool.Version = item.Version
+				break
+			}
+		}
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
+		}
+	}
+	tx.Commit()
+
+	return nil
 }
 
 func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
