@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"sort"
 	"time"
@@ -17,6 +19,7 @@ import (
 type TaskLogService interface {
 	Page(num, size int, clusterName string, logtype string) (*page.Page, error)
 	GetByID(id string) (model.TaskLog, error)
+	GetTaskDetailByID(id string) (*dto.TaskLog, error)
 	GetTaskLogByID(clusterId, logId string) (*dto.Logs, error)
 	GetTaskLogByName(clusterName, logId string) (*dto.Logs, error)
 	Save(taskLog *model.TaskLog) error
@@ -30,7 +33,7 @@ type TaskLogService interface {
 	EndDetail(detail *model.TaskLogDetail, statu string, message string) error
 	SaveDetail(detail *model.TaskLogDetail) error
 
-	SaveRetryLog(retry *model.TaskRetryLog) error
+	RestartTask(cluster *model.Cluster, operation string) error
 }
 
 type taskLogService struct {
@@ -103,6 +106,45 @@ func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
 		return tasklog, err
 	}
 	return tasklog, nil
+}
+
+func (c *taskLogService) GetTaskDetailByID(id string) (*dto.TaskLog, error) {
+	var (
+		tasklog   model.TaskLog
+		retrylogs []model.TaskRetryLog
+	)
+	if err := db.DB.Where("id = ?", id).Preload("Details").First(&tasklog).Error; err != nil {
+		return &dto.TaskLog{TaskLog: tasklog}, err
+	}
+	if err := db.DB.Where("task_log_id = ?", id).First(&retrylogs).Error; err != nil {
+		return &dto.TaskLog{TaskLog: tasklog}, err
+	}
+	for _, re := range retrylogs {
+		item := model.TaskLogDetail{
+			Task:      constant.TaskLogStatusFailed,
+			TaskLogID: re.TaskLogID,
+			ClusterID: re.ClusterID,
+			StartTime: re.LastFailedTime,
+			EndTime:   re.LastFailedTime,
+			Status:    constant.TaskLogStatusFailed,
+			Message:   re.Message,
+		}
+		tasklog.Details = append(tasklog.Details, item)
+		item2 := model.TaskLogDetail{
+			Task:      constant.TaskLogStatusRedo,
+			TaskLogID: re.TaskLogID,
+			ClusterID: re.ClusterID,
+			StartTime: re.RestartTime,
+			EndTime:   re.RestartTime,
+			Status:    constant.TaskLogStatusSuccess,
+			Message:   re.Message,
+		}
+		tasklog.Details = append(tasklog.Details, item2)
+	}
+	sort.Slice(tasklog.Details, func(i, j int) bool {
+		return tasklog.Details[i].StartTime < tasklog.Details[j].StartTime
+	})
+	return &dto.TaskLog{TaskLog: tasklog}, nil
 }
 
 func (c *taskLogService) GetTaskLogByID(clusterId, logId string) (*dto.Logs, error) {
@@ -248,6 +290,36 @@ func (c *taskLogService) End(log *model.TaskLog, success bool, message string) e
 	return db.DB.Save(log).Error
 }
 
-func (c taskLogService) SaveRetryLog(retry *model.TaskRetryLog) error {
-	return db.DB.Create(&retry).Error
+func (c taskLogService) RestartTask(cluster *model.Cluster, operation string) error {
+	isON := c.IsTaskOn(cluster.Name)
+	if isON {
+		return errors.New("TASK_IN_EXECUTION")
+	}
+	if operation != cluster.TaskLog.Type {
+		return fmt.Errorf("restart failed, task type do not match %s - %s", operation, cluster.TaskLog.Type)
+	}
+	retrylog := &model.TaskRetryLog{
+		ClusterID:   cluster.ID,
+		TaskLogID:   cluster.TaskLog.ID,
+		Message:     cluster.TaskLog.Message,
+		RestartTime: time.Now().Unix(),
+	}
+	if len(cluster.TaskLog.Details) > 0 {
+		for i := range cluster.TaskLog.Details {
+			if cluster.TaskLog.Details[i].Status == constant.TaskLogStatusFailed {
+				cluster.TaskLog.Details[i].Status = constant.TaskLogStatusRunning
+				cluster.TaskLog.Details[i].Message = ""
+				cluster.TaskLog.Details[i].StartTime = time.Now().Unix()
+				retrylog.LastFailedTime = cluster.TaskLog.Details[i].EndTime
+			}
+		}
+	}
+	if err := db.DB.Create(retrylog).Error; err != nil {
+		return err
+	}
+	cluster.TaskLog.Phase = constant.TaskLogStatusWaiting
+	if err := c.Save(&cluster.TaskLog); err != nil {
+		return fmt.Errorf("reset contidion err %s", err.Error())
+	}
+	return nil
 }

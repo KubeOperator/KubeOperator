@@ -1,31 +1,44 @@
-CREATE TABLE IF NOT EXISTS `ko_component_dic` (
+ALTER TABLE `ko`.`ko_cluster_node`
+    ADD COLUMN `current_task_id` VARCHAR(255) NULL AFTER `status`,
+    DROP COLUMN `status_id`,
+    DROP COLUMN `pre_status`;
+
+CREATE TABLE IF NOT EXISTS `ko_task_log` (
     `created_at` datetime DEFAULT NULL,
     `updated_at` datetime DEFAULT NULL,
     `id` varchar(255) NOT NULL,
-    `name` varchar(255) DEFAULT NULL,
+    `cluster_id` varchar(255) NOT NULL,
     `type` varchar(255) DEFAULT NULL,
-    `version` varchar(255) DEFAULT NULL,
-    `describe` varchar(255) DEFAULT NULL,
+    `start_time` int DEFAULT NULL,
+    `end_time` int DEFAULT NULL,
+    `phase` varchar(255) NOT NULL,
+    `message` mediumtext,
     PRIMARY KEY (`id`)
 );
 
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'metrics-server', 'Metrics Server', 'v0.5.0', 'metrics-server');
+CREATE TABLE IF NOT EXISTS `ko_task_log_detail` (
+    `created_at` datetime DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    `id` varchar(255) NOT NULL,
+    `task` varchar(255) DEFAULT NULL,
+    `task_log_id` varchar(255) DEFAULT NULL,
+    `cluster_id` varchar(255) DEFAULT NULL,
+    `last_probe_time` int DEFAULT NULL,
+    `start_time` int DEFAULT NULL,
+    `end_time` int DEFAULT NULL,
+    `status` varchar(255) DEFAULT NULL,
+    `message` mediumtext,
+    PRIMARY KEY (`id`)
+);
 
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'traefik', 'Ingress Controller', 'v2.6.1', 'traefik');
-
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'nginx', 'Ingress Controller', 'v1.1.1', 'nginx');
-
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'gpu', 'GPU', 'v1.7.0', 'gpu');
-
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'dns-cache', 'Dns Cache', '1.17.0', 'dns-cache');
-
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'istio', 'Istio', 'v1.11.8', 'istio');
-
-INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'npd', 'Npd', 'v0.8.1', 'npd');
+CREATE TABLE IF NOT EXISTS `ko_task_retry_log` (
+    `created_at` datetime DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    `id` varchar(255) NOT NULL,
+    `task_log_id` varchar(255) DEFAULT NULL,
+    `cluster_id` varchar(255) DEFAULT NULL,
+    `last_failed_time` int DEFAULT NULL,
+    `restart_time` int DEFAULT NULL,
+    `message` mediumtext,
+    PRIMARY KEY (`id`)
+);

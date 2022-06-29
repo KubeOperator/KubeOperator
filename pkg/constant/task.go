@@ -17,6 +17,7 @@ const (
 	TaskLogStatusFailed  = "FAILED"
 	TaskLogStatusRunning = "RUNNING"
 	TaskLogStatusWaiting = "WAITING"
+	TaskLogStatusRedo    = "REDO"
 
 	StatusPending       = "Pending"
 	StatusRunning       = "Running"

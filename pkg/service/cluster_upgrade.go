@@ -8,7 +8,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -42,11 +41,6 @@ type clusterUpgradeService struct {
 }
 
 func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
-	isON := c.taskLogService.IsTaskOn(upgrade.ClusterName)
-	if isON {
-		return errors.New("TASK_IN_EXECUTION")
-	}
-
 	loginfo, _ := json.Marshal(upgrade)
 	logger.Log.WithFields(logrus.Fields{"cluster_upgrade_info": string(loginfo)}).Debugf("start to upgrade the cluster %s", upgrade.ClusterName)
 
@@ -54,7 +48,6 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s error %s", upgrade.ClusterName, err.Error())
 	}
-
 	if cluster.Source == constant.ClusterSourceExternal {
 		return errors.New("CLUSTER_IS_NOT_LOCAL")
 	}
@@ -62,32 +55,30 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		return fmt.Errorf("cluster status error %s", cluster.Status)
 	}
 
-	tx := db.DB.Begin()
+	tasklog, err := c.taskLogService.GetByID(cluster.CurrentTaskID)
+	if err != nil {
+		return err
+	}
+	cluster.TaskLog = tasklog
+
 	//从错误后继续
 	if cluster.TaskLog.Phase == constant.TaskLogStatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
-		if err := tx.Model(&model.TaskLogDetail{}).
-			Where("task_log_id = ? AND status = ?", cluster.TaskLog.ID, constant.TaskLogStatusFailed).
-			Updates(map[string]interface{}{
-				"Status":  constant.TaskLogStatusRunning,
-				"Message": "",
-			}).Error; err != nil {
-			return fmt.Errorf("reset status error %s", err.Error())
-		}
-		if err := c.taskLogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: cluster.TaskLog.ID, Message: cluster.TaskLog.Message}); err != nil {
+		if err := c.taskLogService.RestartTask(&cluster, constant.TaskLogTypeClusterUpgrade); err != nil {
 			return err
 		}
 	} else {
+		isON := c.taskLogService.IsTaskOn(upgrade.ClusterName)
+		if isON {
+			return errors.New("TASK_IN_EXECUTION")
+		}
 		cluster.TaskLog = model.TaskLog{
 			ClusterID: cluster.ID,
 			Type:      constant.TaskLogTypeClusterUpgrade,
+			Phase:     constant.TaskLogStatusWaiting,
 		}
-	}
-	// 修改状态
-	cluster.TaskLog.Phase = constant.TaskLogStatusRunning
-
-	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
-		tx.Rollback()
-		return fmt.Errorf("reset contidion err %s", err.Error())
+		if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
+			return fmt.Errorf("reset contidion err %s", err.Error())
+		}
 	}
 
 	// 创建日志
@@ -99,19 +90,14 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	cluster.UpgradeVersion = upgrade.Version
 	cluster.Status = constant.StatusUpgrading
 	cluster.CurrentTaskID = cluster.TaskLog.ID
-	if err := tx.Save(&cluster).Error; err != nil {
-		tx.Rollback()
+	if err := c.clusterRepo.Save(&cluster); err != nil {
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
 	// 更新工具版本状态
-	if err := c.updateToolVersion(tx, upgrade.Version, cluster.ID); err != nil {
-		tx.Rollback()
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
-		return err
+	if err := c.updateToolVersion(upgrade.Version, cluster.ID); err != nil {
+		logger.Log.Infof("update tool version of cluster %s failed, err: %v", cluster.Name, err)
 	}
-
-	tx.Commit()
 
 	logger.Log.Infof("update db data of cluster %s successful, now start to upgrade cluster", cluster.Name)
 	go c.do(&cluster, writer)
@@ -183,18 +169,16 @@ func (c clusterUpgradeService) doUpgrade(ctx context.Context, aHelper adm.Ansibl
 	}
 }
 
-func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID string) error {
+func (c clusterUpgradeService) updateToolVersion(version, clusterID string) error {
 	var (
 		tools    []model.ClusterTool
 		manifest model.ClusterManifest
 		toolVars []model.VersionHelp
 	)
-	if err := tx.Where("name = ?", version).First(&manifest).Error; err != nil {
-		tx.Rollback()
+	if err := db.DB.Where("name = ?", version).First(&manifest).Error; err != nil {
 		return fmt.Errorf("get manifest error %s", err.Error())
 	}
-	if err := tx.Where("cluster_id = ?", clusterID).Find(&tools).Error; err != nil {
-		tx.Rollback()
+	if err := db.DB.Where("cluster_id = ?", clusterID).Find(&tools).Error; err != nil {
 		return fmt.Errorf("get tools error %s", err.Error())
 	}
 	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
@@ -209,7 +193,7 @@ func (c clusterUpgradeService) updateToolVersion(tx *gorm.DB, version, clusterID
 					} else {
 						tool.HigherVersion = item.Version
 					}
-					if err := tx.Save(&tool).Error; err != nil {
+					if err := db.DB.Save(&tool).Error; err != nil {
 						return fmt.Errorf("update tool version error %s", err.Error())
 					}
 				}

@@ -285,7 +285,7 @@ func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 }
 
 func (c *clusterService) ReCreate(name string) error {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
@@ -293,21 +293,9 @@ func (c *clusterService) ReCreate(name string) error {
 	if err != nil {
 		return err
 	}
-	if err := c.tasklogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: tasklog.ID, Message: tasklog.Message}); err != nil {
-		return err
-	}
 	cluster.TaskLog = tasklog
-	if len(cluster.TaskLog.Details) > 0 {
-		for i := range cluster.TaskLog.Details {
-			if cluster.TaskLog.Details[i].Status == constant.TaskLogStatusFailed {
-				cluster.TaskLog.Details[i].Status = constant.TaskLogStatusRunning
-				cluster.TaskLog.Details[i].Message = ""
-				err := c.tasklogService.Save(&cluster.TaskLog)
-				if err != nil {
-					return err
-				}
-			}
-		}
+	if err := c.tasklogService.RestartTask(&cluster, constant.TaskLogTypeClusterCreate); err != nil {
+		return err
 	}
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {

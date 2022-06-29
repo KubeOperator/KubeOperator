@@ -357,10 +357,6 @@ func (c *clusterNodeService) runDeleteWorkerPlaybook(cluster *model.Cluster, nod
 }
 
 func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) error {
-	isON := c.taskLogService.IsTaskOn(clusterName)
-	if isON {
-		return errors.New("TASK_IN_EXECUTION")
-	}
 	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
@@ -369,10 +365,10 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 	if err != nil {
 		return err
 	}
-	if err := c.taskLogService.SaveRetryLog(&model.TaskRetryLog{ClusterID: cluster.ID, TaskLogID: tasklog.ID, Message: tasklog.Message}); err != nil {
+	cluster.TaskLog = tasklog
+	if err := c.taskLogService.RestartTask(&cluster, constant.TaskLogTypeClusterNodeExtend); err != nil {
 		return err
 	}
-	cluster.TaskLog = tasklog
 
 	var nodes []model.ClusterNode
 	if err := db.DB.Where("current_task_id = ?", cluster.CurrentTaskID).Find(&nodes).Error; err != nil {
@@ -391,19 +387,6 @@ func (c *clusterNodeService) Recreate(clusterName string, batch dto.NodeBatch) e
 	logger.Log.WithFields(logrus.Fields{
 		"log_id": cluster.TaskLog.ID,
 	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
-
-	if len(cluster.TaskLog.Details) > 0 {
-		for i := range cluster.TaskLog.Details {
-			if cluster.TaskLog.Details[i].Status == constant.TaskLogStatusFailed {
-				cluster.TaskLog.Details[i].Status = constant.TaskLogStatusRunning
-				cluster.TaskLog.Details[i].Message = ""
-			}
-		}
-	}
-	cluster.TaskLog.Phase = constant.TaskLogStatusWaiting
-	if err := c.taskLogService.Save(&cluster.TaskLog); err != nil {
-		return err
-	}
 
 	go c.addWorkInit(&cluster, nodes, writer, "recreate")
 	return nil

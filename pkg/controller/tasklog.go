@@ -42,6 +42,10 @@ func (c TaskLogController) Post() (*page.Page, error) {
 	return nil, nil
 }
 
+func (c TaskLogController) GetDetailBy(id string) (*dto.TaskLog, error) {
+	return c.TaskLogService.GetTaskDetailByID(id)
+}
+
 func (c TaskLogController) GetLog1By(clusterId, logId string) (*dto.Logs, error) {
 	return c.TaskLogService.GetTaskLogByID(clusterId, logId)
 }
