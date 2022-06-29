@@ -135,26 +135,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			}
 
 		}
-		var (
-			manifest model.ClusterManifest
-			toolVars []model.VersionHelp
-		)
-		if err := tx.Where("name = ?", cluster.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("can not find manifest version: %s", err.Error())
-		}
-		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
-			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
-		}
-		for i := 0; i < len(tools); i++ {
-			for _, item := range toolVars {
-				if tools[i].Name == item.Name {
-					tools[i].Version = item.Version
-					break
-				}
-			}
-		}
 	} else {
 		if err := gatherClusterInfo(cluster); err != nil {
 			c.handlerImportError(tx, cluster.Name, err)
@@ -213,6 +193,27 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
+	var (
+		manifest model.ClusterManifest
+		toolVars []model.VersionHelp
+	)
+	if err := tx.Where("name = ?", cluster.Spec.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
+		logger.Log.Infof("can not find manifest version: %s", err.Error())
+	}
+	if manifest.ID != "" {
+		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
+			c.handlerImportError(tx, cluster.Name, err)
+			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
+		}
+		for i := 0; i < len(tools); i++ {
+			for _, item := range toolVars {
+				if tools[i].Name == item.Name {
+					tools[i].Version = item.Version
+					break
+				}
+			}
+		}
+	}
 	for _, tool := range tools {
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
@@ -220,6 +221,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
+
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,

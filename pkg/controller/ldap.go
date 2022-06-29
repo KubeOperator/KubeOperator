@@ -36,20 +36,38 @@ func (l LdapController) Post() ([]dto.SystemSetting, error) {
 	return result, nil
 }
 
-func (l LdapController) PostSync() error {
+func (l *LdapController) PostTestConnect() (*dto.LdapResult, error) {
+	ctx := l.Ctx
 	var req dto.SystemSettingCreate
-	err := l.Ctx.ReadJSON(&req)
+	if err := ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+	users, err := l.LdapService.TestConnect(req)
 	if err != nil {
+		return nil, err
+	}
+	return &dto.LdapResult{Data: users}, nil
+}
+
+func (l *LdapController) PostTestLogin() error {
+	ctx := l.Ctx
+	var req dto.LdapLogin
+	if err := ctx.ReadJSON(&req); err != nil {
 		return err
 	}
-	validate := validator.New()
-	err = validate.Struct(req)
-	if err != nil {
+	return l.LdapService.TestLogin(req.Username, req.Password)
+}
+
+func (l *LdapController) GetSync() ([]dto.LdapUser, error) {
+	users, err := l.LdapService.LdapSync()
+	return users, err
+}
+
+func (l *LdapController) PostImportUsers() error {
+	ctx := l.Ctx
+	var req dto.ImportRequest
+	if err := ctx.ReadJSON(&req); err != nil {
 		return err
 	}
-	err = l.LdapService.LdapSync(req)
-	if err != nil {
-		return err
-	}
-	return nil
+	return l.LdapService.ImpostUsers(req.Users)
 }

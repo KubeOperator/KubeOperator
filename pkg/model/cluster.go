@@ -282,7 +282,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			ClusterID:    c.ID,
 			Name:         "kubeapps",
-			Version:      "v1.10.2",
+			Version:      "2.4.2",
 			Describe:     "应用商店|App store",
 			Status:       constant.StatusWaiting,
 			Logo:         "kubeapps.png",
@@ -293,7 +293,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			ClusterID:    c.ID,
 			Name:         "prometheus",
-			Version:      "v2.18.1",
+			Version:      "2.31.1",
 			Describe:     "监控|Monitor",
 			Status:       constant.StatusWaiting,
 			Logo:         "prometheus.png",
@@ -316,7 +316,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			ClusterID:    c.ID,
 			Name:         "loki",
-			Version:      "v2.0.0",
+			Version:      "v2.1.0",
 			Describe:     "日志|Logs",
 			Status:       constant.StatusWaiting,
 			Logo:         "loki.png",
@@ -327,7 +327,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		{
 			ClusterID:    c.ID,
 			Name:         "grafana",
-			Version:      "v7.3.3",
+			Version:      "8.3.1",
 			Describe:     "监控|Monitor",
 			Status:       constant.StatusWaiting,
 			Logo:         "grafana.png",

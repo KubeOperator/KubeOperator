@@ -238,6 +238,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/users",
 			"/api/v1/users/{**}",
+			"/api/v1/ldap/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -261,7 +262,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/backupaccounts/buckets",
 			"/api/v1/projects/{**}/{resources,members}",
 			"/api/v1/ldap",
-			"/api/v1/ldap/sync",
+			"/api/v1/ldap/*/*",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{

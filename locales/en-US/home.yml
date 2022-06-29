@@ -104,6 +104,8 @@ BACKUP_ACCOUNT_IS_NOT_FOUND: "%s BackupAccount is not found"
 LDAP_USER_IS_NULL: "Synchronized users are 0"
 LDAP_LOGIN_USER_IS_NULL: "User is not exist!"
 LDAP_DISABLE: "The system prohibits LDAP users from logging in. Please contact the administrator!"
+LDAP_DISABLE_STATUS: "Please enable LDAP first"
+
 
 #cis
 CIS_TASK_ALREADY_RUNNING: "cis task already running"

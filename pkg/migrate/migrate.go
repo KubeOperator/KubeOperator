@@ -1,19 +1,14 @@
 package migrate
 
 import (
-	"errors"
 	"fmt"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/migration"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/file"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/mysql"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 const (
@@ -43,7 +38,7 @@ func (i *InitMigrateDBPhase) Init() error {
 	if err != nil {
 		return err
 	}
-	url := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai",
+	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai&multiStatements=true",
 		i.User,
 		p,
 		i.Host,
@@ -58,21 +53,16 @@ func (i *InitMigrateDBPhase) Init() error {
 	if path == "" {
 		return fmt.Errorf("can not find migration in [%s,%s]", localMigrationDir, releaseMigrationDir)
 	}
-	filePath := fmt.Sprintf("file://%s", path)
-	m, err := migrate.New(
-		filePath, url)
+
+	m, err := migration.New(path, url)
 	if err != nil {
 		return err
 	}
-	// 初始化默认用户
-	v, _, _ := m.Version()
-	if err := m.Up(); err != nil {
-		if errors.Is(err, migrate.ErrNoChange) {
-			logger.Log.Info("no databases change,skip migrate")
-			return nil
-		}
+	err = m.Run()
+	if err != nil {
 		return err
 	}
+	v, _ := m.Version()
 	dp, err := encrypt.StringEncrypt(constant.DefaultPassword)
 	if err != nil {
 		return fmt.Errorf("can not init default user")
@@ -82,6 +72,7 @@ func (i *InitMigrateDBPhase) Init() error {
 			return fmt.Errorf("can not update default user")
 		}
 	}
+	m.Close()
 	return nil
 }
 
