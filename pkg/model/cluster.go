@@ -132,9 +132,6 @@ func (c Cluster) BeforeDelete() error {
 }
 
 func (c Cluster) DeleteClusterAbout() {
-	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterGpu{}).Error; err != nil {
-		logger.Log.Infof("delete gpu failed, err: %v", err)
-	}
 	if err := db.DB.Delete(&ClusterSecret{ID: c.SecretID}).Error; err != nil {
 		logger.Log.Infof("delete secret failed, err: %v", err)
 	}
@@ -143,6 +140,12 @@ func (c Cluster) DeleteClusterAbout() {
 	}
 	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&ClusterTool{}).Error; err != nil {
 		logger.Log.Infof("delete tools failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&TaskLog{}).Error; err != nil {
+		logger.Log.Infof("delete kubepi bind failed, err: %v", err)
+	}
+	if err := db.DB.Where("cluster_id = ?", c.ID).Delete(&TaskRetryLog{}).Error; err != nil {
+		logger.Log.Infof("delete kubepi bind failed, err: %v", err)
 	}
 
 	var cisTasks []CisTask

@@ -62,14 +62,6 @@ func recoverClusterTask() error {
 		return err
 	}
 
-	if err := tx.Model(&model.ClusterGpu{}).Where("status = ? OR status = ? OR status = ?", constant.StatusInitializing, constant.StatusTerminating, constant.StatusWaiting).Updates(map[string]interface{}{
-		"status":  constant.StatusFailed,
-		"message": constant.TaskCancel,
-	}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	var nodes []model.ClusterNode
 	if err := db.DB.Where("status not in (?) AND status != ''", stableStatus).Find(&nodes).Error; err != nil {
 		tx.Rollback()
