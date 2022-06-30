@@ -126,9 +126,9 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		if component.Status != constant.StatusDisabled && component.Status != constant.StatusFailed {
 			return errors.New("COMPONENT_EXIST")
 		}
-	}
-	if err := db.DB.Delete(&component).Error; err != nil {
-		return err
+		if err := db.DB.Delete(&component).Error; err != nil {
+			return err
+		}
 	}
 	component = creation.ComponentCreate2Mo()
 	component.ClusterID = cluster.ID
@@ -312,8 +312,10 @@ func (c componentService) dosync(components []model.ClusterSpecComponent, client
 			c.changeStatus(components, name, constant.StatusEnabled)
 		case "nginx":
 			if err := phases.WaitForDaemonsetRunning("kube-system", "nginx-ingress-controller", client); err != nil {
-				c.changeStatus(components, name, constant.StatusFailed)
-				continue
+				if err := phases.WaitForDaemonsetRunning("kube-system", "ingress-nginx-controller", client); err != nil {
+					c.changeStatus(components, name, constant.StatusFailed)
+					continue
+				}
 			}
 			c.changeStatus(components, name, constant.StatusEnabled)
 		case "traefik":

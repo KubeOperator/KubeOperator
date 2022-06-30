@@ -55,11 +55,10 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		return fmt.Errorf("cluster status error %s", cluster.Status)
 	}
 
-	tasklog, err := c.taskLogService.GetByID(cluster.CurrentTaskID)
-	if err != nil {
-		return err
+	tasklog, _ := c.taskLogService.GetByID(cluster.CurrentTaskID)
+	if tasklog.ID != "" {
+		cluster.TaskLog = tasklog
 	}
-	cluster.TaskLog = tasklog
 
 	//从错误后继续
 	if cluster.TaskLog.Phase == constant.TaskLogStatusFailed && cluster.TaskLog.Type == constant.TaskLogTypeClusterUpgrade {
@@ -87,7 +86,9 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return fmt.Errorf("create log error %s", err.Error())
 	}
-	cluster.UpgradeVersion = upgrade.Version
+	if len(upgrade.Version) != 0 {
+		cluster.UpgradeVersion = upgrade.Version
+	}
 	cluster.Status = constant.StatusUpgrading
 	cluster.CurrentTaskID = cluster.TaskLog.ID
 	if err := c.clusterRepo.Save(&cluster); err != nil {

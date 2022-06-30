@@ -48,7 +48,7 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 		datas []dto.TaskLog
 		p     page.Page
 	)
-	if logtype == "single-task" {
+	if logtype == "cluster" {
 		var tasklogs []model.TaskLog
 		d := db.DB.Model(model.TaskLog{})
 		if len(clusterName) != 0 {
@@ -116,7 +116,7 @@ func (c *taskLogService) GetTaskDetailByID(id string) (*dto.TaskLog, error) {
 	if err := db.DB.Where("id = ?", id).Preload("Details").First(&tasklog).Error; err != nil {
 		return &dto.TaskLog{TaskLog: tasklog}, err
 	}
-	if err := db.DB.Where("task_log_id = ?", id).First(&retrylogs).Error; err != nil {
+	if err := db.DB.Where("task_log_id = ?", id).Find(&retrylogs).Error; err != nil {
 		return &dto.TaskLog{TaskLog: tasklog}, err
 	}
 	for _, re := range retrylogs {

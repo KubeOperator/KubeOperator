@@ -53,6 +53,13 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 		return nil, err
 	}
+	cluster.SpecComponent = cluster.PrepareComponent(creation.IngressControllerType, creation.EnableDnsCache, creation.SupportGpu)
+	for _, component := range cluster.SpecComponent {
+		if err := tx.Create(&component).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
 	cluster.SpecConf.ClusterID = cluster.ID
 	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
 		tx.Rollback()

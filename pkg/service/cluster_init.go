@@ -111,8 +111,6 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			logger.Log.Infof("start to load tools ...")
 			if err := c.loadTools(&cluster); err != nil {
 				logger.Log.Infof("load tool failed, err: %v!", err)
-			} else {
-				logger.Log.Infof("load tool successful !")
 			}
 			cancel()
 			err := c.GatherKubernetesToken(cluster)
