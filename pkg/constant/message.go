@@ -30,10 +30,15 @@ const (
 	ClusterRestore      = "CLUSTER_RESTORE"
 	ClusterBackup       = "CLUSTER_BACKUP"
 	ClusterEventWarning = "CLUSTER_EVENT_WARNING"
+	MsgTest             = "MSG_TEST"
 )
 
 //message level
 const (
 	MsgWarning = "Warning"
 	MsgInfo    = "Info"
+)
+
+const (
+	TestMessage = "KubeOperator消息测试"
 )
