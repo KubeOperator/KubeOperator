@@ -368,6 +368,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) 
 	logger.Log.Infof("cluster %s delete failed: %+v", cluster.Name, errStr)
 	cluster.Status = constant.StatusFailed
 	cluster.Message = errStr.Error()
+	_ = c.clusterRepo.Save(cluster)
 	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
 
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, errStr.Error()), cluster.Name, constant.ClusterUnInstall)

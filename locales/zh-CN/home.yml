@@ -136,7 +136,7 @@ DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "删除失败！该备份账号关联�
 #session
 SESSION_KEY_NOT_FOUND: "session key 无效"
 USER_PROFILE_INVALID: "session 用户转化失败"
-USER_HAS_NO_RESOURCE: "用户没有资源"
+USER_HAS_NO_RESOURCE: "用户未绑定到项目或集群"
 
 
 #storage
@@ -144,4 +144,4 @@ PROVISIONER_EXSIT: "已存在存储提供商"
 TASK_IN_EXECUTION: "当前集群有任务在执行中，请稍候重试..."
 
 #component
-COMPONENT_EXIST: "组件已存在，请勿重复操作！",
+COMPONENT_EXIST: "组件已存在，请勿重复操作！"

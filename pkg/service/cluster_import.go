@@ -154,17 +154,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		tx.Rollback()
 		return err
 	}
-	for _, component := range cluster.SpecComponent {
-		if err := tx.Create(&component).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	cluster.SpecConf.ClusterID = cluster.ID
-	if err := tx.Create(&cluster.SpecConf).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
 	cluster.SpecRuntime.ClusterID = cluster.ID
 	if err := tx.Create(&cluster.SpecRuntime).Error; err != nil {
 		tx.Rollback()
@@ -174,23 +163,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err := tx.Create(&cluster.SpecNetwork).Error; err != nil {
 		tx.Rollback()
 		return err
-	}
-
-	if len(clusterImport.KoClusterInfo.Provisioners) != 0 {
-		for _, pro := range clusterImport.KoClusterInfo.Provisioners {
-			vars, _ := json.Marshal(pro.Vars)
-			item := &model.ClusterStorageProvisioner{
-				Name:      pro.Name,
-				Type:      pro.Type,
-				Status:    pro.Status,
-				Vars:      string(vars),
-				ClusterID: cluster.ID,
-			}
-			if err := tx.Create(item).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
-				return fmt.Errorf("can not import provisioner %s, error: %s", pro.Name, err.Error())
-			}
-		}
 	}
 
 	var (
@@ -269,12 +241,10 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 			Status: constant.StatusRunning,
 		})
 	}
-	dnsCache, ingressController := "", ""
-	cluster.SpecNetwork.NetworkType, dnsCache, ingressController, err = getInfoFromDaemonset(c)
+	cluster.SpecNetwork.NetworkType, err = getInfoFromDaemonset(c)
 	if err != nil {
 		return err
 	}
-	cluster.SpecComponent = cluster.PrepareComponent(ingressController, dnsCache, constant.StatusDisabled)
 	return nil
 }
 
@@ -354,16 +324,11 @@ func getKubeNodes(isKoImport bool, client *kubernetes.Clientset) ([]dto.NodesFro
 	return k8sNodes, runtimeType, clusterName, nil
 }
 
-func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string, error) {
-	var (
-		networkType           string
-		enableDnsCache        string
-		ingressControllerType string
-	)
-	enableDnsCache = "disable"
+func getInfoFromDaemonset(client *kubernetes.Clientset) (string, error) {
+	var networkType string
 	daemonsets, err := client.AppsV1().DaemonSets("kube-system").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return networkType, enableDnsCache, ingressControllerType, fmt.Errorf("get daemonsets from cluster failed: %v", err.Error())
+		return networkType, fmt.Errorf("get daemonsets from cluster failed: %v", err.Error())
 	}
 	for _, daemonset := range daemonsets.Items {
 		if strings.Contains(daemonset.ObjectMeta.Name, "calico-node") {
@@ -375,75 +340,8 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, string, string,
 		if strings.Contains(daemonset.ObjectMeta.Name, "cilium") {
 			networkType = "cilium"
 		}
-		if strings.Contains(daemonset.ObjectMeta.Name, "node-local-dns") {
-			enableDnsCache = "enable"
-		}
-		if strings.Contains(daemonset.ObjectMeta.Name, "ingress") {
-			if strings.Contains(daemonset.ObjectMeta.Name, "nginx") {
-				ingressControllerType = "nginx"
-			}
-			if strings.Contains(daemonset.ObjectMeta.Name, "traefik") {
-				ingressControllerType = "traefik"
-			}
-		}
 	}
-	return networkType, enableDnsCache, ingressControllerType, nil
-}
-
-func getInfoFromDeployment(client *kubernetes.Clientset) ([]dto.ClusterStorageProvisionerLoad, string, string, error) {
-	cephFsStatus := constant.StatusDisabled
-	cephBlockStatus := constant.StatusDisabled
-	var nfsProvisioner []dto.ClusterStorageProvisionerLoad
-
-	deployments, err := client.AppsV1().Deployments("kube-system").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nfsProvisioner, cephFsStatus, cephBlockStatus, fmt.Errorf("get deployments from cluster failed: %v", err.Error())
-	}
-	for _, deploy := range deployments.Items {
-		if deploy.ObjectMeta.Name == "external-cephfs" {
-			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
-				cephFsStatus = constant.StatusRunning
-			} else {
-				cephFsStatus = constant.StatusNotReady
-			}
-			continue
-		}
-		if deploy.ObjectMeta.Name == "external-ceph-block" {
-			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
-				cephBlockStatus = constant.StatusRunning
-			} else {
-				cephBlockStatus = constant.StatusNotReady
-			}
-			continue
-		}
-		container := deploy.Spec.Template.Spec.Containers[0]
-		if strings.Contains(container.Image, "nfs-client-provisioner:v3.1.0-k8s1.11") {
-			status := constant.StatusNotReady
-			vars := make(map[string]interface{})
-			if deploy.Status.Replicas == deploy.Status.ReadyReplicas {
-				status = constant.StatusRunning
-			}
-			nfsItem := dto.ClusterStorageProvisionerLoad{
-				Name:   deploy.ObjectMeta.Name,
-				Type:   "nfs",
-				Status: status,
-				Vars:   vars,
-			}
-			for _, env := range container.Env {
-				if env.Name == "NFS_PATH" {
-					nfsItem.Vars["storage_nfs_server_path"] = env.Value
-				}
-				if env.Name == "NFS_SERVER" {
-					nfsItem.Vars["storage_nfs_server"] = env.Value
-				}
-			}
-			if version, ok := deploy.ObjectMeta.Labels["nfsVersion"]; ok {
-				nfsItem.Vars["storage_nfs_server_version"] = version
-			}
-			nfsProvisioner = append(nfsProvisioner, nfsItem)
-		}
-	}
-	return nfsProvisioner, cephFsStatus, cephBlockStatus, nil
+	return networkType, nil
 }
 
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
@@ -558,12 +456,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	}
 
 	// load network
-	clusterInfo.NetworkType, clusterInfo.EnableDnsCache, clusterInfo.IngressControllerType, err = getInfoFromDaemonset(kubeClient)
-	if err != nil {
-		return clusterInfo, err
-	}
-
-	clusterInfo.NfsProvisioners, clusterInfo.CephFsStatus, clusterInfo.CephBlockStatus, err = getInfoFromDeployment(kubeClient)
+	clusterInfo.NetworkType, err = getInfoFromDaemonset(kubeClient)
 	if err != nil {
 		return clusterInfo, err
 	}

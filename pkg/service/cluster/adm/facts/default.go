@@ -1,27 +1,46 @@
 package facts
 
 const (
-	ClusterNameFactName                  = "cluster_name"
-	NodeNameRuleFactName                 = "node_name_rule"
-	KubeVersionFactName                  = "kube_version"
-	KubeUpgradeVersionFactName           = "kube_upgrade_version"
-	ContainerRuntimeFactName             = "container_runtime"
-	LbModeFactName                       = "lb_mode"
-	LbKubeApiserverIpFactName            = "lb_kube_apiserver_ip"
-	KubeApiserverPortFactName            = "lb_kube_apiserver_port"
-	KubeDnsDomainFactName                = "kube_dns_domain"
-	KubePodSubnetFactName                = "kube_pod_subnet"
-	KubeServiceSubnetFactName            = "kube_service_subnet"
-	KubeNetworkNodePrefixFactName        = "kube_network_node_prefix"
-	KubeMaxPodsFactName                  = "kube_max_pods"
-	NodeportAddressFactName              = "nodeport_address"
-	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
-	KubeProxyModeFactName                = "kube_proxy_mode"
-	DnsCacheVersionFactName              = "dns_cache_version"
-	NetworkPluginFactName                = "network_plugin"
-	CiliumVersionFactName                = "cilium_version"
-	CiliumTunnelModeFactName             = "cilium_tunnel_mode"
-	CiliumNativeRoutingCidrFactName      = "cilium_native_routing_cidr"
+	ClusterNameFactName        = "cluster_name"
+	NodeNameRuleFactName       = "node_name_rule"
+	ComponentOptionFactName    = "component_option"
+	KubeVersionFactName        = "kube_version"
+	KubeUpgradeVersionFactName = "kube_upgrade_version"
+	YumRepoFactName            = "yum_operate"
+
+	KubeNetworkNodePrefixFactName    = "kube_network_node_prefix"
+	KubeMaxPodsFactName              = "kube_max_pods"
+	KubePodSubnetFactName            = "kube_pod_subnet"
+	KubeServiceSubnetFactName        = "kube_service_subnet"
+	KubeDnsDomainFactName            = "kube_dns_domain"
+	KubernetesAuditFactName          = "kubernetes_audit"
+	NodeportAddressFactName          = "nodeport_address"
+	KubeServiceNodePortRangeFactName = "kube_service_node_port_range"
+
+	DockerVersionFactName        = "docker_version"
+	ContainerdVersionFactName    = "containerd_version"
+	ContainerRuntimeFactName     = "container_runtime"
+	ContainerdStorageDirFactName = "containerd_storage_dir"
+	DockerStorageDirFactName     = "docker_storage_dir"
+	DockerSubnetFactName         = "docker_subnet"
+
+	MasterScheduleTypeFactName = "master_schedule_type"
+	LbModeFactName             = "lb_mode"
+	LbKubeApiserverIpFactName  = "lb_kube_apiserver_ip"
+	KubeApiserverPortFactName  = "lb_kube_apiserver_port"
+
+	KubeProxyModeFactName           = "kube_proxy_mode"
+	NetworkPluginFactName           = "network_plugin"
+	CiliumVersionFactName           = "cilium_version"
+	CiliumTunnelModeFactName        = "cilium_tunnel_mode"
+	CiliumNativeRoutingCidrFactName = "cilium_native_routing_cidr"
+	FlannelVersionFactName          = "flannel_version"
+	FlannelBackendFactName          = "flannel_backend"
+	CalicoVersionFactName           = "calico_version"
+	CalicoIpv4poolIpIpFactName      = "calico_ipv4pool_ipip"
+	NetworkInterfaceFactName        = "network_interface"
+	NetworkCidrFactName             = "network_cidr"
+
 	KubeImageRepositoryFactName          = "kube_image_repository"
 	PodInfraContainerImageFactName       = "pod_infra_container_image"
 	CertsExpiredFactName                 = "certs_expired"
@@ -33,10 +52,6 @@ const (
 	EvictionHardNodefsAvailableFactName  = "eviction_hard_nodefs_available"
 	EvictionHardNodefsInodesFreeFactName = "eviction_hard_nodefs_inodes_free"
 	KubeletRootDirFactName               = "kubelet_root_dir"
-	DockerStorageDirFactName             = "docker_storage_dir"
-	DockerSubnetFactName                 = "docker_subnet"
-	ContainerdStorageDirFactName         = "containerd_storage_dir"
-	EtcdDataDirFactName                  = "etcd_data_dir"
 	BinDirFactName                       = "bin_dir"
 	BaseDirFactName                      = "base_dir"
 	RegistryHostnameFactName             = "registry_hostname"
@@ -46,36 +61,30 @@ const (
 	RegistryProtocolFactName             = "registry_protocol"
 	CorednsImageFactName                 = "coredns_image"
 	KubeadmTokenFactName                 = "kubeadm_token"
-	CalicoIpv4poolIpIpFactName           = "calico_ipv4pool_ipip"
-	FlannelBackendFactName               = "flannel_backend"
-	KubernetesAuditFactName              = "kubernetes_audit"
-	HelmVersionFactName                  = "helm_version"
-	EtcdVersionFactName                  = "etcd_version"
-	DockerVersionFactName                = "docker_version"
-	ContainerdVersionFactName            = "containerd_version"
-	FlannelVersionFactName               = "flannel_version"
-	CalicoVersionFactName                = "calico_version"
-	CorednsVersionFactName               = "coredns_version"
-	HelmV2VersionFactName                = "helm_v2_version"
-	HelmV3VersionFactName                = "helm_v3_version"
-	NginxIngressVersionFactName          = "nginx_ingress_version"
-	TraefikIngressVersionFactName        = "traefik_ingress_version"
-	MetricsServerVersionFactName         = "metrics_server_version"
-	NetworkInterfaceFactName             = "network_interface"
-	NetworkCidrFactName                  = "network_cidr"
-	YumRepoFactName                      = "yum_operate"
-	NtpServerFactName                    = "ntp_server"
-	MasterScheduleTypeFactName           = "master_schedule_type"
 
-	ComponentOptionFactName       = "component_option"
-	IngressControllerTypeFactName = "ingress_controller_type"
-	EnableNginxFactName           = "enable_nginx"
-	EnableTraefikFactName         = "enable_traefik"
-	MetricsServerFactName         = "enable_metrics_server"
-	SupportGpuFactName            = "support_gpu"
-	EnableDnsCacheFactName        = "enable_dns_cache"
-	EnableNpdFactName             = "enable_npd"
-	EnableIstioFactName           = "enable_istio"
+	HelmVersionFactName             = "helm_version"
+	HelmV2VersionFactName           = "helm_v2_version"
+	HelmV3VersionFactName           = "helm_v3_version"
+	EtcdVersionFactName             = "etcd_version"
+	EtcdDataDirFactName             = "etcd_data_dir"
+	EtcdSnapshotCountFactName       = "etcd_snapshot_count"
+	EtcdCompactionRetentionFactName = "etcd_compaction_retention"
+	EtcdMaxRequestFactName          = "etcd_max_request_bytes"
+	EtcdQuotaBackendFactName        = "etcd_quota_backend_bytes"
+	CorednsVersionFactName          = "coredns_version"
+	IngressControllerTypeFactName   = "ingress_controller_type"
+	EnableNginxFactName             = "enable_nginx"
+	NginxIngressVersionFactName     = "nginx_ingress_version"
+	EnableTraefikFactName           = "enable_traefik"
+	TraefikIngressVersionFactName   = "traefik_ingress_version"
+	MetricsServerFactName           = "enable_metrics_server"
+	MetricsServerVersionFactName    = "metrics_server_version"
+	EnableDnsCacheFactName          = "enable_dns_cache"
+	DnsCacheVersionFactName         = "dns_cache_version"
+	NtpServerFactName               = "ntp_server"
+	SupportGpuFactName              = "support_gpu"
+	EnableNpdFactName               = "enable_npd"
+	EnableIstioFactName             = "enable_istio"
 )
 
 var DefaultFacts = map[string]string{
@@ -102,7 +111,6 @@ var DefaultFacts = map[string]string{
 	KubeletRootDirFactName:               "/var/lib/kubelet",
 	DockerStorageDirFactName:             "/var/lib/docker",
 	ContainerdStorageDirFactName:         "/var/lib/containerd",
-	EtcdDataDirFactName:                  "/var/lib/etcd",
 	BinDirFactName:                       "/usr/local/bin",
 	BaseDirFactName:                      "/opt/kubeoperator",
 	RegistryHostnameFactName:             "172.16.10.64",
@@ -125,6 +133,11 @@ var DefaultFacts = map[string]string{
 	FlannelBackendFactName:               "vxlan",
 	HelmVersionFactName:                  "v3",
 	EtcdVersionFactName:                  "v3.4.9",
+	EtcdDataDirFactName:                  "/var/lib/etcd",
+	EtcdSnapshotCountFactName:            "50000",
+	EtcdCompactionRetentionFactName:      "1",
+	EtcdMaxRequestFactName:               "10485760",
+	EtcdQuotaBackendFactName:             "8589934592",
 	DockerVersionFactName:                "19.03.9",
 	ContainerdVersionFactName:            "1.3.6",
 	FlannelVersionFactName:               "v0.12.0",

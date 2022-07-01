@@ -58,6 +58,12 @@ type ClusterSpecConf struct {
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
 
+	EtcdDataDir             string `json:"etcdDataDir"`
+	EtcdSnapshotCount       int    `json:"etcdSnapshotCount"`
+	EtcdCompactionRetention int    `json:"etcdCompactionRetention"`
+	EtcdMaxRequest          int    `json:"etcdMaxRequest"`
+	EtcdQuotaBackend        int    `json:"etcdQuotaBackend"`
+
 	MasterScheduleType string `json:"masterScheduleType"`
 	LbMode             string `json:"lbMode"`
 	LbKubeApiserverIp  string `json:"lbKubeApiserverIp"`

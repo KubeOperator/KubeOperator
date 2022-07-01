@@ -549,6 +549,11 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	if c.SpecConf.KubeApiServerPort != 0 {
 		result[facts.KubeApiserverPortFactName] = fmt.Sprint(c.SpecConf.KubeApiServerPort)
 	}
+	result[facts.EtcdDataDirFactName] = c.SpecConf.EtcdDataDir
+	result[facts.EtcdSnapshotCountFactName] = strconv.Itoa(c.SpecConf.EtcdSnapshotCount)
+	result[facts.EtcdCompactionRetentionFactName] = strconv.Itoa(c.SpecConf.EtcdCompactionRetention)
+	result[facts.EtcdMaxRequestFactName] = strconv.Itoa(c.SpecConf.EtcdMaxRequest * 1048576)
+	result[facts.EtcdQuotaBackendFactName] = strconv.Itoa(c.SpecConf.EtcdQuotaBackend * 1073741824)
 }
 
 func (c Cluster) loadComponentVars(result map[string]string) {
