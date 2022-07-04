@@ -76,6 +76,7 @@ const (
 
 	// 主机
 	CREATE_HOST    = "添加主机|Create host"
+	EDIT_HOST      = "编辑主机|Edit host"
 	SYNC_HOST_LIST = "主机同步|Sync host"
 	DELETE_HOST    = "删除主机|Delete host"
 

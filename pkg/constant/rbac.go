@@ -169,6 +169,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans/search",
 			"/api/v1/vmconfigs/search",
 			"/api/v1/hosts/search",
+			"/api/v1/hosts/batch",
 			"/api/v1/backupaccounts/search",
 			"/api/v1/templates/search",
 		},

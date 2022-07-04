@@ -443,15 +443,37 @@ func (h *hostService) Sync(name string) (dto.Host, error) {
 }
 
 func (h *hostService) Batch(op dto.HostOp) error {
-	var deleteItems []model.Host
-	for _, item := range op.Items {
-		deleteItems = append(deleteItems, model.Host{
-			BaseModel: common.BaseModel{},
-			ID:        item.ID,
-			Name:      item.Name,
-		})
+	if len(op.Items) == 0 {
+		return errors.New("not found")
 	}
-	return h.hostRepo.Batch(op.Operation, deleteItems)
+	var (
+		hostnames []string
+		synclist  []dto.HostSync
+	)
+	for _, item := range op.Items {
+		hostnames = append(hostnames, item.Name)
+		synclist = append(synclist, dto.HostSync{HostName: item.Name, HostStatus: constant.StatusRunning})
+	}
+	switch op.Operation {
+	case "port":
+		if err := db.DB.Model(&model.Host{}).Where("name in (?)", hostnames).Updates(map[string]interface{}{
+			"port":   op.Items[0].Port,
+			"status": constant.StatusSynchronizing,
+		}).Error; err != nil {
+			return err
+		}
+	case "credential":
+		if err := db.DB.Model(&model.Host{}).Where("name in (?)", hostnames).Updates(map[string]interface{}{
+			"credential_id": op.Items[0].CredentialID,
+			"status":        constant.StatusSynchronizing,
+		}).Error; err != nil {
+			return err
+		}
+	}
+	if err := h.SyncList(synclist); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h *hostService) GetHostGpu(host *model.Host) error {
