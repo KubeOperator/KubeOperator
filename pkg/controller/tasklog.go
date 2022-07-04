@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
@@ -55,6 +54,14 @@ func (c TaskLogController) GetLog2By(clusterName, logId string) (*dto.Logs, erro
 	return c.TaskLogService.GetTaskLogByName(clusterName, logId)
 }
 
-func (c TaskLogController) GetBackupLogsBy(clusterName string) ([]model.TaskLog, error) {
-	return c.TaskLogService.GetBackupLogs(clusterName)
+func (c TaskLogController) GetBackupLogsBy(clusterName string) (*page.Page, error) {
+	p, _ := c.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+
+		p, err := c.TaskLogService.GetBackupLogs(num, size, clusterName)
+		return p, err
+	}
+	return nil, nil
 }

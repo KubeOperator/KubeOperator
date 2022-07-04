@@ -22,7 +22,7 @@ type TaskLogService interface {
 	GetTaskDetailByID(id string) (*dto.TaskLog, error)
 	GetTaskLogByID(clusterId, logId string) (*dto.Logs, error)
 	GetTaskLogByName(clusterName, logId string) (*dto.Logs, error)
-	GetBackupLogs(clusterName string) ([]model.TaskLog, error)
+	GetBackupLogs(num, size int, clusterName string) (*page.Page, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
@@ -109,19 +109,27 @@ func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
 	return tasklog, nil
 }
 
-func (c *taskLogService) GetBackupLogs(clusterName string) ([]model.TaskLog, error) {
+func (c *taskLogService) GetBackupLogs(num, size int, clusterName string) (*page.Page, error) {
 	var (
 		tasklog []model.TaskLog
 		cluster model.Cluster
+		p       page.Page
 	)
 	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
-		return tasklog, err
+		return &p, err
 	}
 	backtypes := []string{constant.TaskLogTypeBackup, constant.TaskLogTypeRestore, constant.TaskLogTypeVeleroBackup, constant.TaskLogTypeVeleroRestore}
-	if err := db.DB.Where("cluster_id = ? AND type in (?)", cluster.ID, backtypes).Order("created_at desc").Find(&tasklog).Error; err != nil {
-		return tasklog, err
+	if err := db.DB.Model(&model.TaskLog{}).
+		Where("cluster_id = ? AND type in (?)", cluster.ID, backtypes).
+		Count(&p.Total).
+		Order("created_at desc").
+		Offset((num - 1) * size).
+		Limit(size).
+		Find(&tasklog).Error; err != nil {
+		return &p, err
 	}
-	return tasklog, nil
+	p.Items = tasklog
+	return &p, nil
 }
 
 func (c *taskLogService) GetTaskDetailByID(id string) (*dto.TaskLog, error) {

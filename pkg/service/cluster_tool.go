@@ -153,7 +153,7 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 			ClusterTool: tool,
 			Vars:        map[string]interface{}{},
 		}
-		isEnable := false
+		isExist := false
 		sourceName := ""
 		sourceType := "deployment"
 		switch tool.Name {
@@ -179,11 +179,11 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 		if sourceType == "deployment" {
 			for _, deploy := range allDeployments {
 				if deploy.ObjectMeta.Name == sourceName {
-					if deploy.Status.ReadyReplicas > 0 {
-						isEnable = true
+					isExist = true
+					if deploy.Status.ReadyReplicas == deploy.Status.Replicas {
 						tool.Status = constant.StatusRunning
 					} else {
-						tool.Status = constant.StatusWaiting
+						tool.Status = constant.StatusInitializing
 					}
 					dtoItem.Vars["namespace"] = deploy.ObjectMeta.Namespace
 					buf, _ := json.Marshal(&dtoItem.Vars)
@@ -196,11 +196,11 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 		if sourceType == "statefulset" {
 			for _, statefulset := range allStatefulsets {
 				if statefulset.ObjectMeta.Name == sourceName {
-					if statefulset.Status.ReadyReplicas > 0 {
-						isEnable = true
+					isExist = true
+					if statefulset.Status.ReadyReplicas == statefulset.Status.Replicas {
 						tool.Status = constant.StatusRunning
 					} else {
-						tool.Status = constant.StatusWaiting
+						tool.Status = constant.StatusInitializing
 					}
 					dtoItem.Vars["namespace"] = statefulset.ObjectMeta.Namespace
 					buf, _ := json.Marshal(&dtoItem.Vars)
@@ -210,7 +210,7 @@ func (c clusterToolService) SyncStatus(clusterName string) ([]dto.ClusterTool, e
 				}
 			}
 		}
-		if !isEnable {
+		if !isExist {
 			if tool.Status != constant.StatusWaiting {
 				tool.Status = constant.StatusWaiting
 				_ = db.DB.Model(&model.ClusterTool{}).Updates(&tool)
