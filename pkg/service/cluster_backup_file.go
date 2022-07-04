@@ -187,9 +187,13 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 	if err != nil {
 		logger.Log.Errorf("run cluster log failed, error: %s", err.Error())
 		_ = c.taskLogService.End(task, false, err.Error())
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterBackup, false, err.Error()), cluster.Name, constant.ClusterBackup)
 	} else {
 		_ = c.taskLogService.End(task, true, "")
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		clusterBackupStrategy, err := c.clusterBackupStrategyRepository.Get(cluster.Name)
 		if err != nil {
 			logger.Log.Errorf("get backup strategy failed, error: %s", err.Error())
@@ -286,6 +290,8 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	client, err := cloud_storage.NewCloudStorageClient(vars)
 	if err != nil {
 		_ = c.taskLogService.End(task, false, err.Error())
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		logger.Log.Errorf("cloud storage new client failed, error: %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		return
@@ -296,6 +302,8 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
 		_ = c.taskLogService.End(task, false, err.Error())
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		logger.Log.Errorf("cloud storage download failed, error: %s", err.Error())
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 		return
@@ -308,9 +316,13 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	if err != nil {
 		logger.Log.Errorf("restore cluster phase run failed, error: %s", err.Error())
 		_ = c.taskLogService.End(task, false, err.Error())
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
 	} else {
 		_ = c.taskLogService.End(task, true, "")
+		cluster.CurrentTaskID = ""
+		_ = c.clusterRepo.Save(&cluster)
 		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
 	}
 }

@@ -62,24 +62,42 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 	var clog model.TaskLog
 	clog.ClusterID = cluster.ID
 	if len(backup.BackupName) > 0 {
-		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
-		if err != nil {
-			return string(result), err
-		}
-
 		clog.Type = constant.TaskLogTypeVeleroRestore
-	} else {
-		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
-		if err != nil {
-			return string(result), err
+		_ = v.taskLogService.Start(&clog)
+		cluster.CurrentTaskID = clog.ID
+		if err := db.DB.Save(&cluster).Error; err != nil {
+			logger.Log.Infof("save cluster failed, err: %v", err)
 		}
-
+		go func() {
+			result, err := velero.Restore(backup.BackupName, v.handleArgs(backup))
+			cluster.CurrentTaskID = ""
+			if err := db.DB.Save(&cluster).Error; err != nil {
+				logger.Log.Infof("save cluster failed, err: %v", err)
+			}
+			if err != nil {
+				_ = v.taskLogService.End(&clog, false, string(result))
+			}
+			_ = v.taskLogService.End(&clog, true, string(result))
+		}()
+	} else {
 		clog.Type = constant.TaskLogTypeVeleroBackup
+		_ = v.taskLogService.Start(&clog)
+		cluster.CurrentTaskID = clog.ID
+		if err := db.DB.Save(&cluster).Error; err != nil {
+			logger.Log.Infof("save cluster failed, err: %v", err)
+		}
+		go func() {
+			result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
+			cluster.CurrentTaskID = ""
+			if err := db.DB.Save(&cluster).Error; err != nil {
+				logger.Log.Infof("save cluster failed, err: %v", err)
+			}
+			if err != nil {
+				_ = v.taskLogService.End(&clog, false, string(result))
+			}
+			_ = v.taskLogService.End(&clog, true, string(result))
+		}()
 	}
-
-	clog.Phase = constant.TaskLogStatusSuccess
-	err = v.taskLogService.Save(&clog)
-
 	return string(result), err
 }
 

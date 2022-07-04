@@ -22,6 +22,7 @@ type TaskLogService interface {
 	GetTaskDetailByID(id string) (*dto.TaskLog, error)
 	GetTaskLogByID(clusterId, logId string) (*dto.Logs, error)
 	GetTaskLogByName(clusterName, logId string) (*dto.Logs, error)
+	GetBackupLogs(clusterName string) ([]model.TaskLog, error)
 	Save(taskLog *model.TaskLog) error
 	Start(log *model.TaskLog) error
 	End(log *model.TaskLog, success bool, message string) error
@@ -103,6 +104,21 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 func (c *taskLogService) GetByID(id string) (model.TaskLog, error) {
 	var tasklog model.TaskLog
 	if err := db.DB.Where("id = ?", id).Preload("Details").First(&tasklog).Error; err != nil {
+		return tasklog, err
+	}
+	return tasklog, nil
+}
+
+func (c *taskLogService) GetBackupLogs(clusterName string) ([]model.TaskLog, error) {
+	var (
+		tasklog []model.TaskLog
+		cluster model.Cluster
+	)
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return tasklog, err
+	}
+	backtypes := []string{constant.TaskLogTypeBackup, constant.TaskLogTypeRestore, constant.TaskLogTypeVeleroBackup, constant.TaskLogTypeVeleroRestore}
+	if err := db.DB.Where("cluster_id = ? AND type in (?)", cluster.ID, backtypes).Order("created_at desc").Find(&tasklog).Error; err != nil {
 		return tasklog, err
 	}
 	return tasklog, nil
@@ -197,15 +213,7 @@ func (c *taskLogService) NewTerminalTask(clusterID string, logtype string) (*mod
 		Type:      logtype,
 		Phase:     constant.TaskLogStatusRunning,
 		StartTime: time.Now().Unix(),
-		Details: []model.TaskLogDetail{
-			{
-				ID:            uuid.NewV4().String(),
-				Task:          logtype,
-				Status:        constant.TaskLogStatusRunning,
-				LastProbeTime: time.Now().Unix(),
-				StartTime:     time.Now().Unix(),
-			},
-		},
+		Details:   []model.TaskLogDetail{},
 	}
 	return &task, db.DB.Create(&task).Error
 }
