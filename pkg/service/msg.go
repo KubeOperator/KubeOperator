@@ -3,7 +3,7 @@ package service
 import (
 	"bytes"
 	"github.com/KubeOperator/KubeOperator/bindata"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"html/template"
 	"io"
 )
@@ -25,7 +25,7 @@ func (m msgService) SendMsg(msgType, resourceName, resourceType string, detail m
 }
 
 func (m msgService) GetMsgContent(msgType, sendType string, content map[string]interface{}) (string, error) {
-	tempUrl := dto.Templates[msgType][sendType]
+	tempUrl := constant.Templates[msgType][sendType]
 	data, err := bindata.Asset(tempUrl)
 	if err != nil {
 		return "", err

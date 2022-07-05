@@ -64,7 +64,7 @@ func (m *Mysql) Run(migration io.Reader) error {
 	}
 	query := string(migr[:])
 	if _, err := m.conn.ExecContext(context.Background(), query); err != nil {
-		return fmt.Errorf("runErr: %v, migration failed: %v", err, migr)
+		return fmt.Errorf("runErr: %v, migration failed: %v", err, query)
 	}
 	return nil
 }

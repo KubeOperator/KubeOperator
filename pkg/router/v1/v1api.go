@@ -63,6 +63,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/clusters/grade")).HandleError(ErrorHandler).Handle(controller.NewGradeController())
 	mvc.New(AuthScope.Party("/ldap")).HandleError(ErrorHandler).Handle(controller.NewLdapController())
 	mvc.New(AuthScope.Party("/msg/accounts")).HandleError(ErrorHandler).Handle(controller.NewMessageAccountController())
+	mvc.New(AuthScope.Party("/msg/subscribes")).HandleError(ErrorHandler).Handle(controller.NewMessageSubscribeController())
 	WhiteScope = v1.Party("/")
 	WhiteScope.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
 	WhiteScope.Get("/captcha", generateCaptcha)

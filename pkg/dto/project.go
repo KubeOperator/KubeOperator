@@ -4,6 +4,7 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Project struct {
 	model.Project
+	Clusters interface{} `json:"clusters"`
 }
 
 type ProjectCreate struct {

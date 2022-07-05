@@ -1,0 +1,37 @@
+create TABLE `ko_msg_account` (
+  `id` varchar(64) NOT NULL,
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL ,
+  `config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `ko_msg_subscribe` (
+  `id` varchar(64) NOT NULL,
+  `name` varchar(64) NOT NULL ,
+  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL ,
+  `config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `resource_id` varchar(64),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
+	(UUID(), 'CLUSTER_INSTALL', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
+	(UUID(), 'LICENSE_EXPIRE', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
+	(UUID(), 'CLUSTER_OPERATOR', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),(SELECT id FROM ko_cluster));
+
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
+
+
+
+

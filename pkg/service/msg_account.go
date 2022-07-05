@@ -72,5 +72,5 @@ func (m msgAccountService) Verify(msgDTO dto.MsgAccountDTO) error {
 	if err != nil {
 		return err
 	}
-	return client.Send([]string{testUser}, dto.MsgTitle[constant.MsgTest], []byte(detail))
+	return client.Send([]string{testUser}, constant.MsgTitle[constant.MsgTest], []byte(detail))
 }

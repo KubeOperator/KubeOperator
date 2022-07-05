@@ -31,6 +31,8 @@ const (
 	ClusterBackup       = "CLUSTER_BACKUP"
 	ClusterEventWarning = "CLUSTER_EVENT_WARNING"
 	MsgTest             = "MSG_TEST"
+	LicenseExpires      = "LICENSE_EXPIRE"
+	ClusterOperator     = "CLUSTER_OPERATOR"
 )
 
 //message level
@@ -42,3 +44,36 @@ const (
 const (
 	TestMessage = "KubeOperator消息测试"
 )
+
+const (
+	StatusDisable = "DISABLE"
+	StatusEnable  = "ENABLE"
+)
+
+var MsgTitle = map[string]string{
+	ClusterInstall:      "集群安装",
+	ClusterDelete:       "集群删除",
+	ClusterUnInstall:    "集群卸载",
+	ClusterUpgrade:      "集群升级",
+	ClusterScale:        "集群伸缩",
+	ClusterAddWorker:    "集群扩容",
+	ClusterRemoveWorker: "集群缩容",
+	ClusterRestore:      "集群恢复",
+	ClusterBackup:       "集群备份",
+	ClusterEventWarning: "集群事件告警",
+	MsgTest:             "KubeOperator测试",
+}
+
+var Templates = map[string]map[string]string{
+	MsgTest: {
+		Email:      "pkg/templates/test.html",
+		DingTalk:   "pkg/templates/test.html",
+		WorkWeiXin: "pkg/templates/test.html",
+	},
+
+	ClusterInstall: {
+		Email:      "",
+		DingTalk:   "",
+		WorkWeiXin: "",
+	},
+}
