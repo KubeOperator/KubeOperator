@@ -10,15 +10,19 @@ type ClusterStorageProvisioner struct {
 }
 
 type ClusterStorageProvisionerCreation struct {
-	Name string                 `json:"name"`
-	Type string                 `json:"type"`
-	Vars map[string]interface{} `json:"vars"`
+	Name      string                 `json:"name"`
+	Namespace string                 `json:"namespace"`
+	Type      string                 `json:"type"`
+	Vars      map[string]interface{} `json:"vars"`
+
+	IsInCluster bool `json:"isInCluster"`
 }
 
 type ClusterStorageProvisionerSync struct {
-	Name   string `json:"name"`
-	Type   string `json:"type"`
-	Status string `json:"status"`
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Type      string `json:"type"`
+	Status    string `json:"status"`
 }
 
 type ClusterStorageProvisionerBatch struct {
