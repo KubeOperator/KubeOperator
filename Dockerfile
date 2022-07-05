@@ -16,10 +16,10 @@ RUN apt-get update && apt-get install unzip
 COPY go.mod go.sum ./
 RUN go mod download
 
-RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-bindata.zip  \
-    && cd /tmp \
-    && unzip  /tmp/go-bindata.zip  \
-    && cd /tmp/go-bindata-3.1.3 \
+RUN cd /tmp \
+    && wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/go-bindata/v3.1.3/go-bindata.zip \
+    && unzip go-bindata.zip  \
+    && cd go-bindata-3.1.3 \
     && go build \
     && cd go-bindata \
     && go build \
@@ -47,7 +47,7 @@ RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/ko-encrypt/encrypt_lin
 
 WORKDIR /tmp
 
-RUN wget https://github.com/FairwindsOps/polaris/archive/4.1.0.tar.gz -O ./polaris.tar.gz \
+RUN wget https://kubeoperator.oss-cn-beijing.aliyuncs.com/polaris/4.1.0/polaris.tar.gz \
     && tar zxvf ./polaris.tar.gz \
     && mv ./polaris-4.1.0/checks/ /checks
 
