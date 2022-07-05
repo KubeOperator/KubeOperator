@@ -5,10 +5,11 @@ ARG GOPROXY
 ARG GOARCH
 ARG XPACK
 
-ENV GOARCH=$GOARCH
-ENV GO111MODULE=on
-ENV GOOS=linux
-ENV CGO_ENABLED=1
+ENV GO111MODULE=on \
+    GOPROXY=$GOPROXY \
+    CGO_ENABLED=1 \
+    GOOS=linux \
+    GOARCH=$GOARCH
 
 RUN apt-get update && apt-get install unzip
 
