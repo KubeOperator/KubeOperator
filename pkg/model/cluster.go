@@ -171,6 +171,11 @@ func (c Cluster) BeforeDelete() error {
 		return err
 	}
 
+	if err := tx.Where("resource_id = ?", c.ID).Delete(&MsgSubscribe{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	var (
 		messages   []Message
 		messageIDs []string

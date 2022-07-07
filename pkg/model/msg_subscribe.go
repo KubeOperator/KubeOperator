@@ -1,6 +1,9 @@
 package model
 
 import (
+	"encoding/json"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
@@ -17,4 +20,20 @@ type MsgSubscribe struct {
 func (m *MsgSubscribe) BeforeCreate() error {
 	m.ID = uuid.NewV4().String()
 	return nil
+}
+
+func NewMsgSubscribe(name, scope, resourceId string) MsgSubscribe {
+	subConfig := dto.MsgSubConfig{
+		DingTalk:   constant.Disable,
+		Email:      constant.Disable,
+		Local:      constant.Enable,
+		WorkWeiXin: constant.Disable,
+	}
+	configB, _ := json.Marshal(subConfig)
+	return MsgSubscribe{
+		Name:       name,
+		Type:       scope,
+		ResourceID: resourceId,
+		Config:     string(configB),
+	}
 }

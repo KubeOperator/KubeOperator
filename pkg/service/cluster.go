@@ -581,6 +581,10 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			}
 		}
 	}
+	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
+	if err := tx.Create(&subscribe).Error; err != nil {
+		tx.Rollback()
+	}
 	tx.Commit()
 
 	logger.Log.Infof("init db data of cluster %s successful, now start to create cluster", cluster.Name)
