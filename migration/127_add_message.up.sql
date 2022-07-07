@@ -33,5 +33,21 @@ VALUES
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
 
 
+CREATE TABLE `ko_user_setting` (
+  `id` varchar(64) NOT NULL,
+  `user_id` varchar(64) NOT NULL,
+  `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `ko_user_setting` (`id`, `user_id`, `msg`, `created_at`, `updated_at`)
+SELECT UUID(),id,'{\"dingTalk\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"email\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"workWeiXin\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"local\":{\"account\":\"\",\"receive\":\"ENABLE\"}}',date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR) FROM ko_user;
+
+
+
+
+
 
 

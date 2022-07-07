@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
@@ -23,7 +22,7 @@ func (m *MsgSubscribe) BeforeCreate() error {
 }
 
 func NewMsgSubscribe(name, scope, resourceId string) MsgSubscribe {
-	subConfig := dto.MsgSubConfig{
+	subConfig := MsgConfig{
 		DingTalk:   constant.Disable,
 		Email:      constant.Disable,
 		Local:      constant.Enable,
@@ -36,4 +35,11 @@ func NewMsgSubscribe(name, scope, resourceId string) MsgSubscribe {
 		ResourceID: resourceId,
 		Config:     string(configB),
 	}
+}
+
+type MsgConfig struct {
+	DingTalk   string
+	Email      string
+	Local      string
+	WorkWeiXin string
 }

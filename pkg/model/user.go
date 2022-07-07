@@ -43,6 +43,12 @@ func (u *User) BeforeCreate() (err error) {
 	return err
 }
 
+func (u *User) AfterCreate() (err error) {
+	setting := NewUserSetting(u.ID)
+	err = db.DB.Model(UserSetting{}).Create(&setting).Error
+	return
+}
+
 func (u *User) BeforeDelete() (err error) {
 	if u.Name == "admin" {
 		return errors.New(AdminCanNotDelete)
