@@ -14,7 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -305,19 +305,12 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	return result, err
 }
 
-func (v veleroBackupService) UnInstall(cluster string) error {
-	secret, err := v.ClusterService.GetSecrets(cluster)
+func (v veleroBackupService) UnInstall(clusterName string) error {
+	cluster, err := v.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
-	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
-	if err != nil {
-		return err
-	}
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}
@@ -329,10 +322,7 @@ func (v veleroBackupService) UnInstall(cluster string) error {
 	if err != nil {
 		return err
 	}
-	exClient, err := kubernetesUtil.NewKubernetesExtensionClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	exClient, err := clusterUtil.NewClusterExtensionClient(&cluster)
 	if err != nil {
 		return err
 	}
@@ -349,19 +339,12 @@ func (v veleroBackupService) UnInstall(cluster string) error {
 	return nil
 }
 
-func (v veleroBackupService) checkValid(cluster string) error {
-	secret, err := v.ClusterService.GetSecrets(cluster)
+func (v veleroBackupService) checkValid(clusterName string) error {
+	cluster, err := v.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
-	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
-	if err != nil {
-		return err
-	}
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}

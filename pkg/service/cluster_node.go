@@ -13,9 +13,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
@@ -32,32 +32,30 @@ type ClusterNodeService interface {
 
 func NewClusterNodeService() ClusterNodeService {
 	return &clusterNodeService{
-		ClusterService:      NewClusterService(),
-		clusterRepo:         repository.NewClusterRepository(),
-		NodeRepo:            repository.NewClusterNodeRepository(),
-		taskLogService:      NewTaskLogService(),
-		HostRepo:            repository.NewHostRepository(),
-		ntpServerRepo:       repository.NewNtpServerRepository(),
-		projectResourceRepo: repository.NewProjectResourceRepository(),
-		messageService:      NewMessageService(),
-		vmConfigRepo:        repository.NewVmConfigRepository(),
-		hostService:         NewHostService(),
-		planService:         NewPlanService(),
+		ClusterService: NewClusterService(),
+		clusterRepo:    repository.NewClusterRepository(),
+		NodeRepo:       repository.NewClusterNodeRepository(),
+		taskLogService: NewTaskLogService(),
+		HostRepo:       repository.NewHostRepository(),
+		planService:    NewPlanService(),
+		vmConfigRepo:   repository.NewVmConfigRepository(),
+		ntpServerRepo:  repository.NewNtpServerRepository(),
+		messageService: NewMessageService(),
+		hostService:    NewHostService(),
 	}
 }
 
 type clusterNodeService struct {
-	ClusterService      ClusterService
-	clusterRepo         repository.ClusterRepository
-	NodeRepo            repository.ClusterNodeRepository
-	taskLogService      TaskLogService
-	HostRepo            repository.HostRepository
-	planService         PlanService
-	ntpServerRepo       repository.NtpServerRepository
-	projectResourceRepo repository.ProjectResourceRepository
-	messageService      MessageService
-	vmConfigRepo        repository.VmConfigRepository
-	hostService         HostService
+	ClusterService ClusterService
+	clusterRepo    repository.ClusterRepository
+	NodeRepo       repository.ClusterNodeRepository
+	taskLogService TaskLogService
+	HostRepo       repository.HostRepository
+	planService    PlanService
+	vmConfigRepo   repository.VmConfigRepository
+	ntpServerRepo  repository.NtpServerRepository
+	messageService MessageService
+	hostService    HostService
 }
 
 func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
@@ -77,33 +75,21 @@ func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
 }
 
 func (c clusterNodeService) Page(num, size int, isPolling, clusterName string) (*dto.NodePage, error) {
-	cluster, err := c.ClusterService.Get(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	count, mNodes, err := c.NodeRepo.Page(num, size, cluster.Name)
+	count, mNodes, err := c.NodeRepo.Page(num, size, clusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	secret, err := c.ClusterService.GetSecrets(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
+	if err != nil {
+		return nil, err
+	}
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return nil, err
 	}
 
-	endpoints, err := c.ClusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return nil, err
-	}
-
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
-	if err != nil {
-		return nil, err
-	}
-	kubeNodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	kubeNodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -115,30 +101,19 @@ func (c clusterNodeService) Page(num, size int, isPolling, clusterName string) (
 }
 
 func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
-	cluster, err := c.ClusterService.Get(clusterName)
+	mNodes, err := c.NodeRepo.List(clusterName)
 	if err != nil {
 		return nil, err
 	}
-	mNodes, err := c.NodeRepo.List(cluster.Name)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return nil, err
 	}
-	secret, err := c.ClusterService.GetSecrets(clusterName)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return nil, err
 	}
-	endpoints, err := c.ClusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return nil, err
-	}
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
-	if err != nil {
-		return nil, err
-	}
-	kubeNodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	kubeNodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

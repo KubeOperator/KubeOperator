@@ -25,24 +25,24 @@ type ClusterInitService interface {
 
 func NewClusterInitService() ClusterInitService {
 	return &clusterInitService{
-		clusterRepo:         repository.NewClusterRepository(),
-		clusterNodeRepo:     repository.NewClusterNodeRepository(),
-		clusterSecretRepo:   repository.NewClusterSecretRepository(),
-		clusterSpecRepo:     repository.NewClusterSpecRepository(),
-		messageService:      NewMessageService(),
-		taskLogService:      NewTaskLogService(),
-		clusterCreateHelper: NewClusterCreateHelper(),
+		clusterRepo:        repository.NewClusterRepository(),
+		clusterNodeRepo:    repository.NewClusterNodeRepository(),
+		clusterSecretRepo:  repository.NewClusterSecretRepository(),
+		clusterSpecRepo:    repository.NewClusterSpecRepository(),
+		messageService:     NewMessageService(),
+		taskLogService:     NewTaskLogService(),
+		clusterIaasService: NewClusterIaasService(),
 	}
 }
 
 type clusterInitService struct {
-	clusterRepo         repository.ClusterRepository
-	clusterNodeRepo     repository.ClusterNodeRepository
-	clusterSecretRepo   repository.ClusterSecretRepository
-	clusterSpecRepo     repository.ClusterSpecRepository
-	taskLogService      TaskLogService
-	messageService      MessageService
-	clusterCreateHelper ClusterCreateHelper
+	clusterRepo        repository.ClusterRepository
+	clusterNodeRepo    repository.ClusterNodeRepository
+	clusterSecretRepo  repository.ClusterSecretRepository
+	clusterSpecRepo    repository.ClusterSpecRepository
+	taskLogService     TaskLogService
+	messageService     MessageService
+	clusterIaasService ClusterIaasService
 }
 
 func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
@@ -53,7 +53,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	_ = c.clusterRepo.Save(&cluster)
 
 	if cluster.Provider == constant.ClusterProviderPlan {
-		if err := c.clusterCreateHelper.LoadPlanNodes(&cluster); err != nil {
+		if err := c.clusterIaasService.LoadPlanNodes(&cluster); err != nil {
 			_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)

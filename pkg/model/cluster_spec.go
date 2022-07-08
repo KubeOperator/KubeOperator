@@ -69,6 +69,7 @@ type ClusterSpecConf struct {
 	LbKubeApiserverIp  string `json:"lbKubeApiserverIp"`
 	KubeApiServerPort  int    `json:"kubeApiServerPort"`
 	KubeRouter         string `json:"kubeRouter"`
+	AuthenticationMode string `json:"authenticationMode"`
 
 	Status  string `json:"status"`
 	Message string `json:"message" gorm:"type:text(65535)"`

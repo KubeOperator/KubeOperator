@@ -23,32 +23,26 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type ClusterCreateHelper interface {
+type ClusterIaasService interface {
 	LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error
 	LoadPlanNodes(cluster *model.Cluster) error
 }
 
-func NewClusterCreateHelper() ClusterCreateHelper {
-	return &clusterCreateHelper{
-		clusterRepo:         repository.NewClusterRepository(),
+func NewClusterIaasService() ClusterIaasService {
+	return &clusterIaasService{
 		nodeRepo:            repository.NewClusterNodeRepository(),
-		hostRepo:            repository.NewHostRepository(),
-		planRepo:            repository.NewPlanRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		vmConfigRepo:        repository.NewVmConfigRepository(),
 	}
 }
 
-type clusterCreateHelper struct {
-	clusterRepo         repository.ClusterRepository
-	hostRepo            repository.HostRepository
+type clusterIaasService struct {
 	nodeRepo            repository.ClusterNodeRepository
-	planRepo            repository.PlanRepository
 	projectResourceRepo repository.ProjectResourceRepository
 	vmConfigRepo        repository.VmConfigRepository
 }
 
-func (c clusterCreateHelper) LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error {
+func (c clusterIaasService) LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error {
 	workerNo, masterNo := 1, 1
 	for _, nc := range creation.Nodes {
 		n := model.ClusterNode{
@@ -102,7 +96,7 @@ func (c clusterCreateHelper) LoadMetalNodes(creation *dto.ClusterCreate, cluster
 	return nil
 }
 
-func (c clusterCreateHelper) LoadPlanNodes(cluster *model.Cluster) error {
+func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
 	if len(cluster.Nodes) > 0 {
 		return nil
 	}
@@ -164,7 +158,7 @@ func (c clusterCreateHelper) LoadPlanNodes(cluster *model.Cluster) error {
 	return nil
 }
 
-func (c clusterCreateHelper) createNodes(cluster model.Cluster, hosts []*model.Host) ([]*model.ClusterNode, error) {
+func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Host) ([]*model.ClusterNode, error) {
 	masterNum := 0
 	workerNum := 0
 	var nodes []*model.ClusterNode
@@ -196,7 +190,7 @@ func (c clusterCreateHelper) createNodes(cluster model.Cluster, hosts []*model.H
 	return nodes, nil
 }
 
-func (c clusterCreateHelper) createHosts(cluster model.Cluster, plan model.Plan) ([]*model.Host, error) {
+func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) ([]*model.Host, error) {
 	var hosts []*model.Host
 	masterAmount := 1
 	if plan.DeployTemplate != constant.SINGLE {

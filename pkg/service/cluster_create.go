@@ -42,7 +42,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			return nil, fmt.Errorf("select plan %s failed, err: %s", creation.Plan, err.Error())
 		}
 	} else {
-		if err := c.clusterCreateHelper.LoadMetalNodes(&creation, cluster, tx); err != nil {
+		if err := c.clusterIaasService.LoadMetalNodes(&creation, cluster, tx); err != nil {
 			tx.Rollback()
 			return nil, err
 		}

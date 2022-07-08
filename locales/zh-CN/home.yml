@@ -7,6 +7,7 @@ CLUSTER_DELETE_FAILED: "无法删除当前状态的集群"
 CLUSTER_IS_NOT_RUNNING: "集群不在运行中！"
 CLUSTER_IS_NOT_LOCAL: "导入集群无法升级"
 CLUSTER_NO_FLEX: "未能找到弹性 ip"
+NO_MASTER_AVAILABLE: "未能找到可用的 master 节点"
 
 
 #credential

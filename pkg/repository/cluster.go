@@ -45,6 +45,7 @@ func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
 	if err := db.DB.
 		Preload("SpecConf").
+		Preload("Secret").
 		Preload("Nodes").
 		Preload("Nodes.Host").
 		Preload("Nodes.Host.Credential").

@@ -14,13 +14,15 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
-	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/icza/dyno"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 type ClusterImportService interface {
@@ -218,10 +220,7 @@ func (c clusterImportService) handlerImportError(tx *gorm.DB, cluster string, er
 }
 
 func gatherClusterInfo(cluster *model.Cluster) error {
-	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: []kubeUtil.Host{kubeUtil.Host(fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort))},
-		Token: cluster.Secret.KubernetesToken,
-	})
+	c, err := clusterUtil.NewClusterClient(cluster)
 	if err != nil {
 		return err
 	}
@@ -357,10 +356,30 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.LbKubeApiserverIp = strings.Split(loadInfo.ApiServer, ":")[0]
 	clusterInfo.Architectures = loadInfo.Architectures
 
-	kubeClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: []kubeUtil.Host{kubeUtil.Host(loadInfo.ApiServer)},
-		Token: loadInfo.Token,
-	})
+	var connConf rest.Config
+	switch loadInfo.AuthenticationMode {
+	case constant.AuthenticationModeBearer:
+		connConf.Host = loadInfo.ApiServer
+		connConf.BearerToken = loadInfo.Token
+	case constant.AuthenticationModeCertificate:
+		connConf.CertData = []byte(loadInfo.CertDataStr)
+		connConf.KeyData = []byte(loadInfo.KeyDataStr)
+	case constant.AuthenticationModeConfigFile:
+		apiConfig, err := clusterUtil.PauseConfigApi(&loadInfo.ConfigContent)
+		if err != nil {
+			return clusterInfo, err
+		}
+		getter := func() (*api.Config, error) {
+			return apiConfig, nil
+		}
+		itemConfig, err := clientcmd.BuildConfigFromKubeconfigGetter("", getter)
+		if err != nil {
+			return clusterInfo, err
+		}
+		connConf = *itemConfig
+	}
+
+	kubeClient, err := kubernetes.NewForConfig(&connConf)
 	if err != nil {
 		return clusterInfo, err
 	}

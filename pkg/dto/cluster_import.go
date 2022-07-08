@@ -11,13 +11,18 @@ import (
 
 type ClusterImport struct {
 	Name          string      `json:"name"`
-	ApiServer     string      `json:"apiServer"`
 	Router        string      `json:"router"`
-	Token         string      `json:"token"`
 	ProjectName   string      `json:"projectName"`
 	Architectures string      `json:"architectures"`
 	IsKoCluster   bool        `json:"isKoCluster"`
 	KoClusterInfo clusterInfo `json:"clusterInfo"`
+
+	AuthenticationMode string `json:"authenticationMode"`
+	ApiServer          string `json:"apiServer"`
+	Token              string `json:"token"`
+	CertDataStr        string `json:"certDataStr"`
+	KeyDataStr         string `json:"keyDataStr"`
+	ConfigContent      string `json:"configContent"`
 }
 
 type clusterInfo struct {
@@ -99,13 +104,22 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		Phase: constant.StatusWaiting,
 	}
 	cluster.SpecConf = model.ClusterSpecConf{
-		LbKubeApiserverIp: address,
-		KubeApiServerPort: port,
-		KubeRouter:        c.Router,
+		LbKubeApiserverIp:  address,
+		KubeApiServerPort:  port,
+		KubeRouter:         c.Router,
+		AuthenticationMode: c.AuthenticationMode,
 	}
-	cluster.Secret = model.ClusterSecret{
-		KubeadmToken:    "",
+	cluster.Secret = model.ClusterSecret{KubeadmToken: "",
 		KubernetesToken: c.Token,
+	}
+	switch c.AuthenticationMode {
+	case constant.AuthenticationModeBearer:
+		cluster.Secret.KubernetesToken = c.Token
+	case constant.AuthenticationModeCertificate:
+		cluster.Secret.CertDataStr = c.CertDataStr
+		cluster.Secret.KeyDataStr = c.KeyDataStr
+	case constant.AuthenticationModeConfigFile:
+		cluster.Secret.ConfigContent = c.ConfigContent
 	}
 
 	if !c.IsKoCluster {
@@ -157,6 +171,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		LbMode:                  c.KoClusterInfo.LbMode,
 		LbKubeApiserverIp:       c.KoClusterInfo.LbKubeApiserverIp,
 		KubeApiServerPort:       c.KoClusterInfo.KubeApiServerPort,
+		AuthenticationMode:      c.AuthenticationMode,
 
 		Status: constant.StatusRunning,
 	}

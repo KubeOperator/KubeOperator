@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,10 +11,12 @@ import (
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/kolog"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"k8s.io/client-go/rest"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
-	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -24,29 +25,39 @@ import (
 func KubernetesClientProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
 	proxyPath := ctx.Params().Get("p")
-	endpoints, _ := clusterService.GetApiServerEndpoints(clusterName)
 
-	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
+	cluteterRepo := repository.NewClusterRepository()
+	cluster, err := cluteterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
-	u, err := url.Parse(fmt.Sprintf("https://%s", aliveHost))
+
+	availableHost, err := clusterUtil.LoadAvailableHost(&cluster)
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
+	u, err := url.Parse(fmt.Sprintf("https://%s", availableHost))
+	if err != nil {
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
+		return
+	}
+	conf, err := clusterUtil.LoadConnConf(&cluster, availableHost)
+	if err != nil {
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
+		return
+	}
+	ts, err := rest.TLSConfigFor(conf)
+	if err != nil {
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
+		return
+	}
+
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	proxy.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: ts,
 	}
-	secret, err := clusterService.GetSecrets(clusterName)
-	if err != nil {
-		_, _ = ctx.JSON(iris.StatusInternalServerError)
-		return
-	}
-	token := fmt.Sprintf("%s %s", keyPrefix, secret.KubernetesToken)
-	ctx.Request().Header.Add(AuthorizationHeader, token)
 	ctx.Request().URL.Path = proxyPath
 	proxy.ModifyResponse = func(response *http.Response) error {
 		if response.StatusCode == http.StatusUnauthorized {

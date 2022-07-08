@@ -14,8 +14,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"helm.sh/helm/v3/pkg/strvals"
 
 	netv1 "k8s.io/api/networking/v1"
@@ -50,7 +50,7 @@ type Ingress struct {
 	version string
 }
 
-func NewAnsibleHelper(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string) (*Cluster, error) {
+func NewHelmHelper(cluster model.Cluster, availableHost string, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
@@ -67,20 +67,22 @@ func NewAnsibleHelper(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNam
 	c.helmRepoPort = registery.RegistryPort
 	c.Namespace = namespace
 	helmClient, err := helm.NewClient(&helm.Config{
-		Hosts:         hosts,
-		BearerToken:   cluster.Secret.KubernetesToken,
 		OldNamespace:  oldNamespace,
 		Namespace:     namespace,
 		Architectures: cluster.Architectures,
+
+		AuthenticationMode: cluster.SpecConf.AuthenticationMode,
+		Host:               availableHost,
+		BearerToken:        cluster.Secret.KubernetesToken,
+		CertDataStr:        cluster.Secret.CertDataStr,
+		KeyDataStr:         cluster.Secret.KeyDataStr,
+		ConfigContent:      cluster.Secret.ConfigContent,
 	})
 	if err != nil {
 		return nil, err
 	}
 	c.HelmClient = helmClient
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: hosts,
-		Token: cluster.Secret.KubernetesToken,
-	})
+	kubeClient, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +90,8 @@ func NewAnsibleHelper(cluster model.Cluster, hosts []kubernetesUtil.Host, oldNam
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, hosts []kubernetesUtil.Host, oldNamespace, namespace string, enable bool) (Interface, error) {
-	c, err := NewAnsibleHelper(cluster, hosts, oldNamespace, namespace)
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, availableHost string, oldNamespace, namespace string, enable bool) (Interface, error) {
+	c, err := NewHelmHelper(cluster, availableHost, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}

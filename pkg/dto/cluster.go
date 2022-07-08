@@ -137,10 +137,15 @@ type ClusterInfo struct {
 
 type ClusterLoad struct {
 	Name          string `json:"name"`
-	ApiServer     string `json:"apiServer"`
 	Router        string `json:"router"`
-	Token         string `json:"token"`
 	Architectures string `json:"architectures"`
+
+	AuthenticationMode string `json:"authenticationMode"`
+	ApiServer          string `json:"apiServer"`
+	Token              string `json:"token"`
+	CertDataStr        string `json:"certDataStr"`
+	KeyDataStr         string `json:"keyDataStr"`
+	ConfigContent      string `json:"configContent"`
 }
 
 type ClusterLoadInfo struct {
@@ -234,6 +239,7 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		LbMode:             c.LbMode,
 		LbKubeApiserverIp:  c.LbKubeApiserverIp,
 		KubeApiServerPort:  c.KubeApiServerPort,
+		AuthenticationMode: constant.AuthenticationModeBearer,
 
 		Status: constant.StatusRunning,
 	}

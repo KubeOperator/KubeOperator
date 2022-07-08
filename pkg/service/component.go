@@ -17,6 +17,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/jinzhu/gorm"
 	"k8s.io/client-go/kubernetes"
 )
@@ -40,7 +41,6 @@ type ComponentService interface {
 type componentService struct {
 	clusterRepo    repository.ClusterRepository
 	taskLogService TaskLogService
-	clusterService ClusterService
 }
 
 //  disable Initializing Waiting Failed enable Terminated
@@ -49,7 +49,6 @@ func NewComponentService() ComponentService {
 	return &componentService{
 		clusterRepo:    repository.NewClusterRepository(),
 		taskLogService: NewTaskLogService(),
-		clusterService: NewClusterService(),
 	}
 }
 
@@ -156,21 +155,19 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
 		return err
 	}
-
-	go c.docreate(admCluster, writer, task, component, cluster.Name)
-	return nil
-}
-
-func (c componentService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent, clusterName string) {
-	// 获取 k8s client
-	client, err := c.clusterService.NewClusterClient(clusterName)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
 	}
 
+	go c.docreate(admCluster, writer, task, component, client)
+	return nil
+}
+
+func (c componentService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent, client *kubernetes.Clientset) {
 	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
-	if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
 		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
@@ -240,11 +237,11 @@ func (c componentService) errHandlerComponent(component model.ClusterSpecCompone
 }
 
 func (c componentService) Sync(syncData *dto.ComponentSync) error {
-	cluster, err := c.clusterRepo.Get(syncData.ClusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(syncData.ClusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
-	client, err := c.clusterService.NewClusterClient(syncData.ClusterName)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}

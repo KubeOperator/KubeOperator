@@ -21,6 +21,10 @@ const (
 	ClusterProviderBareMetal = "bareMetal"
 	ClusterProviderPlan      = "plan"
 
+	AuthenticationModeBearer      = "bearer"
+	AuthenticationModeCertificate = "certificate"
+	AuthenticationModeConfigFile  = "configFile"
+
 	DefaultNamespace     = "kube-operator"
 	F5Namespace          = "kube-system"
 	DefaultApiServerPort = 8443

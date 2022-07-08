@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -17,7 +16,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -39,8 +38,6 @@ type ClusterStorageProvisionerService interface {
 	SyncStorageProvisioner(clusterName string, syncs []dto.ClusterStorageProvisionerSync) error
 	DeleteStorageProvisioner(clusterName string, provisioner string) error
 	BatchStorageProvisioner(clusterName string, batch dto.ClusterStorageProvisionerBatch) error
-
-	SearchDeployment(req dto.DeploymentSearch) (interface{}, error)
 }
 
 type clusterStorageProvisionerService struct {
@@ -192,7 +189,7 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	}
 	admCluster.Kobe.SetVar("registry_port", fmt.Sprint(repoPort))
 	// 获取 k8s client
-	client, err := c.clusterService.NewClusterClient(cluster.Name)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create kubernetes Clientset error %s", err.Error()))
@@ -364,7 +361,11 @@ func (c clusterStorageProvisionerService) loadPlayBookName(provisionerType strin
 }
 
 func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName string, provisioners []dto.ClusterStorageProvisionerSync) error {
-	client, err := c.clusterService.NewClusterClient(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
+	if err != nil {
+		return err
+	}
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		logger.Log.Errorf("get kubernetes Clientset err, error: %s", err.Error())
 	}
@@ -399,7 +400,7 @@ func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName str
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
 	var provisioner model.ClusterStorageProvisioner
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
@@ -407,7 +408,7 @@ func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, 
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}
-	client, err := c.clusterService.NewClusterClient(clusterName)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}
@@ -545,23 +546,4 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.AnsibleHelper,
 		}
 	}
 	return nil
-}
-
-func (c clusterStorageProvisionerService) SearchDeployment(req dto.DeploymentSearch) (interface{}, error) {
-	var result interface{}
-	host := strings.Replace(req.ApiServer, "http://", "", 1)
-	host = strings.Replace(host, "https://", "", 1)
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(host)},
-		Token: req.Token,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	result, err = kubeClient.AppsV1().Deployments(req.Namespace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }

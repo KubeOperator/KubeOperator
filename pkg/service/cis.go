@@ -14,7 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	uuid "github.com/satori/go.uuid"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -115,18 +115,18 @@ func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
 }
 
 func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error) {
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("load cluster info failed, err: %v", err.Error())
 	}
 	var registery model.SystemRegistry
 	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
-			return nil, errors.New("load image pull port of arm failed")
+			return nil, fmt.Errorf("load image pull port of arm failed, err: %v", err.Error())
 		}
 	} else {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
-			return nil, errors.New("load image pull port of arm failed")
+			return nil, fmt.Errorf("load image pull port of arm failed, err: %v", err.Error())
 		}
 	}
 	localRepoPort := registery.RegistryPort
@@ -149,20 +149,7 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 
-	endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	secret, err := c.clusterService.GetSecrets(cluster.Name)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
