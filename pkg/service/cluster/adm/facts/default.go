@@ -3,7 +3,7 @@ package facts
 const (
 	ClusterNameFactName        = "cluster_name"
 	NodeNameRuleFactName       = "node_name_rule"
-	ComponentOptionFactName    = "component_option"
+	ComponentOptionFactName    = "component_created_by"
 	KubeVersionFactName        = "kube_version"
 	KubeUpgradeVersionFactName = "kube_upgrade_version"
 	YumRepoFactName            = "yum_operate"
@@ -82,7 +82,7 @@ const (
 	EnableDnsCacheFactName          = "enable_dns_cache"
 	DnsCacheVersionFactName         = "dns_cache_version"
 	NtpServerFactName               = "ntp_server"
-	SupportGpuFactName              = "support_gpu"
+	SupportGpuFactName              = "enable_gpu"
 	EnableNpdFactName               = "enable_npd"
 	EnableIstioFactName             = "enable_istio"
 )
@@ -154,7 +154,7 @@ var DefaultFacts = map[string]string{
 	NtpServerFactName:                    "ntp1.aliyun.com",
 	MasterScheduleTypeFactName:           "enable",
 
-	ComponentOptionFactName:       "default-create",
+	ComponentOptionFactName:       "component",
 	IngressControllerTypeFactName: "nginx",
 	EnableNginxFactName:           "enable_nginx",
 	EnableTraefikFactName:         "enable_traefik",

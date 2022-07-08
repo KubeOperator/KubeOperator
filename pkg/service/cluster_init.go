@@ -69,7 +69,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	statusChan := make(chan adm.AnsibleHelper)
 
 	admCluster := adm.NewAnsibleHelper(cluster, writer)
-	admCluster.Kobe.SetVar(facts.ComponentOptionFactName, "cluster-create")
+	admCluster.Kobe.SetVar(facts.ComponentOptionFactName, "cluster")
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		result := <-statusChan
