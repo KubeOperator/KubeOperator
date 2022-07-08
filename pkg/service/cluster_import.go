@@ -167,11 +167,16 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		return err
 	}
 
+	if err := tx.Save(&cluster).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("can not save cluster version %s", err.Error())
+	}
+
 	var (
 		manifest model.ClusterManifest
 		toolVars []model.VersionHelp
 	)
-	if err := tx.Where("name = ?", cluster.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
+	if err := tx.Where("version = ? OR name = ?", cluster.Version, cluster.Version).Order("created_at ASC").First(&manifest).Error; err != nil {
 		logger.Log.Infof("can not find manifest version: %s", err.Error())
 	}
 	if manifest.ID != "" {

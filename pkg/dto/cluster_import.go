@@ -1,12 +1,14 @@
 package dto
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"gopkg.in/yaml.v2"
 )
 
 type ClusterImport struct {
@@ -78,6 +80,13 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		port    int
 		cluster model.Cluster
 	)
+	if c.AuthenticationMode == constant.AuthenticationModeConfigFile {
+		server, err := loadApiserverFromConfig(c.ConfigContent)
+		if err != nil {
+			return &cluster, fmt.Errorf("import failed. Check the imported Config file again, err: %v", err)
+		}
+		c.ApiServer = server
+	}
 	if strings.HasSuffix(c.ApiServer, "/") {
 		c.ApiServer = strings.Replace(c.ApiServer, "/", "", -1)
 	}
@@ -93,21 +102,26 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 	cluster = model.Cluster{
 		Name:          c.Name,
 		NodeNameRule:  c.KoClusterInfo.NodeNameRule,
-		Source:        constant.ClusterSourceLocal,
+		Source:        constant.ClusterSourceExternal,
 		Architectures: c.Architectures,
 		Provider:      constant.ClusterProviderBareMetal,
 		Version:       c.KoClusterInfo.Version,
 		Status:        constant.StatusRunning,
+	}
+	if c.IsKoCluster {
+		cluster.Source = constant.ClusterSourceKoExternal
 	}
 	cluster.TaskLog = model.TaskLog{
 		Type:  constant.TaskLogTypeClusterImport,
 		Phase: constant.StatusWaiting,
 	}
 	cluster.SpecConf = model.ClusterSpecConf{
+		LbMode:             constant.LbModeInternal,
 		LbKubeApiserverIp:  address,
 		KubeApiServerPort:  port,
 		KubeRouter:         c.Router,
 		AuthenticationMode: c.AuthenticationMode,
+		Status:             constant.StatusRunning,
 	}
 	cluster.Secret = model.ClusterSecret{KubeadmToken: "",
 		KubernetesToken: c.Token,
@@ -176,4 +190,41 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		Status: constant.StatusRunning,
 	}
 	return &cluster, nil
+}
+
+func loadApiserverFromConfig(ConfigContent string) (string, error) {
+	map1 := make(map[string]interface{})
+	if err := yaml.Unmarshal([]byte(ConfigContent), &map1); err != nil {
+		return "", err
+	}
+	map1v, exist := map1["clusters"]
+	if !exist {
+		return "", errors.New("error format")
+	}
+	clusters, isArry := map1v.([]interface{})
+	if !isArry || len(clusters) == 0 {
+		return "", errors.New("error format")
+	}
+
+	map2, ok := clusters[0].(map[interface{}]interface{})
+	if !ok {
+		return "", errors.New("error format")
+	}
+	map2v, exist := map2["cluster"]
+	if !exist {
+		return "", errors.New("error format")
+	}
+	map3, ok := map2v.(map[interface{}]interface{})
+	if !ok {
+		return "", errors.New("error format")
+	}
+	map3v, exist := map3["server"]
+	if !exist {
+		return "", errors.New("error format")
+	}
+	server, ok := map3v.(string)
+	if !ok {
+		return "", errors.New("error format")
+	}
+	return server, nil
 }
