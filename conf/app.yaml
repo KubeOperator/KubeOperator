@@ -10,7 +10,7 @@ db:
   host: localhost
   port: 3306
   user: root
-  password: U08BAQEBAQHNm6g24wOpMgv34sNpwR5aBVdvFeSE9+6bydHO/WZLvZXlX9rxiY4V
+  password: KubeOperator123@mysql
   name: ko
   max_open_conns: 200
   max_idle_conns: 10
@@ -36,6 +36,4 @@ kubepi:
 cron:
   enable: true
 encrypt:
-  multilevel:
-    enable: false
   key: KubeOperator@202

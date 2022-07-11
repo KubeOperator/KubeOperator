@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
@@ -24,13 +23,9 @@ type InitDBPhase struct {
 }
 
 func (i *InitDBPhase) Init() error {
-	p, err := encrypt.StringDecrypt(i.Password)
-	if err != nil {
-		return err
-	}
 	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai",
 		i.User,
-		p,
+		i.Password,
 		i.Host,
 		i.Port,
 		i.Name)
