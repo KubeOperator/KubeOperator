@@ -64,6 +64,7 @@ func V1(parent iris.Party) {
 	mvc.New(AuthScope.Party("/ldap")).HandleError(ErrorHandler).Handle(controller.NewLdapController())
 	mvc.New(AuthScope.Party("/msg/accounts")).HandleError(ErrorHandler).Handle(controller.NewMessageAccountController())
 	mvc.New(AuthScope.Party("/msg/subscribes")).HandleError(ErrorHandler).Handle(controller.NewMessageSubscribeController())
+	mvc.New(AuthScope.Party("/user/messages")).HandleError(ErrorHandler).Handle(controller.NewUserMsgController())
 	mvc.New(AuthScope.Party("/user/settings")).HandleError(ErrorHandler).Handle(controller.NewUserSettingController())
 	WhiteScope = v1.Party("/")
 	WhiteScope.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)

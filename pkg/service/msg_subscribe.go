@@ -16,6 +16,10 @@ import (
 type MsgSubscribeService interface {
 	Page(scope, resourceName string, num, size int, condition condition.Conditions) (page.Page, error)
 	Update(updated dto.MsgSubscribeDTO) error
+	UpdateSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
+	AddSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
+	DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
+	List(scope, resourceName string, condition condition.Conditions) ([]dto.MsgSubscribeDTO, error)
 }
 
 type msgSubScribeService struct {
@@ -49,13 +53,45 @@ func (m msgSubScribeService) Page(scope, resourceName string, num, size int, con
 		return p, err
 	}
 	for _, mo := range subscribes {
-		msgDTO := dto.MsgSubscribeDTO{}
-		msgDTO.CoverToDTO(mo)
+		var users []model.User
+		db.DB.Raw("select * from ko_user where id in (select user_id from ko_msg_subscribe_user where subscribe_id = ?)", mo.ID).Scan(&users)
+		msgDTO := dto.NewMsgSubscribeDTO(mo)
+		msgDTO.Users = users
 		arr = append(arr, msgDTO)
 	}
 	p.Items = arr
 
 	return p, nil
+}
+
+func (m msgSubScribeService) List(scope, resourceName string, condition condition.Conditions) ([]dto.MsgSubscribeDTO, error) {
+	var (
+		arr        []dto.MsgSubscribeDTO
+		subscribes []model.MsgSubscribe
+		resourceID string
+	)
+	d := db.DB.Model(model.MsgSubscribe{})
+	if err := dbUtil.WithConditions(&d, model.MsgSubscribe{}, condition); err != nil {
+		return arr, err
+	}
+	if scope == constant.Cluster {
+		cluster, err := m.ClusterService.Get(resourceName)
+		if err != nil {
+			return arr, err
+		}
+		resourceID = cluster.ID
+	}
+	if err := d.Where("type = ? AND resource_id = ?", scope, resourceID).Order("CONVERT(name using gbk) asc").Find(&subscribes).Error; err != nil {
+		return arr, err
+	}
+	for _, mo := range subscribes {
+		var users []model.User
+		db.DB.Raw("select * from ko_user where id in (select user_id from ko_msg_subscribe_user where subscribe_id = ?)", mo.ID).Scan(&users)
+		msgDTO := dto.NewMsgSubscribeDTO(mo)
+		msgDTO.Users = users
+		arr = append(arr, msgDTO)
+	}
+	return arr, nil
 }
 
 func (m msgSubScribeService) Update(updated dto.MsgSubscribeDTO) error {
@@ -72,4 +108,48 @@ func (m msgSubScribeService) Update(updated dto.MsgSubscribeDTO) error {
 	}
 	old.Config = string(configB)
 	return db.DB.Save(&old).Error
+}
+
+func (m msgSubScribeService) UpdateSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error {
+	tx := db.DB.Begin()
+	if err := tx.Where("subscribe_id = ?", msgSubscribeUserDTO.MsgSubscribeID).Delete(&model.MsgSubscribeUser{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	for _, userId := range msgSubscribeUserDTO.Users {
+		mo := model.MsgSubscribeUser{
+			UserID:      userId,
+			SubscribeID: msgSubscribeUserDTO.MsgSubscribeID,
+		}
+		if err := tx.Create(&mo).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	return nil
+}
+
+func (m msgSubScribeService) AddSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error {
+	tx := db.DB.Begin()
+	for _, userId := range msgSubscribeUserDTO.Users {
+		mo := model.MsgSubscribeUser{
+			UserID:      userId,
+			SubscribeID: msgSubscribeUserDTO.MsgSubscribeID,
+		}
+		if err := tx.Create(&mo).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
+func (m msgSubScribeService) DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error {
+	tx := db.DB.Begin()
+	for _, userId := range msgSubscribeUserDTO.Users {
+		db.DB.Where("subscribe_id = ? AND user_id = ?", msgSubscribeUserDTO.MsgSubscribeID, userId).Delete(model.MsgSubscribeUser{})
+	}
+	tx.Commit()
+	return nil
 }

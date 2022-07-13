@@ -9,7 +9,7 @@ import (
 
 type MsgSubscribe struct {
 	common.BaseModel
-	ID         string `json:"-"`
+	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Config     string `json:"-"`
 	Type       string `json:"type"`

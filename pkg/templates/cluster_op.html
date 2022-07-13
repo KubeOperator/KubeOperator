@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    table {
+        font-size: 14px;
+        table-layout: fixed;
+        border: 5px solid #F2F2F2;
+    }
+
+    td {
+        font-family: Arial;
+        WORD-WRAP: break-word;
+    }
+</style>
+<body>
+<div align="center">
+    <table border="0" cellspacing="2" cellpadding="2" width="900">
+        <tr bgcolor="#D1D1D1">
+            <th align="left" style="font-size: 23px">{{.title}}</th>
+        </tr>
+        <tr>
+            <td align="left">
+                项目: {{.projectName}}
+            </td>
+        </tr>
+        <tr>
+            <td align="left">
+                集群: {{.cluster}}
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

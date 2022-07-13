@@ -21,7 +21,7 @@ const (
 
 type User struct {
 	common.BaseModel
-	ID               string  `json:"-" gorm:"type:varchar(64)"`
+	ID               string  `json:"id" gorm:"type:varchar(64)"`
 	CurrentProjectID string  `json:"-" gorm:"type:varchar(64)"`
 	CurrentProject   Project `json:"-" gorm:"save_associations:false"`
 	Name             string  `json:"name" gorm:"type:varchar(256);not null;unique"`

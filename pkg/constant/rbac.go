@@ -74,6 +74,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/message/{**}/{**}",
 			"/api/v1/user/settings/{**}",
 			"/api/v1/user/settings",
+			"/api/v1/user/messages",
+			"/api/v1/user/messages/update/*",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -192,6 +194,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/templates/{**}",
 			"/api/v1/msg/subscribes",
 			"/api/v1/msg/subscribes/*",
+			"/api/v1/msg/subscribes/*/*",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

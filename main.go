@@ -2,6 +2,7 @@ package main
 
 //go:generate go-bindata -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
 //go:generate swag init
+//go:generate go-bindata -o=bindata/bindata.go -pkg=bindata pkg/templates/...
 
 import (
 	_ "github.com/KubeOperator/KubeOperator/docs"

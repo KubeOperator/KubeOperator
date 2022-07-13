@@ -7,14 +7,17 @@ import (
 
 type MsgSubscribeDTO struct {
 	model.MsgSubscribe
-	SubConfig interface{} `json:"subConfig"`
+	SubConfig MsgSubConfig `json:"subConfig"`
+	Users     []model.User `json:"users"`
 }
 
-func (m *MsgSubscribeDTO) CoverToDTO(mo model.MsgSubscribe) {
+func NewMsgSubscribeDTO(subscribe model.MsgSubscribe) MsgSubscribeDTO {
 	var con MsgSubConfig
-	json.Unmarshal([]byte(mo.Config), &con)
-	m.MsgSubscribe = mo
-	m.SubConfig = con
+	var msgDTO MsgSubscribeDTO
+	json.Unmarshal([]byte(subscribe.Config), &con)
+	msgDTO.MsgSubscribe = subscribe
+	msgDTO.SubConfig = con
+	return msgDTO
 }
 
 type MsgSubConfig struct {
@@ -22,4 +25,9 @@ type MsgSubConfig struct {
 	WorkWeiXin string `json:"workWeiXin"`
 	Local      string `json:"local"`
 	Email      string `json:"email"`
+}
+
+type MsgSubscribeUserDTO struct {
+	MsgSubscribeID string   `json:"msgSubscribeId"`
+	Users          []string `json:"users"`
 }

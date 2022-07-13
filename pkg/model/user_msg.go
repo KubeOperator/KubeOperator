@@ -5,7 +5,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type MsgUser struct {
+type UserMsg struct {
 	common.BaseModel
 	ID         string `json:"-"`
 	Receive    string `json:"receive"`
@@ -14,9 +14,10 @@ type MsgUser struct {
 	SendStatus string `json:"sendStatus"`
 	ReadStatus string `json:"readStatus"`
 	SendType   string `json:"sendType"`
+	Msg        Msg    `json:"msg"`
 }
 
-func (m *MsgUser) BeforeCreate() error {
+func (m *UserMsg) BeforeCreate() error {
 	m.ID = uuid.NewV4().String()
 	return nil
 }

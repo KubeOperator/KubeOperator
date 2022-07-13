@@ -21,7 +21,7 @@ func NewMessageSubscribeController() *MessageSubscribeController {
 }
 
 func (m MessageSubscribeController) PostSearch() (page.Page, error) {
-	//pa, _ := m.Ctx.Values().GetBool("page")
+	pa, _ := m.Ctx.Values().GetBool("page")
 	var p page.Page
 	var conditions condition.Conditions
 	if m.Ctx.GetContentLength() > 0 {
@@ -29,11 +29,22 @@ func (m MessageSubscribeController) PostSearch() (page.Page, error) {
 			return p, err
 		}
 	}
-	num, _ := m.Ctx.Values().GetInt(constant.PageNumQueryKey)
-	size, _ := m.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 	resourceName := m.Ctx.URLParam("resourceName")
 	scope := m.Ctx.URLParam("type")
-	return m.MsgSubscribeService.Page(scope, resourceName, num, size, conditions)
+
+	if pa {
+		num, _ := m.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := m.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return m.MsgSubscribeService.Page(scope, resourceName, num, size, conditions)
+	} else {
+		items, err := m.MsgSubscribeService.List(scope, resourceName, conditions)
+		if err != nil {
+			return p, nil
+		}
+		p.Items = items
+		p.Total = len(items)
+		return p, nil
+	}
 }
 
 func (m MessageSubscribeController) PostUpdate() error {
@@ -42,4 +53,20 @@ func (m MessageSubscribeController) PostUpdate() error {
 		return err
 	}
 	return m.MsgSubscribeService.Update(updated)
+}
+
+func (m MessageSubscribeController) PostUser() error {
+	var add dto.MsgSubscribeUserDTO
+	if err := m.Ctx.ReadJSON(&add); err != nil {
+		return err
+	}
+	return m.MsgSubscribeService.AddSubscribeUser(add)
+}
+
+func (m MessageSubscribeController) PostDeleteUser() error {
+	var del dto.MsgSubscribeUserDTO
+	if err := m.Ctx.ReadJSON(&del); err != nil {
+		return err
+	}
+	return m.MsgSubscribeService.DeleteSubscribeUser(del)
 }

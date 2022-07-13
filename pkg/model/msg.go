@@ -7,14 +7,11 @@ import (
 
 type Msg struct {
 	common.BaseModel
-	ID           string `json:"-"`
-	Name         string `json:"name"`
-	Content      string `json:"content"`
-	Type         string `json:"type"`
-	Level        string `json:"level"`
-	ResourceID   string `json:"resourceId"`
-	ResourceName string `json:"resourceName"`
-	ResourceType string `json:"resourceType"`
+	ID      string `json:"-"`
+	Name    string `json:"name"`
+	Content string `json:"content"`
+	Type    string `json:"type"`
+	Level   string `json:"level"`
 }
 
 func (m *Msg) BeforeCreate() error {

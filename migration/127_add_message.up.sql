@@ -21,16 +21,13 @@ CREATE TABLE `ko_msg_subscribe` (
 
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
 VALUES
-	(UUID(), 'CLUSTER_INSTALL', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+	(UUID(), 'CLUSTER_INSTALL', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
 VALUES
-	(UUID(), 'LICENSE_EXPIRE', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+	(UUID(), 'LICENSE_EXPIRE', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
 
-INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
-VALUES
-	(UUID(), 'CLUSTER_OPERATOR', 'SYSTEM', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),(SELECT id FROM ko_cluster));
 
-INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"DingTalk\":\"DISABLE\",\"WorkWeiXin\":\"DISABLE\",\"Local\":\"ENABLE\",\"Email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
 
 
 CREATE TABLE `ko_user_setting` (
