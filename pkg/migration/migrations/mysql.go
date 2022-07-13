@@ -111,5 +111,5 @@ func (m *Mysql) SetVersion(version int, dirty bool) error {
 			return err
 		}
 	}
-	return nil
+	return tx.Commit()
 }
