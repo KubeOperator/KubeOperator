@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"sync"
+	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -17,8 +16,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-	errors2 "k8s.io/apimachinery/pkg/api/errors"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -40,46 +38,49 @@ type ClusterStorageProvisionerService interface {
 	SyncStorageProvisioner(clusterName string, syncs []dto.ClusterStorageProvisionerSync) error
 	DeleteStorageProvisioner(clusterName string, provisioner string) error
 	BatchStorageProvisioner(clusterName string, batch dto.ClusterStorageProvisionerBatch) error
-
-	SearchDeployment(req dto.DeploymentSearch) (interface{}, error)
 }
 
 type clusterStorageProvisionerService struct {
 	provisionerRepo repository.ClusterStorageProvisionerRepository
 	clusterService  ClusterService
+	clusterRepo     repository.ClusterRepository
+	taskLogService  TaskLogService
 }
 
 func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 	return &clusterStorageProvisionerService{
 		provisionerRepo: repository.NewClusterStorageProvisionerRepository(),
 		clusterService:  NewClusterService(),
+		clusterRepo:     repository.NewClusterRepository(),
+		taskLogService:  NewTaskLogService(),
 	}
 }
 
 func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error) {
 	clusterStorageProvisionerDTOS := []dto.ClusterStorageProvisioner{}
-	// 获取 k8s client
-	client, err := c.getBaseParam(clusterName)
-	if err != nil {
-		return clusterStorageProvisionerDTOS, err
-	}
 	ps, err := c.provisionerRepo.List(clusterName)
 	if err != nil {
 		return clusterStorageProvisionerDTOS, err
 	}
-	for _, p := range ps {
-		if p.Status == constant.StatusRunning || p.Status == constant.StatusFailed || p.Status == constant.StatusNotReady {
-			var syncModel dto.ClusterStorageProvisionerSync
-			syncModel.Name = p.Name
-			syncModel.Status = p.Status
-			syncModel.Type = p.Type
-			if err := c.sync(client, syncModel); err != nil {
-				p.Status = constant.ClusterNotReady
-				p.Message = err.Error()
-				db.DB.Save(&p)
-			}
-		}
 
+	var syncList []dto.ClusterStorageProvisionerSync
+	for _, p := range ps {
+		syncList = append(syncList, dto.ClusterStorageProvisionerSync{
+			Name:      p.Name,
+			Namespace: p.Namespace,
+			Type:      p.Type,
+			Status:    p.Status,
+		})
+	}
+	if err := c.SyncStorageProvisioner(clusterName, syncList); err != nil {
+		return clusterStorageProvisionerDTOS, err
+	}
+
+	ps, err = c.provisionerRepo.List(clusterName)
+	if err != nil {
+		return clusterStorageProvisionerDTOS, err
+	}
+	for _, p := range ps {
 		var vars map[string]interface{}
 		_ = json.Unmarshal([]byte(p.Vars), &vars)
 		clusterStorageProvisionerDTOS = append(clusterStorageProvisionerDTOS, dto.ClusterStorageProvisioner{
@@ -87,8 +88,10 @@ func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName str
 			Vars:                      vars,
 		})
 	}
+
 	return clusterStorageProvisionerDTOS, nil
 }
+
 func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName string, provisioner string) error {
 	err := c.deleteProvisioner(clusterName, provisioner)
 	if err != nil {
@@ -110,13 +113,20 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	vars, _ := json.Marshal(creation.Vars)
 	var dp dto.ClusterStorageProvisioner
 	p := model.ClusterStorageProvisioner{
-		Name:   creation.Name,
-		Type:   creation.Type,
-		Vars:   string(vars),
-		Status: constant.ClusterCreating,
+		Name:      creation.Name,
+		Namespace: creation.Namespace,
+		Type:      creation.Type,
+		Vars:      string(vars),
+		Status:    constant.StatusCreating,
 	}
 
-	cluster, err := c.clusterService.Get(clusterName)
+	if creation.IsInCluster {
+		p.Status = constant.StatusRunning
+		err := c.provisionerRepo.Save(clusterName, &p)
+		return dp, err
+	}
+
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return dp, err
 	}
@@ -131,7 +141,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		return dp, err
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
 			return dp, errors.New("load image pull port failed")
 		}
@@ -140,34 +150,48 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 			return dp, errors.New("load image pull port failed")
 		}
 	}
+	playbook := c.loadPlayBookName(p.Type)
+	task := model.TaskLogDetail{
+		ID:            p.ID,
+		Task:          playbook,
+		ClusterID:     cluster.ID,
+		LastProbeTime: time.Now().Unix(),
+		Status:        constant.TaskLogStatusRunning,
+	}
+	if err := c.taskLogService.StartDetail(&task); err != nil {
+		return dp, fmt.Errorf("save tasklog failed, err: %v", err)
+	}
 
 	//playbook
-	go c.do(cluster.Cluster, p, registery.RegistryPort)
+	go c.do(cluster, p, task, registery.RegistryPort)
 	dp.ClusterStorageProvisioner = p
 	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
 	return dp, nil
 }
 
-func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, repoPort int) {
-	admCluster := adm.NewCluster(cluster)
+func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, task model.TaskLogDetail, repoPort int) {
+	admCluster := adm.NewAnsibleHelper(cluster)
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, provisioner.ID)
 	if err != nil {
 		logger.Log.Error(err)
 	}
-	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.ClusterInitializing).Error; err != nil {
+	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Update("status", constant.StatusInitializing).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
 
 	// 获取创建参数
 	if err := c.getVars(admCluster, cluster, provisioner); err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, err)
 		return
 	}
 	admCluster.Kobe.SetVar("registry_port", fmt.Sprint(repoPort))
 	// 获取 k8s client
-	client, err := c.getBaseParam(cluster.Name)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 		c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create kubernetes Clientset error %s", err.Error()))
 	}
 
@@ -175,219 +199,200 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 	case "nfs":
 		admCluster.Kobe.SetVar("storage_nfs_provisioner_name", provisioner.Name)
 		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, NfsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", provisioner.Name, client); err != nil {
+		if err := phases.WaitForDeployRunning(provisioner.Namespace, provisioner.Name, client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "rook-ceph":
 		if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, rookCephStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("rook-ceph", "rook-ceph-operator", client); err != nil {
+		if err := phases.WaitForDeployRunning(provisioner.Namespace, "rook-ceph-operator", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "vsphere":
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, vsphereStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
 
-		if err := phases.WaitForStatefulSetsRunning("kube-system", "vsphere-csi-controller", client); err != nil {
+		if err := phases.WaitForStatefulSetsRunning(provisioner.Namespace, "vsphere-csi-controller", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "external-ceph-block":
 		admCluster.Kobe.SetVar("storage_rbd_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephRbdStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "external-ceph-block", client); err != nil {
+		if err := phases.WaitForDeployRunning(provisioner.Namespace, "external-ceph-block", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "external-cephfs":
 		admCluster.Kobe.SetVar("storage_fs_provisioner_name", provisioner.Name)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, externalCephFsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "external-cephfs", client); err != nil {
+		if err := phases.WaitForDeployRunning(provisioner.Namespace, "external-cephfs", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "oceanstor":
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, oceanStor, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForDeployRunning("kube-system", "huawei-csi-controller", client); err != nil {
+		if err := phases.WaitForDeployRunning(provisioner.Namespace, "huawei-csi-controller", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "cinder":
 		admCluster.Kobe.SetVar("cinder_csi_version", "v1.20.0")
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, cinderStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
-		if err := phases.WaitForStatefulSetsRunning("kube-system", "csi-cinder-controllerplugin", client); err != nil {
+		if err := phases.WaitForStatefulSetsRunning(provisioner.Namespace, "csi-cinder-controllerplugin", client); err != nil {
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("waitting provisioner running error %s", err.Error()))
 			return
 		}
 	case "glusterfs":
 		admCluster.Kobe.SetVar("type", provisioner.Type)
 		if err = phases.RunPlaybookAndGetResult(admCluster.Kobe, glusterfsStorage, "", writer); err != nil {
+			_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
 			c.errCreateStorageProvisioner(cluster.Name, provisioner, fmt.Errorf("create provisioner error %s", err.Error()))
 			return
 		}
+		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
 		provisioner.Status = constant.StatusWaiting
 		if err := c.provisionerRepo.Save(cluster.Name, &provisioner); err != nil {
 			logger.Log.Errorf("save provisioner status err: %s", err.Error())
 			return
 		}
 	}
-	provisioner.Status = constant.ClusterRunning
+	provisioner.Status = constant.StatusRunning
 	_ = c.provisionerRepo.Save(cluster.Name, &provisioner)
 }
 
 func (c clusterStorageProvisionerService) errCreateStorageProvisioner(clusterName string, provisioner model.ClusterStorageProvisioner, err error) {
 	logger.Log.Errorf(err.Error())
-	provisioner.Status = constant.ClusterFailed
+	provisioner.Status = constant.StatusFailed
 	provisioner.Message = err.Error()
 	_ = c.provisionerRepo.Save(clusterName, &provisioner)
 }
 
-func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName string, provisioners []dto.ClusterStorageProvisionerSync) error {
-	var wg sync.WaitGroup
-	sem := make(chan struct{}, 2)
-	for _, provisioner := range provisioners {
-		if provisioner.Status == constant.ClusterInitializing || provisioner.Status == constant.ClusterTerminating {
-			continue
-		}
-		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).Update("status", constant.ClusterSynchronizing).Error; err != nil {
-			logger.Log.Errorf("update host status to synchronizing error: %s", err.Error())
-		}
-
-		wg.Add(1)
-		go func(provisioner dto.ClusterStorageProvisionerSync) {
-			defer wg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
-			logger.Log.Infof("gather provisioner [%s] info", provisioner.Name)
-			client, err := c.getBaseParam(clusterName)
-			if err != nil {
-				logger.Log.Errorf("get kubernetes Clientset err, error: %s", err.Error())
-			}
-			if err := c.sync(client, provisioner); err != nil {
-				logger.Log.Errorf("gather provisioner info error: %s", err.Error())
-				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
-					Updates(map[string]interface{}{
-						"status":  constant.ClusterFailed,
-						"message": err.Error(),
-					}).Error; err != nil {
-					logger.Log.Errorf("update host status to failed error: %s", err.Error())
-				}
-			} else {
-				if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
-					Updates(map[string]interface{}{"status": constant.ClusterRunning}).Error; err != nil {
-					logger.Log.Errorf("update host status to running error: %s", err.Error())
-				}
-			}
-		}(provisioner)
+func (c clusterStorageProvisionerService) loadPlayBookName(provisionerType string) string {
+	switch provisionerType {
+	case "nfs":
+		return NfsStorage
+	case "rook-ceph":
+		return rookCephStorage
+	case "vsphere":
+		return vsphereStorage
+	case "external-ceph-block":
+		return externalCephRbdStorage
+	case "external-cephfs":
+		return rookCephStorage
+	case "oceanstor":
+		return oceanStor
+	case "cinder":
+		return cinderStorage
+	case "glusterfs":
+		return glusterfsStorage
 	}
-	return nil
+	return ""
 }
 
-func (c clusterStorageProvisionerService) sync(client *kubernetes.Clientset, provisioner dto.ClusterStorageProvisionerSync) error {
-	switch provisioner.Type {
-	case "external-ceph":
-		ex, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "external-ceph", metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
+func (c clusterStorageProvisionerService) SyncStorageProvisioner(clusterName string, provisioners []dto.ClusterStorageProvisionerSync) error {
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
+	if err != nil {
+		return err
+	}
+	client, err := clusterUtil.NewClusterClient(&cluster)
+	if err != nil {
+		logger.Log.Errorf("get kubernetes Clientset err, error: %s", err.Error())
+	}
+	for _, provisioner := range provisioners {
+		if provisioner.Status == constant.StatusInitializing || provisioner.Status == constant.StatusTerminating {
+			continue
 		}
-		if ex.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).Update("status", constant.StatusSynchronizing).Error; err != nil {
+			logger.Log.Errorf("update host status to synchronizing error: %s", err.Error())
 		}
-	case "nfs":
-		nfs, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), provisioner.Name, metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		if nfs.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
-		}
-	case "vsphere":
-		vs, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "vsphere-csi-controller", metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		if vs.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
-		}
-	case "rook-ceph":
-		rook, err := client.AppsV1().Deployments("rook-ceph").Get(context.TODO(), "rook-ceph-operator", metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		if rook.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
-		}
-	case "oceanstor":
-		oc, err := client.AppsV1().Deployments("kube-system").Get(context.TODO(), "huawei-csi-controller", metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		if oc.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
-		}
-	case "cinder":
-		oc, err := client.AppsV1().StatefulSets("kube-system").Get(context.TODO(), "csi-cinder-controllerplugin", metav1.GetOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		if oc.Status.ReadyReplicas < 1 {
-			return fmt.Errorf("not ready")
+		logger.Log.Infof("gather provisioner [%s] info", provisioner.Name)
+
+		switch provisioner.Type {
+		case "external-ceph-block":
+			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
+		case "external-cephfs":
+			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
+		case "nfs":
+			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
+		case "vsphere":
+			c.updateProvisionerStatus(client, "statefulSets", provisioner.Namespace, "vsphere-csi-controller")
+		case "rook-ceph":
+			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, "rook-ceph-operator")
+		case "oceanstor":
+			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, "huawei-csi-controller")
+		case "cinder":
+			c.updateProvisionerStatus(client, "statefulSets", provisioner.Namespace, "csi-cinder-controllerplugin")
 		}
 	}
 	return nil
@@ -395,196 +400,101 @@ func (c clusterStorageProvisionerService) sync(client *kubernetes.Clientset, pro
 
 func (c clusterStorageProvisionerService) deleteProvisioner(clusterName string, provisionerName string) error {
 	var provisioner model.ClusterStorageProvisioner
-	db.DB.Where("name = ?", provisionerName).First(&provisioner)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
+	if err != nil {
+		return err
+	}
+	db.DB.Where("name = ? AND cluster_id = ?", provisionerName, cluster.ID).First(&provisioner)
 	if provisioner.ID == "" {
 		return errors.New("not found")
 	}
-	client, err := c.getBaseParam(clusterName)
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}
 	switch provisioner.Type {
 	case "nfs":
 		contextTo := context.TODO()
-		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "nfs-client-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "run-nfs-client-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "nfs-client-provisioner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "run-nfs-client-provisioner", metav1.DeleteOptions{})
+		_ = client.AppsV1().Deployments(provisioner.Namespace).Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
 	case "external-ceph":
 		contextTo := context.TODO()
-		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().Roles("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().RoleBindings("kube-system").Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.PolicyV1beta1().PodSecurityPolicies().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().Roles(provisioner.Namespace).Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().RoleBindings(provisioner.Namespace).Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.PolicyV1beta1().PodSecurityPolicies().Delete(contextTo, "rbd-provisioner", metav1.DeleteOptions{})
+		_ = client.AppsV1().Deployments(provisioner.Namespace).Delete(contextTo, provisioner.Name, metav1.DeleteOptions{})
 	case "oceanstor":
 		contextTo := context.TODO()
-		err = client.CoreV1().ConfigMaps("kube-system").Delete(contextTo, "huawei-csi-configmap", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().Deployments("kube-system").Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-provisioner-runner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-provisioner-role", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-attacher-runner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-attacher-role", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-driver-registrar-runner", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-driver-registrar-role", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.CoreV1().ConfigMaps(provisioner.Namespace).Delete(contextTo, "huawei-csi-configmap", metav1.DeleteOptions{})
+		_ = client.AppsV1().Deployments(provisioner.Namespace).Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
+		_ = client.AppsV1().DaemonSets(provisioner.Namespace).Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "huawei-csi-controller", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-provisioner-runner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-provisioner-role", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-attacher-runner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-attacher-role", metav1.DeleteOptions{})
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "huawei-csi-node", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "huawei-csi-driver-registrar-runner", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "huawei-csi-driver-registrar-role", metav1.DeleteOptions{})
 	case "vsphere":
 		contextTo := context.TODO()
-		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "vsphere-csi-controller-binding", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "vsphere-csi-controller-role", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().StatefulSets("kube-system").Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.StorageV1().CSIDrivers().Delete(contextTo, "csi.vsphere.vmware.com", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "vsphere-csi-node", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoleBindings().Delete(contextTo, "vsphere-csi-controller-binding", metav1.DeleteOptions{})
+		_ = client.RbacV1beta1().ClusterRoles().Delete(contextTo, "vsphere-csi-controller-role", metav1.DeleteOptions{})
+		_ = client.AppsV1().StatefulSets(provisioner.Namespace).Delete(contextTo, "vsphere-csi-controller", metav1.DeleteOptions{})
+		_ = client.StorageV1().CSIDrivers().Delete(contextTo, "csi.vsphere.vmware.com", metav1.DeleteOptions{})
+		_ = client.AppsV1().DaemonSets(provisioner.Namespace).Delete(contextTo, "vsphere-csi-node", metav1.DeleteOptions{})
 	case "cinder":
 		contextTo := context.TODO()
-		err := client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-controller-service", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-controller-sa", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.CoreV1().ServiceAccounts("kube-system").Delete(contextTo, "csi-cinder-node-sa", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "csi-cinder-controller-service", metav1.DeleteOptions{})
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "csi-cinder-controller-sa", metav1.DeleteOptions{})
+		_ = client.CoreV1().ServiceAccounts(provisioner.Namespace).Delete(contextTo, "csi-cinder-node-sa", metav1.DeleteOptions{})
 
-		err = client.AppsV1().StatefulSets("kube-system").Delete(contextTo, "csi-cinder-controllerplugin", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.StorageV1().CSIDrivers().Delete(contextTo, "cinder.csi.openstack.org", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
-		err = client.AppsV1().DaemonSets("kube-system").Delete(contextTo, "csi-cinder-nodeplugin", metav1.DeleteOptions{})
-		if err != nil && checkError(err) {
-			return err
-		}
+		_ = client.AppsV1().StatefulSets(provisioner.Namespace).Delete(contextTo, "csi-cinder-controllerplugin", metav1.DeleteOptions{})
+		_ = client.AppsV1().DaemonSets(provisioner.Namespace).Delete(contextTo, "csi-cinder-nodeplugin", metav1.DeleteOptions{})
 	}
 	return nil
 }
 
-func checkError(err error) bool {
-	if e, ok := err.(*errors2.StatusError); ok {
-		if e.ErrStatus.Code == 404 {
-			return false
+func (c clusterStorageProvisionerService) updateProvisionerStatus(client *kubernetes.Clientset, source, namespace, name string) {
+	status, errMsg := "", ""
+	if source == "deployment" {
+		ex, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			status = constant.StatusFailed
+			errMsg = err.Error()
 		} else {
-			return true
+			if ex.Status.ReadyReplicas == ex.Status.Replicas {
+				status = constant.StatusRunning
+			} else {
+				status = constant.StatusWaiting
+			}
 		}
 	}
-	return true
+	if source == "statefulSets" {
+		ex, err := client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			status = constant.StatusFailed
+			errMsg = err.Error()
+		} else {
+			if ex.Status.ReadyReplicas == ex.Status.Replicas {
+				status = constant.StatusRunning
+			} else {
+				status = constant.StatusWaiting
+			}
+		}
+	}
+	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", name).
+		Updates(map[string]interface{}{"status": status, "Message": errMsg}).Error; err != nil {
+		logger.Log.Errorf("update host status to failed error: %s", err.Error())
+	}
 }
 
-func (c clusterStorageProvisionerService) getBaseParam(clusterName string) (*kubernetes.Clientset, error) {
-	var client *kubernetes.Clientset
-	secret, err := c.clusterService.GetSecrets(clusterName)
-	if err != nil {
-		return client, err
-	}
-
-	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
-	if err != nil {
-		return client, err
-	}
-
-	client, err = kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Token: secret.KubernetesToken,
-		Hosts: endpoints,
-	})
-	if err != nil {
-		return client, err
-	}
-	return client, nil
-}
-
-func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
+func (c clusterStorageProvisionerService) getVars(admCluster *adm.AnsibleHelper, cluster model.Cluster, provisioner model.ClusterStorageProvisioner) error {
 	if provisioner.Type == "glusterfs" {
 		return nil
 	}
@@ -597,7 +507,7 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, clust
 	)
 
 	// 获取版本
-	if err := db.DB.Where("name = ?", cluster.Spec.Version).First(&manifest).Error; err != nil {
+	if err := db.DB.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
 		return fmt.Errorf("can't find manifest version: %s", err.Error())
 	}
 	if err := json.Unmarshal([]byte(manifest.StorageVars), &storageVars); err != nil {
@@ -636,23 +546,4 @@ func (c clusterStorageProvisionerService) getVars(admCluster *adm.Cluster, clust
 		}
 	}
 	return nil
-}
-
-func (c clusterStorageProvisionerService) SearchDeployment(req dto.DeploymentSearch) (interface{}, error) {
-	var result interface{}
-	host := strings.Replace(req.ApiServer, "http://", "", 1)
-	host = strings.Replace(host, "https://", "", 1)
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: []kubernetesUtil.Host{kubernetesUtil.Host(host)},
-		Token: req.Token,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	result, err = kubeClient.AppsV1().Deployments(req.Namespace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }

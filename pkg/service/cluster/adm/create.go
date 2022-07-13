@@ -13,56 +13,62 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 )
 
-func (ca *ClusterAdm) Create(c *Cluster) error {
-	condition := ca.getCreateCurrentCondition(c)
-	if condition != nil {
-		now := time.Now()
-		f := ca.getCreateHandler(condition.Name)
-		err := f(c)
-		if err != nil {
-			c.setCondition(model.ClusterStatusCondition{
-				Name:          condition.Name,
-				Status:        constant.ConditionFalse,
-				LastProbeTime: now,
+func (ca *ClusterAdm) Create(aHelper *AnsibleHelper) error {
+	task := ca.getCreateCurrentTask(aHelper)
+	if task != nil {
+		f := ca.getCreateHandler(task.Task)
+		if err := f(aHelper); err != nil {
+			aHelper.setCondition(model.TaskLogDetail{
+				Task:          task.Task,
+				Status:        constant.TaskLogStatusFailed,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     task.StartTime,
+				EndTime:       time.Now().Unix(),
 				Message:       err.Error(),
 			})
-			c.Status.Phase = constant.ClusterFailed
-			c.Status.Message = err.Error()
+			aHelper.Status = constant.TaskLogStatusFailed
+			aHelper.Message = err.Error()
 			return nil
 		}
-		c.setCondition(model.ClusterStatusCondition{
-			Name:          condition.Name,
-			Status:        constant.ConditionTrue,
-			LastProbeTime: now,
+		aHelper.setCondition(model.TaskLogDetail{
+			Task:          task.Task,
+			Status:        constant.TaskLogStatusSuccess,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     task.StartTime,
+			EndTime:       time.Now().Unix(),
 		})
 
-		nextConditionType := ca.getNextCreateConditionName(condition.Name)
+		nextConditionType := ca.getNextCreateConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
-			c.Status.Phase = constant.ClusterRunning
+			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
-			c.setCondition(model.ClusterStatusCondition{
-				Name:          nextConditionType,
-				Status:        constant.ConditionUnknown,
-				LastProbeTime: time.Now(),
-				Message:       "",
+			aHelper.setCondition(model.TaskLogDetail{
+				Task:          nextConditionType,
+				Status:        constant.TaskLogStatusRunning,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     time.Now().Unix(),
 			})
 		}
 	}
 	return nil
 }
 
-func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) *model.ClusterStatusCondition {
-	if len(c.Status.ClusterStatusConditions) == 0 {
-		return &model.ClusterStatusCondition{
-			Name:          ca.createHandlers[0].name(),
-			Status:        constant.ConditionUnknown,
-			LastProbeTime: time.Now(),
+func (ca *ClusterAdm) getCreateCurrentTask(aHelper *AnsibleHelper) *model.TaskLogDetail {
+	if len(aHelper.LogDetail) == 0 {
+		taskItem := &model.TaskLogDetail{
+			Task:          ca.createHandlers[0].name(),
+			Status:        constant.TaskLogStatusRunning,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     time.Now().Unix(),
+			EndTime:       time.Now().Unix(),
 			Message:       "",
 		}
+		aHelper.LogDetail = append(aHelper.LogDetail, *taskItem)
+		return taskItem
 	}
-	for _, condition := range c.Status.ClusterStatusConditions {
-		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
-			return &condition
+	for _, detail := range aHelper.LogDetail {
+		if detail.Status == constant.TaskLogStatusFailed || detail.Status == constant.TaskLogStatusRunning {
+			return &detail
 		}
 	}
 	return nil
@@ -94,73 +100,73 @@ func (ca *ClusterAdm) getNextCreateConditionName(conditionName string) string {
 	return next.name()
 }
 
-func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitTaskStart(aHelper *AnsibleHelper) error {
 	time.Sleep(5 * time.Second)
-	writeLog("----init task start----", c.Writer)
+	writeLog("----init task start----", aHelper.Writer)
 	return nil
 }
 
-func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(aHelper *AnsibleHelper) error {
 	phase := prepare.BaseSystemConfigPhase{}
-	err := phase.Run(c.Kobe, c.Writer)
+	err := phase.Run(aHelper.Kobe, aHelper.Writer)
 	return err
 }
 
-func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePrepareContainerRuntime(aHelper *AnsibleHelper) error {
 	phase := prepare.ContainerRuntimePhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(aHelper *AnsibleHelper) error {
 	phase := prepare.KubernetesComponentPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsurePrepareLoadBalancer(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePrepareLoadBalancer(aHelper *AnsibleHelper) error {
 	phase := prepare.LoadBalancerPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePrepareCertificates(aHelper *AnsibleHelper) error {
 	phase := prepare.CertificatesPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitEtcd(aHelper *AnsibleHelper) error {
 	phase := initial.EtcdPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitMaster(aHelper *AnsibleHelper) error {
 	phase := initial.MasterPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitWorker(aHelper *AnsibleHelper) error {
 	phase := initial.WorkerPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
-func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitNetwork(aHelper *AnsibleHelper) error {
 	phase := initial.NetworkPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitHelm(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitHelm(aHelper *AnsibleHelper) error {
 	phase := initial.HelmPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitMetricsServer(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitMetricsServer(aHelper *AnsibleHelper) error {
 	phase := initial.MetricsServerPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureInitIngressController(c *Cluster) error {
+func (ca *ClusterAdm) EnsureInitIngressController(aHelper *AnsibleHelper) error {
 	phase := ingress.ControllerPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsurePostInit(c *Cluster) error {
+func (ca *ClusterAdm) EnsurePostInit(aHelper *AnsibleHelper) error {
 	phase := initial.PostPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }

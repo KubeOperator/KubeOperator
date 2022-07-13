@@ -75,7 +75,7 @@ func (k Kubeapps) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultKubeappsIngress,
 		service: constant.DefaultKubeappsServiceName,
 		port:    80,
-		version: k.Cluster.Spec.Version,
+		version: k.Cluster.Version,
 	}
 	if err := createRoute(k.Cluster.Namespace, ingressItem, k.Cluster.KubeClient); err != nil {
 		return err
@@ -92,7 +92,7 @@ func (k Kubeapps) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (k Kubeapps) Uninstall() error {
-	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngressName, k.Cluster.Spec.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
+	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngressName, k.Cluster.Version, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }
 
 // v3.7.2

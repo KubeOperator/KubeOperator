@@ -9,8 +9,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-
-
 type CisTask struct {
 	common.BaseModel
 	ID        string    `json:"id"`
@@ -33,7 +31,7 @@ func (c *CisTask) BeforeCreate() (err error) {
 }
 
 func (c *CisTask) BeforeDelete() error {
-	if c.Status == constant.ClusterRunning {
+	if c.Status == constant.StatusRunning {
 		return errors.New("task is running")
 	}
 	return nil

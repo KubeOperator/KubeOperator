@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"io"
 	"io/ioutil"
 	"strings"
+
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var (
@@ -64,7 +65,7 @@ func (m *Mysql) Run(migration io.Reader) error {
 	}
 	query := string(migr[:])
 	if _, err := m.conn.ExecContext(context.Background(), query); err != nil {
-		return fmt.Errorf("runErr: %v, migration failed: %v", err, migr)
+		return fmt.Errorf("runErr: %v, migration failed: %v", err, query)
 	}
 	return nil
 }

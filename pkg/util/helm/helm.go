@@ -13,11 +13,11 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/ghodss/yaml"
 	"github.com/gofrs/flock"
 	"github.com/pkg/errors"
@@ -29,6 +29,9 @@ import (
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 const (
@@ -47,11 +50,16 @@ type Interface interface {
 }
 
 type Config struct {
-	Hosts         []kubernetes.Host
-	BearerToken   string
 	OldNamespace  string
 	Namespace     string
 	Architectures string
+
+	AuthenticationMode string
+	Host               string
+	BearerToken        string
+	CertDataStr        string
+	KeyDataStr         string
+	ConfigContent      string
 }
 type Client struct {
 	installActionConfig   *action.Configuration
@@ -62,20 +70,38 @@ type Client struct {
 }
 
 func NewClient(config *Config) (*Client, error) {
-	var aliveHost kubernetes.Host
-	aliveHost, err := kubernetes.SelectAliveHost(config.Hosts)
-	if err != nil {
-		return nil, err
-	}
 	client := Client{
 		Architectures: config.Architectures,
 	}
 	client.settings = GetSettings()
 	cf := genericclioptions.NewConfigFlags(true)
 	inscure := true
-	apiServer := fmt.Sprintf("https://%s", aliveHost)
-	cf.APIServer = &apiServer
-	cf.BearerToken = &config.BearerToken
+
+	switch config.AuthenticationMode {
+	case constant.AuthenticationModeBearer:
+		apiServer := fmt.Sprintf("https://%s", config.Host)
+		cf.APIServer = &apiServer
+		cf.BearerToken = &config.BearerToken
+	case constant.AuthenticationModeCertificate:
+		cf.CertFile = &config.CertDataStr
+		cf.KeyFile = &config.KeyDataStr
+	case constant.AuthenticationModeConfigFile:
+		apiConfig, err := clusterUtil.PauseConfigApi(&config.ConfigContent)
+		if err != nil {
+			return nil, err
+		}
+		getter := func() (*api.Config, error) {
+			return apiConfig, nil
+		}
+		itemConfig, err := clientcmd.BuildConfigFromKubeconfigGetter("", getter)
+		if err != nil {
+			return nil, err
+		}
+		cf.WrapConfigFn = func(config *rest.Config) *rest.Config {
+			return itemConfig
+		}
+	}
+
 	cf.Insecure = &inscure
 	if config.Namespace == "" {
 		client.Namespace = constant.DefaultNamespace

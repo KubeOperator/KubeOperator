@@ -1,14 +1,13 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"math"
+	"sort"
 	"strings"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/controller/condition"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	dbUtil "github.com/KubeOperator/KubeOperator/pkg/util/db"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"github.com/sirupsen/logrus"
@@ -21,11 +20,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
-	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
 )
@@ -34,17 +31,15 @@ type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
 	GetClusterByProject(projectNames string) ([]dto.ClusterInfo, error)
 	CheckExistence(name string) bool
-	GetStatus(name string) (dto.ClusterStatus, error)
-	GetNodeStatus(cluster, node string) (dto.ClusterStatus, error)
+	GetStatus(name string) (*dto.TaskLog, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
-	GetSpec(name string) (dto.ClusterSpec, error)
-	GetPlan(name string) (dto.Plan, error)
-	GetApiServerEndpoint(name string) (kubernetes.Host, error)
-	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
+	GetApiServerEndpoint(name string) (string, error)
+	GetApiServerEndpoints(name string) ([]string, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
 	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
+	ReCreate(name string) error
 	List() ([]dto.Cluster, error)
 	Page(num, size int, isPolling string, user dto.SessionUser, conditions condition.Conditions) (*dto.ClusterPage, error)
 	Delete(name string, force bool, uninstall bool) error
@@ -52,52 +47,44 @@ type ClusterService interface {
 
 func NewClusterService() ClusterService {
 	return &clusterService{
-		clusterRepo:                repository.NewClusterRepository(),
-		clusterSpecRepo:            repository.NewClusterSpecRepository(),
-		clusterNodeRepo:            repository.NewClusterNodeRepository(),
-		clusterStatusRepo:          repository.NewClusterStatusRepository(),
-		clusterSecretRepo:          repository.NewClusterSecretRepository(),
-		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
-		hostRepo:                   repository.NewHostRepository(),
-		clusterInitService:         NewClusterInitService(),
-		planRepo:                   repository.NewPlanRepository(),
-		projectRepository:          repository.NewProjectRepository(),
-		projectResourceRepository:  repository.NewProjectResourceRepository(),
-		messageService:             NewMessageService(),
-		ntpServerRepo:              repository.NewNtpServerRepository(),
-		systemSettingService:       NewSystemSettingService(),
+		clusterRepo:          repository.NewClusterRepository(),
+		clusterNodeRepo:      repository.NewClusterNodeRepository(),
+		clusterSecretRepo:    repository.NewClusterSecretRepository(),
+		clusterInitService:   NewClusterInitService(),
+		planRepo:             repository.NewPlanRepository(),
+		messageService:       NewMessageService(),
+		ntpServerRepo:        repository.NewNtpServerRepository(),
+		systemSettingService: NewSystemSettingService(),
+		clusterIaasService:   NewClusterIaasService(),
+		tasklogService:       NewTaskLogService(),
 	}
 }
 
 type clusterService struct {
-	clusterRepo                repository.ClusterRepository
-	clusterSpecRepo            repository.ClusterSpecRepository
-	clusterNodeRepo            repository.ClusterNodeRepository
-	clusterStatusRepo          repository.ClusterStatusRepository
-	clusterSecretRepo          repository.ClusterSecretRepository
-	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
-	hostRepo                   repository.HostRepository
-	planRepo                   repository.PlanRepository
-	clusterInitService         ClusterInitService
-	projectRepository          repository.ProjectRepository
-	projectResourceRepository  repository.ProjectResourceRepository
-	messageService             MessageService
-	ntpServerRepo              repository.NtpServerRepository
-	systemSettingService       SystemSettingService
+	clusterRepo          repository.ClusterRepository
+	clusterNodeRepo      repository.ClusterNodeRepository
+	clusterSecretRepo    repository.ClusterSecretRepository
+	planRepo             repository.PlanRepository
+	clusterInitService   ClusterInitService
+	messageService       MessageService
+	ntpServerRepo        repository.NtpServerRepository
+	systemSettingService SystemSettingService
+	clusterIaasService   ClusterIaasService
+	tasklogService       TaskLogService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
 	var clusterDTO dto.Cluster
-	mo, err := c.clusterRepo.Get(name)
+	mo, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Nodes"})
 	if err != nil {
 		return clusterDTO, err
 	}
-	clusterDTO.Provider = mo.Spec.Provider
+	tasklog, _ := c.tasklogService.GetByID(mo.CurrentTaskID)
+	clusterDTO.Cluster.TaskLog = tasklog
+	clusterDTO.Provider = mo.Provider
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
-	clusterDTO.Status = mo.Status.Phase
-	clusterDTO.PreStatus = mo.Status.PrePhase
-	clusterDTO.Architectures = mo.Spec.Architectures
+	clusterDTO.Architectures = mo.Architectures
 	if len(mo.MultiClusterRepositories) > 0 {
 		clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
 	}
@@ -114,12 +101,12 @@ func (c clusterService) GetClusterByProject(projectNames string) ([]dto.ClusterI
 	if len(projectNames) != 0 {
 		projectList = strings.Split(projectNames, ",")
 	}
-	if err := db.DB.Where("name in (?)", projectList).Preload("Clusters").Preload("Clusters.Spec").Find(&projects).Error; err != nil {
+	if err := db.DB.Where("name in (?)", projectList).Preload("Clusters").Preload("Clusters.SpecConf").Find(&projects).Error; err != nil {
 		return nil, err
 	}
 	for _, pro := range projects {
 		for _, clu := range pro.Clusters {
-			backdatas = append(backdatas, dto.ClusterInfo{Name: clu.Name, Provider: clu.Spec.Provider})
+			backdatas = append(backdatas, dto.ClusterInfo{Name: clu.Name, Provider: clu.Provider})
 		}
 	}
 	return backdatas, nil
@@ -139,12 +126,8 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	}
 	for _, mo := range mos {
 		clusterDTO := dto.Cluster{
-			Cluster:       mo,
-			NodeSize:      len(mo.Nodes),
-			Status:        mo.Status.Phase,
-			Provider:      mo.Spec.Provider,
-			PreStatus:     mo.Status.PrePhase,
-			Architectures: mo.Spec.Architectures,
+			Cluster:  mo,
+			NodeSize: len(mo.Nodes),
 		}
 		if len(mo.MultiClusterRepositories) > 0 {
 			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
@@ -174,8 +157,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 
 	if user.IsAdmin {
 		if err := d.Count(&page.Total).Order("created_at ASC").
-			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Offset((num - 1) * size).Limit(size).Find(&clusters).Error; err != nil {
@@ -218,8 +200,7 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 			Offset((num - 1) * size).
 			Limit(size).
 			Order("created_at ASC").
-			Preload("Status").
-			Preload("Spec").
+			Preload("SpecConf").
 			Preload("Nodes").
 			Preload("MultiClusterRepositories").
 			Find(&clusters).Error; err != nil {
@@ -227,37 +208,28 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 		}
 	}
 
-	for _, mo := range clusters {
-		status := mo.Status.Phase
-		message := ""
-		if (mo.Status.Phase == constant.ClusterRunning || mo.Status.Phase == constant.ClusterNotReady) && !(isPolling == "true") {
+	for i := 0; i < len(clusters); i++ {
+		if (clusters[i].Status == constant.StatusRunning || clusters[i].Status == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
-			isOK, message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", mo.Spec.LbKubeApiserverIp, mo.Spec.KubeApiServerPort))
+			isOK, clusters[i].Message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", clusters[i].SpecConf.LbKubeApiserverIp, clusters[i].SpecConf.KubeApiServerPort))
 			if !isOK {
-				status = constant.ClusterNotReady
-				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterNotReady, "Message": message})
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": clusters[i].Message})
 			}
-			if isOK && mo.Status.Phase == constant.ClusterNotReady {
-				status = constant.ClusterRunning
-				_ = db.DB.Model(&model.ClusterStatus{}).Where("id = ?", mo.StatusID).Updates(map[string]interface{}{"Phase": constant.ClusterRunning, "Message": ""})
+			if isOK && clusters[i].Status == constant.ClusterNotReady {
+				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.StatusRunning, "Message": ""})
 			}
 		}
 		for _, res := range clusterResources {
-			if mo.ID == res.ResourceID {
+			if clusters[i].ID == res.ResourceID {
 				for _, pro := range projects {
 					if pro.ID == res.ProjectID {
 						clusterDTO := dto.Cluster{
-							Cluster:       mo,
-							ProjectName:   pro.Name,
-							NodeSize:      len(mo.Nodes),
-							Status:        status,
-							Provider:      mo.Spec.Provider,
-							PreStatus:     mo.Status.PrePhase,
-							Architectures: mo.Spec.Architectures,
-							Message:       message,
+							Cluster:     clusters[i],
+							ProjectName: pro.Name,
+							NodeSize:    len(clusters[i].Nodes),
 						}
-						if len(mo.MultiClusterRepositories) > 0 {
-							clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+						if len(clusters[i].MultiClusterRepositories) > 0 {
+							clusterDTO.MultiClusterRepository = clusters[i].MultiClusterRepositories[0].Name
 						}
 						page.Items = append(page.Items, clusterDTO)
 						break
@@ -285,321 +257,62 @@ func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
 	return secret, nil
 }
 
-func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
-	var status dto.ClusterStatus
+// func (c clusterService) GetLogBy(name string) (*dto.TaskLog, error) {
+// 	var cluster model.Cluster
+// 	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"TaskLog", "TaskLog.Details"})
+// 	return &dto.TaskLog{TaskLog: cluster.TaskLog}, err
+// }
+
+func (c clusterService) GetStatus(name string) (*dto.TaskLog, error) {
 	cluster, err := c.clusterRepo.Get(name)
 	if err != nil {
-		return status, err
+		return nil, err
 	}
-	cs, err := c.clusterStatusRepo.Get(cluster.StatusID)
+	if cluster.CurrentTaskID == "" {
+		return &dto.TaskLog{}, nil
+	}
+	tasklog, err := c.tasklogService.GetByID(cluster.CurrentTaskID)
 	if err != nil {
-		return status, err
+		return nil, err
 	}
-	status.ClusterStatus = cs
-	return status, nil
+	sort.Slice(tasklog.Details, func(i, j int) bool {
+		return tasklog.Details[i].StartTime < tasklog.Details[j].StartTime
+	})
+	return &dto.TaskLog{TaskLog: tasklog}, nil
 }
 
-func (c clusterService) GetNodeStatus(clusterName, nodeName string) (dto.ClusterStatus, error) {
-	var status dto.ClusterStatus
-	node, err := c.clusterNodeRepo.Get(clusterName, nodeName)
+func (c *clusterService) ReCreate(name string) error {
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
-		return status, err
+		return err
 	}
-	cs, err := c.clusterStatusRepo.Get(node.StatusID)
+	tasklog, err := c.tasklogService.GetByID(cluster.CurrentTaskID)
 	if err != nil {
-		return status, err
+		return err
 	}
-	status.ClusterStatus = cs
-	status.ClusterStatus.Phase = node.Status
-	status.ClusterStatus.PrePhase = node.PreStatus
-	status.ClusterStatus.Message = node.Message
-	return status, nil
-}
-
-func (c clusterService) GetSpec(name string) (dto.ClusterSpec, error) {
-	var spec dto.ClusterSpec
-	cluster, err := c.clusterRepo.Get(name)
+	cluster.TaskLog = tasklog
+	if err := c.tasklogService.RestartTask(&cluster, constant.TaskLogTypeClusterCreate); err != nil {
+		return err
+	}
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		return spec, err
+		return err
 	}
-	cs, err := c.clusterSpecRepo.Get(cluster.SpecID)
-	if err != nil {
-		return spec, err
-	}
-	spec.ClusterSpec = cs
-	return spec, nil
-}
+	cluster.Status = constant.StatusWaiting
+	_ = c.clusterRepo.Save(&cluster)
 
-func (c clusterService) GetPlan(name string) (dto.Plan, error) {
-	var plan dto.Plan
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return plan, err
-	}
-	p, err := c.planRepo.GetById(cluster.PlanID)
-	if err != nil {
-		return plan, err
-	}
-	plan.Plan = p
-	return plan, nil
-}
+	logger.Log.WithFields(logrus.Fields{
+		"log_id": cluster.TaskLog.ID,
+	}).Debugf("get ansible writer log of cluster %s successful, now start to init the cluster", cluster.Name)
 
-var maxNodePodNumMap = map[int]int{
-	24: 110,
-	25: 64,
-	26: 32,
-	27: 16,
-}
-
-func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
-	loginfo, _ := json.Marshal(creation)
-	logger.Log.WithFields(logrus.Fields{"cluster_creation": string(loginfo)}).Debugf("start to create the cluster %s", creation.Name)
-
-	cluster := model.Cluster{
-		Name:         creation.Name,
-		NodeNameRule: creation.NodeNameRule,
-		Source:       constant.ClusterSourceLocal,
-	}
-	spec := model.ClusterSpec{
-		RuntimeType:              creation.RuntimeType,
-		DockerStorageDir:         creation.DockerStorageDIr,
-		ContainerdStorageDir:     creation.ContainerdStorageDIr,
-		NetworkType:              creation.NetworkType,
-		CiliumVersion:            creation.CiliumVersion,
-		CiliumTunnelMode:         creation.CiliumTunnelMode,
-		CiliumNativeRoutingCidr:  creation.CiliumNativeRoutingCidr,
-		Version:                  creation.Version,
-		Provider:                 creation.Provider,
-		FlannelBackend:           creation.FlannelBackend,
-		CalicoIpv4poolIpip:       creation.CalicoIpv4poolIpip,
-		KubeProxyMode:            creation.KubeProxyMode,
-		NodeportAddress:          creation.NodeportAddress,
-		KubeServiceNodePortRange: creation.KubeServiceNodePortRange,
-		EnableDnsCache:           creation.EnableDnsCache,
-		DnsCacheVersion:          creation.DnsCacheVersion,
-		IngressControllerType:    creation.IngressControllerType,
-		Architectures:            creation.Architectures,
-		KubeDnsDomain:            creation.KubeDnsDomain,
-		KubernetesAudit:          creation.KubernetesAudit,
-		DockerSubnet:             creation.DockerSubnet,
-		HelmVersion:              creation.HelmVersion,
-		NetworkInterface:         creation.NetworkInterface,
-		NetworkCidr:              creation.NetworkCidr,
-		SupportGpu:               creation.SupportGpu,
-		YumOperate:               creation.YumOperate,
-		LbMode:                   creation.LbMode,
-		LbKubeApiserverIp:        creation.LbKubeApiserverIp,
-		KubeApiServerPort:        creation.KubeApiServerPort,
-		KubePodSubnet:            creation.KubePodSubnet,
-		KubeServiceSubnet:        creation.KubeServiceSubnet,
-		MaxNodeNum:               creation.MaxNodeNum,
-		MasterScheduleType:       creation.MasterScheduleType,
-	}
-
-	nodeMask, err := getNodeCIDRMaskSize(creation.MaxNodePodNum)
-	if err != nil {
-		return nil, err
-	}
-
-	spec.KubeMaxPods = maxNodePodNumMap[nodeMask]
-	spec.KubeNetworkNodePrefix = nodeMask
-
-	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
-	secret := model.ClusterSecret{
-		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
-	}
-	tx := db.DB.Begin()
-	if err := tx.Create(&spec).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	if err := tx.Create(&status).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	if err := tx.Create(&secret).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	cluster.SpecID = spec.ID
-	cluster.StatusID = status.ID
-	cluster.SecretID = secret.ID
-	var project model.Project
-	if err := tx.Where("name = ?", creation.ProjectName).First(&project).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
-	}
-	cluster.ProjectID = project.ID
-	if err := tx.Create(&cluster).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if creation.SupportGpu == constant.StatusEnabled {
-		gpuInfo := &model.ClusterGpu{
-			ClusterID: cluster.ID,
-			Status:    constant.StatusEnabled,
-		}
-		if err := tx.Create(&gpuInfo).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
-
-	switch spec.Provider {
-	case constant.ClusterProviderPlan:
-		spec.WorkerAmount = creation.WorkerAmount
-		var plan model.Plan
-		if err := tx.Where("name = ?", creation.Plan).First(&plan).Error; err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
-		}
-		cluster.PlanID = plan.ID
-		if err := tx.Save(&cluster).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-		clusterResource := model.ClusterResource{
-			ResourceID:   plan.ID,
-			ClusterID:    cluster.ID,
-			ResourceType: constant.ResourcePlan,
-		}
-		if err := tx.Create(&clusterResource).Error; err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not create cluster  %s resource reason %s", cluster.Name, err.Error())
-		}
-	case constant.ClusterProviderBareMetal:
-		workerNo := 1
-		masterNo := 1
-		firstMasterIP := ""
-		for _, nc := range creation.Nodes {
-			n := model.ClusterNode{
-				ClusterID: cluster.ID,
-				Role:      nc.Role,
-			}
-
-			var host model.Host
-			if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("name = ?", nc.HostName).First(&host).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not find host %s cluster id ", nc.HostName)
-			}
-			host.ClusterID = cluster.ID
-			if err := tx.Save(&host).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not update host %s cluster id ", nc.HostName)
-			}
-
-			clusterResource := model.ClusterResource{
-				ClusterID:    cluster.ID,
-				ResourceID:   host.ID,
-				ResourceType: constant.ResourceHost,
-			}
-			if err := tx.Create(&clusterResource).Error; err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can bind host %s to cluster", nc.HostName)
-			}
-
-			switch cluster.NodeNameRule {
-			case constant.NodeNameRuleDefault:
-				if n.Role == constant.NodeRoleNameMaster {
-					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
-					if len(firstMasterIP) == 0 {
-						firstMasterIP = n.Host.Ip
-					}
-					masterNo++
-				} else {
-					n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
-					workerNo++
-				}
-			case constant.NodeNameRuleIP:
-				n.Name = host.Ip
-			case constant.NodeNameRuleHostName:
-				n.Name = host.Name
-			}
-
-			n.HostID = host.ID
-			if err := tx.Create(&n).Error; err != nil {
-				return nil, fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
-			}
-			n.Host = host
-			cluster.Nodes = append(cluster.Nodes, n)
-		}
-		if cluster.Spec.LbMode == constant.LbModeInternal {
-			cluster.Spec.LbKubeApiserverIp = firstMasterIP
-		}
-		spec.KubeRouter = firstMasterIP
-	}
-	if err := tx.Save(&spec).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	projectResource := model.ProjectResource{
-		ResourceID:   cluster.ID,
-		ProjectID:    project.ID,
-		ResourceType: constant.ResourceCluster,
-	}
-	if err := tx.Create(&projectResource).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
-	}
-
-	var (
-		manifest model.ClusterManifest
-		toolVars []model.VersionHelp
-	)
-	if err := tx.Where("name = ?", spec.Version).First(&manifest).Error; err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("can find manifest version: %s", err.Error())
-	}
-	if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
-	}
-	for _, tool := range cluster.PrepareTools() {
-		for _, item := range toolVars {
-			if tool.Name == item.Name {
-				tool.Version = item.Version
-				break
-			}
-		}
-		tool.ClusterID = cluster.ID
-		err := tx.Create(&tool).Error
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
-		}
-	}
-
-	if spec.Architectures == "amd64" {
-		for _, istio := range cluster.PrepareIstios() {
-			istio.ClusterID = cluster.ID
-			err := tx.Create(&istio).Error
-			if err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("can not prepare cluster istio %s reason %s", istio.Name, err.Error())
-			}
-		}
-	}
-	tx.Commit()
-
-	logger.Log.Infof("init db data of cluster %s successful, now start to create cluster", cluster.Name)
-	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return nil, err
-	}
-	return &dto.Cluster{Cluster: cluster}, nil
-}
-
-func getNodeCIDRMaskSize(maxNodePodNum int) (int, error) {
-	nodeCidrOccupy := math.Ceil(math.Log2(float64(maxNodePodNum)))
-	nodeCIDRMaskSize := 32 - int(nodeCidrOccupy)
-	return nodeCIDRMaskSize, nil
+	go c.clusterInitService.Init(cluster, writer)
+	return nil
 }
 
 func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	logger.Log.Infof("start to delete cluster %s, isforce: %v", name, force)
 	go c.deleteKubePi(name)
-	cluster, err := c.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf", "SpecNetwork", "SpecRuntime", "Nodes", "Nodes.Host", "Nodes.Host.Credential", "Nodes.Host.Zone", "MultiClusterRepositories"})
 	if err != nil {
 		return fmt.Errorf("can not get cluster %s reason %s", name, err)
 	}
@@ -610,7 +323,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 			cluster.Source = constant.ClusterSourceLocal
 		} else {
 			cluster.Source = constant.ClusterSourceExternal
-			if err := db.DB.Model(&model.ClusterSpec{}).Where("id = ?", cluster.Spec.ID).Update("provider", constant.ClusterProviderPlan).Error; err != nil {
+			if err := db.DB.Model(&model.Cluster{}).Where("id = ?", cluster.ID).Update("provider", constant.ClusterProviderPlan).Error; err != nil {
 				return err
 			}
 		}
@@ -620,23 +333,19 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 	case constant.ClusterSourceLocal:
 		switch cluster.Status {
 		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed, constant.StatusNotReady:
-			cluster.Cluster.Status.Phase = constant.StatusTerminating
-			cluster.Cluster.Status.ClusterStatusConditions = []model.ClusterStatusCondition{}
-			condition := model.ClusterStatusCondition{
-				Name:          "DeleteCluster",
-				Status:        constant.ConditionUnknown,
-				OrderNum:      0,
-				LastProbeTime: time.Now(),
-			}
-			cluster.Cluster.Status.ClusterStatusConditions = append(cluster.Cluster.Status.ClusterStatusConditions, condition)
-			if err := c.clusterStatusRepo.Save(&cluster.Cluster.Status); err != nil {
+			tasklog, err := c.tasklogService.NewTerminalTask(cluster.ID, constant.TaskLogTypeClusterDelete)
+			if err != nil {
 				return fmt.Errorf("can not update cluster %s status", cluster.Name)
 			}
-			switch cluster.Spec.Provider {
+			cluster.TaskLog = *tasklog
+			cluster.CurrentTaskID = tasklog.ID
+			cluster.Status = constant.StatusTerminating
+			_ = c.clusterRepo.Save(&cluster)
+			switch cluster.Provider {
 			case constant.ClusterProviderBareMetal:
-				go c.uninstallCluster(&cluster.Cluster, force)
+				go c.uninstallCluster(&cluster, force)
 			case constant.ClusterProviderPlan:
-				go c.destroyCluster(&cluster.Cluster, force)
+				go c.destroyCluster(&cluster, force)
 			}
 		case constant.StatusCreating, constant.StatusInitializing:
 			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
@@ -645,7 +354,7 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 		}
 	case constant.ClusterSourceExternal:
 		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterDelete, true, ""), cluster.Name, constant.ClusterDelete)
-		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+		if err := db.DB.Delete(&cluster).Error; err != nil {
 			return err
 		}
 	}
@@ -654,13 +363,11 @@ func (c *clusterService) Delete(name string, force bool, uninstall bool) error {
 
 func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) {
 	logger.Log.Infof("cluster %s delete failed: %+v", cluster.Name, errStr)
-	cluster.Status.Phase = constant.ClusterFailed
-	cluster.Status.Message = errStr.Error()
-	if len(cluster.Status.ClusterStatusConditions) == 1 {
-		cluster.Status.ClusterStatusConditions[0].Status = constant.ConditionFalse
-		cluster.Status.ClusterStatusConditions[0].Message = errStr.Error()
-	}
-	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	cluster.Status = constant.StatusFailed
+	cluster.Message = errStr.Error()
+	_ = c.clusterRepo.Save(cluster)
+	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
+
 	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, errStr.Error()), cluster.Name, constant.ClusterUnInstall)
 }
 
@@ -668,12 +375,10 @@ const terminalPlaybookName = "99-reset-cluster.yml"
 
 func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 	logger.Log.Infof("start to uninstall cluster %s, isforce: %v", cluster.Name, force)
-	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		logger.Log.Error(err)
+		logger.Log.Error(fmt.Sprintf("%+v", err))
 	}
-	cluster.LogId = logId
-	_ = db.DB.Save(cluster)
 
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
@@ -684,7 +389,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 	}
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	ntps, _ := c.ntpServerRepo.GetAddressStr()
-	k.SetVar(facts.NtpServerName, ntps)
+	k.SetVar(facts.NtpServerFactName, ntps)
 
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {
@@ -703,6 +408,9 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		return
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	if err := c.tasklogService.End(&cluster.TaskLog, true, ""); err != nil {
+		logger.Log.Errorf("update tasklog error %s", err.Error())
+	}
 	logger.Log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		logger.Log.Errorf("delete cluster error %s", err.Error())
@@ -712,12 +420,11 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 
 func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	logger.Log.Infof("start to destroy cluster %s, isforce: %v", cluster.Name, force)
-	logId, _, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+
+	_, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("%+v", err))
 	}
-	cluster.LogId = logId
-	_ = db.DB.Save(cluster)
 	plan, _ := c.planRepo.GetById(cluster.PlanID)
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
 	_, err = k.Destroy(plan.Region.Vars)
@@ -740,34 +447,34 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 	}
 }
 
-func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
-	var result kubernetes.Host
-	cluster, err := c.clusterRepo.Get(name)
+func (c clusterService) GetApiServerEndpoint(name string) (string, error) {
+	var result string
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return "", err
 	}
-	port := cluster.Spec.KubeApiServerPort
-	if cluster.Spec.LbKubeApiserverIp != "" {
-		result = kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port))
+	port := cluster.SpecConf.KubeApiServerPort
+	if cluster.SpecConf.LbKubeApiserverIp != "" {
+		result = fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port)
 		return result, nil
 	}
 	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
 		return "", err
 	}
-	result = kubernetes.Host(fmt.Sprintf("%s:%d", master.Host.Ip, port))
+	result = fmt.Sprintf("%s:%d", master.Host.Ip, port)
 	return result, nil
 }
 
-func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, error) {
-	var result []kubernetes.Host
-	cluster, err := c.clusterRepo.Get(name)
+func (c clusterService) GetApiServerEndpoints(name string) ([]string, error) {
+	var result []string
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return nil, err
 	}
-	port := cluster.Spec.KubeApiServerPort
-	if cluster.Spec.LbKubeApiserverIp != "" {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port)))
+	port := cluster.SpecConf.KubeApiServerPort
+	if cluster.SpecConf.LbKubeApiserverIp != "" {
+		result = append(result, fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 		return result, nil
 	}
 	masters, err := c.clusterNodeRepo.AllMaster(cluster.ID)
@@ -775,18 +482,18 @@ func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, e
 		return nil, err
 	}
 	for i := range masters {
-		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", masters[i].Host.Ip, port)))
+		result = append(result, fmt.Sprintf("%s:%d", masters[i].Host.Ip, port))
 	}
 	return result, nil
 }
 
 func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	var endpoint dto.Endpoint
 	if err != nil {
 		return endpoint, err
 	}
-	endpoint.Address = cluster.Spec.KubeRouter
+	endpoint.Address = cluster.SpecConf.KubeRouter
 	return endpoint, nil
 }
 
@@ -796,7 +503,7 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	if err != nil {
 		return token, err
 	}
-	aliveHost, err := kubernetes.SelectAliveHost(endpoints)
+	aliveHost, err := clusterUtil.SelectAliveHost(endpoints)
 	if err != nil {
 		return token, err
 	}
@@ -815,7 +522,7 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 }
 
 func (c clusterService) GetKubeconfig(name string) (string, error) {
-	cluster, err := c.clusterRepo.Get(name)
+	cluster, err := c.clusterRepo.GetWithPreload(name, []string{"SpecConf"})
 	if err != nil {
 		return "", err
 	}
@@ -834,7 +541,7 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	}
 	configStr := string(bf)
 
-	lbAddr := fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, cluster.Spec.KubeApiServerPort)
+	lbAddr := fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort)
 	newStr := strings.ReplaceAll(configStr, "127.0.0.1:8443", lbAddr)
 
 	return newStr, nil

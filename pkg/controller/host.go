@@ -233,11 +233,11 @@ func (h *HostController) PostBatch() error {
 	}
 
 	operator := h.Ctx.Values().GetString("operator")
-	delHost := ""
+	hosts := ""
 	for _, item := range req.Items {
-		delHost += item.Name + ","
+		hosts += item.Name + ","
 	}
-	go kolog.Save(operator, constant.DELETE_HOST, delHost)
+	go kolog.Save(operator, constant.EDIT_HOST, hosts)
 
 	return err
 }

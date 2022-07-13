@@ -93,7 +93,7 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 		resourceIds      []string
 		resources        interface{}
 	)
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return nil, err
 	}
 	if err := db.DB.Model(&model.ClusterResource{}).
@@ -110,10 +110,10 @@ func (c clusterResourceService) List(clusterName string, resourceType string) (i
 	}
 
 	arch := "all"
-	if cluster.Spec.Architectures == constant.ArchARM64 {
+	if cluster.Architectures == constant.ArchARM64 {
 		arch = constant.ArchitectureOfAMD64
 	}
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		arch = constant.ArchitectureOfARM64
 	}
 
@@ -273,7 +273,7 @@ func (c clusterResourceService) GetResources(resourceType, projectName, clusterN
 	if err := db.DB.Model(&model.Project{}).Where("name = ?", projectName).Find(&project).Error; err != nil {
 		return nil, err
 	}
-	if err := db.DB.Model(&model.Cluster{}).Where("name = ?", clusterName).Preload("Spec").Find(&cluster).Error; err != nil {
+	if err := db.DB.Model(&model.Cluster{}).Where("name = ?", clusterName).Find(&cluster).Error; err != nil {
 		return nil, err
 	}
 
@@ -311,11 +311,10 @@ func createCheck(clusterName string, request dto.ClusterResourceCreate) error {
 	}
 
 	var cluster model.Cluster
-	if err := db.DB.Model(&model.Cluster{}).Preload("Spec").
-		Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan && request.ResourceType == constant.ResourceHost {
+	if cluster.Provider == constant.ClusterProviderPlan && request.ResourceType == constant.ResourceHost {
 		return errors.New("CLUSTER_PROVIDER_ERROR")
 	}
 
@@ -337,11 +336,10 @@ func deleteCheck(resourceName, resourceType, clusterName string) error {
 	}
 
 	var cluster model.Cluster
-	if err := db.DB.Model(&model.Cluster{}).Preload("Spec").
-		Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan && resourceType == constant.ResourceHost {
+	if cluster.Provider == constant.ClusterProviderPlan && resourceType == constant.ResourceHost {
 		return errors.New("CLUSTER_PROVIDER_ERROR")
 	}
 

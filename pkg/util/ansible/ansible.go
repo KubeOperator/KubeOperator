@@ -53,6 +53,7 @@ func GetAnsibleLogReader(clusterName string, logId string) (io.Reader, error) {
 	}
 	return result, nil
 }
+
 func GetNodeAnsibleLogReader(clusterName string, nodeName string, logId string) (io.Reader, error) {
 	logPath := path.Join(constant.DefaultAnsibleLogDir, clusterName, nodeName, fmt.Sprintf("%s.log", logId))
 	result, err := os.OpenFile(logPath, os.O_RDONLY, 0755)

@@ -55,7 +55,7 @@ func (d Dashboard) Install(toolDetail model.ClusterToolDetail) error {
 		url:     constant.DefaultDashboardIngress,
 		service: constant.DefaultDashboardServiceName,
 		port:    9090,
-		version: d.Cluster.Spec.Version,
+		version: d.Cluster.Version,
 	}
 	if err := createRoute(d.Cluster.Namespace, ingressItem, d.Cluster.KubeClient); err != nil {
 		return err
@@ -72,5 +72,5 @@ func (d Dashboard) Upgrade(toolDetail model.ClusterToolDetail) error {
 }
 
 func (d Dashboard) Uninstall() error {
-	return uninstall(d.Cluster.Namespace, d.Tool, constant.DefaultDashboardIngressName, d.Cluster.Spec.Version, d.Cluster.HelmClient, d.Cluster.KubeClient)
+	return uninstall(d.Cluster.Namespace, d.Tool, constant.DefaultDashboardIngressName, d.Cluster.Version, d.Cluster.HelmClient, d.Cluster.KubeClient)
 }

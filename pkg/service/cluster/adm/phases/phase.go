@@ -93,6 +93,24 @@ func WaitForDeployRunning(namespace string, deploymentName string, kubeClient *k
 	return nil
 }
 
+func WaitForDaemonsetRunning(namespace string, daemonsetName string, kubeClient *kubernetes.Clientset) error {
+	kubeClient.CoreV1()
+	err := wait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {
+		d, err := kubeClient.AppsV1().DaemonSets(namespace).Get(context.TODO(), daemonsetName, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if d.Status.NumberReady > 0 {
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func WaitForStatefulSetsRunning(namespace string, statefulSetsName string, kubeClient *kubernetes.Clientset) error {
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {

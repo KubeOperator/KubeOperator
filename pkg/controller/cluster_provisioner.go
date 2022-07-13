@@ -8,7 +8,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -101,17 +100,4 @@ func (c ProvisionerController) PostBatchBy(clusterName string) error {
 	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
 
 	return nil
-}
-
-func (c ProvisionerController) PostDeployment() (interface{}, error) {
-	var req dto.DeploymentSearch
-	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return nil, err
-	}
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return nil, err
-	}
-
-	return c.ClusterStorageProvisionerService.SearchDeployment(req)
 }

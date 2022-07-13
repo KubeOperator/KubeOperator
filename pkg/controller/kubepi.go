@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
@@ -14,12 +16,14 @@ type KubePiController struct {
 	Ctx            context.Context
 	KubePiService  service.KubepiService
 	ClusterService service.ClusterService
+	clusterRepo    repository.ClusterRepository
 }
 
 func NewKubePiController() *KubePiController {
 	return &KubePiController{
 		KubePiService:  service.NewKubepiService(),
 		ClusterService: service.NewClusterService(),
+		clusterRepo:    repository.NewClusterRepository(),
 	}
 }
 
@@ -65,31 +69,37 @@ func (p KubePiController) PostCheckConn() error {
 	return p.KubePiService.CheckConn(req)
 }
 
-func (p KubePiController) GetJumpBy(project string, cluster string) (*dto.Dashboard, error) {
+func (p KubePiController) GetJumpBy(project string, clusterName string) (*dto.Dashboard, error) {
 	user := p.Ctx.Values().Get("user")
 	roleStr, _ := user.(dto.SessionUser)
-	ss, err := p.KubePiService.LoadInfo(project, cluster, roleStr.IsAdmin)
+	userInfo, err := p.KubePiService.LoadInfo(project, clusterName, roleStr.IsAdmin)
 	if err != nil {
 		return nil, err
 	}
-	secrets, err := p.ClusterService.GetSecrets(cluster)
+	cluster, err := p.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
-		return nil, err
-	}
-	apiServer, err := p.ClusterService.GetApiServerEndpoint(cluster)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("load cluster info failed, err: %v", err.Error())
 	}
 	kubepiClient := kubepi.GetClient()
-	username := ss.Name
-	password, err := encrypt.StringDecrypt(ss.Password)
+	username := userInfo.Name
+	password, err := encrypt.StringDecrypt(userInfo.Password)
 	if err != nil {
 		return nil, err
 	}
 	if username != "" && password != "" {
 		kubepiClient = kubepi.GetClient(kubepi.WithUsernameAndPassword(username, password))
 	}
-	opener, err := kubepiClient.Open(cluster, string(apiServer), secrets.KubernetesToken)
+
+	conn := kubepi.ConnInfo{
+		Name:               cluster.Name,
+		ApiServer:          fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort),
+		AuthenticationMode: cluster.SpecConf.AuthenticationMode,
+		KubernetesToken:    cluster.Secret.KubernetesToken,
+		KeyDataStr:         cluster.Secret.KeyDataStr,
+		CertDataStr:        cluster.Secret.CertDataStr,
+		ConfigContent:      cluster.Secret.ConfigContent,
+	}
+	opener, err := kubepiClient.Open(conn)
 	if err != nil {
 		return nil, err
 	}

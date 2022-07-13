@@ -14,7 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	uuid "github.com/satori/go.uuid"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -59,7 +59,7 @@ func (c *cisService) Get(clusterName, id string) (*dto.CisTaskDetail, error) {
 	}
 	d := &dto.CisTaskDetail{CisTaskWithResult: cisTask, CisReport: report}
 	d.ClusterName = cls.Name
-	d.ClusterVersion = cls.Spec.Version
+	d.ClusterVersion = cls.Version
 	return d, nil
 }
 
@@ -115,24 +115,24 @@ func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
 }
 
 func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto.CisTask, error) {
-	cluster, err := c.clusterRepo.Get(clusterName)
+	cluster, err := c.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("load cluster info failed, err: %v", err.Error())
 	}
 	var registery model.SystemRegistry
-	if cluster.Spec.Architectures == constant.ArchAMD64 {
+	if cluster.Architectures == constant.ArchAMD64 {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfAMD64).First(&registery).Error; err != nil {
-			return nil, errors.New("load image pull port of arm failed")
+			return nil, fmt.Errorf("load image pull port of arm failed, err: %v", err.Error())
 		}
 	} else {
 		if err := db.DB.Where("architecture = ?", constant.ArchitectureOfARM64).First(&registery).Error; err != nil {
-			return nil, errors.New("load image pull port of arm failed")
+			return nil, fmt.Errorf("load image pull port of arm failed, err: %v", err.Error())
 		}
 	}
 	localRepoPort := registery.RegistryPort
 
 	var clusterTasks []model.CisTask
-	db.DB.Where("status = ? AND cluster_id = ?", constant.ClusterRunning, cluster.ID).Find(&clusterTasks)
+	db.DB.Where("status = ? AND cluster_id = ?", constant.StatusRunning, cluster.ID).Find(&clusterTasks)
 	if len(clusterTasks) > 0 {
 		return nil, errors.New("CIS_TASK_ALREADY_RUNNING")
 	}
@@ -149,26 +149,13 @@ func (c *cisService) Create(clusterName string, create *dto.CisTaskCreate) (*dto
 		return nil, err
 	}
 
-	endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	secret, err := c.clusterService.GetSecrets(cluster.Name)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 	tx.Commit()
-	go Do(&cluster, client, &task, localRepoPort)
+	go Do(client, &task, localRepoPort)
 	return &dto.CisTask{CisTask: task}, nil
 }
 
@@ -185,7 +172,7 @@ func (c *cisService) Delete(clusterName, id string) error {
 
 const kubeBenchVersion = "v0.6.8"
 
-func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask, port int) {
+func Do(client *kubernetes.Clientset, task *model.CisTask, port int) {
 	taskWithResult := &model.CisTaskWithResult{CisTask: *task}
 
 	taskWithResult.Status = CisTaskStatusRunning

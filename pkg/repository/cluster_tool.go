@@ -20,10 +20,10 @@ type clusterToolRepository struct{}
 func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, error) {
 	var cluster model.Cluster
 	var tools []model.ClusterTool
-	if err := db.DB.Where("name = ?", clusterName).Preload("Spec").First(&cluster).Error; err != nil {
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
 		return tools, err
 	}
-	if err := db.DB.Where("cluster_id = ? AND architecture in (?)", cluster.ID, []string{cluster.Spec.Architectures, "all"}).Find(&tools).Error; err != nil {
+	if err := db.DB.Where("cluster_id = ? AND architecture in (?)", cluster.ID, []string{cluster.Architectures, "all"}).Find(&tools).Error; err != nil {
 		return tools, err
 	}
 	return tools, nil

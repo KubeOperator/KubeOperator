@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/migration"
 
@@ -34,13 +35,9 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
-	p, err := encrypt.StringDecrypt(i.Password)
-	if err != nil {
-		return err
-	}
 	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai&multiStatements=true",
 		i.User,
-		p,
+		i.Password,
 		i.Host,
 		i.Port,
 		i.Name)

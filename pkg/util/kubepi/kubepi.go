@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/spf13/viper"
 )
 
@@ -26,7 +27,7 @@ func GetClient(ops ...Option) Interface {
 
 type Interface interface {
 	CheckLogin() error
-	Open(name, apiServer, token string) (Opener, error)
+	Open(conn ConnInfo) (Opener, error)
 	Close(name, apiServer string) error
 	SearchUsers() (*ListUser, error)
 	SetOptions(...Option)
@@ -39,6 +40,16 @@ type KubePi struct {
 	Port          int
 	sessionCookie *http.Cookie
 	mutex         sync.Mutex
+}
+
+type ConnInfo struct {
+	Name               string `json:"name"`
+	ApiServer          string `json:"apiServer"`
+	AuthenticationMode string `json:"authenticationMode"`
+	KubernetesToken    string `json:"kubernetesToken"`
+	CertDataStr        string `json:"certDataStr"`
+	KeyDataStr         string `json:"keyDataStr"`
+	ConfigContent      string `json:"configContent"`
 }
 
 func (k *KubePi) SetOptions(ops ...Option) {
@@ -86,8 +97,15 @@ type spec struct {
 }
 
 type Authentication struct {
-	Mode        string `json:"mode"`
-	BearerToken string `json:"bearerToken"`
+	Mode              string      `json:"mode"`
+	BearerToken       string      `json:"bearerToken"`
+	Certificate       Certificate `json:"certificate" storm:"inline"`
+	ConfigFileContent []byte      `json:"configFileContent"`
+}
+
+type Certificate struct {
+	KeyData  []byte `json:"keyData"`
+	CertData []byte `json:"certData"`
 }
 
 type connect struct {
@@ -287,28 +305,35 @@ func (k *KubePi) isClusterExists(name, apiServer string) (bool, error) {
 	return false, nil
 }
 
-func (k *KubePi) ensureImport(name, apiServer, token string) error {
+func (k *KubePi) ensureImport(conn ConnInfo) error {
 	if err := k.login(); err != nil {
 		return err
 	}
 
-	exists, err := k.isClusterExists(name, apiServer)
+	exists, err := k.isClusterExists(conn.Name, conn.ApiServer)
 	if err != nil {
 		return err
 	}
 	if exists {
 		return nil
 	}
-	config := kubePiCluster{Name: name, Spec: spec{
+	config := kubePiCluster{Name: conn.Name, Spec: spec{
 		Authentication: Authentication{
-			Mode:        "bearer",
-			BearerToken: token,
+			Mode: conn.AuthenticationMode,
 		},
 		Connect: connect{
 			Direction: "forward",
-			Forward:   forward{ApiServer: apiServer},
+			Forward:   forward{ApiServer: conn.ApiServer},
 		},
 	}}
+	switch conn.AuthenticationMode {
+	case constant.AuthenticationModeBearer:
+		config.Spec.Authentication.BearerToken = conn.KubernetesToken
+	case constant.AuthenticationModeConfigFile:
+		config.Spec.Authentication.ConfigFileContent = []byte(conn.ConfigContent)
+	case constant.AuthenticationModeCertificate:
+		config.Spec.Authentication.Certificate = Certificate{CertData: []byte(conn.CertDataStr), KeyData: []byte(conn.KeyDataStr)}
+	}
 
 	js, err := json.Marshal(&config)
 	if err != nil {
@@ -403,13 +428,13 @@ type Opener struct {
 	Redirect      string
 }
 
-func (k *KubePi) Open(name, apiServer, token string) (Opener, error) {
+func (k *KubePi) Open(conn ConnInfo) (Opener, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
-	if err := k.ensureImport(name, apiServer, token); err != nil {
+	if err := k.ensureImport(conn); err != nil {
 		return Opener{}, err
 	}
-	url := fmt.Sprintf("/kubepi/dashboard?cluster=%s", name)
+	url := fmt.Sprintf("/kubepi/dashboard?cluster=%s", conn.Name)
 	return Opener{SessionCookie: k.sessionCookie, Redirect: url}, nil
 }
 

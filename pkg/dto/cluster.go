@@ -1,28 +1,21 @@
 package dto
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 )
 
 type Cluster struct {
 	model.Cluster
 	NodeSize               int    `json:"nodeSize"`
 	ProjectName            string `json:"projectName"`
-	Status                 string `json:"status"`
-	PreStatus              string `json:"preStatus"`
-	Provider               string `json:"provider"`
-	Architectures          string `json:"architectures"`
 	MultiClusterRepository string `json:"multiClusterRepository"`
-	Message                string `json:"message"`
 }
 
 type ClusterPage struct {
 	Items []Cluster `json:"items"`
 	Total int       `json:"total"`
-}
-
-type ClusterStatus struct {
-	model.ClusterStatus
 }
 
 type ClusterSecret struct {
@@ -33,57 +26,62 @@ type ClusterNode struct {
 	model.ClusterNode
 }
 
-type ClusterSpec struct {
-	model.ClusterSpec
-}
-
 type NodeCreate struct {
 	HostName string `json:"hostName"`
 	Role     string `json:"role"`
 }
 
 type ClusterCreate struct {
-	Name                     string       `json:"name" binding:"required"`
-	NodeNameRule             string       `json:"nodeNameRule" binding:"required"`
-	Version                  string       `json:"version" binding:"required"`
-	Provider                 string       `json:"provider"`
-	Plan                     string       `json:"plan"`
-	WorkerAmount             int          `json:"workerAmount"`
-	NetworkType              string       `json:"networkType"`
-	CiliumVersion            string       `json:"ciliumVersion"`
-	CiliumTunnelMode         string       `json:"ciliumTunnelMode"`
-	CiliumNativeRoutingCidr  string       `json:"ciliumNativeRoutingCidr"`
-	RuntimeType              string       `json:"runtimeType"`
-	DockerStorageDIr         string       `json:"dockerStorageDIr"`
-	ContainerdStorageDIr     string       `json:"containerdStorageDIr"`
-	FlannelBackend           string       `json:"flannelBackend"`
-	CalicoIpv4poolIpip       string       `json:"calicoIpv4PoolIpip"`
-	KubeProxyMode            string       `json:"kubeProxyMode"`
-	NodeportAddress          string       `json:"nodeportAddress"`
-	KubeServiceNodePortRange string       `json:"kubeServiceNodePortRange"`
-	EnableDnsCache           string       `json:"enableDnsCache"`
-	DnsCacheVersion          string       `json:"dnsCacheVersion"`
-	IngressControllerType    string       `json:"ingressControllerType"`
-	Architectures            string       `json:"architectures"`
-	KubeDnsDomain            string       `json:"kubeDnsDomain"`
-	KubernetesAudit          string       `json:"kubernetesAudit"`
-	DockerSubnet             string       `json:"dockerSubnet"`
-	Nodes                    []NodeCreate `json:"nodes"`
-	ProjectName              string       `json:"projectName"`
-	HelmVersion              string       `json:"helmVersion"`
-	NetworkInterface         string       `json:"networkInterface"`
-	NetworkCidr              string       `json:"networkCidr"`
-	SupportGpu               string       `json:"supportGpu"`
-	YumOperate               string       `json:"yumOperate"`
-	LbMode                   string       `json:"lbMode"`
-	LbKubeApiserverIp        string       `json:"lbKubeApiserverIp"`
-	KubeApiServerPort        int          `json:"kubeApiServerPort"`
-	MasterScheduleType       string       `json:"masterScheduleType"`
+	Name          string `json:"name" binding:"required"`
+	ProjectName   string `json:"projectName"`
+	NodeNameRule  string `json:"nodeNameRule" binding:"required"`
+	Version       string `json:"version" binding:"required"`
+	Architectures string `json:"architectures"`
+	Provider      string `json:"provider"`
+	Plan          string `json:"plan"`
+	YumOperate    string `json:"yumOperate"`
 
-	KubePodSubnet     string `json:"kubePodSubnet"`
-	MaxNodePodNum     int    `json:"maxNodePodNum"`
-	MaxNodeNum        int    `json:"maxNodeNum"`
-	KubeServiceSubnet string `json:"kubeServiceSubnet"`
+	NetworkType             string `json:"networkType"`
+	CiliumVersion           string `json:"ciliumVersion"`
+	CiliumTunnelMode        string `json:"ciliumTunnelMode"`
+	CiliumNativeRoutingCidr string `json:"ciliumNativeRoutingCidr"`
+	FlannelBackend          string `json:"flannelBackend"`
+	CalicoIpv4PoolIpip      string `json:"calicoIpv4PoolIpip"`
+	NetworkInterface        string `json:"networkInterface"`
+	NetworkCidr             string `json:"networkCidr"`
+
+	KubePodSubnet            string `json:"kubePodSubnet"`
+	MaxNodePodNum            int    `json:"maxNodePodNum"`
+	MaxNodeNum               int    `json:"maxNodeNum"`
+	KubeServiceSubnet        string `json:"kubeServiceSubnet"`
+	KubeProxyMode            string `json:"kubeProxyMode"`
+	KubeDnsDomain            string `json:"kubeDnsDomain"`
+	KubernetesAudit          string `json:"kubernetesAudit"`
+	NodeportAddress          string `json:"nodeportAddress"`
+	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
+
+	RuntimeType          string `json:"runtimeType"`
+	DockerSubnet         string `json:"dockerSubnet"`
+	DockerStorageDir     string `json:"dockerStorageDir"`
+	ContainerdStorageDir string `json:"containerdStorageDir"`
+
+	HelmVersion             string `json:"helmVersion"`
+	EnableDnsCache          string `json:"enableDnsCache"`
+	DnsCacheVersion         string `json:"dnsCacheVersion"`
+	IngressControllerType   string `json:"ingressControllerType"`
+	SupportGpu              string `json:"supportGpu"`
+	EtcdDataDir             string `json:"etcdDataDir"`
+	EtcdSnapshotCount       int    `json:"etcdSnapshotCount"`
+	EtcdCompactionRetention int    `json:"etcdCompactionRetention"`
+	EtcdMaxRequest          int    `json:"etcdMaxRequest"`
+	EtcdQuotaBackend        int    `json:"etcdQuotaBackend"`
+
+	LbMode             string       `json:"lbMode"`
+	LbKubeApiserverIp  string       `json:"lbKubeApiserverIp"`
+	KubeApiServerPort  int          `json:"kubeApiServerPort"`
+	MasterScheduleType string       `json:"masterScheduleType"`
+	WorkerAmount       int          `json:"workerAmount"`
+	Nodes              []NodeCreate `json:"nodes"`
 }
 
 type ClusterBatch struct {
@@ -107,10 +105,6 @@ type WebkubectlToken struct {
 
 type IsClusterNameExist struct {
 	IsExist bool `json:"isExist"`
-}
-
-type ClusterLog struct {
-	model.ClusterLog
 }
 
 type ClusterUpgrade struct {
@@ -143,10 +137,15 @@ type ClusterInfo struct {
 
 type ClusterLoad struct {
 	Name          string `json:"name"`
-	ApiServer     string `json:"apiServer"`
 	Router        string `json:"router"`
-	Token         string `json:"token"`
 	Architectures string `json:"architectures"`
+
+	AuthenticationMode string `json:"authenticationMode"`
+	ApiServer          string `json:"apiServer"`
+	Token              string `json:"token"`
+	CertDataStr        string `json:"certDataStr"`
+	KeyDataStr         string `json:"keyDataStr"`
+	ConfigContent      string `json:"configContent"`
 }
 
 type ClusterLoadInfo struct {
@@ -161,14 +160,11 @@ type ClusterLoadInfo struct {
 	NodeportAddress          string `json:"nodeportAddress"`
 	KubeProxyMode            string `json:"kubeProxyMode"`
 	NetworkType              string `json:"networkType"`
-	IngressControllerType    string `json:"ingressControllerType"`
-	EnableDnsCache           string `json:"enableDnsCache"`
 	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	RuntimeType              string `json:"runtimeType"`
 	MasterScheduleType       string `json:"masterScheduleType"`
 
-	SupportGpu            string         `json:"supportGpu"`
 	KubePodSubnet         string         `json:"kubePodSubnet"`
 	KubeServiceSubnet     string         `json:"kubeServiceSubnet"`
 	MaxNodeNum            int            `json:"maxNodeNum"`
@@ -176,10 +172,6 @@ type ClusterLoadInfo struct {
 	KubeMaxPods           int            `json:"kubeMaxPods"`
 	KubeNetworkNodePrefix int            `json:"kubeNetworkNodePrefix"`
 	Nodes                 []NodesFromK8s `json:"nodes"`
-
-	CephFsStatus    string                          `json:"cephFsStatus"`
-	CephBlockStatus string                          `json:"cephBlockStatus"`
-	NfsProvisioners []ClusterStorageProvisionerLoad `json:"nfsProvisioners"`
 }
 
 type NodesFromK8s struct {
@@ -189,4 +181,79 @@ type NodesFromK8s struct {
 	Architecture string `json:"architecture"`
 	Role         string `json:"role"`
 	CredentialID string `json:"credentialID"`
+}
+
+func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
+	cluster := model.Cluster{
+		Name:          c.Name,
+		NodeNameRule:  c.NodeNameRule,
+		Source:        constant.ClusterSourceLocal,
+		Architectures: c.Architectures,
+		Provider:      c.Provider,
+		Version:       c.Version,
+		Status:        constant.StatusWaiting,
+	}
+	cluster.SpecNetwork = model.ClusterSpecNetwork{
+		NetworkType:             c.NetworkType,
+		CiliumVersion:           c.CiliumVersion,
+		CiliumTunnelMode:        c.CiliumTunnelMode,
+		CiliumNativeRoutingCidr: c.CiliumNativeRoutingCidr,
+		FlannelBackend:          c.FlannelBackend,
+		CalicoIpv4PoolIpip:      c.CalicoIpv4PoolIpip,
+		NetworkInterface:        c.NetworkInterface,
+		NetworkCidr:             c.NetworkCidr,
+
+		Status: constant.StatusRunning,
+	}
+	cluster.SpecRuntime = model.ClusterSpecRuntime{
+		RuntimeType:          c.RuntimeType,
+		DockerStorageDir:     c.DockerStorageDir,
+		ContainerdStorageDir: c.ContainerdStorageDir,
+		DockerSubnet:         c.DockerSubnet,
+
+		HelmVersion: c.HelmVersion,
+
+		Status: constant.StatusRunning,
+	}
+	cluster.SpecConf = model.ClusterSpecConf{
+		YumOperate: c.YumOperate,
+
+		MaxNodeNum:        c.MaxNodeNum,
+		WorkerAmount:      c.WorkerAmount,
+		KubePodSubnet:     c.KubePodSubnet,
+		KubeServiceSubnet: c.KubeServiceSubnet,
+
+		KubeProxyMode:            c.KubeProxyMode,
+		KubeDnsDomain:            c.KubeDnsDomain,
+		KubernetesAudit:          c.KubernetesAudit,
+		NodeportAddress:          c.NodeportAddress,
+		KubeServiceNodePortRange: c.KubeServiceNodePortRange,
+
+		EtcdDataDir:             c.EtcdDataDir,
+		EtcdSnapshotCount:       c.EtcdSnapshotCount,
+		EtcdCompactionRetention: c.EtcdCompactionRetention,
+		EtcdMaxRequest:          c.EtcdMaxRequest,
+		EtcdQuotaBackend:        c.EtcdQuotaBackend,
+
+		MasterScheduleType: c.MasterScheduleType,
+		LbMode:             c.LbMode,
+		LbKubeApiserverIp:  c.LbKubeApiserverIp,
+		KubeApiServerPort:  c.KubeApiServerPort,
+		AuthenticationMode: constant.AuthenticationModeBearer,
+
+		Status: constant.StatusRunning,
+	}
+
+	cluster.TaskLog = model.TaskLog{
+		Type:  constant.TaskLogTypeClusterCreate,
+		Phase: constant.StatusWaiting,
+	}
+	cluster.Secret = model.ClusterSecret{
+		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
+	}
+
+	nodeMask := clusterUtil.GetNodeCIDRMaskSize(c.MaxNodePodNum)
+	cluster.SpecConf.KubeMaxPods = clusterUtil.MaxNodePodNumMap[nodeMask]
+	cluster.SpecConf.KubeNetworkNodePrefix = nodeMask
+	return &cluster
 }

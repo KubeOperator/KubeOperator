@@ -38,6 +38,10 @@ const (
 	HEALTH_CHECK    = "集群健康检查|Health check"
 	HEALTH_RECOVER  = "集群健康恢复|Health recover"
 
+	CREATE_COMPONENT = "添加集群组件|Create cluster component"
+	DELETE_COMPONENT = "删除集群组件|Delete cluster component"
+	SYNC_COMPONENT   = "同步集群组件|Sync cluster component"
+
 	CREATE_CLUSTER_NODE = "添加集群节点|Create cluster node"
 	DELETE_CLUSTER_NODE = "删除集群节点|Delete cluster node"
 
@@ -72,6 +76,7 @@ const (
 
 	// 主机
 	CREATE_HOST    = "添加主机|Create host"
+	EDIT_HOST      = "编辑主机|Edit host"
 	SYNC_HOST_LIST = "主机同步|Sync host"
 	DELETE_HOST    = "删除主机|Delete host"
 

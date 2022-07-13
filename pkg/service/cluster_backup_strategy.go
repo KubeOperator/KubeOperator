@@ -21,7 +21,7 @@ type CLusterBackupStrategyService interface {
 
 type cLusterBackupStrategyService struct {
 	clusterBackupStrategyRepo   repository.ClusterBackupStrategyRepository
-	clusterService              ClusterService
+	clusterRepo                 repository.ClusterRepository
 	backupAccountService        BackupAccountService
 	clusterBackupFileRepository repository.ClusterBackupFileRepository
 }
@@ -29,7 +29,7 @@ type cLusterBackupStrategyService struct {
 func NewCLusterBackupStrategyService() CLusterBackupStrategyService {
 	return &cLusterBackupStrategyService{
 		clusterBackupStrategyRepo:   repository.NewClusterBackupStrategyRepository(),
-		clusterService:              NewClusterService(),
+		clusterRepo:                 repository.NewClusterRepository(),
 		backupAccountService:        NewBackupAccountService(),
 		clusterBackupFileRepository: repository.NewClusterBackupFileRepository(),
 	}
@@ -55,7 +55,7 @@ func (c cLusterBackupStrategyService) Save(creation dto.ClusterBackupStrategyReq
 	if err != nil {
 		return nil, err
 	}
-	cluster, err := c.clusterService.Get(creation.ClusterName)
+	cluster, err := c.clusterRepo.Get(creation.ClusterName)
 	if err != nil {
 		return nil, err
 	}

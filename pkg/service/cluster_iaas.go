@@ -13,75 +13,116 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
+	"github.com/jinzhu/gorm"
 )
 
 type ClusterIaasService interface {
-	Init(name string) error
+	LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error
+	LoadPlanNodes(cluster *model.Cluster) error
 }
 
 func NewClusterIaasService() ClusterIaasService {
 	return &clusterIaasService{
-		clusterRepo:         repository.NewClusterRepository(),
 		nodeRepo:            repository.NewClusterNodeRepository(),
-		hostRepo:            repository.NewHostRepository(),
-		planRepo:            repository.NewPlanRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		vmConfigRepo:        repository.NewVmConfigRepository(),
 	}
 }
 
 type clusterIaasService struct {
-	clusterRepo         repository.ClusterRepository
-	hostRepo            repository.HostRepository
 	nodeRepo            repository.ClusterNodeRepository
-	planRepo            repository.PlanRepository
 	projectResourceRepo repository.ProjectResourceRepository
 	vmConfigRepo        repository.VmConfigRepository
 }
 
-func (c clusterIaasService) Init(name string) error {
-	cluster, err := c.clusterRepo.Get(name)
-	if err != nil {
-		return err
+func (c clusterIaasService) LoadMetalNodes(creation *dto.ClusterCreate, cluster *model.Cluster, tx *gorm.DB) error {
+	workerNo, masterNo := 1, 1
+	for _, nc := range creation.Nodes {
+		n := model.ClusterNode{
+			ClusterID: cluster.ID,
+			Role:      nc.Role,
+		}
+
+		var host model.Host
+		if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("name = ?", nc.HostName).First(&host).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not find host %s cluster id ", nc.HostName)
+		}
+		host.ClusterID = cluster.ID
+		if err := tx.Save(&host).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can not update host %s cluster id ", nc.HostName)
+		}
+
+		clusterResource := model.ClusterResource{
+			ClusterID:    cluster.ID,
+			ResourceID:   host.ID,
+			ResourceType: constant.ResourceHost,
+		}
+		if err := tx.Create(&clusterResource).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("can bind host %s to cluster", nc.HostName)
+		}
+
+		switch cluster.NodeNameRule {
+		case constant.NodeNameRuleDefault:
+			if n.Role == constant.NodeRoleNameMaster {
+				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
+				masterNo++
+			} else {
+				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
+				workerNo++
+			}
+		case constant.NodeNameRuleIP:
+			n.Name = host.Ip
+		case constant.NodeNameRuleHostName:
+			n.Name = host.Name
+		}
+
+		n.HostID = host.ID
+		if err := tx.Create(&n).Error; err != nil {
+			return fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
+		}
+		n.Host = host
+		cluster.Nodes = append(cluster.Nodes, n)
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderBareMetal || len(cluster.Nodes) > 0 {
+	return nil
+}
+
+func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
+	if len(cluster.Nodes) > 0 {
 		return nil
 	}
-	plan, err := c.planRepo.GetById(cluster.PlanID)
+	tx := db.DB.Begin()
+	hosts, err := c.createHosts(*cluster, cluster.Plan)
 	if err != nil {
 		return err
 	}
-	hosts, err := c.createHosts(cluster, plan)
-	if err != nil {
-		return err
-	}
-	err = c.hostRepo.BatchSave(hosts)
-	if err != nil {
+	if err := tx.Create(&hosts).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
-	err = doInit(k, plan, hosts)
-	if err != nil {
-		for i := range hosts {
-			hosts[i].ClusterID = ""
-			_ = db.DB.Delete(&hosts[i])
-		}
-		return err
-	}
-	if err := c.hostRepo.BatchSave(hosts); err != nil {
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	if err = doInit(k, cluster.Plan, hosts); err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	var projectResources []model.ProjectResource
+	var (
+		projectResources []model.ProjectResource
+		clusterResources []model.ClusterResource
+	)
 	prs, err := c.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	for _, host := range hosts {
@@ -90,25 +131,28 @@ func (c clusterIaasService) Init(name string) error {
 			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
 		})
-		clusterResource := model.ClusterResource{
+		clusterResources = append(clusterResources, model.ClusterResource{
 			ClusterID:    cluster.ID,
 			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
-		}
-		if err := db.DB.Create(&clusterResource).Error; err != nil {
-			return err
-		}
+		})
 	}
-	err = c.projectResourceRepo.Batch(constant.BatchOperationCreate, projectResources)
-	if err != nil {
+	if err := tx.Create(&projectResources).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Create(&clusterResources).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	nodes, err := c.createNodes(cluster, hosts)
+	nodes, err := c.createNodes(*cluster, hosts)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
-	if err := c.nodeRepo.BatchSave(nodes); err != nil {
+	if err := tx.Create(&nodes).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	return nil
@@ -160,7 +204,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterCreating,
+			Status:    constant.StatusCreating,
 			ClusterID: cluster.ID,
 		}
 		if plan.Region.Provider != constant.OpenStack {
@@ -174,12 +218,12 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		}
 		hosts = append(hosts, &host)
 	}
-	for i := 0; i < cluster.Spec.WorkerAmount; i++ {
+	for i := 0; i < cluster.SpecConf.WorkerAmount; i++ {
 		host := model.Host{
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterCreating,
+			Status:    constant.StatusCreating,
 			ClusterID: cluster.ID,
 		}
 		if plan.Region.Provider != constant.OpenStack {
@@ -252,7 +296,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 		return err
 	}
 	for i := range hosts {
-		hosts[i].Status = constant.ClusterRunning
+		hosts[i].Status = constant.StatusRunning
 	}
 	return nil
 }

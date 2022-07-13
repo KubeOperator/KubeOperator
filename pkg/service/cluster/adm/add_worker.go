@@ -15,104 +15,83 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 )
 
-func (ca *ClusterAdm) AddWorker(c *Cluster, status *model.ClusterStatus) error {
-	condition := ca.getAddWorkerCurrentCondition(status)
-	if condition != nil {
-		now := time.Now()
-		f := ca.getAddWorkerHandler(condition.Name)
-		err := f(c)
+func (ca *ClusterAdm) AddWorker(aHelper *AnsibleHelper) error {
+	task := ca.getAddWorkerCurrentTask(aHelper)
+	if task != nil {
+		f := ca.getAddWorkerHandler(task.Task)
+		err := f(aHelper)
 		if err != nil {
-			ca.setAddCondition(status, model.ClusterStatusCondition{
-				Name:          condition.Name,
-				Status:        constant.ConditionFalse,
-				LastProbeTime: now,
+			aHelper.setCondition(model.TaskLogDetail{
+				Task:          task.Task,
+				Status:        constant.TaskLogStatusFailed,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     task.StartTime,
+				EndTime:       time.Now().Unix(),
 				Message:       err.Error(),
 			})
-			status.Phase = constant.ClusterFailed
-			status.Message = err.Error()
+			aHelper.Status = constant.TaskLogStatusFailed
+			aHelper.Message = err.Error()
 			return nil
 		}
-		ca.setAddCondition(status, model.ClusterStatusCondition{
-			Name:          condition.Name,
-			Status:        constant.ConditionTrue,
-			LastProbeTime: now,
+		aHelper.setCondition(model.TaskLogDetail{
+			Task:          task.Task,
+			Status:        constant.TaskLogStatusSuccess,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     task.StartTime,
+			EndTime:       time.Now().Unix(),
 		})
 
-		nextConditionType := ca.getNextAddWorkerConditionName(condition.Name)
+		nextConditionType := ca.getNextAddWorkerConditionName(task.Task)
 		if nextConditionType == ConditionTypeDone {
-			status.Phase = constant.ClusterRunning
+			aHelper.Status = constant.TaskLogStatusSuccess
 		} else {
-			ca.setAddCondition(status, model.ClusterStatusCondition{
-				Name:          nextConditionType,
-				Status:        constant.ConditionUnknown,
-				LastProbeTime: time.Now(),
-				Message:       "",
+			aHelper.setCondition(model.TaskLogDetail{
+				Task:          nextConditionType,
+				Status:        constant.TaskLogStatusRunning,
+				LastProbeTime: time.Now().Unix(),
+				StartTime:     time.Now().Unix(),
 			})
 		}
 	}
 	return nil
 }
 
-func (ca *ClusterAdm) getAddWorkerCurrentCondition(status *model.ClusterStatus) *model.ClusterStatusCondition {
-	if len(status.ClusterStatusConditions) == 0 {
-		return &model.ClusterStatusCondition{
-			Name:          ca.addWorkerHandlers[0].name(),
-			Status:        constant.ConditionUnknown,
-			LastProbeTime: time.Now(),
+func (ca *ClusterAdm) getAddWorkerCurrentTask(aHelper *AnsibleHelper) *model.TaskLogDetail {
+	if len(aHelper.LogDetail) == 0 {
+		return &model.TaskLogDetail{
+			Task:          ca.addWorkerHandlers[0].name(),
+			Status:        constant.TaskLogStatusRunning,
+			LastProbeTime: time.Now().Unix(),
+			StartTime:     time.Now().Unix(),
+			EndTime:       time.Now().Unix(),
 			Message:       "",
 		}
 	}
-	for _, condition := range status.ClusterStatusConditions {
-		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
-			return &condition
+	for _, detail := range aHelper.LogDetail {
+		if detail.Status == constant.TaskLogStatusFailed || detail.Status == constant.TaskLogStatusRunning {
+			return &detail
 		}
 	}
 	return nil
 }
 
-func (ca *ClusterAdm) getAddWorkerHandler(conditionName string) Handler {
+func (ca *ClusterAdm) getAddWorkerHandler(detailName string) Handler {
 	for _, f := range ca.addWorkerHandlers {
-		if conditionName == f.name() {
+		if detailName == f.name() {
 			return f
 		}
 	}
 	return nil
 }
-func (ca *ClusterAdm) setAddCondition(status *model.ClusterStatus, newCondition model.ClusterStatusCondition) {
-	var conditions []model.ClusterStatusCondition
-	exist := false
-	for _, condition := range status.ClusterStatusConditions {
-		if condition.Name == newCondition.Name {
-			exist = true
-			if newCondition.Status != condition.Status {
-				condition.Status = newCondition.Status
-			}
-			if newCondition.Message != condition.Message {
-				condition.Message = newCondition.Message
-			}
-			if !newCondition.LastProbeTime.IsZero() && newCondition.LastProbeTime != condition.LastProbeTime {
-				condition.LastProbeTime = newCondition.LastProbeTime
-			}
-		}
-		conditions = append(conditions, condition)
-	}
-	if !exist {
-		if newCondition.LastProbeTime.IsZero() {
-			newCondition.LastProbeTime = time.Now()
-		}
-		conditions = append(conditions, newCondition)
-	}
-	status.ClusterStatusConditions = conditions
 
-}
-func (ca *ClusterAdm) getNextAddWorkerConditionName(conditionName string) string {
+func (ca *ClusterAdm) getNextAddWorkerConditionName(detailName string) string {
 	var (
 		i int
 		f Handler
 	)
 	for i, f = range ca.addWorkerHandlers {
 		name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
-		if strings.Contains(name, conditionName) {
+		if strings.Contains(name, detailName) {
 			break
 		}
 	}
@@ -123,54 +102,54 @@ func (ca *ClusterAdm) getNextAddWorkerConditionName(conditionName string) string
 	return next.name()
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerTaskStart(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerTaskStart(aHelper *AnsibleHelper) error {
 	time.Sleep(5 * time.Second)
-	writeLog("----add worker task start----", c.Writer)
+	writeLog("----add worker task start----", aHelper.Writer)
 	return nil
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerBaseSystemConfig(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerBaseSystemConfig(aHelper *AnsibleHelper) error {
 	phase := prepare.AddWorkerBaseSystemConfigPhase{}
-	err := phase.Run(c.Kobe, c.Writer)
+	err := phase.Run(aHelper.Kobe, aHelper.Writer)
 	return err
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerContainerRuntime(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerContainerRuntime(aHelper *AnsibleHelper) error {
 	phase := prepare.AddWorkerContainerRuntimePhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerKubernetesComponent(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerKubernetesComponent(aHelper *AnsibleHelper) error {
 	phase := prepare.AddWorkerKubernetesComponentPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerLoadBalancer(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerLoadBalancer(aHelper *AnsibleHelper) error {
 	phase := prepare.AddWorkerLoadBalancerPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerCertificates(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerCertificates(aHelper *AnsibleHelper) error {
 	phase := prepare.AddWorkerCertificatesPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerWorker(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerWorker(aHelper *AnsibleHelper) error {
 	phase := initial.AddWorkerMasterPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerNetwork(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerNetwork(aHelper *AnsibleHelper) error {
 	phase := initial.AddWorkerNetworkPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerPost(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerPost(aHelper *AnsibleHelper) error {
 	phase := initial.AddWorkerPostPhase{}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }
 
-func (ca *ClusterAdm) EnsureAddWorkerStorage(c *Cluster) error {
+func (ca *ClusterAdm) EnsureAddWorkerStorage(aHelper *AnsibleHelper) error {
 	var provisoners []model.ClusterStorageProvisioner
 	phase := storage.AddWorkerStoragePhase{
 		AddWorker:                          true,
@@ -206,5 +185,5 @@ func (ca *ClusterAdm) EnsureAddWorkerStorage(c *Cluster) error {
 			continue
 		}
 	}
-	return phase.Run(c.Kobe, c.Writer)
+	return phase.Run(aHelper.Kobe, aHelper.Writer)
 }

@@ -26,7 +26,7 @@ func (r *RefreshHostInfo) Run() {
 	sem := make(chan struct{}, 2) // 信号量
 	db.DB.Find(&hosts)
 	for _, host := range hosts {
-		if host.Status == constant.ClusterCreating || host.Status == constant.ClusterInitializing || host.Status == constant.ClusterSynchronizing {
+		if host.Status == constant.StatusCreating || host.Status == constant.StatusInitializing || host.Status == constant.StatusSynchronizing {
 			continue
 		}
 		wg.Add(1)

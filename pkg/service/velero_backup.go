@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -15,7 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/velero"
 	"github.com/jinzhu/gorm"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,16 +33,18 @@ type VeleroBackupService interface {
 
 type veleroBackupService struct {
 	ClusterService           ClusterService
+	clusterRepo              repository.ClusterRepository
 	BackupAccountService     BackupAccountService
-	clusterLogService        ClusterLogService
+	taskLogService           TaskLogService
 	SystemRegistryRepository repository.SystemRegistryRepository
 }
 
 func NewVeleroBackupService() VeleroBackupService {
 	return &veleroBackupService{
 		ClusterService:           NewClusterService(),
+		clusterRepo:              repository.NewClusterRepository(),
 		BackupAccountService:     NewBackupAccountService(),
-		clusterLogService:        NewClusterLogService(),
+		taskLogService:           NewTaskLogService(),
 		SystemRegistryRepository: repository.NewSystemRegistryRepository(),
 	}
 }
@@ -53,29 +54,50 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 		result []byte
 		err    error
 	)
-
-	var clog model.ClusterLog
-	if len(backup.BackupName) > 0 {
-		result, err = velero.Restore(backup.BackupName, v.handleArgs(backup))
-		if err != nil {
-			return string(result), err
-		}
-
-		clog.Type = constant.ClusterLogTypeVeleroRestore
-	} else {
-		result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
-		if err != nil {
-			return string(result), err
-		}
-
-		clog.Type = constant.ClusterLogTypeVeleroBackup
+	cluster, err := v.clusterRepo.Get(backup.Cluster)
+	if err != nil {
+		return string(result), err
 	}
 
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	clog.Status = constant.ClusterLogStatusSuccess
-	err = v.clusterLogService.Save(backup.Cluster, &clog)
-
+	var clog model.TaskLog
+	clog.ClusterID = cluster.ID
+	if len(backup.BackupName) > 0 {
+		clog.Type = constant.TaskLogTypeVeleroRestore
+		_ = v.taskLogService.Start(&clog)
+		cluster.CurrentTaskID = clog.ID
+		if err := db.DB.Save(&cluster).Error; err != nil {
+			logger.Log.Infof("save cluster failed, err: %v", err)
+		}
+		go func() {
+			result, err := velero.Restore(backup.BackupName, v.handleArgs(backup))
+			cluster.CurrentTaskID = ""
+			if err := db.DB.Save(&cluster).Error; err != nil {
+				logger.Log.Infof("save cluster failed, err: %v", err)
+			}
+			if err != nil {
+				_ = v.taskLogService.End(&clog, false, string(result))
+			}
+			_ = v.taskLogService.End(&clog, true, string(result))
+		}()
+	} else {
+		clog.Type = constant.TaskLogTypeVeleroBackup
+		_ = v.taskLogService.Start(&clog)
+		cluster.CurrentTaskID = clog.ID
+		if err := db.DB.Save(&cluster).Error; err != nil {
+			logger.Log.Infof("save cluster failed, err: %v", err)
+		}
+		go func() {
+			result, err = velero.Create(backup.Name, operate, v.handleArgs(backup))
+			cluster.CurrentTaskID = ""
+			if err := db.DB.Save(&cluster).Error; err != nil {
+				logger.Log.Infof("save cluster failed, err: %v", err)
+			}
+			if err != nil {
+				_ = v.taskLogService.End(&clog, false, string(result))
+			}
+			_ = v.taskLogService.End(&clog, true, string(result))
+		}()
+	}
 	return string(result), err
 }
 
@@ -206,7 +228,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		return result, err
 	}
 	arch := ""
-	if clusterModel.Spec.Architectures == "amd64" {
+	if clusterModel.Architectures == "amd64" {
 		arch = "x86_64"
 	} else {
 		arch = "aarch64"
@@ -283,19 +305,12 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 	return result, err
 }
 
-func (v veleroBackupService) UnInstall(cluster string) error {
-	secret, err := v.ClusterService.GetSecrets(cluster)
+func (v veleroBackupService) UnInstall(clusterName string) error {
+	cluster, err := v.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
-	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
-	if err != nil {
-		return err
-	}
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}
@@ -307,10 +322,7 @@ func (v veleroBackupService) UnInstall(cluster string) error {
 	if err != nil {
 		return err
 	}
-	exClient, err := kubernetesUtil.NewKubernetesExtensionClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	exClient, err := clusterUtil.NewClusterExtensionClient(&cluster)
 	if err != nil {
 		return err
 	}
@@ -327,19 +339,12 @@ func (v veleroBackupService) UnInstall(cluster string) error {
 	return nil
 }
 
-func (v veleroBackupService) checkValid(cluster string) error {
-	secret, err := v.ClusterService.GetSecrets(cluster)
+func (v veleroBackupService) checkValid(clusterName string) error {
+	cluster, err := v.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
 	if err != nil {
 		return err
 	}
-	endpoints, err := v.ClusterService.GetApiServerEndpoints(cluster)
-	if err != nil {
-		return err
-	}
-	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Hosts: endpoints,
-		Token: secret.KubernetesToken,
-	})
+	kubeClient, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
 		return err
 	}

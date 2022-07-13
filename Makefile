@@ -10,9 +10,7 @@ KO_CONFIG_DIR=etc/ko
 KO_BIN_DIR=usr/local/bin
 KO_DATA_DIR=usr/local/lib/ko
 
-
 GOPROXY="https://goproxy.cn,direct"
-
 
 build_server_linux:
 	GOOS=linux GOARCH=$(GOARCH)  $(GOGINDATA) -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
@@ -20,7 +18,6 @@ build_server_linux:
 	mkdir -p $(BUILDDIR)/$(KO_CONFIG_DIR) && cp -r  $(BASEPATH)/conf/app.yaml $(BUILDDIR)/$(KO_CONFIG_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_DATA_DIR)
 	cp -r  $(BASEPATH)/migration $(BUILDDIR)/$(KO_DATA_DIR)
-
 
 docker_ui:
 	docker build -t kubeoperator/ui:master  ./ui --no-cache

@@ -7,7 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 )
 
 type ClusterHealthCheck struct {
@@ -39,48 +39,25 @@ func (c *ClusterHealthCheck) Run() {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			logger.Log.Infof("test cluster  %s api  ", cs[i].Name)
-			endpoints, err := c.clusterService.GetApiServerEndpoints(cs[i].Name)
+			client, err := kubeUtil.NewClusterClient(&cs[i].Cluster)
 			if err != nil {
-				logger.Log.Errorf("get cluster %s endpoint error %s", cs[i].Name, err.Error())
-				return
-			}
-			secret, err := c.clusterService.GetSecrets(cs[i].Name)
-			if err != nil {
-				logger.Log.Errorf("get cluster %s secret error %s", cs[i].Name, err.Error())
-				return
-			}
-			_, err = kubeUtil.SelectAliveHost(endpoints)
-			if err != nil {
-				logger.Log.Error("ping cluster %s api failed: %+v", cs[i].Name, err)
-				cs[i].Cluster.Status.Phase = constant.StatusLost
-				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
-					return
-				}
-				return
-			}
-			client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-				Hosts: endpoints,
-				Token: secret.KubernetesToken,
-			})
-			if err != nil {
-				logger.Log.Error("get cluster %s api client error %+v", cs[i].Name, err)
+				logger.Log.Errorf("get cluster %s api client error %+v", cs[i].Name, err)
 				return
 			}
 			_, err = client.ServerVersion()
 			if err != nil {
-				logger.Log.Error("ping cluster %s api error %s", cs[i].Name, err.Error())
-				cs[i].Cluster.Status.Phase = constant.StatusLost
+				logger.Log.Errorf("ping cluster %s api error %s", cs[i].Name, err.Error())
+				cs[i].Cluster.Status = constant.StatusLost
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
+					logger.Log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
 					return
 				}
 				return
 			}
-			if cs[i].Cluster.Status.Phase == constant.StatusLost {
-				cs[i].Cluster.Status.Phase = constant.StatusRunning
+			if cs[i].Cluster.Status == constant.StatusLost {
+				cs[i].Cluster.Status = constant.StatusRunning
 				if err := db.DB.Save(&cs[i].Cluster.Status).Error; err != nil {
-					logger.Log.Error("save cluster %s status error %s", cs[i].Name, err.Error())
+					logger.Log.Errorf("save cluster %s status error %s", cs[i].Name, err.Error())
 					return
 				}
 			}

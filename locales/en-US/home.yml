@@ -8,6 +8,7 @@ CLUSTER_DELETE_FAILED: "can not delete cluster in current state"
 CLUSTER_IS_NOT_RUNNING: "The cluster is not running"
 CLUSTER_IS_NOT_LOCAL: "Import cluster cannot be upgraded"
 CLUSTER_NO_FLEX: "Can't find flex ip"
+NO_MASTER_AVAILABLE: "Failed to find available master node"
 
 
 #credential
@@ -136,8 +137,12 @@ DELETE_BACKUP_ACCOUNT_FAILED_BY_CLUSTER: "failed to delete! The backup strategy 
 #session
 SESSION_KEY_NOT_FOUND: "session key invalid"
 USER_PROFILE_INVALID: "session user conversion failed"
-USER_HAS_NO_RESOURCE: "user has no resource"
+USER_HAS_NO_RESOURCE: "the user is not bound to a project or cluster"
 
 
 #storage
 PROVISIONER_EXSIT: "Storage provider already exists"
+TASK_IN_EXECUTION: "A task is being executed in the current cluster. Please try again later..."
+
+#component
+COMPONENT_EXIST: "The component already exists. Do not repeat the operation."
