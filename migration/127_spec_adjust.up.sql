@@ -97,15 +97,11 @@ INSERT INTO
         `kubernetes_audit`,
         `nodeport_address`,
         `kube_service_node_port_range`,
-        `enable_dns_cache`,
-        `dns_cache_version`,
-        `ingress_controller_type`,
         `master_schedule_type`,
         `lb_mode`,
         `lb_kube_apiserver_ip`,
         `kube_api_server_port`,
         `kube_router`,
-        `support_gpu`,
         `status`,
         `message`
     )
@@ -126,15 +122,11 @@ SELECT
     s.kubernetes_audit AS `kubernetes_audit`,
     s.nodeport_address AS `nodeport_address`,
     s.kube_service_node_port_range AS `kube_service_node_port_range`,
-    s.enable_dns_cache AS `enable_dns_cache`,
-    s.dns_cache_version AS `dns_cache_version`,
-    s.ingress_controller_type AS `ingress_controller_type`,
     s.master_schedule_type AS `master_schedule_type`,
     s.lb_mode AS `lb_mode`,
     s.lb_kube_apiserver_ip AS `lb_kube_apiserver_ip`,
     s.kube_api_server_port AS `kube_api_server_port`,
     s.kube_router AS `kube_router`,
-    s.support_gpu AS `support_gpu`,
     "Running" AS `status`,
     "" AS `message`
 FROM
