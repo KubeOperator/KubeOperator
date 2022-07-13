@@ -15,6 +15,7 @@ type ClusterMemberService interface {
 	GetUsers(name string) (dto.UsersResponse, error)
 	Create(clusterName string, request dto.ClusterMemberCreate) ([]dto.ClusterMember, error)
 	Delete(name, clusterName string) error
+	GetUsersByName(clusterName, name string) (dto.UsersAddResponse, error)
 }
 
 type clusterMemberService struct {
@@ -67,6 +68,31 @@ func (c *clusterMemberService) GetUsers(name string) (dto.UsersResponse, error) 
 		addUsers = append(addUsers, user.Name)
 	}
 	result.Items = addUsers
+	return result, nil
+}
+
+func (c *clusterMemberService) GetUsersByName(clusterName, name string) (dto.UsersAddResponse, error) {
+	var (
+		result         dto.UsersAddResponse
+		users          []model.User
+		cluster        model.Cluster
+		clusterMembers []model.ClusterMember
+		userIds        []string
+	)
+	if err := db.DB.Where("name = ?", clusterName).First(&cluster).Error; err != nil {
+		return result, err
+	}
+	if err := db.DB.Model(&model.ClusterMember{}).Where("cluster_id = ?", cluster.ID).
+		Preload("User").Find(&clusterMembers).Error; err != nil {
+		return result, err
+	}
+	for _, mo := range clusterMembers {
+		userIds = append(userIds, mo.UserID)
+	}
+	if err := db.DB.Where("is_admin = 0 AND name LIKE ? AND id in (?)", "%"+name+"%", userIds).Find(&users).Error; err != nil {
+		return result, err
+	}
+	result.Items = users
 	return result, nil
 }
 

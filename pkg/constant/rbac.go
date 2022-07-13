@@ -108,6 +108,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/projects/{**}/clusters/{**}/{**}",
 			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
+			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}/{**}",
 		},
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

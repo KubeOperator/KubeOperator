@@ -83,6 +83,12 @@ func (c ClusterMemberController) GetUsers() (dto.UsersResponse, error) {
 	return c.ClusterMemberService.GetUsers(name)
 }
 
+func (c ClusterMemberController) GetSearch() (dto.UsersAddResponse, error) {
+	clusterName := c.Ctx.Params().GetString("cluster")
+	name := c.Ctx.URLParam("name")
+	return c.ClusterMemberService.GetUsersByName(clusterName, name)
+}
+
 // Delete CLusterMember
 // @Tags clusterMembers
 // @Summary Delete cLusterMember
