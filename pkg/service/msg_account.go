@@ -64,11 +64,11 @@ func (m msgAccountService) Verify(msgDTO dto.MsgAccountDTO) error {
 	vars := msgDTO.Config.(map[string]interface{})
 	testUser := vars["testUser"].(string)
 
-	content := make(map[string]interface{})
+	content := make(map[string]string)
 	content["message"] = constant.TestMessage
 	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
 	content["date"] = date
-	detail, err := m.MsgService.GetMsgContent(constant.MsgTest, msgDTO.Name, content)
+	detail, err := GetMsgContent(constant.MsgTest, msgDTO.Name, content)
 	if err != nil {
 		return err
 	}

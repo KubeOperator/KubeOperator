@@ -70,10 +70,9 @@ var Templates = map[string]map[string]string{
 		DingTalk:   "pkg/templates/test.html",
 		WorkWeiXin: "pkg/templates/test.html",
 	},
-
 	ClusterInstall: {
-		Email:      "",
-		DingTalk:   "",
-		WorkWeiXin: "",
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
 	},
 }
