@@ -75,4 +75,39 @@ var Templates = map[string]map[string]string{
 		DingTalk:   "pkg/templates/cluster_op.md",
 		WorkWeiXin: "pkg/templates/cluster_op.md",
 	},
+	ClusterUnInstall: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterUpgrade: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterScale: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterAddWorker: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterRestore: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterBackup: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterEventWarning: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
 }
