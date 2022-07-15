@@ -86,6 +86,11 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
 	}
 
+	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
+	if err := tx.Create(&subscribe).Error; err != nil {
+		tx.Rollback()
+	}
+
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		tx.Rollback()
