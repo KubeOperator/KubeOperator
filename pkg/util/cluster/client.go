@@ -43,6 +43,7 @@ func NewClusterClient(cluster *model.Cluster) (*kubernetes.Clientset, error) {
 
 func LoadConnConf(cluster *model.Cluster, availableHost string) (*rest.Config, error) {
 	var connConf rest.Config
+	connConf.Insecure = true
 	switch cluster.SpecConf.AuthenticationMode {
 	case constant.AuthenticationModeBearer:
 		connConf.Host = availableHost
