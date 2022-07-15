@@ -78,6 +78,10 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/message/{**}",
 			"/api/v1/message/{**}/check/{**}",
 			"/api/v1/message/{**}/{**}",
+			"/api/v1/user/settings/{**}",
+			"/api/v1/user/settings",
+			"/api/v1/user/messages",
+			"/api/v1/user/messages/read/*",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -110,6 +114,7 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/projects/{**}/clusters/{**}/{**}",
 			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}",
+			"/api/v1/projects/{**}/clusters/{**}/{**}/{**}/{**}",
 		},
 		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -195,6 +200,9 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/credentials",
 			"/api/v1/credentials/{**}",
 			"/api/v1/templates/{**}",
+			"/api/v1/msg/subscribes",
+			"/api/v1/msg/subscribes/*",
+			"/api/v1/msg/subscribes/*/*",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -240,6 +248,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/users",
 			"/api/v1/users/{**}",
 			"/api/v1/ldap/{**}",
+			"/api/v1/msg/accounts/*",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -264,6 +273,8 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/projects/{**}/{resources,members}",
 			"/api/v1/ldap",
 			"/api/v1/ldap/*/*",
+			"/api/v1/msg/accounts/*",
+			"/api/v1/msg/accounts",
 		},
 		Method: []string{"POST"},
 		Permission: &grbac.Permission{
@@ -280,6 +291,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/vmconfigs/{**}",
 			"/api/v1/backupaccounts/{**}",
 			"/api/v1/projects/{**}/{resources,members}/{**}",
+			"/api/v1/msg/accounts/*",
 		},
 		Method: []string{"DELETE"},
 		Permission: &grbac.Permission{
@@ -296,6 +308,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans/{**}",
 			"/api/v1/hosts",
 			"/api/v1/ldap",
+			"/api/v1/msg/accounts/*",
 		},
 		Method: []string{"PATCH"},
 		Permission: &grbac.Permission{

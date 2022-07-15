@@ -51,6 +51,12 @@ func (p ProjectController) Get() (*page.Page, error) {
 	}
 }
 
+func (p ProjectController) GetClusters() ([]dto.Project, error) {
+	sessionUser := p.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+	return p.ProjectService.GetProjectsHasClusters(user)
+}
+
 func (p ProjectController) PostSearch() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	var conditions condition.Conditions

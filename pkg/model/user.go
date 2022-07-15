@@ -21,7 +21,7 @@ const (
 
 type User struct {
 	common.BaseModel
-	ID               string  `json:"-" gorm:"type:varchar(64)"`
+	ID               string  `json:"id" gorm:"type:varchar(64)"`
 	CurrentProjectID string  `json:"-" gorm:"type:varchar(64)"`
 	CurrentProject   Project `json:"-" gorm:"save_associations:false"`
 	Name             string  `json:"name" gorm:"type:varchar(256);not null;unique"`
@@ -41,6 +41,12 @@ type Token struct {
 func (u *User) BeforeCreate() (err error) {
 	u.ID = uuid.NewV4().String()
 	return err
+}
+
+func (u *User) AfterCreate() (err error) {
+	setting := NewUserSetting(u.ID)
+	err = db.DB.Model(UserSetting{}).Create(&setting).Error
+	return
 }
 
 func (u *User) BeforeDelete() (err error) {

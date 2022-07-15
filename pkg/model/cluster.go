@@ -164,6 +164,11 @@ func (c Cluster) DeleteClusterAbout() {
 		logger.Log.Infof("delete backup file failed, err: %v", err)
 	}
 
+	if err := tx.Where("resource_id = ?", c.ID).Delete(&MsgSubscribe{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	var (
 		messages   []Message
 		messageIDs []string

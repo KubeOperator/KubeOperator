@@ -13,6 +13,10 @@ type UsersResponse struct {
 	Items []string `json:"items"`
 }
 
+type UsersAddResponse struct {
+	Items []model.User `json:"items"`
+}
+
 type ClusterMemberCreate struct {
 	Usernames []string `json:"usernames" validate:"required"`
 }

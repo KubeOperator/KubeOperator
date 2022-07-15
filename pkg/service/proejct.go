@@ -27,6 +27,7 @@ type ProjectService interface {
 	Batch(op dto.ProjectOp) error
 	Update(name string, update dto.ProjectUpdate) (*dto.Project, error)
 	GetResourceTree(user dto.SessionUser) ([]dto.ProjectResourceTree, error)
+	GetProjectsHasClusters(user dto.SessionUser) ([]dto.Project, error)
 }
 
 type projectService struct {
@@ -262,4 +263,30 @@ func (p projectService) GetResourceTree(user dto.SessionUser) ([]dto.ProjectReso
 		}
 	}
 	return tree, nil
+}
+
+func (p projectService) GetProjectsHasClusters(user dto.SessionUser) ([]dto.Project, error) {
+	var (
+		projects []model.Project
+		result   []dto.Project
+	)
+
+	if user.IsAdmin {
+		if err := db.DB.Model(model.Project{}).Preload("Clusters").Order("created_at ASC").Find(&projects).Error; err != nil {
+			return nil, err
+		}
+	} else if user.IsRole(constant.RoleProjectManager) {
+		if err := db.DB.Model(model.Project{}).Where("name = ?", user.CurrentProject).Preload("Clusters").Order("created_at ASC").Find(&projects).Error; err != nil {
+			return nil, err
+		}
+	}
+	for _, mo := range projects {
+		clusters := mo.Clusters
+		projectDto := dto.Project{
+			Project:  mo,
+			Clusters: clusters,
+		}
+		result = append(result, projectDto)
+	}
+	return result, nil
 }
