@@ -53,10 +53,9 @@ func KubernetesClientProxy(ctx context.Context) {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
-	httpClient := http.Client{Transport: tls2}
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	ctx.Request().URL.Path = proxyPath
-	proxy.Transport = httpClient.Transport
+	proxy.Transport = tls2
 	proxy.ModifyResponse = func(response *http.Response) error {
 		if response.StatusCode == http.StatusUnauthorized {
 			response.StatusCode = http.StatusInternalServerError
