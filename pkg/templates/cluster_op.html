@@ -37,6 +37,13 @@
                 操作: {{.operator}}
             </td>
         </tr>
+        {{ if .errMsg }}
+        <tr>
+            <td align="left">
+                信息: {{.errMsg}}
+            </td>
+        </tr>
+        {{ end }}
         <tr>
             <td align="left">
                 创建时间: {{.createdAt}}

@@ -48,7 +48,9 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 		}
 		var project model.Project
 		db.DB.Where("id = ?", re.ProjectID).First(&project)
-		content["projectName"] = project.Name
+		if project.Name != "" {
+			content["projectName"] = project.Name
+		}
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}
