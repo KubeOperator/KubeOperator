@@ -55,6 +55,7 @@ type ClusterCreate struct {
 	MaxNodeNum               int    `json:"maxNodeNum"`
 	KubeServiceSubnet        string `json:"kubeServiceSubnet"`
 	KubeProxyMode            string `json:"kubeProxyMode"`
+	CgroupDriver             string `json:"cgroupDriver"`
 	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	NodeportAddress          string `json:"nodeportAddress"`
@@ -224,6 +225,7 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 		KubeServiceSubnet: c.KubeServiceSubnet,
 
 		KubeProxyMode:            c.KubeProxyMode,
+		CgroupDriver:             c.CgroupDriver,
 		KubeDnsDomain:            c.KubeDnsDomain,
 		KubernetesAudit:          c.KubernetesAudit,
 		NodeportAddress:          c.NodeportAddress,

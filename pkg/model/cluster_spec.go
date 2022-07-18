@@ -53,6 +53,7 @@ type ClusterSpecConf struct {
 	KubeServiceSubnet     string `json:"kubeServiceSubnet"`
 
 	KubeProxyMode            string `json:"kubeProxyMode"`
+	CgroupDriver             string `json:"cgroupDriver"`
 	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	NodeportAddress          string `json:"nodeportAddress"`

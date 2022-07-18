@@ -40,8 +40,8 @@ func NewClusterNodeService() ClusterNodeService {
 		planService:    NewPlanService(),
 		vmConfigRepo:   repository.NewVmConfigRepository(),
 		ntpServerRepo:  repository.NewNtpServerRepository(),
-		messageService: NewMessageService(),
 		hostService:    NewHostService(),
+		msgService:     NewMsgService(),
 	}
 }
 
@@ -54,8 +54,8 @@ type clusterNodeService struct {
 	planService    PlanService
 	vmConfigRepo   repository.VmConfigRepository
 	ntpServerRepo  repository.NtpServerRepository
-	messageService MessageService
 	hostService    HostService
+	msgService     MsgService
 }
 
 func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
@@ -274,7 +274,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		return
 	}
 	c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusRunning, nodeIDs, nil)
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
+	_ = c.msgService.SendMsg(constant.ClusterRemoveWorker, constant.Cluster, &cluster, true, map[string]string{})
 	logger.Log.Info("delete node successful!")
 }
 

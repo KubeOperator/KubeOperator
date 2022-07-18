@@ -27,7 +27,7 @@ type ClusterUpgradeService interface {
 func NewClusterUpgradeService() ClusterUpgradeService {
 	return &clusterUpgradeService{
 		clusterService: NewClusterService(),
-		messageService: NewMessageService(),
+		msgService:     NewMsgService(),
 		clusterRepo:    repository.NewClusterRepository(),
 		taskLogService: NewTaskLogService(),
 	}
@@ -35,7 +35,7 @@ func NewClusterUpgradeService() ClusterUpgradeService {
 
 type clusterUpgradeService struct {
 	clusterService ClusterService
-	messageService MessageService
+	msgService     MsgService
 	clusterRepo    repository.ClusterRepository
 	taskLogService TaskLogService
 }
@@ -83,7 +83,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	// 创建日志
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
+		_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, cluster, false, map[string]string{"errMsg": err.Error()})
 		return fmt.Errorf("create log error %s", err.Error())
 	}
 	if len(upgrade.Version) != 0 {
@@ -92,7 +92,7 @@ func (c *clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	cluster.Status = constant.StatusUpgrading
 	cluster.CurrentTaskID = cluster.TaskLog.ID
 	if err := c.clusterRepo.Save(&cluster); err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
+		_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, cluster, false, map[string]string{"errMsg": err.Error()})
 		return fmt.Errorf("save cluster spec error %s", err.Error())
 	}
 	// 更新工具版本状态
@@ -127,7 +127,7 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.CurrentTaskID = ""
 			_ = c.clusterRepo.Save(cluster)
 
-			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
+			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, &cluster, true, map[string]string{})
 			cluster.Version = cluster.UpgradeVersion
 			_ = db.DB.Save(&cluster).Error
 			cancel()
@@ -141,7 +141,7 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.Message = result.Message
 			_ = c.clusterRepo.Save(cluster)
 
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, result.Message), cluster.Name, constant.ClusterUpgrade)
+			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, &cluster, false, map[string]string{"errMsg": result.Message})
 			cancel()
 			return
 		default:

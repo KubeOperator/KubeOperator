@@ -56,6 +56,7 @@ type clusterInfo struct {
 	KubeNetworkNodePrefix    int    `json:"kubeNetworkNodePrefix"`
 	KubeServiceSubnet        string `json:"kubeServiceSubnet"`
 	KubeProxyMode            string `json:"kubeProxyMode"`
+	CgroupDriver             string `json:"cgroupDriver"`
 	KubeDnsDomain            string `json:"kubeDnsDomain"`
 	KubernetesAudit          string `json:"kubernetesAudit"`
 	NodeportAddress          string `json:"nodeportAddress"`
@@ -172,6 +173,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		KubeServiceSubnet: c.KoClusterInfo.KubeServiceSubnet,
 
 		KubeProxyMode:            c.KoClusterInfo.KubeProxyMode,
+		CgroupDriver:             c.KoClusterInfo.CgroupDriver,
 		KubeDnsDomain:            c.KoClusterInfo.KubeDnsDomain,
 		KubernetesAudit:          c.KoClusterInfo.KubernetesAudit,
 		NodeportAddress:          c.KoClusterInfo.NodeportAddress,

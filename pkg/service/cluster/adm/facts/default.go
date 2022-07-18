@@ -41,6 +41,7 @@ const (
 	NetworkInterfaceFactName        = "network_interface"
 	NetworkCidrFactName             = "network_cidr"
 
+	CgroupDriverFactName                 = "cgroup_driver"
 	KubeImageRepositoryFactName          = "kube_image_repository"
 	PodInfraContainerImageFactName       = "pod_infra_container_image"
 	CertsExpiredFactName                 = "certs_expired"
@@ -85,6 +86,15 @@ const (
 	SupportGpuFactName              = "enable_gpu"
 	EnableNpdFactName               = "enable_npd"
 	EnableIstioFactName             = "enable_istio"
+
+	EnableNfsFactName       = "enable_nfs_provisioner"
+	EnableGfsFactName       = "enable_gfs_provisioner"
+	EnableCephBlockFactName = "enable_external_ceph_block_provisioner"
+	EnableCephFsFactName    = "enable_external_cephfs_provisioner"
+	EnableCinderFactName    = "enable_cinder_provisioner"
+	EnableVsphereFactName   = "enable_vsphere_provisioner"
+	EnableOceanstorFactName = "enable_oceanstor_provisioner"
+	EnableRookFactName      = "enable_rook_provisioner"
 )
 
 var DefaultFacts = map[string]string{
@@ -153,11 +163,12 @@ var DefaultFacts = map[string]string{
 	YumRepoFactName:                      "replace",
 	NtpServerFactName:                    "ntp1.aliyun.com",
 	MasterScheduleTypeFactName:           "enable",
+	CgroupDriverFactName:                 "systemd",
 
 	ComponentOptionFactName:       "component",
 	IngressControllerTypeFactName: "nginx",
-	EnableNginxFactName:           "enable_nginx",
-	EnableTraefikFactName:         "enable_traefik",
+	EnableNginxFactName:           "enable",
+	EnableTraefikFactName:         "disable",
 	MetricsServerFactName:         "enable",
 	SupportGpuFactName:            "disable",
 	EnableDnsCacheFactName:        "enable",

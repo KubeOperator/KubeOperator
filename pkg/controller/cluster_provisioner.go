@@ -31,22 +31,21 @@ func (c ProvisionerController) GetBy(name string) ([]dto.ClusterStorageProvision
 	return csp, nil
 }
 
-func (c ProvisionerController) PostBy(name string) (*dto.ClusterStorageProvisioner, error) {
+func (c ProvisionerController) PostBy(name string) error {
 	var req dto.ClusterStorageProvisionerCreation
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	p, err := c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
-	if err != nil {
+	if err := c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req); err != nil {
 		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return nil, err
+		return err
 	}
 
 	operator := c.Ctx.Values().GetString("operator")
 	go kolog.Save(operator, constant.CREATE_CLUSTER_STORAGE_SUPPLIER, name+"-"+req.Name+"("+req.Type+")")
 
-	return &p, nil
+	return nil
 }
 
 func (c ProvisionerController) PostSyncBy(name string) error {
@@ -82,22 +81,22 @@ func (c ProvisionerController) PostDeleteBy(clusterName string) error {
 	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, item.Name)
 }
 
-func (c ProvisionerController) PostBatchBy(clusterName string) error {
-	var batch dto.ClusterStorageProvisionerBatch
-	if err := c.Ctx.ReadJSON(&batch); err != nil {
-		return err
-	}
-	if err := c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch); err != nil {
-		logger.Log.Info(fmt.Sprintf("%+v", err))
-		return err
-	}
+// func (c ProvisionerController) PostBatchBy(clusterName string) error {
+// 	var batch dto.ClusterStorageProvisionerBatch
+// 	if err := c.Ctx.ReadJSON(&batch); err != nil {
+// 		return err
+// 	}
+// 	if err := c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch); err != nil {
+// 		logger.Log.Info(fmt.Sprintf("%+v", err))
+// 		return err
+// 	}
 
-	operator := c.Ctx.Values().GetString("operator")
-	delClus := ""
-	for _, item := range batch.Items {
-		delClus += (item.Name + ",")
-	}
-	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
+// 	operator := c.Ctx.Values().GetString("operator")
+// 	delClus := ""
+// 	for _, item := range batch.Items {
+// 		delClus += (item.Name + ",")
+// 	}
+// 	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
 
-	return nil
-}
+// 	return nil
+// }
