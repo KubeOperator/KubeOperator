@@ -237,7 +237,11 @@ func (c *taskLogService) SaveDetail(detail *model.TaskLogDetail) error {
 
 func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
 	detail.StartTime = time.Now().Unix()
-	return db.DB.Create(detail).Error
+	if db.DB.NewRecord(detail) {
+		return db.DB.Create(detail).Error
+	} else {
+		return db.DB.Save(detail).Error
+	}
 }
 
 func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, message string) error {

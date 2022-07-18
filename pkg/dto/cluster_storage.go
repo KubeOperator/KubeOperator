@@ -1,6 +1,9 @@
 package dto
 
 import (
+	"encoding/json"
+
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
 
@@ -42,4 +45,19 @@ type DeploymentSearch struct {
 	Router    string `json:"router"`
 	Token     string `json:"token"`
 	Namespace string `json:"namespace"`
+}
+
+func (c ClusterStorageProvisionerCreation) ProvisionerCreate2Mo() model.ClusterStorageProvisioner {
+	vars, _ := json.Marshal(c.Vars)
+	provisioner := model.ClusterStorageProvisioner{
+		Name:      c.Name,
+		Namespace: c.Namespace,
+		Type:      c.Type,
+		Vars:      string(vars),
+		Status:    constant.StatusCreating,
+	}
+	if c.IsInCluster {
+		provisioner.Status = constant.StatusRunning
+	}
+	return provisioner
 }
