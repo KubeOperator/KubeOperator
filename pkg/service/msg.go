@@ -40,9 +40,8 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	)
 	msg.Name = name
 	msg.Type = scope
-	switch resource.(type) {
+	switch re := resource.(type) {
 	case model.Cluster:
-		re := resource.(model.Cluster)
 		content["resourceName"] = re.Name
 		if scope == constant.Cluster {
 			resourceId = re.ID
@@ -51,7 +50,6 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 		db.DB.Where("id = ?", re.ProjectID).First(&project)
 		content["projectName"] = project.Name
 	case map[string]string:
-		re := resource.(map[string]string)
 		content["resourceName"] = re["name"]
 	}
 	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
@@ -140,9 +138,7 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 		}
 	}
 	if msgSubDTO.SubConfig.Local == constant.Enable {
-		for _, us := range userSettings {
-			userAccounts[constant.Local] = append(userAccounts[constant.Local], us)
-		}
+		userAccounts[constant.Local] = append(userAccounts[constant.Local], userSettings...)
 	}
 
 	go sendUserMegs(msgAccounts, userAccounts, msg, content)

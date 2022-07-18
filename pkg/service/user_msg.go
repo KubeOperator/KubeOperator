@@ -42,7 +42,10 @@ func (u userMsgService) PageLocalMsg(num, size int, user dto.SessionUser, condit
 
 	for _, m := range msgs {
 		var con map[string]string
-		json.Unmarshal([]byte(m.Msg.Content), &con)
+		err := json.Unmarshal([]byte(m.Msg.Content), &con)
+		if err != nil {
+			return res, err
+		}
 		msgDTOs = append(msgDTOs, dto.UserMsgDTO{
 			UserMsg: m,
 			Content: con,
