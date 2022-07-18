@@ -29,6 +29,10 @@ func (c *InitCronPhase) Init() error {
 		if err != nil {
 			return fmt.Errorf("can not add backup corn job: %s", err.Error())
 		}
+		_, err = Cron.AddJob("@daily", job.NewLicenseExpire())
+		if err != nil {
+			return fmt.Errorf("can not add license corn job: %s", err.Error())
+		}
 		Cron.Start()
 	}
 	return nil
