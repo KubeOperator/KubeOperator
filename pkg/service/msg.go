@@ -107,9 +107,6 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	if err := db.DB.Model(model.MsgAccount{}).Where("status = ?", constant.Enable).Find(&accounts).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
-	if len(accounts) == 0 {
-		return nil
-	}
 	msgAccounts = make(map[string]model.MsgAccount, len(accounts))
 	userAccounts = make(map[string][]model.UserSetting, len(accounts)+1)
 	for _, account := range accounts {
