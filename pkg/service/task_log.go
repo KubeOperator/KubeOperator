@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -31,17 +32,20 @@ type TaskLogService interface {
 	IsTaskOn(clusterName string) bool
 
 	StartDetail(detail *model.TaskLogDetail) error
-	EndDetail(detail *model.TaskLogDetail, statu string, message string) error
+	EndDetail(detail *model.TaskLogDetail, taskType string, statu string, message string) error
 	SaveDetail(detail *model.TaskLogDetail) error
 
 	RestartTask(cluster *model.Cluster, operation string) error
 }
 
 type taskLogService struct {
+	msgService MsgService
 }
 
 func NewTaskLogService() TaskLogService {
-	return &taskLogService{}
+	return &taskLogService{
+		msgService: NewMsgService(),
+	}
 }
 
 func (c *taskLogService) Page(num, size int, clusterName string, logtype string) (*page.Page, error) {
@@ -244,10 +248,34 @@ func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
 	}
 }
 
-func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, status string, message string) error {
+// taskType component/provisioner
+func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, taskType string, status string, message string) error {
 	detail.Status = status
 	detail.Message = message
 	detail.EndTime = time.Now().Unix()
+	var cluster model.Cluster
+	if err := db.DB.Where("id = ?", detail.ClusterID).First(&cluster).Error; err != nil {
+		return err
+	}
+	operation := ""
+	if strings.Contains(detail.Task, "enable") {
+		if taskType == "provisioner" {
+			operation = constant.ClusterEnableProvisioner
+		} else {
+			operation = constant.ClusterEnableComponent
+		}
+	} else {
+		if taskType == "provisioner" {
+			operation = constant.ClusterDisableProvisioner
+		} else {
+			operation = constant.ClusterDisableComponent
+		}
+	}
+	if status == constant.TaskLogStatusSuccess {
+		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, true, map[string]string{})
+	} else {
+		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, false, map[string]string{"errMsg": message})
+	}
 
 	return db.DB.Save(detail).Error
 }

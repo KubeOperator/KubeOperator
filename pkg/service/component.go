@@ -157,7 +157,7 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 	}
 	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
 	}
 
@@ -168,11 +168,11 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 func (c componentService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent, client *kubernetes.Clientset) {
 	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
 	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusSuccess, "")
 	component.Status = constant.StatusWaiting
 	if err := db.DB.Save(&component).Error; err != nil {
 		logger.Log.Errorf("save component status err: %s", err.Error())
@@ -221,11 +221,11 @@ func (c componentService) Delete(clusterName, name string) error {
 func (c componentService) dodelete(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent) {
 	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
 	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusSuccess, "")
 	_ = db.DB.Where("id = ?", component.ID).Delete(&model.ClusterSpecComponent{})
 }
 
