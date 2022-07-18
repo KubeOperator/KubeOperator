@@ -92,7 +92,7 @@ func (p KubePiController) GetJumpBy(project string, clusterName string) (*dto.Da
 
 	conn := kubepi.ConnInfo{
 		Name:               cluster.Name,
-		ApiServer:          fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort),
+		ApiServer:          fmt.Sprintf("https://%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort),
 		AuthenticationMode: cluster.SpecConf.AuthenticationMode,
 		KubernetesToken:    cluster.Secret.KubernetesToken,
 		KeyDataStr:         cluster.Secret.KeyDataStr,

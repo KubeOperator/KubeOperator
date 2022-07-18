@@ -362,6 +362,7 @@ func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.Cl
 	clusterInfo.Architectures = loadInfo.Architectures
 
 	var connConf rest.Config
+	connConf.Insecure = true
 	switch loadInfo.AuthenticationMode {
 	case constant.AuthenticationModeBearer:
 		connConf.Host = loadInfo.ApiServer

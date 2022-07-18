@@ -524,6 +524,9 @@ func (c Cluster) loadConfVars(result map[string]string) {
 	if c.SpecConf.KubeServiceSubnet != "" {
 		result[facts.KubeServiceSubnetFactName] = c.SpecConf.KubeServiceSubnet
 	}
+	if c.SpecConf.CgroupDriver != "" {
+		result[facts.CgroupDriverFactName] = c.SpecConf.CgroupDriver
+	}
 	if c.SpecConf.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.SpecConf.KubernetesAudit
 	}
