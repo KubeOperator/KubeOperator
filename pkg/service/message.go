@@ -178,6 +178,14 @@ func Tr(title string) string {
 		result = "集群恢复"
 	case constant.ClusterBackup:
 		result = "集群备份"
+	case constant.ClusterEnableProvisioner:
+		result = "启用存储提供商"
+	case constant.ClusterDisableProvisioner:
+		result = "禁用存储提供商"
+	case constant.ClusterEnableComponent:
+		result = "启用集群组件"
+	case constant.ClusterDisableComponent:
+		result = "禁用集群组件"
 	case constant.ClusterEventWarning:
 		result = "集群事件告警"
 	}

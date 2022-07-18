@@ -19,20 +19,24 @@ const (
 
 //message type
 const (
-	ClusterInstall      = "CLUSTER_INSTALL"
-	ClusterImport       = "CLUSTER_IMPORT"
-	ClusterUnInstall    = "CLUSTER_UN_INSTALL"
-	ClusterUpgrade      = "CLUSTER_UPGRADE"
-	ClusterDelete       = "CLUSTER_DELETE"
-	ClusterScale        = "CLUSTER_SCALE"
-	ClusterAddWorker    = "CLUSTER_ADD_WORKER"
-	ClusterRemoveWorker = "CLUSTER_REMOVE_WORKER"
-	ClusterRestore      = "CLUSTER_RESTORE"
-	ClusterBackup       = "CLUSTER_BACKUP"
-	ClusterEventWarning = "CLUSTER_EVENT_WARNING"
-	MsgTest             = "MSG_TEST"
-	LicenseExpires      = "LICENSE_EXPIRE"
-	ClusterOperator     = "CLUSTER_OPERATOR"
+	ClusterInstall            = "CLUSTER_INSTALL"
+	ClusterImport             = "CLUSTER_IMPORT"
+	ClusterUnInstall          = "CLUSTER_UN_INSTALL"
+	ClusterUpgrade            = "CLUSTER_UPGRADE"
+	ClusterDelete             = "CLUSTER_DELETE"
+	ClusterScale              = "CLUSTER_SCALE"
+	ClusterAddWorker          = "CLUSTER_ADD_WORKER"
+	ClusterRemoveWorker       = "CLUSTER_REMOVE_WORKER"
+	ClusterRestore            = "CLUSTER_RESTORE"
+	ClusterBackup             = "CLUSTER_BACKUP"
+	ClusterEnableProvisioner  = "CLUSTER_ENABLE_PROVISIONER"
+	ClusterDisableProvisioner = "CLUSTER_DISABLE_PROVISIONER"
+	ClusterEnableComponent    = "CLUSTER_ENABLE_COMPONENT"
+	ClusterDisableComponent   = "CLUSTER_DISABLE_COMPONENT"
+	ClusterEventWarning       = "CLUSTER_EVENT_WARNING"
+	MsgTest                   = "MSG_TEST"
+	LicenseExpires            = "LICENSE_EXPIRE"
+	ClusterOperator           = "CLUSTER_OPERATOR"
 )
 
 //message level
@@ -51,17 +55,21 @@ const (
 )
 
 var MsgTitle = map[string]string{
-	ClusterInstall:      "集群安装",
-	ClusterDelete:       "集群删除",
-	ClusterUnInstall:    "集群卸载",
-	ClusterUpgrade:      "集群升级",
-	ClusterScale:        "集群伸缩",
-	ClusterAddWorker:    "集群扩容",
-	ClusterRemoveWorker: "集群缩容",
-	ClusterRestore:      "集群恢复",
-	ClusterBackup:       "集群备份",
-	ClusterEventWarning: "集群事件告警",
-	MsgTest:             "KubeOperator测试",
+	ClusterInstall:            "集群安装",
+	ClusterDelete:             "集群删除",
+	ClusterUnInstall:          "集群卸载",
+	ClusterUpgrade:            "集群升级",
+	ClusterScale:              "集群伸缩",
+	ClusterAddWorker:          "集群扩容",
+	ClusterRemoveWorker:       "集群缩容",
+	ClusterRestore:            "集群恢复",
+	ClusterBackup:             "集群备份",
+	ClusterEnableProvisioner:  "启用存储提供商",
+	ClusterDisableProvisioner: "禁用存储提供商",
+	ClusterEnableComponent:    "启用集群组件",
+	ClusterDisableComponent:   "禁用集群组件",
+	ClusterEventWarning:       "集群事件告警",
+	MsgTest:                   "KubeOperator测试",
 }
 
 var Templates = map[string]map[string]string{
@@ -106,6 +114,26 @@ var Templates = map[string]map[string]string{
 		WorkWeiXin: "pkg/templates/cluster_op.md",
 	},
 	ClusterBackup: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterEnableProvisioner: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterDisableProvisioner: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterEnableComponent: {
+		Email:      "pkg/templates/cluster_op.html",
+		DingTalk:   "pkg/templates/cluster_op.md",
+		WorkWeiXin: "pkg/templates/cluster_op.md",
+	},
+	ClusterDisableComponent: {
 		Email:      "pkg/templates/cluster_op.html",
 		DingTalk:   "pkg/templates/cluster_op.md",
 		WorkWeiXin: "pkg/templates/cluster_op.md",

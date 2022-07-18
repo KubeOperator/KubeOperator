@@ -147,7 +147,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	}
 	client, err := clusterUtil.NewClusterClient(&cluster)
 	if err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusDisabled, err)
 	}
 
@@ -159,11 +159,11 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 func (c clusterStorageProvisionerService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, client *kubernetes.Clientset) {
 	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
 	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusSuccess, "")
 	dp.Status = constant.StatusWaiting
 	if err := db.DB.Save(&dp).Error; err != nil {
 		logger.Log.Errorf("save storage provisioner status err: %s", err.Error())
@@ -222,11 +222,11 @@ func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName s
 func (c clusterStorageProvisionerService) dodelete(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner) {
 	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
 	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(provisioner, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, constant.TaskLogStatusSuccess, "")
+	_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusSuccess, "")
 	_ = db.DB.Where("id = ?", provisioner.ID).Delete(&model.ClusterStorageProvisioner{})
 }
 
