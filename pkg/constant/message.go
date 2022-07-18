@@ -70,6 +70,11 @@ var Templates = map[string]map[string]string{
 		DingTalk:   "pkg/templates/test.html",
 		WorkWeiXin: "pkg/templates/test.html",
 	},
+	LicenseExpires: {
+		Email:      "pkg/templates/license_expire.html",
+		DingTalk:   "pkg/templates/license_expire.md",
+		WorkWeiXin: "pkg/templates/license_expire.md",
+	},
 	ClusterInstall: {
 		Email:      "pkg/templates/cluster_op.html",
 		DingTalk:   "pkg/templates/cluster_op.md",

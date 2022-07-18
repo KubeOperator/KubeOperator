@@ -35,7 +35,7 @@ func (l *LicenseExpire) Run() {
 	subD := now.Sub(t)
 	day := int(math.Floor(subD.Hours() / 24))
 	if day < 7 {
-		err := l.msgService.SendMsg(constant.LicenseExpires, constant.System, nil, true, nil)
+		err := l.msgService.SendMsg(constant.LicenseExpires, constant.System, map[string]string{"name": "license"}, true, map[string]string{})
 		if err != nil {
 			logger.Log.Infof("send license msg error,%s", err.Error())
 		}
