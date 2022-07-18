@@ -167,8 +167,8 @@ var DefaultFacts = map[string]string{
 
 	ComponentOptionFactName:       "component",
 	IngressControllerTypeFactName: "nginx",
-	EnableNginxFactName:           "enable_nginx",
-	EnableTraefikFactName:         "enable_traefik",
+	EnableNginxFactName:           "enable",
+	EnableTraefikFactName:         "disable",
 	MetricsServerFactName:         "enable",
 	SupportGpuFactName:            "disable",
 	EnableDnsCacheFactName:        "enable",

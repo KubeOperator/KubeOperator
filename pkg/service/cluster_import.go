@@ -34,7 +34,7 @@ type clusterImportService struct {
 	clusterRepo               repository.ClusterRepository
 	projectRepository         repository.ProjectRepository
 	projectResourceRepository repository.ProjectResourceRepository
-	messageService            MessageService
+	msgService                MsgService
 }
 
 func NewClusterImportService() *clusterImportService {
@@ -42,7 +42,7 @@ func NewClusterImportService() *clusterImportService {
 		clusterRepo:               repository.NewClusterRepository(),
 		projectRepository:         repository.NewProjectRepository(),
 		projectResourceRepository: repository.NewProjectResourceRepository(),
-		messageService:            NewMessageService(),
+		msgService:                NewMsgService(),
 	}
 }
 
@@ -101,7 +101,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				host.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, node.Role, no)
 			}
 			if err := tx.Create(&host).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
+				c.handlerImportError(tx, cluster, err)
 				return err
 			}
 
@@ -114,7 +114,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				Status:    constant.StatusRunning,
 			}
 			if err := tx.Create(&node).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
+				c.handlerImportError(tx, cluster, err)
 				return err
 			}
 			clusterResource := model.ClusterResource{
@@ -123,7 +123,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				ClusterID:    cluster.ID,
 			}
 			if err := tx.Create(&clusterResource).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
+				c.handlerImportError(tx, cluster, err)
 				return err
 			}
 			projectResource := model.ProjectResource{
@@ -132,20 +132,20 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 				ProjectID:    project.ID,
 			}
 			if err := tx.Create(&projectResource).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
+				c.handlerImportError(tx, cluster, err)
 				return err
 			}
 
 		}
 	} else {
 		if err := gatherClusterInfo(cluster); err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
+			c.handlerImportError(tx, cluster, err)
 			return err
 		}
 		for _, node := range cluster.Nodes {
 			node.ClusterID = cluster.ID
 			if err := tx.Create(&node).Error; err != nil {
-				c.handlerImportError(tx, cluster.Name, err)
+				c.handlerImportError(tx, cluster, err)
 				return fmt.Errorf("can not save node %s", err.Error())
 			}
 		}
@@ -181,7 +181,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	}
 	if manifest.ID != "" {
 		if err := json.Unmarshal([]byte(manifest.ToolVars), &toolVars); err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
+			c.handlerImportError(tx, cluster, err)
 			return fmt.Errorf("unmarshal manifest.toolvar error %s", err.Error())
 		}
 		for i := 0; i < len(tools); i++ {
@@ -196,7 +196,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	for _, tool := range tools {
 		tool.ClusterID = cluster.ID
 		if err := tx.Create(&tool).Error; err != nil {
-			c.handlerImportError(tx, cluster.Name, err)
+			c.handlerImportError(tx, cluster, err)
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
@@ -206,11 +206,11 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {
-		c.handlerImportError(tx, cluster.Name, err)
+		c.handlerImportError(tx, cluster, err)
 		return fmt.Errorf("can not create project resource %s", err.Error())
 	}
 	tx.Commit()
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterImport, true, ""), cluster.Name, constant.ClusterImport)
+	_ = c.msgService.SendMsg(constant.ClusterImport, constant.Cluster, &cluster, true, map[string]string{})
 
 	hostService := NewHostService()
 	go func() {
@@ -219,9 +219,9 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	return nil
 }
 
-func (c clusterImportService) handlerImportError(tx *gorm.DB, cluster string, err error) {
+func (c clusterImportService) handlerImportError(tx *gorm.DB, cluster *model.Cluster, err error) {
 	tx.Rollback()
-	_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterImport, false, err.Error()), cluster, constant.ClusterImport)
+	_ = c.msgService.SendMsg(constant.ClusterImport, constant.Cluster, &cluster, false, map[string]string{"errMsg": err.Error()})
 }
 
 func gatherClusterInfo(cluster *model.Cluster) error {

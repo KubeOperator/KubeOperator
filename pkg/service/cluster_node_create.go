@@ -336,7 +336,7 @@ func (c *clusterNodeService) updateNodeStatus(cluster *model.Cluster, operation,
 	}
 	if status == constant.StatusFailed {
 		taskSuccess = false
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(operation, false, errmsg), cluster.Name, operation)
+		_ = c.msgService.SendMsg(operation, constant.Cluster, &cluster, false, map[string]string{"errMsg": errmsg})
 	}
 	_ = c.taskLogService.End(&cluster.TaskLog, taskSuccess, errmsg)
 
