@@ -52,6 +52,7 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 		if project.Name != "" {
 			content["projectName"] = project.Name
 		}
+		msg.ResourceId = re.ID
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}

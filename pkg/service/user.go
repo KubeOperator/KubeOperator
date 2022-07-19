@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
 	"math/rand"
 	"strings"
@@ -47,16 +46,14 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo                   repository.UserRepository
-	userNotificationConfigRepo repository.UserNotificationConfigRepository
-	systemService              SystemSettingService
+	userRepo      repository.UserRepository
+	systemService SystemSettingService
 }
 
 func NewUserService() UserService {
 	return &userService{
-		userRepo:                   repository.NewUserRepository(),
-		systemService:              NewSystemSettingService(),
-		userNotificationConfigRepo: repository.NewUserNotificationConfigRepository(),
+		userRepo:      repository.NewUserRepository(),
+		systemService: NewSystemSettingService(),
 	}
 }
 
@@ -179,30 +176,6 @@ func (u *userService) Create(isSuper bool, creation dto.UserCreate) (*dto.User, 
 	if err != nil {
 		return nil, err
 	}
-
-	userNotificationConfig1 := new(model.UserNotificationConfig)
-	userNotificationConfig1.UserID = user.ID
-	userNotificationConfig1.Type = constant.System
-	vars := make(map[string]string)
-	vars[constant.LocalMail] = constant.Enable
-	vars[constant.Email] = constant.Disable
-	vars[constant.DingTalk] = constant.Disable
-	vars[constant.WorkWeiXin] = constant.Disable
-	data, _ := json.Marshal(vars)
-	userNotificationConfig1.Vars = string(data)
-	err = u.userNotificationConfigRepo.Save(userNotificationConfig1)
-	if err != nil {
-		return nil, err
-	}
-	userNotificationConfig2 := new(model.UserNotificationConfig)
-	userNotificationConfig2.UserID = user.ID
-	userNotificationConfig2.Vars = string(data)
-	userNotificationConfig2.Type = constant.Cluster
-	err = u.userNotificationConfigRepo.Save(userNotificationConfig2)
-	if err != nil {
-		return nil, err
-	}
-
 	d := toUserDTO(user)
 	return &d, err
 }

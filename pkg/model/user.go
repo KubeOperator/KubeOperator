@@ -61,15 +61,15 @@ func (u *User) BeforeDelete() (err error) {
 	if err != nil {
 		return err
 	}
-	err = db.DB.Model(UserMessage{}).Where("user_id =?", u.ID).Delete(&UserMessage{}).Error
+	err = db.DB.Model(UserMsg{}).Where("user_id =?", u.ID).Delete(&UserMsg{}).Error
 	if err != nil {
 		return err
 	}
-	err = db.DB.Model(UserNotificationConfig{}).Where("user_id =?", u.ID).Delete(&UserNotificationConfig{}).Error
+	err = db.DB.Model(MsgSubscribeUser{}).Where("user_id =?", u.ID).Delete(&MsgSubscribeUser{}).Error
 	if err != nil {
 		return err
 	}
-	err = db.DB.Model(UserReceiver{}).Where("user_id =?", u.ID).Delete(&UserReceiver{}).Error
+	err = db.DB.Model(UserSetting{}).Where("user_id =?", u.ID).Delete(&UserSetting{}).Error
 	if err != nil {
 		return err
 	}

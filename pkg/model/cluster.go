@@ -169,21 +169,21 @@ func (c Cluster) DeleteClusterAbout() {
 	}
 
 	var (
-		messages   []Message
+		messages   []Msg
 		messageIDs []string
 	)
-	if err := db.DB.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Find(&messages).Error; err != nil {
+	if err := db.DB.Where("resource_id = ? AND type != ?", c.ID, constant.System).Find(&messages).Error; err != nil {
 		logger.Log.Infof("select message failed, err: %v", err)
 	}
 	for _, m := range messages {
 		messageIDs = append(messageIDs, m.ID)
 	}
 	if len(messageIDs) > 0 {
-		if err := db.DB.Where("message_id in (?)", messageIDs).Delete(&UserMessage{}).Error; err != nil {
+		if err := db.DB.Where("msg_id in (?)", messageIDs).Delete(&UserMsg{}).Error; err != nil {
 			logger.Log.Infof("delete user message failed, err: %v", err)
 		}
 	}
-	if err := db.DB.Where("cluster_id = ? AND type != ?", c.ID, constant.System).Delete(&Message{}).Error; err != nil {
+	if err := db.DB.Where("resource_id = ? AND type != ?", c.ID, constant.System).Delete(&Msg{}).Error; err != nil {
 		logger.Log.Infof("delete message failed, err: %v", err)
 	}
 

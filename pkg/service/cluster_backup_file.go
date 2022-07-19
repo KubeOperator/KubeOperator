@@ -39,7 +39,6 @@ type cLusterBackupFileService struct {
 	taskLogService                  TaskLogService
 	clusterBackupStrategyRepository repository.ClusterBackupStrategyRepository
 	backupAccountRepository         repository.BackupAccountRepository
-	messageService                  MessageService
 	msgService                      MsgService
 }
 
@@ -51,7 +50,6 @@ func NewClusterBackupFileService() CLusterBackupFileService {
 		taskLogService:                  NewTaskLogService(),
 		clusterBackupStrategyRepository: repository.NewClusterBackupStrategyRepository(),
 		backupAccountRepository:         repository.NewBackupAccountRepository(),
-		messageService:                  NewMessageService(),
 		msgService:                      NewMsgService(),
 	}
 }
