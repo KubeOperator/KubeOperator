@@ -70,3 +70,12 @@ func (m MessageSubscribeController) PostDeleteUser() error {
 	}
 	return m.MsgSubscribeService.DeleteSubscribeUser(del)
 }
+
+func (m MessageSubscribeController) GetUsers() (dto.AddSubscribeResponse, error) {
+	sessionUser := m.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+	resourceName := m.Ctx.URLParam("resourceName")
+	search := m.Ctx.URLParam("name")
+
+	return m.MsgSubscribeService.GetSubscribeUser(resourceName, search, user)
+}

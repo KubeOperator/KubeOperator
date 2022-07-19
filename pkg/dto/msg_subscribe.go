@@ -31,3 +31,7 @@ type MsgSubscribeUserDTO struct {
 	MsgSubscribeID string   `json:"msgSubscribeId"`
 	Users          []string `json:"users"`
 }
+
+type AddSubscribeResponse struct {
+	Items []model.User `json:"items"`
+}

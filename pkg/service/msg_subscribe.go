@@ -20,15 +20,18 @@ type MsgSubscribeService interface {
 	AddSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
 	DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
 	List(scope, resourceName string, condition condition.Conditions) ([]dto.MsgSubscribeDTO, error)
+	GetSubscribeUser(cluster, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error)
 }
 
 type msgSubScribeService struct {
-	ClusterService ClusterService
+	ClusterService       ClusterService
+	ClusterMemberService ClusterMemberService
 }
 
 func NewMsgSubscribeService() MsgSubscribeService {
 	return &msgSubScribeService{
-		ClusterService: NewClusterService(),
+		ClusterService:       NewClusterService(),
+		ClusterMemberService: NewClusterMemberService(),
 	}
 }
 
@@ -152,4 +155,33 @@ func (m msgSubScribeService) DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubs
 	}
 	tx.Commit()
 	return nil
+}
+
+func (m msgSubScribeService) GetSubscribeUser(cluster, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error) {
+	var (
+		clusterMembers []model.ClusterMember
+		admins         []model.User
+		userIds        []string
+		items          []model.User
+		res            dto.AddSubscribeResponse
+	)
+	clu, err := m.ClusterService.Get(cluster)
+	if err != nil {
+		return dto.AddSubscribeResponse{}, err
+	}
+	db.DB.Model(model.ClusterMember{}).Where("cluster_id = ?", clu.ID).Find(&clusterMembers)
+
+	for _, m := range clusterMembers {
+		userIds = append(userIds, m.UserID)
+	}
+
+	if user.IsAdmin {
+		db.DB.Model(model.User{}).Where("is_admin = 1").Find(&admins)
+		for _, u := range admins {
+			userIds = append(userIds, u.ID)
+		}
+	}
+	db.DB.Where("name LIKE ? AND id in (?)", "%"+search+"%", userIds).Find(&items)
+	res.Items = items
+	return res, nil
 }
