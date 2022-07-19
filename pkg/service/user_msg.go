@@ -33,7 +33,7 @@ func (u userMsgService) PageLocalMsg(num, size int, user dto.SessionUser, condit
 	if err := dbUtil.WithConditions(&d, model.UserMsg{}, conditions); err != nil {
 		return res, err
 	}
-	if err := d.Where("user_id = ? AND send_type = ?", user.UserId, constant.Local).Count(&res.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Preload("Msg").Find(&msgs).Error; err != nil {
+	if err := d.Where("user_id = ? AND send_type = ?", user.UserId, constant.Local).Preload("Msg").Count(&res.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Preload("Msg").Find(&msgs).Error; err != nil {
 		return res, err
 	}
 	if err := db.DB.Model(model.UserMsg{}).Where("user_id = ? AND send_type = ? AND read_status = ?", user.UserId, constant.Local, constant.UnRead).Count(&unread).Error; err != nil {

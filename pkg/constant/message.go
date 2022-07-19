@@ -70,6 +70,7 @@ var MsgTitle = map[string]string{
 	ClusterDisableComponent:   "禁用集群组件",
 	ClusterEventWarning:       "集群事件告警",
 	MsgTest:                   "KubeOperator测试",
+	LicenseExpires:            "License到期提醒",
 }
 
 var Templates = map[string]map[string]string{

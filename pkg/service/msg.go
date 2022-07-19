@@ -67,6 +67,9 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 		msg.Level = constant.MsgWarning
 		content["title"] = title + "失败"
 	}
+	if name == constant.LicenseExpires {
+		content["title"] = content["message"]
+	}
 
 	var (
 		subscribe      model.MsgSubscribe

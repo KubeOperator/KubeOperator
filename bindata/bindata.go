@@ -2,6 +2,8 @@
 // sources:
 // pkg/templates/cluster_op.html
 // pkg/templates/cluster_op.md
+// pkg/templates/license_expire.html
+// pkg/templates/license_expire.md
 // pkg/templates/test.html
 package bindata
 
@@ -99,7 +101,7 @@ func pkgTemplatesCluster_opHtml() (*asset, error) {
 	return a, nil
 }
 
-var _pkgTemplatesCluster_opMd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x52\x56\x56\x56\xa8\xae\xd6\x2b\xc9\x2c\xc9\x49\xad\xad\xe5\xb2\x53\xd0\xd2\x7a\xb9\x70\xe7\xf3\xd9\xeb\xb4\xb4\xac\x14\xaa\xab\x15\xf4\x0a\x8a\xf2\xb3\x52\x93\x4b\xfc\x12\x73\x53\x15\x60\x0a\x66\xb7\x3d\xdf\xb7\x04\xa6\xa0\x28\xb5\x38\xbf\xb4\x28\x39\x15\x59\xc5\xb3\xe9\xdb\x5e\x4e\xdf\x02\x53\x91\x5c\x94\x9a\x58\x92\x9a\xe2\x58\x02\x97\x9e\xdc\xfb\x64\xef\x1c\x98\x74\x7e\x41\x6a\x51\x62\x49\x7e\x11\x48\xb6\xba\x5a\x21\x33\x4d\x41\x2f\xb5\xa8\xc8\xb7\x38\x1d\xa6\xfc\xc9\xfe\x85\xcf\x1a\xd7\xc3\x94\x23\xe4\xaa\xab\x15\x52\xf3\x52\x40\x2c\x9b\xb4\xfc\xbc\x12\x85\xe4\xfc\x9c\xfc\x22\x5b\xa5\xcc\xbc\xb4\x7c\x25\xbb\x67\x73\xd6\x3c\xdb\xd6\xf1\xac\x71\xfd\xf3\x29\x1b\xbd\x4b\x93\x52\xfd\xa1\xb6\xbc\x68\x5f\xf5\xb4\x6b\xc5\xd3\xfe\x89\x2f\x1b\x1a\x6d\xf4\x41\xfa\xec\x00\x01\x00\x00\xff\xff\x56\x2f\x3b\x83\x04\x01\x00\x00")
+var _pkgTemplatesCluster_opMd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x52\x56\x56\x56\xa8\xae\xd6\x2b\xc9\x2c\xc9\x49\xad\xad\xe5\xb2\x53\xd0\xd2\x7a\xb9\x70\xe7\xf3\xd9\xeb\xb4\xb4\xac\x14\xaa\xab\x15\xf4\x0a\x8a\xf2\xb3\x52\x93\x4b\xfc\x12\x73\x53\x15\x6a\x6b\x15\x62\xf2\x62\xf2\x20\xaa\x66\xb7\x3d\xdf\xb7\x04\xa6\xaa\x28\xb5\x38\xbf\xb4\x28\x39\x15\x43\xd9\xb3\xe9\xdb\x5e\x4e\xdf\x02\x53\x96\x5c\x94\x9a\x58\x92\x9a\xe2\x58\x82\xaa\x66\x72\xef\x93\xbd\x73\x60\x6a\xf2\x0b\x52\x8b\x12\x4b\xf2\x8b\xe0\x4a\xaa\xab\x15\x32\xd3\x14\xf4\x52\x8b\x8a\x7c\x8b\xd3\x15\xa0\x8e\x7c\xb2\x7f\xe1\xb3\xc6\xf5\x30\x3d\x70\x39\xb8\x8e\xd4\xbc\x14\x90\x52\x9b\xb4\xfc\xbc\x12\x85\xe4\xfc\x9c\xfc\x22\x5b\xa5\xcc\xbc\xb4\x7c\x25\xbb\x67\x73\xd6\x3c\xdb\xd6\xf1\xac\x71\xfd\xf3\x29\x1b\xbd\x4b\x93\x52\xfd\xa1\xf6\xbd\x68\x5f\xf5\xb4\x6b\xc5\xd3\xfe\x89\x2f\x1b\x1a\x6d\xf4\x41\xfa\xec\x00\x01\x00\x00\xff\xff\xd1\x1b\x26\x22\x1d\x01\x00\x00")
 
 func pkgTemplatesCluster_opMdBytes() ([]byte, error) {
 	return bindataRead(
@@ -114,7 +116,47 @@ func pkgTemplatesCluster_opMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/cluster_op.md", size: 260, mode: os.FileMode(420), modTime: time.Unix(1658124215, 0)}
+	info := bindataFileInfo{name: "pkg/templates/cluster_op.md", size: 285, mode: os.FileMode(420), modTime: time.Unix(1658211519, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _pkgTemplatesLicense_expireHtml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xaa\xae\xd6\xcb\x4d\x2d\x2e\x4e\x4c\x4f\xad\xad\x05\x04\x00\x00\xff\xff\x02\xea\x11\x3f\x0c\x00\x00\x00")
+
+func pkgTemplatesLicense_expireHtmlBytes() ([]byte, error) {
+	return bindataRead(
+		_pkgTemplatesLicense_expireHtml,
+		"pkg/templates/license_expire.html",
+	)
+}
+
+func pkgTemplatesLicense_expireHtml() (*asset, error) {
+	bytes, err := pkgTemplatesLicense_expireHtmlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "pkg/templates/license_expire.html", size: 12, mode: os.FileMode(420), modTime: time.Unix(1658211458, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _pkgTemplatesLicense_expireMd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xaa\xae\xd6\xcb\x4d\x2d\x2e\x4e\x4c\x4f\xad\xad\xe5\xb2\x49\xcb\xcf\x2b\x51\x48\xce\xcf\xc9\x2f\xb2\x55\xca\xcc\x4b\xcb\x57\xb2\x7b\x36\x67\xcd\xb3\x6d\x1d\xcf\x1a\xd7\x3f\x9f\xb2\xd1\xbb\x34\x29\xd5\xbf\x20\xb5\x28\xb1\x24\xbf\xe8\x45\xfb\xaa\xa7\x5d\x2b\x9e\xf6\x4f\x7c\xd9\xd0\x68\xa3\x0f\xd2\x67\x07\x08\x00\x00\xff\xff\xc8\x95\x7f\xb4\x4b\x00\x00\x00")
+
+func pkgTemplatesLicense_expireMdBytes() ([]byte, error) {
+	return bindataRead(
+		_pkgTemplatesLicense_expireMd,
+		"pkg/templates/license_expire.md",
+	)
+}
+
+func pkgTemplatesLicense_expireMd() (*asset, error) {
+	bytes, err := pkgTemplatesLicense_expireMdBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "pkg/templates/license_expire.md", size: 75, mode: os.FileMode(420), modTime: time.Unix(1658211476, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -191,9 +233,11 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"pkg/templates/cluster_op.html": pkgTemplatesCluster_opHtml,
-	"pkg/templates/cluster_op.md":   pkgTemplatesCluster_opMd,
-	"pkg/templates/test.html":       pkgTemplatesTestHtml,
+	"pkg/templates/cluster_op.html":     pkgTemplatesCluster_opHtml,
+	"pkg/templates/cluster_op.md":       pkgTemplatesCluster_opMd,
+	"pkg/templates/license_expire.html": pkgTemplatesLicense_expireHtml,
+	"pkg/templates/license_expire.md":   pkgTemplatesLicense_expireMd,
+	"pkg/templates/test.html":           pkgTemplatesTestHtml,
 }
 
 // AssetDir returns the file names below a certain
@@ -239,9 +283,11 @@ type bintree struct {
 var _bintree = &bintree{nil, map[string]*bintree{
 	"pkg": &bintree{nil, map[string]*bintree{
 		"templates": &bintree{nil, map[string]*bintree{
-			"cluster_op.html": &bintree{pkgTemplatesCluster_opHtml, map[string]*bintree{}},
-			"cluster_op.md":   &bintree{pkgTemplatesCluster_opMd, map[string]*bintree{}},
-			"test.html":       &bintree{pkgTemplatesTestHtml, map[string]*bintree{}},
+			"cluster_op.html":     &bintree{pkgTemplatesCluster_opHtml, map[string]*bintree{}},
+			"cluster_op.md":       &bintree{pkgTemplatesCluster_opMd, map[string]*bintree{}},
+			"license_expire.html": &bintree{pkgTemplatesLicense_expireHtml, map[string]*bintree{}},
+			"license_expire.md":   &bintree{pkgTemplatesLicense_expireMd, map[string]*bintree{}},
+			"test.html":           &bintree{pkgTemplatesTestHtml, map[string]*bintree{}},
 		}},
 	}},
 }}

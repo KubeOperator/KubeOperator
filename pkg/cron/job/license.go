@@ -1,6 +1,7 @@
 package job
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -35,7 +36,10 @@ func (l *LicenseExpire) Run() {
 	subD := now.Sub(t)
 	day := int(math.Floor(subD.Hours() / 24))
 	if day < 7 {
-		err := l.msgService.SendMsg(constant.LicenseExpires, constant.System, map[string]string{"name": "license"}, true, map[string]string{})
+
+		message := map[string]string{}
+		message["message"] = fmt.Sprintf("License还有%d天到期，请及时处理", day)
+		err := l.msgService.SendMsg(constant.LicenseExpires, constant.System, map[string]string{"name": "license"}, true, message)
 		if err != nil {
 			logger.Log.Infof("send license msg error,%s", err.Error())
 		}

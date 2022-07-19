@@ -14,7 +14,7 @@ type UserMsg struct {
 	SendStatus string `json:"sendStatus"`
 	ReadStatus string `json:"readStatus"`
 	SendType   string `json:"sendType"`
-	Msg        Msg    `json:"-"`
+	Msg        Msg    `json:"msg"`
 }
 
 func (m *UserMsg) BeforeCreate() error {
