@@ -17,7 +17,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 KubeOperator 的两个子项目(可独立部署使用)：
 
-- **[KubePi](https://github.com/KubeOperator/KubePi)**: 简单易用的开源 Kubernetes 可视化管理面板
+- **[KubePi](https://github.com/KubeOperator/KubePi)**: 一个现代化的 K8s 面板
 - **[Web Kubectl](https://github.com/KubeOperator/webkubectl)**: 在 Web 浏览器中运行 kubectl 命令
 
 ### KubeOperator 的优势
