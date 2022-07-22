@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +20,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/jinzhu/gorm"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -274,55 +272,62 @@ func (c clusterStorageProvisionerService) dosync(client *kubernetes.Clientset, p
 		}
 
 		switch provisioner.Type {
-		case "external-ceph-block":
-			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
-		case "external-cephfs":
-			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
-		case "nfs":
-			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, provisioner.Name)
+		case "external-cephfs", "external-ceph-block", "nfs":
+			if err := phases.WaitForDeployRunning(provisioner.Namespace, provisioner.Name, client); err != nil {
+				c.changeStatus(provisioner, constant.StatusFailed, err)
+				continue
+			}
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "vsphere":
-			c.updateProvisionerStatus(client, "statefulSets", provisioner.Namespace, "vsphere-csi-controller")
+			if err := phases.WaitForStatefulSetsRunning(provisioner.Namespace, "vsphere-csi-controller", client); err != nil {
+				c.changeStatus(provisioner, constant.StatusFailed, err)
+				continue
+			}
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "rook-ceph":
-			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, "rook-ceph-operator")
+			if err := phases.WaitForDeployRunning(provisioner.Namespace, "rook-ceph-operator", client); err != nil {
+				c.changeStatus(provisioner, constant.StatusFailed, err)
+				continue
+			}
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "oceanstor":
-			c.updateProvisionerStatus(client, "deployment", provisioner.Namespace, "huawei-csi-controller")
+			if err := phases.WaitForDeployRunning(provisioner.Namespace, "huawei-csi-controller", client); err != nil {
+				c.changeStatus(provisioner, constant.StatusFailed, err)
+				continue
+			}
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "cinder":
-			c.updateProvisionerStatus(client, "statefulSets", provisioner.Namespace, "csi-cinder-controllerplugin")
+			if err := phases.WaitForStatefulSetsRunning(provisioner.Namespace, "csi-cinder-controllerplugin", client); err != nil {
+				c.changeStatus(provisioner, constant.StatusFailed, err)
+				continue
+			}
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		}
 	}
 }
 
-func (c clusterStorageProvisionerService) updateProvisionerStatus(client *kubernetes.Clientset, source, namespace, name string) {
-	status, errMsg := "", ""
-	if source == "deployment" {
-		ex, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
-		if err != nil {
-			status = constant.StatusFailed
-			errMsg = err.Error()
-		} else {
-			if ex.Status.ReadyReplicas == ex.Status.Replicas {
-				status = constant.StatusRunning
-			} else {
-				status = constant.StatusWaiting
-			}
+func (c clusterStorageProvisionerService) changeStatus(provisioner dto.ClusterStorageProvisionerSync, status string, err error) {
+	if status == constant.StatusRunning {
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
+			Updates(map[string]interface{}{"status": status, "Message": ""}).Error; err != nil {
+			logger.Log.Errorf("update provisioner status to failed error: %s", err.Error())
 		}
+		return
 	}
-	if source == "statefulSets" {
-		ex, err := client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
-		if err != nil {
-			status = constant.StatusFailed
-			errMsg = err.Error()
-		} else {
-			if ex.Status.ReadyReplicas == ex.Status.Replicas {
-				status = constant.StatusRunning
-			} else {
-				status = constant.StatusWaiting
-			}
+
+	if status == constant.StatusFailed && provisioner.Status == constant.StatusWaiting {
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
+			Updates(map[string]interface{}{"status": constant.StatusNotReady, "Message": err.Error()}).Error; err != nil {
+			logger.Log.Errorf("update provisioner status to failed error: %s", err.Error())
 		}
+		return
 	}
-	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", name).
-		Updates(map[string]interface{}{"status": status, "Message": errMsg}).Error; err != nil {
-		logger.Log.Errorf("update host status to failed error: %s", err.Error())
+
+	if status == constant.StatusFailed {
+		if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("name = ?", provisioner.Name).
+			Updates(map[string]interface{}{"status": constant.StatusFailed, "Message": err.Error()}).Error; err != nil {
+			logger.Log.Errorf("update provisioner status to failed error: %s", err.Error())
+		}
 	}
 }
 
