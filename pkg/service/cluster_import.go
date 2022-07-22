@@ -350,6 +350,13 @@ func getInfoFromDaemonset(client *kubernetes.Clientset) (string, error) {
 
 func (c clusterImportService) LoadClusterInfo(loadInfo *dto.ClusterLoad) (dto.ClusterLoadInfo, error) {
 	var clusterInfo dto.ClusterLoadInfo
+	if loadInfo.AuthenticationMode == constant.AuthenticationModeConfigFile {
+		server, err := dto.LoadApiserverFromConfig(loadInfo.ConfigContent)
+		if err != nil {
+			return clusterInfo, fmt.Errorf("load failed. Check the imported Config file again, err: %v", err)
+		}
+		loadInfo.ApiServer = server
+	}
 	if strings.HasSuffix(loadInfo.ApiServer, "/") {
 		loadInfo.ApiServer = strings.Replace(loadInfo.ApiServer, "/", "", -1)
 	}

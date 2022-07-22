@@ -35,7 +35,7 @@ func (p Prometheus) setDefaultValue(toolDetail model.ClusterToolDetail, isInstal
 	switch toolDetail.ChartVersion {
 	case "11.12.1", "11.5.0":
 		values = p.valuse11121Binding(imageMap)
-	case "15.0.1":
+	case "15.0.1", "15.10.1":
 		values = p.valuse1501Binding(imageMap, isInstall)
 	}
 

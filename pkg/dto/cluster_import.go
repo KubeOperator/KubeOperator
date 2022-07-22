@@ -82,7 +82,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		cluster model.Cluster
 	)
 	if c.AuthenticationMode == constant.AuthenticationModeConfigFile {
-		server, err := loadApiserverFromConfig(c.ConfigContent)
+		server, err := LoadApiserverFromConfig(c.ConfigContent)
 		if err != nil {
 			return &cluster, fmt.Errorf("import failed. Check the imported Config file again, err: %v", err)
 		}
@@ -194,7 +194,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 	return &cluster, nil
 }
 
-func loadApiserverFromConfig(ConfigContent string) (string, error) {
+func LoadApiserverFromConfig(ConfigContent string) (string, error) {
 	map1 := make(map[string]interface{})
 	if err := yaml.Unmarshal([]byte(ConfigContent), &map1); err != nil {
 		return "", err
