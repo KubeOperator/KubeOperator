@@ -245,6 +245,9 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 
 		Status: constant.StatusRunning,
 	}
+	if c.Provider == constant.ClusterProviderPlan {
+		cluster.SpecConf.WorkerAmount = c.WorkerAmount
+	}
 
 	cluster.TaskLog = model.TaskLog{
 		Type:  constant.TaskLogTypeClusterCreate,

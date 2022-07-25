@@ -316,6 +316,10 @@ func (c clusterNodeService) createHostModels(cluster *model.Cluster, increase in
 			tx.Rollback()
 			return nil, fmt.Errorf("can not create cluster resource host %s ", newHosts[i].Name)
 		}
+		if err := db.DB.Where("id = ?", newHosts[i].CredentialID).First(&newHosts[i].Credential).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("get host %s credential failed, err: %s ", newHosts[i].Name, err.Error())
+		}
 	}
 	tx.Commit()
 

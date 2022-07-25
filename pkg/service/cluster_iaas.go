@@ -105,9 +105,11 @@ func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
 	if err != nil {
 		return err
 	}
-	if err := tx.Create(&hosts).Error; err != nil {
-		tx.Rollback()
-		return err
+	for _, h := range hosts {
+		if err := tx.Create(h).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
@@ -116,34 +118,30 @@ func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
 		return err
 	}
 
-	var (
-		projectResources []model.ProjectResource
-		clusterResources []model.ClusterResource
-	)
 	prs, err := c.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	for _, host := range hosts {
-		projectResources = append(projectResources, model.ProjectResource{
+		projectItem := model.ProjectResource{
 			ProjectID:    prs[0].ProjectID,
 			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
-		})
-		clusterResources = append(clusterResources, model.ClusterResource{
+		}
+		if err := tx.Create(&projectItem).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		clusterItem := model.ClusterResource{
 			ClusterID:    cluster.ID,
 			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
-		})
-	}
-	if err := tx.Create(&projectResources).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Create(&clusterResources).Error; err != nil {
-		tx.Rollback()
-		return err
+		}
+		if err := tx.Create(&clusterItem).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	nodes, err := c.createNodes(*cluster, hosts)
@@ -151,10 +149,13 @@ func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Create(&nodes).Error; err != nil {
-		tx.Rollback()
-		return err
+	for _, node := range nodes {
+		if err := tx.Create(node).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
+	tx.Commit()
 	return nil
 }
 
@@ -183,9 +184,6 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 			node.Name = host.Ip
 		}
 		nodes = append(nodes, &node)
-	}
-	if err := c.nodeRepo.BatchSave(nodes); err != nil {
-		return nil, err
 	}
 	return nodes, nil
 }
