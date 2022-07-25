@@ -26,7 +26,7 @@ UPDATE `ko_cluster_tool` t
 SET t.version = '2.34.0'
 WHERE c.version in ('v1.22.6-ko1', 'v1.22.8-ko1', 'v1.22.10-ko1')
     AND t.name = "prometheus"
-    AND t.status == "Waiting";
+    AND t.status = "Waiting";
 
 UPDATE `ko_cluster_tool` t
     LEFT JOIN `ko_cluster` c ON t.cluster_id = c.id
