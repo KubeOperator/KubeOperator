@@ -53,6 +53,17 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 			content["projectName"] = project.Name
 		}
 		msg.ResourceId = re.ID
+	case *model.Cluster:
+		content["resourceName"] = re.Name
+		if scope == constant.Cluster {
+			resourceId = re.ID
+		}
+		var project model.Project
+		db.DB.Where("id = ?", re.ProjectID).First(&project)
+		if project.Name != "" {
+			content["projectName"] = project.Name
+		}
+		msg.ResourceId = re.ID
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}
@@ -92,7 +103,7 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	if reflect.DeepEqual(subscribe, model.MsgSubscribe{}) {
 		return nil
 	}
-	if err := db.DB.Model(model.MsgSubscribeUser{}).Where("subscribe_id = ?", subscribe.ID).First(&userSubscribes).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err := db.DB.Model(model.MsgSubscribeUser{}).Where("subscribe_id = ?", subscribe.ID).Find(&userSubscribes).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
 	if len(userSubscribes) == 0 {
