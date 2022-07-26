@@ -77,6 +77,23 @@ func (m MessageSubscribeController) GetUsers() (dto.AddSubscribeResponse, error)
 	resourceName := m.Ctx.URLParam("resourceName")
 	subscribeId := m.Ctx.URLParam("subscribeId")
 	search := m.Ctx.URLParam("name")
-
 	return m.MsgSubscribeService.GetSubscribeUser(resourceName, subscribeId, search, user)
+}
+
+func (m MessageSubscribeController) PostUsers() (page.Page, error) {
+	pa, _ := m.Ctx.Values().GetBool("page")
+	var p page.Page
+	var conditions condition.Conditions
+	if m.Ctx.GetContentLength() > 0 {
+		if err := m.Ctx.ReadJSON(&conditions); err != nil {
+			return p, err
+		}
+	}
+	subscribeId := m.Ctx.URLParam("subscribeId")
+	if pa {
+		num, _ := m.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := m.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return m.MsgSubscribeService.PageSubUsers(subscribeId, num, size, conditions)
+	}
+	return p, nil
 }

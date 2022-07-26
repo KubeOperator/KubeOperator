@@ -21,6 +21,7 @@ type MsgSubscribeService interface {
 	DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
 	List(scope, resourceName string, condition condition.Conditions) ([]dto.MsgSubscribeDTO, error)
 	GetSubscribeUser(cluster, subscribeId, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error)
+	PageSubUsers(subscribeId string, num, size int, condition condition.Conditions) (page.Page, error)
 }
 
 type msgSubScribeService struct {
@@ -64,6 +65,16 @@ func (m msgSubScribeService) Page(scope, resourceName string, num, size int, con
 	}
 	p.Items = arr
 
+	return p, nil
+}
+
+func (m msgSubScribeService) PageSubUsers(subscribeId string, num, size int, condition condition.Conditions) (page.Page, error) {
+	p := page.Page{}
+	users := []model.User{}
+	if err := db.DB.Model(&model.User{}).Where("id in (select user_id from ko_msg_subscribe_user where subscribe_id = ?)", subscribeId).Count(&p.Total).Offset((num - 1) * size).Limit(size).Find(&users).Error; err != nil {
+		return p, err
+	}
+	p.Items = users
 	return p, nil
 }
 
@@ -176,14 +187,14 @@ func (m msgSubScribeService) GetSubscribeUser(cluster, subscribeId, search strin
 	if err != nil {
 		return dto.AddSubscribeResponse{}, err
 	}
-	db.DB.Model(model.ClusterMember{}).Where("cluster_id = ? AND user_id NOT IN (?)", clu.ID, oldUserIds).Find(&clusterMembers)
+	db.DB.Model(model.ClusterMember{}).Where("cluster_id = ?", clu.ID).Not("user_id in (?)", oldUserIds).Find(&clusterMembers)
 
 	for _, m := range clusterMembers {
 		userIds = append(userIds, m.UserID)
 	}
 
 	if user.IsAdmin {
-		db.DB.Model(model.User{}).Where("is_admin = 1 AND id NOT IN (?)", oldUserIds).Find(&admins)
+		db.DB.Model(model.User{}).Where("is_admin = 1").Not(oldUserIds).Find(&admins)
 		for _, u := range admins {
 			userIds = append(userIds, u.ID)
 		}
