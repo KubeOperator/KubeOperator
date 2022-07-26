@@ -44,10 +44,10 @@ SELECT UUID(),id,'{\"dingTalk\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"ema
 
 
 CREATE TABLE `ko_msg_subscribe_user` (
-  `subscribe_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `subscribe_id` varchar(64) NOT NULL,
   `user_id` varchar(64) NOT NULL,
   `id` varchar(64) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 
 CREATE TABLE `ko_user_msg` (
   `id` varchar(64) NOT NULL,
