@@ -13,10 +13,18 @@ INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `
 (date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'metrics-server', 'Metrics Server', 'v0.5.0', 'METRICS_SERVER_HELPER');
 
 INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
+(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'traefik', 'Ingress Controller', 'v2.2.1', 'TRAEFIK_HELPER');
+INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
+(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'traefik', 'Ingress Controller', 'v2.4.8', 'TRAEFIK_HELPER');
+INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
 (date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'traefik', 'Ingress Controller', 'v2.6.1', 'TRAEFIK_HELPER');
 
 INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
-(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'nginx', 'Ingress Controller', 'v1.1.1', 'NGINX_HELPER');
+(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'ingress-nginx', 'Ingress Controller', '0.33.0', 'NGINX_HELPER');
+INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
+(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'ingress-nginx', 'Ingress Controller', 'v1.1.1', 'NGINX_HELPER');
+INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
+(date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'ingress-nginx', 'Ingress Controller', 'v1.2.1', 'NGINX_HELPER');
 
 INSERT INTO `ko`.`ko_component_dic` (`created_at`, `updated_at`, `id`, `name`, `type`, `version`, `describe`) VALUES 
 (date_add(now(), interval 8 HOUR), date_add(now(), interval 8 HOUR), UUID(), 'gpu', 'GPU', 'v1.7.0', 'GPU_HELPER');

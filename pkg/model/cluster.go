@@ -221,23 +221,23 @@ func (c Cluster) DeleteClusterAbout() {
 	}
 }
 
-func (c Cluster) PrepareComponent(ingressType, dnsCache, supportGpu string) []ClusterSpecComponent {
+func (c Cluster) PrepareComponent(ingressType, ingressVersion, dnsCache, supportGpu string) []ClusterSpecComponent {
 	var components []ClusterSpecComponent
 	if ingressType == "traefik" {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
 			Name:      "traefik",
 			Type:      "Ingress Controller",
-			Version:   "v2.6.1",
+			Version:   ingressVersion,
 			Status:    constant.StatusEnabled,
 		})
 	}
 	if ingressType == "nginx" {
 		components = append(components, ClusterSpecComponent{
 			ClusterID: c.ID,
-			Name:      "nginx",
+			Name:      "ingress-nginx",
 			Type:      "Ingress Controller",
-			Version:   "v1.1.1",
+			Version:   ingressVersion,
 			Status:    constant.StatusEnabled,
 		})
 	}
@@ -570,7 +570,7 @@ func (c Cluster) loadComponentVars(result map[string]string) {
 			if c.Status == constant.StatusEnabled {
 				result[facts.SupportGpuFactName] = constant.StatusEnabled
 			}
-		case "nginx":
+		case "ingress-nginx":
 			if c.Status == constant.StatusEnabled {
 				result[facts.IngressControllerTypeFactName] = "nginx"
 			}

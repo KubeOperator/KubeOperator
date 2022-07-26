@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -57,6 +58,7 @@ func (c *componentService) Get(clusterName string) ([]dto.Component, error) {
 		datas         []dto.Component
 		dics          []model.ComponentDic
 		specComponent []model.ClusterSpecComponent
+		manifest      model.ClusterManifest
 	)
 	if err := db.DB.Find(&dics).Error; err != nil {
 		return nil, err
@@ -65,12 +67,32 @@ func (c *componentService) Get(clusterName string) ([]dto.Component, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := db.DB.Where("name = ?", cluster.Version).Find(&manifest).Error; err != nil {
+		return nil, err
+	}
+	var otherVars []dto.NameVersion
+	if err := json.Unmarshal([]byte(manifest.OtherVars), &otherVars); err != nil {
+		return nil, err
+	}
+
 	if err := db.DB.Where("cluster_id = ?", cluster.ID).Find(&specComponent).Error; err != nil {
 		return nil, err
 	}
 
 	typeMap := make(map[string]bool)
 	for _, dic := range dics {
+		hasVersion := true
+		for _, otherVar := range otherVars {
+			if dic.Name == otherVar.Name {
+				if dic.Version != otherVar.Version {
+					hasVersion = false
+				}
+				break
+			}
+		}
+		if !hasVersion {
+			continue
+		}
 		data := dto.Component{
 			Name:     dic.Name,
 			Type:     dic.Type,
@@ -307,7 +329,7 @@ func (c componentService) dosync(components []model.ClusterSpecComponent, client
 				continue
 			}
 			c.changeStatus(components, name, constant.StatusEnabled)
-		case "nginx":
+		case "ingress-nginx":
 			if err := phases.WaitForDaemonsetRunning("kube-system", "nginx-ingress-controller", client); err != nil {
 				if err := phases.WaitForDaemonsetRunning("kube-system", "ingress-nginx-controller", client); err != nil {
 					c.changeStatus(components, name, constant.StatusFailed)
@@ -404,7 +426,7 @@ func (c componentService) loadAdmCluster(cluster model.Cluster, component model.
 	switch component.Name {
 	case "gpu":
 		admCluster.Kobe.SetVar(facts.SupportGpuFactName, operation)
-	case "nginx":
+	case "ingress-nginx":
 		admCluster.Kobe.SetVar(facts.IngressControllerTypeFactName, "nginx")
 		admCluster.Kobe.SetVar(facts.EnableNginxFactName, operation)
 	case "traefik":
@@ -426,7 +448,7 @@ func (c componentService) loadPlayBookName(name string) string {
 	switch name {
 	case "gpu":
 		return gpuPlaybook
-	case "nginx", "traefik":
+	case "ingress-nginx", "traefik":
 		return ingressControllerPlaybook
 	case "dns-cache":
 		return dnsCachePlaybook

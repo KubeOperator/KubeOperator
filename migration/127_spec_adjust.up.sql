@@ -283,12 +283,12 @@ SELECT
     c.id AS `cluster_id`,
     "traefik" AS `name`,
     "Ingress Controller" AS `type`,
-    "v2.6.1" AS `version`,
+    "v2.2.1" AS `version`,
     "enable" AS `status`,
     "" AS `message`
 FROM `ko_cluster` c
     LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
-    WHERE s.ingress_controller_type = 'traefik';
+    WHERE s.ingress_controller_type = 'traefik' AND c.version in ("v1.18.4-ko1", "v1.18.6-ko1", "v1.18.8-ko1", "v1.18.10-ko1", "v1.18.12-ko1", "v1.18.14-ko1", "v1.18.15-ko1", "v1.18.18-ko1", "v1.18.20-ko1");
 
 INSERT INTO
     `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
@@ -297,11 +297,59 @@ SELECT
     date_add(now(), interval 8 HOUR) AS `updated_at`,
     UUID() AS `id`,
     c.id AS `cluster_id`,
-    "nginx" AS `name`,
+    "traefik" AS `name`,
     "Ingress Controller" AS `type`,
-    "v1.1.1" AS `version`,
+    "v2.4.8" AS `version`,
     "enable" AS `status`,
     "" AS `message`
 FROM `ko_cluster` c
     LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
-    WHERE s.ingress_controller_type = 'nginx';
+    WHERE s.ingress_controller_type = 'traefik' AND c.version in ("v1.20.4-ko1", "v1.20.6-ko1", "v1.20.8-ko1", "v1.20.10-ko1", "v1.20.14-ko1");
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "traefik" AS `name`,
+    "Ingress Controller" AS `type`,
+    "v2.6.1" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.ingress_controller_type = 'traefik' AND c.version in ("v1.22.6-ko1", "v1.22.8-ko1", "v1.22.10-ko1", "v1.22.12-ko1");
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "ingress-nginx" AS `name`,
+    "Ingress Controller" AS `type`,
+    "v1.2.1" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.ingress_controller_type = 'nginx' AND c.version in ("v1.22.6-ko1", "v1.22.8-ko1", "v1.22.10-ko1");
+
+INSERT INTO
+    `ko_cluster_spec_component`(`created_at`, `updated_at`, `id`, `cluster_id`, `name`, `type`, `version`, `status`, `message`)
+SELECT
+    date_add(now(), interval 8 HOUR) AS `created_at`,
+    date_add(now(), interval 8 HOUR) AS `updated_at`,
+    UUID() AS `id`,
+    c.id AS `cluster_id`,
+    "ingress-nginx" AS `name`,
+    "Ingress Controller" AS `type`,
+    "0.33.0" AS `version`,
+    "enable" AS `status`,
+    "" AS `message`
+FROM `ko_cluster` c
+    LEFT JOIN `ko_cluster_spec` s ON c.spec_id = s.id
+    WHERE s.ingress_controller_type = 'nginx' AND c.version not in ("v1.22.6-ko1", "v1.22.8-ko1", "v1.22.10-ko1");
