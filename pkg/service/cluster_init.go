@@ -48,19 +48,22 @@ type clusterInitService struct {
 func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 	cluster.TaskLog.Phase = constant.TaskLogStatusWaiting
 	_ = c.taskLogService.Save(&cluster.TaskLog)
-	cluster.Status = constant.StatusInitializing
-	cluster.CurrentTaskID = cluster.TaskLog.ID
-	_ = c.clusterRepo.Save(&cluster)
 
 	if cluster.Provider == constant.ClusterProviderPlan {
 		if err := c.clusterIaasService.LoadPlanNodes(&cluster); err != nil {
 			_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
+			cluster.Status = constant.StatusFailed
+			cluster.Message = err.Error()
+			_ = c.clusterRepo.Save(&cluster)
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
 			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, false, map[string]string{"errMsg": err.Error()})
 			return
 		}
 	}
 
+	cluster.Status = constant.StatusInitializing
+	cluster.CurrentTaskID = cluster.TaskLog.ID
+	_ = c.clusterRepo.Save(&cluster)
 	cluster.TaskLog.Phase = constant.TaskLogStatusRunning
 	cluster.TaskLog.CreatedAt = time.Now()
 	_ = c.taskLogService.Save(&cluster.TaskLog)

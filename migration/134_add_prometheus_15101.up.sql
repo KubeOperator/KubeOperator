@@ -36,7 +36,7 @@ WHERE c.version in ('v1.22.6-ko1', 'v1.22.8-ko1', 'v1.22.10-ko1')
     AND t.status != "Waiting";
 
 UPDATE `ko`.`ko_cluster_manifest`
-SET `tool_vars` = '[{"name":"gatekeeper","version":"v3.7.0"},{"name":"loki","version":"v2.1.0"},{"name":"kubeapps","version":"2.4.2"},{"name":"prometheus","version":"2.34.0"},{"name":"chartmuseum","version":"v0.12.0"},{"name":"registry","version":"v2.7.1"},{"name":"grafana","version":"8.3.1"},{"name":"logging","version":"v7.6.2"}]'
+SET `tool_vars` = '[{"name":"gatekeeper","version":"v3.7.0"},{"name":"loki","version":"v2.1.0"},{"name":"kubeapps","version":"2.4.2"},{"name":"prometheus","version":"2.34.0"},{"name":"chartmuseum","version":"v0.12.0"},{"name":"registry","version":"v2.7.1"},{"name":"grafana","version":"8.3.1"},{"name":"logging","version":"v7.6.2"}]', `other_vars` = '[{\"name\":\"coredns\",\"version\":\"1.8.4\"},{\"name\":\"dns-cache\",\"version\":\"1.17.0\"},{\"name\":\"traefik\",\"version\":\"v2.6.1\"},{\"name\":\"ingress-nginx\",\"version\":\"v1.2.1\"},{\"name\":\"metrics-server\",\"version\":\"v0.5.0\"},{\"name\":\"helm-v2\",\"version\":\"v2.17.0\"},{\"name\":\"helm-v3\",\"version\":\"v3.8.0\"}]' 
 WHERE `name` in (
         'v1.22.6-ko1',
         'v1.22.8-ko1',

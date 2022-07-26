@@ -37,7 +37,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	}
 
 	if cluster.Provider == constant.ClusterProviderPlan {
-		if err := tx.Where("name = ?", creation.Plan).First(&cluster.Plan).Error; err != nil {
+		if err := tx.Where("name = ?", creation.Plan).Preload("Zones").Preload("Region").First(&cluster.Plan).Error; err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("select plan %s failed, err: %s", creation.Plan, err.Error())
 		}
