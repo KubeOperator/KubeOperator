@@ -56,7 +56,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			cluster.Message = err.Error()
 			_ = c.clusterRepo.Save(&cluster)
 			logger.Log.Errorf("init cluster resource for create failed: %s", err.Error())
-			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, false, map[string]string{"errMsg": err.Error()})
+			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, false, map[string]string{"errMsg": err.Error(), "detailName": cluster.Name})
 			return
 		}
 	}
@@ -86,7 +86,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			cluster.Message = result.Message
 			_ = c.clusterRepo.Save(&cluster)
 			logger.Log.Errorf("cluster install failed: %s", cluster.TaskLog.Message)
-			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, false, map[string]string{"errMsg": cluster.TaskLog.Message})
+			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, false, map[string]string{"errMsg": cluster.TaskLog.Message, "detailName": cluster.Name})
 			return
 		case constant.TaskLogStatusSuccess:
 			if err := c.taskLogService.End(&cluster.TaskLog, true, ""); err != nil {
@@ -96,7 +96,7 @@ func (c clusterInitService) Init(cluster model.Cluster, writer io.Writer) {
 			cluster.Status = constant.StatusRunning
 			cluster.Message = result.Message
 			cluster.CurrentTaskID = ""
-			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, true, map[string]string{})
+			_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
 			firstMasterIP := ""
 			for i := range cluster.Nodes {
 				if cluster.Nodes[i].Role == constant.NodeRoleNameMaster && len(firstMasterIP) == 0 {

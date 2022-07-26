@@ -32,7 +32,7 @@ type TaskLogService interface {
 	IsTaskOn(clusterName string) bool
 
 	StartDetail(detail *model.TaskLogDetail) error
-	EndDetail(detail *model.TaskLogDetail, taskType string, statu string, message string) error
+	EndDetail(detail *model.TaskLogDetail, name, taskType, statu, message string) error
 	SaveDetail(detail *model.TaskLogDetail) error
 
 	RestartTask(cluster *model.Cluster, operation string) error
@@ -249,7 +249,7 @@ func (c *taskLogService) StartDetail(detail *model.TaskLogDetail) error {
 }
 
 // taskType component/provisioner
-func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, taskType string, status string, message string) error {
+func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, name, taskType, status, message string) error {
 	detail.Status = status
 	detail.Message = message
 	detail.EndTime = time.Now().Unix()
@@ -258,6 +258,8 @@ func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, taskType string,
 		return err
 	}
 	operation := ""
+	content := make(map[string]string)
+	content["detailName"] = name
 	if strings.Contains(detail.Task, "enable") {
 		if taskType == "provisioner" {
 			operation = constant.ClusterEnableProvisioner
@@ -272,9 +274,10 @@ func (c *taskLogService) EndDetail(detail *model.TaskLogDetail, taskType string,
 		}
 	}
 	if status == constant.TaskLogStatusSuccess {
-		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, true, map[string]string{})
+		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, true, content)
 	} else {
-		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, false, map[string]string{"errMsg": message})
+		content["errMsg"] = message
+		_ = c.msgService.SendMsg(operation, constant.Cluster, cluster, false, content)
 	}
 
 	return db.DB.Save(detail).Error

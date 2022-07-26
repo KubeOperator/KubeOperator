@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"reflect"
@@ -67,17 +68,24 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}
-	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
-	content["createdAt"] = date
+	content["createdAt"] = time.Now().Format("2006-01-02 15:04:05")
 
 	title := constant.MsgTitle[name]
 	content["operator"] = title
 	if success {
 		msg.Level = constant.MsgInfo
-		content["title"] = title + "成功"
+		if name, ok := content["detailName"]; ok {
+			content["title"] = fmt.Sprintf("%s %s 成功", title, name)
+		} else {
+			content["title"] = fmt.Sprintf("%s成功", title)
+		}
 	} else {
 		msg.Level = constant.MsgWarning
-		content["title"] = title + "失败"
+		if name, ok := content["detailName"]; ok {
+			content["title"] = fmt.Sprintf("%s %s 失败", title, name)
+		} else {
+			content["title"] = fmt.Sprintf("%s失败", title)
+		}
 	}
 	if name == constant.LicenseExpires {
 		content["title"] = content["message"]
