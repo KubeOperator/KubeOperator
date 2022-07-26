@@ -20,7 +20,7 @@ type MsgSubscribeService interface {
 	AddSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
 	DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubscribeUserDTO) error
 	List(scope, resourceName string, condition condition.Conditions) ([]dto.MsgSubscribeDTO, error)
-	GetSubscribeUser(cluster, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error)
+	GetSubscribeUser(cluster, subscribeId, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error)
 }
 
 type msgSubScribeService struct {
@@ -157,26 +157,33 @@ func (m msgSubScribeService) DeleteSubscribeUser(msgSubscribeUserDTO dto.MsgSubs
 	return nil
 }
 
-func (m msgSubScribeService) GetSubscribeUser(cluster, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error) {
+func (m msgSubScribeService) GetSubscribeUser(cluster, subscribeId, search string, user dto.SessionUser) (dto.AddSubscribeResponse, error) {
 	var (
 		clusterMembers []model.ClusterMember
 		admins         []model.User
 		userIds        []string
 		items          []model.User
 		res            dto.AddSubscribeResponse
+		subUsers       []model.MsgSubscribeUser
 	)
+	oldUserIds := []string{}
+	db.DB.Model(model.MsgSubscribeUser{}).Where("subscribe_id = ?", subscribeId).Find(&subUsers)
+	for _, u := range subUsers {
+		oldUserIds = append(oldUserIds, u.UserID)
+	}
+
 	clu, err := m.ClusterService.Get(cluster)
 	if err != nil {
 		return dto.AddSubscribeResponse{}, err
 	}
-	db.DB.Model(model.ClusterMember{}).Where("cluster_id = ?", clu.ID).Find(&clusterMembers)
+	db.DB.Model(model.ClusterMember{}).Where("cluster_id = ? AND user_id NOT IN (?)", clu.ID, oldUserIds).Find(&clusterMembers)
 
 	for _, m := range clusterMembers {
 		userIds = append(userIds, m.UserID)
 	}
 
 	if user.IsAdmin {
-		db.DB.Model(model.User{}).Where("is_admin = 1").Find(&admins)
+		db.DB.Model(model.User{}).Where("is_admin = 1 AND id NOT IN (?)", oldUserIds).Find(&admins)
 		for _, u := range admins {
 			userIds = append(userIds, u.ID)
 		}

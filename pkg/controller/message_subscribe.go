@@ -75,7 +75,8 @@ func (m MessageSubscribeController) GetUsers() (dto.AddSubscribeResponse, error)
 	sessionUser := m.Ctx.Values().Get("user")
 	user, _ := sessionUser.(dto.SessionUser)
 	resourceName := m.Ctx.URLParam("resourceName")
+	subscribeId := m.Ctx.URLParam("subscribeId")
 	search := m.Ctx.URLParam("name")
 
-	return m.MsgSubscribeService.GetSubscribeUser(resourceName, search, user)
+	return m.MsgSubscribeService.GetSubscribeUser(resourceName, subscribeId, search, user)
 }
