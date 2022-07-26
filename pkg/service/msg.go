@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"io"
 	"reflect"
-	"time"
 
 	"github.com/KubeOperator/KubeOperator/bindata"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -68,7 +67,6 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}
-	content["createdAt"] = time.Now().Format("2006-01-02 15:04:05")
 
 	title := constant.MsgTitle[name]
 	content["operator"] = title
@@ -178,6 +176,7 @@ func sendUserMegs(msgAccounts map[string]model.MsgAccount, userAccounts map[stri
 	if err := db.DB.Create(&msg).Error; err != nil {
 		logger.Log.Errorf("send message failed,create msg error: %v\n", err.Error())
 	}
+	content["createdAt"] = msg.CreatedAt.Format("2006-01-02 15:04:05")
 	for _, l := range userAccounts[constant.Local] {
 		userMsg := &model.UserMsg{
 			MsgID:      msg.ID,

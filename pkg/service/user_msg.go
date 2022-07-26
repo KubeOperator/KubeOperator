@@ -13,6 +13,7 @@ import (
 type UserMsgService interface {
 	UpdateLocalMsg(msgID string, user dto.SessionUser) error
 	PageLocalMsg(num, size int, user dto.SessionUser, conditions condition.Conditions) (dto.UserMsgResponse, error)
+	MarkAllRead(user dto.SessionUser) error
 }
 
 type userMsgService struct {
@@ -24,19 +25,16 @@ func NewUserMsgService() UserMsgService {
 
 func (u userMsgService) PageLocalMsg(num, size int, user dto.SessionUser, conditions condition.Conditions) (dto.UserMsgResponse, error) {
 	var (
-		res     dto.UserMsgResponse
-		msgs    []model.UserMsg
-		msgDTOs []dto.UserMsgDTO
-		unread  int
+		res    dto.UserMsgResponse
+		msgs   []model.UserMsg
+		unread int
 	)
+	msgDTOs := []dto.UserMsgDTO{}
 	d := db.DB.Model(model.UserMsg{})
 	if err := dbUtil.WithConditions(&d, model.UserMsg{}, conditions); err != nil {
 		return res, err
 	}
-	if err := d.Where("user_id = ? AND send_type = ?", user.UserId, constant.Local).Preload("Msg").Count(&res.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Preload("Msg").Find(&msgs).Error; err != nil {
-		return res, err
-	}
-	if err := db.DB.Model(model.UserMsg{}).Where("user_id = ? AND send_type = ? AND read_status = ?", user.UserId, constant.Local, constant.UnRead).Count(&unread).Error; err != nil {
+	if err := d.Where("user_id = ? AND send_type = ?  AND read_status = ? ", user.UserId, constant.Local, constant.UnRead).Preload("Msg").Count(&res.Total).Order("created_at desc").Offset((num - 1) * size).Limit(size).Preload("Msg").Find(&msgs).Error; err != nil {
 		return res, err
 	}
 
@@ -67,4 +65,8 @@ func (u userMsgService) UpdateLocalMsg(msgID string, user dto.SessionUser) error
 	old.ReadStatus = constant.Read
 
 	return db.DB.Save(&old).Error
+}
+
+func (u userMsgService) MarkAllRead(user dto.SessionUser) error {
+	return db.DB.Model(&model.UserMsg{}).Where("user_id = ?", user.UserId).Updates(model.UserMsg{ReadStatus: constant.Read}).Error
 }
