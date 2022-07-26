@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/util/msg"
 	"github.com/jinzhu/gorm"
@@ -72,5 +73,9 @@ func (m msgAccountService) Verify(msgDTO dto.MsgAccountDTO) error {
 	if err != nil {
 		return err
 	}
-	return client.Send([]string{testUser}, constant.MsgTitle[constant.MsgTest], []byte(detail))
+	if err := client.Send([]string{testUser}, constant.MsgTitle[constant.MsgTest], []byte(detail)); err != nil {
+		logger.Log.Infof("verify msg account error,%s", err.Error())
+		return err
+	}
+	return nil
 }
