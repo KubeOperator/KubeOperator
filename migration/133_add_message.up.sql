@@ -49,6 +49,10 @@ CREATE TABLE `ko_msg_subscribe_user` (
   `id` varchar(64) NOT NULL
 );
 
+INSERT INTO `ko_msg_subscribe_user` (`id`,`subscribe_id`, `user_id`)
+SELECT  UUID(),sub.id sub_id,(select user.id from ko.ko_user user where user.name='admin') user_id from ko.ko_msg_subscribe sub
+
+
 CREATE TABLE `ko_user_msg` (
   `id` varchar(64) NOT NULL,
   `created_at` datetime DEFAULT NULL,
