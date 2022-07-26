@@ -53,7 +53,25 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 		return nil, err
 	}
-	cluster.SpecComponent = cluster.PrepareComponent(creation.IngressControllerType, creation.EnableDnsCache, creation.SupportGpu)
+	var manifest model.ClusterManifest
+	if err := db.DB.Where("name = ?", cluster.Version).First(&manifest).Error; err != nil {
+		return nil, err
+	}
+	var otherVars []dto.NameVersion
+	if err := json.Unmarshal([]byte(manifest.OtherVars), &otherVars); err != nil {
+		return nil, err
+	}
+	ingressType, ingressVersion := "ingress-nginx", ""
+	if creation.IngressControllerType == "traefik" {
+		ingressType = "traefik"
+	}
+	for _, otherVar := range otherVars {
+		if otherVar.Name == ingressType {
+			ingressVersion = otherVar.Version
+			break
+		}
+	}
+	cluster.SpecComponent = cluster.PrepareComponent(creation.IngressControllerType, ingressVersion, creation.EnableDnsCache, creation.SupportGpu)
 	for _, component := range cluster.SpecComponent {
 		if err := tx.Create(&component).Error; err != nil {
 			tx.Rollback()
