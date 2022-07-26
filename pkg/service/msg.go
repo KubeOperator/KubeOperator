@@ -3,11 +3,6 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"html/template"
-	"io"
-	"reflect"
-	"time"
-
 	"github.com/KubeOperator/KubeOperator/bindata"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -16,6 +11,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	msgClient "github.com/KubeOperator/KubeOperator/pkg/util/msg"
 	"github.com/jinzhu/gorm"
+	"html/template"
+	"io"
+	"reflect"
 )
 
 type MsgService interface {
@@ -67,8 +65,6 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	case map[string]string:
 		content["resourceName"] = re["name"]
 	}
-	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
-	content["createdAt"] = date
 
 	title := constant.MsgTitle[name]
 	content["operator"] = title
@@ -170,6 +166,7 @@ func sendUserMegs(msgAccounts map[string]model.MsgAccount, userAccounts map[stri
 	if err := db.DB.Create(&msg).Error; err != nil {
 		logger.Log.Errorf("send message failed,create msg error: %v\n", err.Error())
 	}
+	content["createdAt"] = msg.CreatedAt.Format("2006-01-02 15:04:05")
 	for _, l := range userAccounts[constant.Local] {
 		userMsg := &model.UserMsg{
 			MsgID:      msg.ID,
