@@ -25,11 +25,11 @@ func NewUserMsgService() UserMsgService {
 
 func (u userMsgService) PageLocalMsg(num, size int, user dto.SessionUser, conditions condition.Conditions) (dto.UserMsgResponse, error) {
 	var (
-		res     dto.UserMsgResponse
-		msgs    []model.UserMsg
-		msgDTOs []dto.UserMsgDTO
-		unread  int
+		res    dto.UserMsgResponse
+		msgs   []model.UserMsg
+		unread int
 	)
+	msgDTOs := []dto.UserMsgDTO{}
 	d := db.DB.Model(model.UserMsg{})
 	if err := dbUtil.WithConditions(&d, model.UserMsg{}, conditions); err != nil {
 		return res, err
