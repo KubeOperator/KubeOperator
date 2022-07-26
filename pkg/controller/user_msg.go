@@ -34,6 +34,11 @@ func (u *UserMsgController) Get() (dto.UserMsgResponse, error) {
 func (u *UserMsgController) PostReadBy(msgID string) error {
 	sessionUser := u.Ctx.Values().Get("user")
 	user, _ := sessionUser.(dto.SessionUser)
-
 	return u.UserMsgService.UpdateLocalMsg(msgID, user)
+}
+
+func (u *UserMsgController) PostReadAll() error {
+	sessionUser := u.Ctx.Values().Get("user")
+	user, _ := sessionUser.(dto.SessionUser)
+	return u.UserMsgService.MarkAllRead(user)
 }
