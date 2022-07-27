@@ -100,7 +100,7 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	)
 
 	operate := name
-	if name != constant.ClusterInstall && name != constant.LicenseExpires {
+	if scope != constant.System {
 		operate = constant.ClusterOperator
 	}
 	if err := db.DB.Model(model.MsgSubscribe{}).Where("name = ? AND type = ? AND resource_id = ?", operate, msg.Type, resourceId).First(&subscribe).Error; err != nil {

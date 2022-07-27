@@ -210,7 +210,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		return fmt.Errorf("can not create project resource %s", err.Error())
 	}
 	tx.Commit()
-	_ = c.msgService.SendMsg(constant.ClusterInstall, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
+	_ = c.msgService.SendMsg(constant.ClusterImport, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
 
 	hostService := NewHostService()
 	go func() {
