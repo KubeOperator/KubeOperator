@@ -397,9 +397,10 @@ func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, 
 		admCluster.Kobe.SetVar(facts.EnableNfsFactName, operation)
 	case "gfs":
 		admCluster.Kobe.SetVar(facts.EnableGfsFactName, operation)
-	case "external_ceph_block":
+	case "external-ceph-block":
+		fmt.Println(facts.EnableCephBlockFactName, operation)
 		admCluster.Kobe.SetVar(facts.EnableCephBlockFactName, operation)
-	case "external_cephfs":
+	case "external-cephfs":
 		admCluster.Kobe.SetVar(facts.EnableCephFsFactName, operation)
 	case "cinder":
 		admCluster.Kobe.SetVar(facts.EnableCinderFactName, operation)

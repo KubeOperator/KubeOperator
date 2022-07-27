@@ -127,7 +127,7 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.CurrentTaskID = ""
 			_ = c.clusterRepo.Save(cluster)
 
-			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, &cluster, true, map[string]string{"detailName": cluster.Name})
+			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, cluster, true, map[string]string{"detailName": cluster.Name})
 			cluster.Version = cluster.UpgradeVersion
 			_ = db.DB.Save(&cluster).Error
 			cancel()
@@ -141,7 +141,7 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 			cluster.Message = result.Message
 			_ = c.clusterRepo.Save(cluster)
 
-			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, &cluster, false, map[string]string{"errMsg": result.Message, "detailName": cluster.Name})
+			_ = c.msgService.SendMsg(constant.ClusterUpgrade, constant.Cluster, cluster, false, map[string]string{"errMsg": result.Message, "detailName": cluster.Name})
 			cancel()
 			return
 		default:
