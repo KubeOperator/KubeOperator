@@ -26,9 +26,7 @@ INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `u
 VALUES
 	(UUID(), 'LICENSE_EXPIRE', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
 
-
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
-
 
 CREATE TABLE `ko_user_setting` (
   `id` varchar(64) NOT NULL,
@@ -42,7 +40,6 @@ CREATE TABLE `ko_user_setting` (
 INSERT INTO `ko_user_setting` (`id`, `user_id`, `msg`, `created_at`, `updated_at`)
 SELECT UUID(),id,'{\"dingTalk\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"email\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"workWeiXin\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"local\":{\"account\":\"\",\"receive\":\"ENABLE\"}}',date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR) FROM ko_user;
 
-
 CREATE TABLE `ko_msg_subscribe_user` (
   `subscribe_id` varchar(64) NOT NULL,
   `user_id` varchar(64) NOT NULL,
@@ -50,8 +47,7 @@ CREATE TABLE `ko_msg_subscribe_user` (
 );
 
 INSERT INTO `ko_msg_subscribe_user` (`id`,`subscribe_id`, `user_id`)
-SELECT  UUID(),sub.id sub_id,(select user.id from ko.ko_user user where user.name='admin') user_id from ko.ko_msg_subscribe sub
-
+SELECT  UUID(),sub.id subscribe_id,(select user.id from ko.ko_user user where user.name='admin') user_id from ko.ko_msg_subscribe sub;
 
 CREATE TABLE `ko_user_msg` (
   `id` varchar(64) NOT NULL,
@@ -79,9 +75,3 @@ CREATE TABLE `ko_msg` (
   `resource_tyoe` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-
-
-
-
