@@ -112,10 +112,6 @@ func (c *clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer) {
 	go c.doUpgrade(ctx, *admCluster, statusChan)
 	for {
 		result := <-statusChan
-		// 保存进度
-		cluster.Status = result.Status
-		cluster.Message = result.Message
-		_ = c.clusterRepo.Save(cluster)
 		switch cluster.TaskLog.Phase {
 		case constant.TaskLogStatusSuccess:
 			if err := c.taskLogService.End(&cluster.TaskLog, true, ""); err != nil {
