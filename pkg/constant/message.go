@@ -55,7 +55,7 @@ const (
 )
 
 var MsgTitle = map[string]string{
-	ClusterInstall:            "集群安装",
+	ClusterInstall:            "集群新增",
 	ClusterDelete:             "集群删除",
 	ClusterUnInstall:          "集群卸载",
 	ClusterUpgrade:            "集群升级",
