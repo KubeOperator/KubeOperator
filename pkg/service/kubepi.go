@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubepi"
 	"github.com/jinzhu/gorm"
@@ -22,15 +23,19 @@ type KubepiService interface {
 }
 
 func NewKubepiService() KubepiService {
-	return &kubepiService{}
+	return &kubepiService{
+		clusterRepo: repository.NewClusterRepository(),
+	}
 }
 
 type kubepiService struct {
+	clusterRepo repository.ClusterRepository
 }
 
 type ConnInfo struct {
-	Name     string `josn:"name"`
-	Password string `josn:"password"`
+	Name     string        `josn:"name"`
+	Password string        `josn:"password"`
+	Cluster  model.Cluster `json:"cluster"`
 }
 
 func (c kubepiService) GetKubePiUser() (*kubepi.ListUser, error) {
@@ -104,7 +109,11 @@ func (s *kubepiService) CheckConn(req dto.CheckConn) error {
 	return kubepiClient.CheckLogin()
 }
 
-func (s *kubepiService) LoadInfo(project, cluster string, isAdmin bool) (*ConnInfo, error) {
+func (s *kubepiService) LoadInfo(project, clusterName string, isAdmin bool) (*ConnInfo, error) {
+	cluster, err := s.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret"})
+	if err != nil {
+		return nil, err
+	}
 	var bind model.KubepiBind
 	if isAdmin {
 		if err := db.DB.Where("source_type = ?", "ADMIN").First(&bind).Error; err != nil {
@@ -113,13 +122,13 @@ func (s *kubepiService) LoadInfo(project, cluster string, isAdmin bool) (*ConnIn
 			}
 			return nil, err
 		}
-		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil
+		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword, Cluster: cluster}, nil
 	}
-	if err := db.DB.Where("cluster = ? AND source_type = ?", cluster, constant.ResourceCluster).First(&bind).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.DB.Where("cluster = ? AND source_type = ?", clusterName, constant.ResourceCluster).First(&bind).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	if bind.ID != "" {
-		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil
+		return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword, Cluster: cluster}, nil
 	}
 
 	if err := db.DB.Where("project = ? AND source_type = ?", project, constant.ResourceProject).First(&bind).Error; err != nil {
@@ -128,5 +137,5 @@ func (s *kubepiService) LoadInfo(project, cluster string, isAdmin bool) (*ConnIn
 		}
 		return nil, err
 	}
-	return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword}, nil
+	return &ConnInfo{Name: bind.BindUser, Password: bind.BindPassword, Cluster: cluster}, nil
 }

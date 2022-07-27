@@ -141,19 +141,19 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	}
 
 	//playbook
-	go c.docreate(cluster, task, dp, creation.Vars)
+	go c.docreate(&cluster, task, dp, creation.Vars)
 	return nil
 }
 
-func (c clusterStorageProvisionerService) docreate(cluster model.Cluster, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(cluster, dp, vars, constant.StatusEnabled)
+func (c clusterStorageProvisionerService) docreate(cluster *model.Cluster, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, dp, vars, constant.StatusEnabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
 		return
 	}
 
-	client, err := clusterUtil.NewClusterClient(&cluster)
+	client, err := clusterUtil.NewClusterClient(cluster)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
@@ -213,13 +213,13 @@ func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName s
 		return err
 	}
 
-	go c.dodelete(cluster, task, provisioner, Vars)
+	go c.dodelete(&cluster, task, provisioner, Vars)
 
 	return nil
 }
 
-func (c clusterStorageProvisionerService) dodelete(cluster model.Cluster, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(cluster, provisioner, vars, constant.StatusDisabled)
+func (c clusterStorageProvisionerService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, provisioner, vars, constant.StatusDisabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(provisioner, constant.StatusFailed, err)

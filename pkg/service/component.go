@@ -171,19 +171,19 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	go c.docreate(cluster, task, component, creation.Vars)
+	go c.docreate(&cluster, task, component, creation.Vars)
 	return nil
 }
 
-func (c componentService) docreate(cluster model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(cluster, component, vars, constant.StatusEnabled)
+func (c componentService) docreate(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, component, vars, constant.StatusEnabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
 		return
 	}
 
-	client, err := clusterUtil.NewClusterClient(&cluster)
+	client, err := clusterUtil.NewClusterClient(cluster)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
@@ -233,13 +233,13 @@ func (c componentService) Delete(clusterName, name string) error {
 		return err
 	}
 
-	go c.dodelete(cluster, task, component)
+	go c.dodelete(&cluster, task, component)
 
 	return nil
 }
 
-func (c componentService) dodelete(cluster model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent) {
-	admCluster, writer, err := c.loadAdmCluster(cluster, component, map[string]interface{}{}, constant.StatusDisabled)
+func (c componentService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, component, map[string]interface{}{}, constant.StatusDisabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
