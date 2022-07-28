@@ -207,14 +207,15 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		c.handlerImportError(tx, cluster, err)
 	}
 	var user model.User
-	db.DB.Model(&model.User{}).Where("name = admin").First(&user)
-
-	subscribeUser := model.MsgSubscribeUser{
-		SubscribeID: subscribe.ID,
-		UserID:      user.ID,
-	}
-	if err := tx.Create(&subscribeUser).Error; err != nil {
-		tx.Rollback()
+	_ = db.DB.Model(&model.User{}).Where("name = 'admin'").First(&user).Error
+	if user.ID != "" {
+		subscribeUser := model.MsgSubscribeUser{
+			SubscribeID: subscribe.ID,
+			UserID:      user.ID,
+		}
+		if err := tx.Create(&subscribeUser).Error; err != nil {
+			c.handlerImportError(tx, cluster, err)
+		}
 	}
 
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
