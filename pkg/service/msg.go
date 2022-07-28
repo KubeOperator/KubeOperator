@@ -3,6 +3,11 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"html/template"
+	"io"
+	"reflect"
+
 	"github.com/KubeOperator/KubeOperator/bindata"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -11,9 +16,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	msgClient "github.com/KubeOperator/KubeOperator/pkg/util/msg"
 	"github.com/jinzhu/gorm"
-	"html/template"
-	"io"
-	"reflect"
 )
 
 type MsgService interface {
@@ -70,10 +72,18 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	content["operator"] = title
 	if success {
 		msg.Level = constant.MsgInfo
-		content["title"] = title + "成功"
+		if name, ok := content["detailName"]; ok {
+			content["title"] = fmt.Sprintf("%s %s 成功", title, name)
+		} else {
+			content["title"] = fmt.Sprintf("%s成功", title)
+		}
 	} else {
 		msg.Level = constant.MsgWarning
-		content["title"] = title + "失败"
+		if name, ok := content["detailName"]; ok {
+			content["title"] = fmt.Sprintf("%s %s 失败", title, name)
+		} else {
+			content["title"] = fmt.Sprintf("%s失败", title)
+		}
 	}
 	if name == constant.LicenseExpires {
 		content["title"] = content["message"]
@@ -90,7 +100,7 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	)
 
 	operate := name
-	if name != constant.ClusterInstall && name != constant.LicenseExpires {
+	if scope != constant.System {
 		operate = constant.ClusterOperator
 	}
 	if err := db.DB.Model(model.MsgSubscribe{}).Where("name = ? AND type = ? AND resource_id = ?", operate, msg.Type, resourceId).First(&subscribe).Error; err != nil {

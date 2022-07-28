@@ -32,7 +32,7 @@ func (u *KubePiController) GetUser() (interface{}, error) {
 	return users, err
 }
 
-func (p KubePiController) PostBind() error {
+func (p *KubePiController) PostBind() error {
 	var req dto.BindKubePI
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -45,7 +45,7 @@ func (p KubePiController) PostBind() error {
 	return nil
 }
 
-func (p KubePiController) PostSearch() (*dto.BindResponse, error) {
+func (p *KubePiController) PostSearch() (*dto.BindResponse, error) {
 	var req dto.SearchBind
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -59,7 +59,7 @@ func (p KubePiController) PostSearch() (*dto.BindResponse, error) {
 	return bind, nil
 }
 
-func (p KubePiController) PostCheckConn() error {
+func (p *KubePiController) PostCheckConn() error {
 	var req dto.CheckConn
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
@@ -69,16 +69,12 @@ func (p KubePiController) PostCheckConn() error {
 	return p.KubePiService.CheckConn(req)
 }
 
-func (p KubePiController) GetJumpBy(project string, clusterName string) (*dto.Dashboard, error) {
+func (p *KubePiController) GetJumpBy(project string, clusterName string) (*dto.Dashboard, error) {
 	user := p.Ctx.Values().Get("user")
 	roleStr, _ := user.(dto.SessionUser)
 	userInfo, err := p.KubePiService.LoadInfo(project, clusterName, roleStr.IsAdmin)
 	if err != nil {
 		return nil, err
-	}
-	cluster, err := p.clusterRepo.GetWithPreload(clusterName, []string{"SpecConf", "Secret", "Nodes", "Nodes.Host", "Nodes.Host.Credential"})
-	if err != nil {
-		return nil, fmt.Errorf("load cluster info failed, err: %v", err.Error())
 	}
 	kubepiClient := kubepi.GetClient()
 	username := userInfo.Name
@@ -91,13 +87,13 @@ func (p KubePiController) GetJumpBy(project string, clusterName string) (*dto.Da
 	}
 
 	conn := kubepi.ConnInfo{
-		Name:               cluster.Name,
-		ApiServer:          fmt.Sprintf("https://%s:%d", cluster.SpecConf.LbKubeApiserverIp, cluster.SpecConf.KubeApiServerPort),
-		AuthenticationMode: cluster.SpecConf.AuthenticationMode,
-		KubernetesToken:    cluster.Secret.KubernetesToken,
-		KeyDataStr:         cluster.Secret.KeyDataStr,
-		CertDataStr:        cluster.Secret.CertDataStr,
-		ConfigContent:      cluster.Secret.ConfigContent,
+		Name:               userInfo.Cluster.Name,
+		ApiServer:          fmt.Sprintf("https://%s:%d", userInfo.Cluster.SpecConf.LbKubeApiserverIp, userInfo.Cluster.SpecConf.KubeApiServerPort),
+		AuthenticationMode: userInfo.Cluster.SpecConf.AuthenticationMode,
+		KubernetesToken:    userInfo.Cluster.Secret.KubernetesToken,
+		KeyDataStr:         userInfo.Cluster.Secret.KeyDataStr,
+		CertDataStr:        userInfo.Cluster.Secret.CertDataStr,
+		ConfigContent:      userInfo.Cluster.Secret.ConfigContent,
 	}
 	opener, err := kubepiClient.Open(conn)
 	if err != nil {

@@ -122,6 +122,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 			return errors.New("load image pull port failed")
 		}
 	}
+	creation.Vars["registry_port"] = fmt.Sprint(registery.RegistryPort)
 	playbook := c.loadPlayBookName(dp, creation.Vars)
 	task := model.TaskLogDetail{
 		ID:            dp.ID,
@@ -134,34 +135,38 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	admCluster, writer, err := c.loadAdmCluster(cluster, dp, creation.Vars, constant.StatusEnabled)
-	if err != nil {
-		return err
-	}
-	admCluster.Kobe.SetVar("registry_port", fmt.Sprint(registery.RegistryPort))
 	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", dp.ID).
 		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
 		return err
 	}
-	client, err := clusterUtil.NewClusterClient(&cluster)
-	if err != nil {
-		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
-		c.errHandlerProvisioner(dp, constant.StatusDisabled, err)
-	}
 
 	//playbook
-	go c.docreate(admCluster, writer, task, dp, client)
+	go c.docreate(&cluster, task, dp, creation.Vars)
 	return nil
 }
 
-func (c clusterStorageProvisionerService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, client *kubernetes.Clientset) {
-	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
-	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
+func (c clusterStorageProvisionerService) docreate(cluster *model.Cluster, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, dp, vars, constant.StatusEnabled)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusSuccess, "")
+
+	client, err := clusterUtil.NewClusterClient(cluster)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
+		return
+	}
+
+	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
+	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
+		return
+	}
+	_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusSuccess, "")
 	dp.Status = constant.StatusWaiting
 	if err := db.DB.Save(&dp).Error; err != nil {
 		logger.Log.Errorf("save storage provisioner status err: %s", err.Error())
@@ -203,28 +208,31 @@ func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName s
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	admCluster, writer, err := c.loadAdmCluster(cluster, provisioner, Vars, constant.StatusDisabled)
-	if err != nil {
-		return err
-	}
 	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).
 		Updates(map[string]interface{}{"status": constant.StatusTerminating, "message": ""}).Error; err != nil {
 		return err
 	}
 
-	go c.dodelete(admCluster, writer, task, provisioner)
+	go c.dodelete(&cluster, task, provisioner, Vars)
 
 	return nil
 }
 
-func (c clusterStorageProvisionerService) dodelete(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner) {
-	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
-	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusFailed, err.Error())
+func (c clusterStorageProvisionerService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, provisioner, vars, constant.StatusDisabled)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(provisioner, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, "provisioner", constant.TaskLogStatusSuccess, "")
+
+	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
+	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerProvisioner(provisioner, constant.StatusFailed, err)
+		return
+	}
+	_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusSuccess, "")
 	_ = db.DB.Where("id = ?", provisioner.ID).Delete(&model.ClusterStorageProvisioner{})
 }
 
@@ -383,21 +391,16 @@ func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, 
 	if err != nil {
 		return admCluster, writer, err
 	}
-	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).Updates(map[string]interface{}{
-		"status":  constant.StatusTerminating,
-		"message": "",
-	}).Error; err != nil {
-		return admCluster, writer, err
-	}
 
 	switch provisioner.Type {
 	case "nfs":
 		admCluster.Kobe.SetVar(facts.EnableNfsFactName, operation)
 	case "gfs":
 		admCluster.Kobe.SetVar(facts.EnableGfsFactName, operation)
-	case "external_ceph_block":
+	case "external-ceph-block":
+		fmt.Println(facts.EnableCephBlockFactName, operation)
 		admCluster.Kobe.SetVar(facts.EnableCephBlockFactName, operation)
-	case "external_cephfs":
+	case "external-cephfs":
 		admCluster.Kobe.SetVar(facts.EnableCephFsFactName, operation)
 	case "cinder":
 		admCluster.Kobe.SetVar(facts.EnableCinderFactName, operation)

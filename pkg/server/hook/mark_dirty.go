@@ -46,6 +46,14 @@ func recoverClusterTask() error {
 		return err
 	}
 
+	if err := tx.Model(&model.ClusterSpecComponent{}).Where("status not in (?)", []string{constant.StatusDisabled, constant.StatusEnabled, constant.StatusFailed}).Updates(map[string]interface{}{
+		"status":  constant.StatusFailed,
+		"message": constant.TaskCancel,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Model(&model.Host{}).Where("status != ? AND status != ?", constant.StatusRunning, constant.StatusFailed).Updates(map[string]interface{}{
 		"status":  constant.StatusFailed,
 		"message": constant.TaskCancel,

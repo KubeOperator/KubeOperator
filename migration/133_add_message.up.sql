@@ -24,6 +24,15 @@ VALUES
 	(UUID(), 'CLUSTER_INSTALL', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
 VALUES
+	(UUID(), 'CLUSTER_IMPORT', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
+	(UUID(), 'CLUSTER_UN_INSTALL', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
+	(UUID(), 'CLUSTER_DELETE', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
+INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`)
+VALUES
 	(UUID(), 'LICENSE_EXPIRE', 'SYSTEM', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),'');
 
 INSERT INTO `ko_msg_subscribe` (`id`, `name`, `type`, `config`, `created_at`, `updated_at`, `resource_id`) SELECT UUID(), 'CLUSTER_OPERATOR', 'CLUSTER', '{\"dingTalk\":\"DISABLE\",\"workWeiXin\":\"DISABLE\",\"local\":\"ENABLE\",\"email\":\"DISABLE\"}',  date_add(now(), interval 8 HOUR),  date_add(now(), interval 8 HOUR),id from ko_cluster;
@@ -43,7 +52,8 @@ SELECT UUID(),id,'{\"dingTalk\":{\"account\":\"\",\"receive\":\"DISABLE\"},\"ema
 CREATE TABLE `ko_msg_subscribe_user` (
   `subscribe_id` varchar(64) NOT NULL,
   `user_id` varchar(64) NOT NULL,
-  `id` varchar(64) NOT NULL
+  `id` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`)
 );
 
 INSERT INTO `ko_msg_subscribe_user` (`id`,`subscribe_id`, `user_id`)

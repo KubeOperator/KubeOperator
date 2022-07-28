@@ -153,9 +153,11 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 	}
 	component = creation.ComponentCreate2Mo()
 	component.ClusterID = cluster.ID
+	component.Status = constant.StatusInitializing
 	if err := db.DB.Create(&component).Error; err != nil {
 		return err
 	}
+
 	playbook := c.loadPlayBookName(creation.Name)
 	task := model.TaskLogDetail{
 		ID:            component.ID,
@@ -165,36 +167,36 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		Status:        constant.TaskLogStatusRunning,
 	}
 	if err := c.taskLogService.StartDetail(&task); err != nil {
+		c.errHandlerComponent(component, constant.StatusDisabled, err)
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	admCluster, writer, err := c.loadAdmCluster(cluster, component, creation.Vars, constant.StatusEnabled)
-	if err != nil {
-		return err
-	}
-
-	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
-		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
-		return err
-	}
-	client, err := clusterUtil.NewClusterClient(&cluster)
-	if err != nil {
-		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
-		c.errHandlerComponent(component, constant.StatusDisabled, err)
-	}
-
-	go c.docreate(admCluster, writer, task, component, client)
+	go c.docreate(&cluster, task, component, creation.Vars)
 	return nil
 }
 
-func (c componentService) docreate(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent, client *kubernetes.Clientset) {
+func (c componentService) docreate(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, vars map[string]interface{}) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, component, vars, constant.StatusEnabled)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerComponent(component, constant.StatusDisabled, err)
+		return
+	}
+
+	client, err := clusterUtil.NewClusterClient(cluster)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerComponent(component, constant.StatusDisabled, err)
+		return
+	}
+
 	playbook := strings.ReplaceAll(task.Task, " (enable)", "")
 	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusSuccess, "")
+	_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusSuccess, "")
 	component.Status = constant.StatusWaiting
 	if err := db.DB.Save(&component).Error; err != nil {
 		logger.Log.Errorf("save component status err: %s", err.Error())
@@ -226,28 +228,30 @@ func (c componentService) Delete(clusterName, name string) error {
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	admCluster, writer, err := c.loadAdmCluster(cluster, component, map[string]interface{}{}, constant.StatusDisabled)
-	if err != nil {
-		return err
-	}
 	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
 		Updates(map[string]interface{}{"status": constant.StatusTerminating, "message": ""}).Error; err != nil {
 		return err
 	}
 
-	go c.dodelete(admCluster, writer, task, component)
+	go c.dodelete(&cluster, task, component)
 
 	return nil
 }
 
-func (c componentService) dodelete(admCluster *adm.AnsibleHelper, writer io.Writer, task model.TaskLogDetail, component model.ClusterSpecComponent) {
-	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
-	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
-		_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusFailed, err.Error())
+func (c componentService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent) {
+	admCluster, writer, err := c.loadAdmCluster(*cluster, component, map[string]interface{}{}, constant.StatusDisabled)
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
 		return
 	}
-	_ = c.taskLogService.EndDetail(&task, "component", constant.TaskLogStatusSuccess, "")
+	playbook := strings.ReplaceAll(task.Task, " (disable)", "")
+	if err := phases.RunPlaybookAndGetResult(admCluster.Kobe, playbook, "", writer); err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		c.errHandlerComponent(component, constant.StatusFailed, err)
+		return
+	}
+	_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusSuccess, "")
 	_ = db.DB.Where("id = ?", component.ID).Delete(&model.ClusterSpecComponent{})
 }
 
@@ -414,12 +418,6 @@ func (c componentService) loadAdmCluster(cluster model.Cluster, component model.
 
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, operation))
 	if err != nil {
-		return admCluster, writer, err
-	}
-	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).Updates(map[string]interface{}{
-		"status":  constant.StatusTerminating,
-		"message": "",
-	}).Error; err != nil {
 		return admCluster, writer, err
 	}
 

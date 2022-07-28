@@ -80,23 +80,3 @@ func (c ProvisionerController) PostDeleteBy(clusterName string) error {
 
 	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, item.Name)
 }
-
-// func (c ProvisionerController) PostBatchBy(clusterName string) error {
-// 	var batch dto.ClusterStorageProvisionerBatch
-// 	if err := c.Ctx.ReadJSON(&batch); err != nil {
-// 		return err
-// 	}
-// 	if err := c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch); err != nil {
-// 		logger.Log.Info(fmt.Sprintf("%+v", err))
-// 		return err
-// 	}
-
-// 	operator := c.Ctx.Values().GetString("operator")
-// 	delClus := ""
-// 	for _, item := range batch.Items {
-// 		delClus += (item.Name + ",")
-// 	}
-// 	go kolog.Save(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
-
-// 	return nil
-// }

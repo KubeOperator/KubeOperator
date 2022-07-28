@@ -142,6 +142,10 @@ func (c clusterIaasService) LoadPlanNodes(cluster *model.Cluster) error {
 			tx.Rollback()
 			return err
 		}
+		if err := tx.Save(host).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	nodes, err := c.createNodes(*cluster, hosts)

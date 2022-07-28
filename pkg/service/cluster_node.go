@@ -274,7 +274,7 @@ func (c *clusterNodeService) removeNodes(cluster *model.Cluster, item dto.NodeBa
 		return
 	}
 	c.updateNodeStatus(cluster, constant.ClusterRemoveWorker, constant.StatusRunning, nodeIDs, nil)
-	_ = c.msgService.SendMsg(constant.ClusterRemoveWorker, constant.Cluster, &cluster, true, map[string]string{})
+	_ = c.msgService.SendMsg(constant.ClusterRemoveWorker, constant.Cluster, cluster, true, map[string]string{})
 	logger.Log.Info("delete node successful!")
 }
 
