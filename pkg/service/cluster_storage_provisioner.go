@@ -126,6 +126,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 	playbook := c.loadPlayBookName(dp, creation.Vars)
 	task := model.TaskLogDetail{
 		ID:            dp.ID,
+		Name:          fmt.Sprintf("%s (%s)", dp.Name, dp.Type),
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusEnabled),
 		ClusterID:     cluster.ID,
 		LastProbeTime: time.Now().Unix(),
@@ -199,6 +200,7 @@ func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName s
 	playbook := c.loadPlayBookName(provisioner, Vars)
 	task := model.TaskLogDetail{
 		ID:            fmt.Sprintf("%s (%s)", provisioner.ID, constant.StatusDisabled),
+		Name:          fmt.Sprintf("%s (%s)", provisioner.Name, provisioner.Type),
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusDisabled),
 		ClusterID:     cluster.ID,
 		LastProbeTime: time.Now().Unix(),
@@ -293,7 +295,7 @@ func (c clusterStorageProvisionerService) dosync(client *kubernetes.Clientset, p
 			}
 			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "rook-ceph":
-			if err := phases.WaitForDeployRunning(provisioner.Namespace, "rook-ceph-operator", client); err != nil {
+			if err := phases.WaitForDeployRunning("rook-ceph", "rook-ceph-operator", client); err != nil {
 				c.changeStatus(provisioner, constant.StatusFailed, err)
 				continue
 			}
@@ -391,14 +393,14 @@ func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, 
 	if err != nil {
 		return admCluster, writer, err
 	}
+	admCluster.Kobe.SetVar(facts.ProvisionerNamespaceFactName, provisioner.Namespace)
 
 	switch provisioner.Type {
 	case "nfs":
 		admCluster.Kobe.SetVar(facts.EnableNfsFactName, operation)
-	case "gfs":
+	case "glusterfs":
 		admCluster.Kobe.SetVar(facts.EnableGfsFactName, operation)
 	case "external-ceph-block":
-		fmt.Println(facts.EnableCephBlockFactName, operation)
 		admCluster.Kobe.SetVar(facts.EnableCephBlockFactName, operation)
 	case "external-cephfs":
 		admCluster.Kobe.SetVar(facts.EnableCephFsFactName, operation)

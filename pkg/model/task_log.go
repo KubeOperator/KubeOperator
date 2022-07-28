@@ -24,6 +24,7 @@ type TaskLog struct {
 type TaskLogDetail struct {
 	common.BaseModel
 	ID            string `json:"id"`
+	Name          string `json:"name"`
 	Task          string `json:"task"`
 	TaskLogID     string `json:"taskLogID"`
 	ClusterID     string `json:"clusterID"`

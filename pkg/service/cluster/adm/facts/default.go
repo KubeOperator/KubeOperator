@@ -87,14 +87,15 @@ const (
 	EnableNpdFactName               = "enable_npd"
 	EnableIstioFactName             = "enable_istio"
 
-	EnableNfsFactName       = "enable_nfs_provisioner"
-	EnableGfsFactName       = "enable_gfs_provisioner"
-	EnableCephBlockFactName = "enable_external_ceph_block_provisioner"
-	EnableCephFsFactName    = "enable_external_cephfs_provisioner"
-	EnableCinderFactName    = "enable_cinder_provisioner"
-	EnableVsphereFactName   = "enable_vsphere_provisioner"
-	EnableOceanstorFactName = "enable_oceanstor_provisioner"
-	EnableRookFactName      = "enable_rook_provisioner"
+	ProvisionerNamespaceFactName = "provisioner_namespace"
+	EnableNfsFactName            = "enable_nfs_provisioner"
+	EnableGfsFactName            = "enable_gfs_provisioner"
+	EnableCephBlockFactName      = "enable_external_ceph_block_provisioner"
+	EnableCephFsFactName         = "enable_external_cephfs_provisioner"
+	EnableCinderFactName         = "enable_cinder_provisioner"
+	EnableVsphereFactName        = "enable_vsphere_provisioner"
+	EnableOceanstorFactName      = "enable_oceanstor_provisioner"
+	EnableRookFactName           = "enable_rook_provisioner"
 )
 
 var DefaultFacts = map[string]string{
@@ -174,4 +175,6 @@ var DefaultFacts = map[string]string{
 	EnableDnsCacheFactName:        "enable",
 	EnableNpdFactName:             "disable",
 	EnableIstioFactName:           "disable",
+
+	ProvisionerNamespaceFactName: "kube-system",
 }

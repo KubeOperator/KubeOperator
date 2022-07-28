@@ -184,6 +184,7 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 		EtcdCompactionRetention: c.KoClusterInfo.EtcdCompactionRetention,
 		EtcdMaxRequest:          c.KoClusterInfo.EtcdMaxRequest,
 		EtcdQuotaBackend:        c.KoClusterInfo.EtcdQuotaBackend,
+		KubeRouter:              c.Router,
 		LbMode:                  c.KoClusterInfo.LbMode,
 		LbKubeApiserverIp:       c.KoClusterInfo.LbKubeApiserverIp,
 		KubeApiServerPort:       c.KoClusterInfo.KubeApiServerPort,

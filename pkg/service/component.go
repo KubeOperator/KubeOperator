@@ -161,6 +161,7 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 	playbook := c.loadPlayBookName(creation.Name)
 	task := model.TaskLogDetail{
 		ID:            component.ID,
+		Name:          creation.Name,
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusEnabled),
 		ClusterID:     cluster.ID,
 		LastProbeTime: time.Now().Unix(),
@@ -219,6 +220,7 @@ func (c componentService) Delete(clusterName, name string) error {
 	playbook := c.loadPlayBookName(name)
 	task := model.TaskLogDetail{
 		ID:            fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled),
+		Name:          component.Name,
 		Task:          fmt.Sprintf("%s (%s)", playbook, constant.StatusDisabled),
 		ClusterID:     cluster.ID,
 		LastProbeTime: time.Now().Unix(),
