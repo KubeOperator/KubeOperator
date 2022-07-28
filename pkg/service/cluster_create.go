@@ -110,14 +110,16 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	}
 
 	var user model.User
-	db.DB.Model(&model.User{}).Where("name = admin").First(&user)
+	_ = db.DB.Model(&model.User{}).Where("name = 'admin'").First(&user).Error
 
-	subscribeUser := model.MsgSubscribeUser{
-		SubscribeID: subscribe.ID,
-		UserID:      user.ID,
-	}
-	if err := tx.Create(&subscribeUser).Error; err != nil {
-		tx.Rollback()
+	if user.ID != "" {
+		subscribeUser := model.MsgSubscribeUser{
+			SubscribeID: subscribe.ID,
+			UserID:      user.ID,
+		}
+		if err := tx.Create(&subscribeUser).Error; err != nil {
+			tx.Rollback()
+		}
 	}
 
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
