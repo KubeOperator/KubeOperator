@@ -6,6 +6,7 @@ import (
 
 type TaskLog struct {
 	model.TaskLog `json:"tasklogs"`
+	Name          string `json:"name"`
 }
 
 type Logs struct {

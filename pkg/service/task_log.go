@@ -99,6 +99,7 @@ func (c *taskLogService) Page(num, size int, clusterName string, logtype string)
 				StartTime: tasklogs[t].StartTime,
 				EndTime:   tasklogs[t].EndTime,
 			},
+			Name: tasklogs[t].Name,
 		})
 	}
 	p.Items = datas

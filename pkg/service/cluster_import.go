@@ -35,6 +35,7 @@ type clusterImportService struct {
 	projectRepository         repository.ProjectRepository
 	projectResourceRepository repository.ProjectResourceRepository
 	msgService                MsgService
+	componentService          ComponentService
 }
 
 func NewClusterImportService() *clusterImportService {
@@ -43,6 +44,7 @@ func NewClusterImportService() *clusterImportService {
 		projectRepository:         repository.NewProjectRepository(),
 		projectResourceRepository: repository.NewProjectResourceRepository(),
 		msgService:                NewMsgService(),
+		componentService:          NewComponentService(),
 	}
 }
 
@@ -200,6 +202,10 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 			return fmt.Errorf("can not save tool %s", err.Error())
 		}
 	}
+	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
+	if err := tx.Create(&subscribe).Error; err != nil {
+		c.handlerImportError(tx, cluster, err)
+	}
 
 	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
 	if err := tx.Create(&subscribe).Error; err != nil {
@@ -231,6 +237,11 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	hostService := NewHostService()
 	go func() {
 		_ = hostService.SyncList(synchosts)
+	}()
+	go func() {
+		syncList := []string{"metrics-server", "traefik", "ingress-nginx", "gpu", "dns-cache", "istio", "npd"}
+		syncDTO := &dto.ComponentSync{ClusterName: cluster.Name, Names: syncList}
+		_ = c.componentService.Sync(syncDTO)
 	}()
 	return nil
 }
