@@ -206,12 +206,6 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 	if err := tx.Create(&subscribe).Error; err != nil {
 		c.handlerImportError(tx, cluster, err)
 	}
-
-	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
-	if err := tx.Create(&subscribe).Error; err != nil {
-		tx.Rollback()
-	}
-
 	var user model.User
 	db.DB.Model(&model.User{}).Where("name = admin").First(&user)
 
