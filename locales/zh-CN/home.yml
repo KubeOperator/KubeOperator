@@ -128,6 +128,7 @@ IP_POOL_DELETE_FAILED: "Ip 池已经关联可用区，无法删除"
 #registry
 REGISTRY_ALREADY_EXISTS: "该架构类型的仓库已经存在"
 REGISTRY_ALREADY_USED: "该架构类型的仓库正被使用"
+NEXUS_UNAVAILABLE: "Nexus 连接信息不正确，请重试！"
 
 #clusterResource
 CLUSTER_PROVIDER_ERROR: "自动模式创建的集群不能手动修改主机资源"

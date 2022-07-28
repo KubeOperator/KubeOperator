@@ -299,7 +299,7 @@ func (s SystemSettingController) PostRegistryCheckConn() error {
 	}
 
 	if err := nexus.CheckConn(req.NexusUser, req.NexusPassword, fmt.Sprintf("%s://%s:%d", req.Protocol, req.Hostname, req.RepoPort)); err != nil {
-		return err
+		return errors.New("NEXUS_UNAVAILABLE")
 	}
 	return nil
 }
