@@ -218,9 +218,9 @@ func (r RegionController) PostDatacenter() (*dto.CloudRegionResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := r.RegionService.ListDatacenter(req)
+	data, version, err := r.RegionService.ListDatacenter(req)
 	if err != nil {
 		return nil, err
 	}
-	return &dto.CloudRegionResponse{Result: data}, err
+	return &dto.CloudRegionResponse{Result: data, Version: version}, err
 }

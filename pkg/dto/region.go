@@ -23,7 +23,8 @@ type RegionOp struct {
 }
 
 type CloudRegionResponse struct {
-	Result interface{} `json:"result"`
+	Result  interface{} `json:"result"`
+	Version string      `json:"version"`
 }
 
 type RegionUpdate struct {

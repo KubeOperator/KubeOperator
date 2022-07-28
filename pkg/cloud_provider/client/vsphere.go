@@ -34,26 +34,26 @@ func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
 	}
 }
 
-func (v *vSphereClient) ListDatacenter() ([]string, error) {
+func (v *vSphereClient) ListDatacenter() ([]string, string, error) {
 	err := v.GetConnect()
+	version := ""
 	if err != nil {
-		return nil, err
+		return nil, version, err
 	}
 	client := v.Client.Client
 	var result []string
-
+	version = v.Client.ServiceContent.About.Version
 	var datacenters []*object.Datacenter
 	f := find.NewFinder(client, true)
 	datacenters, err = f.DatacenterList(context.TODO(), "*")
 	if err != nil {
-		return nil, err
+		return nil, version, err
 	}
-
 	for _, d := range datacenters {
 		datacenterPath := d.Common.InventoryPath
 		result = append(result, strings.Replace(datacenterPath, "/", "", 1))
 	}
-	return result, nil
+	return result, version, nil
 }
 
 func (v *vSphereClient) ListClusters() ([]interface{}, error) {
@@ -559,5 +559,28 @@ func (v *vSphereClient) ListDatastores() ([]DatastoreResult, error) {
 		})
 	}
 
+	return result, nil
+}
+
+func (v *vSphereClient) ListFolders() ([]string, error) {
+	result := []string{}
+	if err := v.GetConnect(); err != nil {
+		return result, err
+	}
+	client := v.Client.Client
+	ctx := context.TODO()
+	f := find.NewFinder(client, true)
+	dc, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	if err != nil {
+		return nil, err
+	}
+	f.SetDatacenter(dc)
+	folders, err := f.FolderList(ctx, "*")
+	if err != nil {
+		return nil, err
+	}
+	for _, fold := range folders {
+		result = append(result, fold.Name())
+	}
 	return result, nil
 }

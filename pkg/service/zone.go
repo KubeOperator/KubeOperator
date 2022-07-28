@@ -37,6 +37,7 @@ type ZoneService interface {
 	ListByRegionName(regionName string) ([]dto.Zone, error)
 	ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudDatastore, error)
 	UploadImage(zoneName string) error
+	ListFolders(creation dto.CloudZoneRequest) ([]string, error)
 }
 
 type zoneService struct {
@@ -644,4 +645,11 @@ func (z zoneService) ListDatastores(creation dto.CloudZoneRequest) ([]dto.CloudD
 		return result, err
 	}
 	return result, err
+}
+
+func (z zoneService) ListFolders(creation dto.CloudZoneRequest) ([]string, error) {
+	var clientVars map[string]interface{}
+	clientVars = creation.CloudVars.(map[string]interface{})
+	cloudClient := cloud_provider.NewCloudClient(clientVars)
+	return cloudClient.ListFolders()
 }

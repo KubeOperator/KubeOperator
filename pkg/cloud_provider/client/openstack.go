@@ -45,12 +45,13 @@ func NewOpenStackClient(vars map[string]interface{}) *openStackClient {
 	}
 }
 
-func (v *openStackClient) ListDatacenter() ([]string, error) {
+func (v *openStackClient) ListDatacenter() ([]string, string, error) {
 	var result []string
+	version := ""
 
 	provider, err := v.GetAuth()
 	if err != nil {
-		return result, err
+		return result, version, err
 	}
 
 	client := &http.Client{}
@@ -60,7 +61,7 @@ func (v *openStackClient) ListDatacenter() ([]string, error) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	m := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(body), &m); err != nil {
-		return result, err
+		return result, version, err
 	}
 	key, exist := m["regions"]
 	if exist {
@@ -70,10 +71,10 @@ func (v *openStackClient) ListDatacenter() ([]string, error) {
 			result = append(result, region["id"].(string))
 		}
 	} else {
-		return result, errors.New(GetRegionError)
+		return result, version, errors.New(GetRegionError)
 	}
 
-	return result, nil
+	return result, version, nil
 }
 
 func (v *openStackClient) ListClusters() ([]interface{}, error) {
@@ -413,4 +414,9 @@ func (v *openStackClient) CreateDefaultFolder() error {
 func (v *openStackClient) ListDatastores() ([]DatastoreResult, error) {
 	var results []DatastoreResult
 	return results, nil
+}
+
+func (v *openStackClient) ListFolders() ([]string, error) {
+	folders := []string{}
+	return folders, nil
 }

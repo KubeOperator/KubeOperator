@@ -6,7 +6,7 @@ import (
 )
 
 type CloudClient interface {
-	ListDatacenter() ([]string, error)
+	ListDatacenter() ([]string, string, error)
 	ListClusters() ([]interface{}, error)
 	ListTemplates() ([]interface{}, error)
 	ListFlavors() ([]interface{}, error)
@@ -15,6 +15,7 @@ type CloudClient interface {
 	ImageExist(template string) (bool, error)
 	CreateDefaultFolder() error
 	ListDatastores() ([]client.DatastoreResult, error)
+	ListFolders() ([]string, error)
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
