@@ -201,6 +201,22 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 		}
 	}
 
+	subscribe := model.NewMsgSubscribe(constant.ClusterOperator, constant.Cluster, cluster.ID)
+	if err := tx.Create(&subscribe).Error; err != nil {
+		tx.Rollback()
+	}
+
+	var user model.User
+	db.DB.Model(&model.User{}).Where("name = admin").First(&user)
+
+	subscribeUser := model.MsgSubscribeUser{
+		SubscribeID: subscribe.ID,
+		UserID:      user.ID,
+	}
+	if err := tx.Create(&subscribeUser).Error; err != nil {
+		tx.Rollback()
+	}
+
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
 		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
