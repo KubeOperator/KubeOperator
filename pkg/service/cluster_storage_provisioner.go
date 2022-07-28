@@ -312,6 +312,8 @@ func (c clusterStorageProvisionerService) dosync(client *kubernetes.Clientset, p
 				continue
 			}
 			c.changeStatus(provisioner, constant.StatusRunning, nil)
+		case "glusterfs":
+			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		}
 	}
 }
