@@ -26,10 +26,11 @@ type fusionComputeClient struct {
 	Vars map[string]interface{}
 }
 
-func (f *fusionComputeClient) ListDatacenter() ([]string, error) {
+func (f *fusionComputeClient) ListDatacenter() ([]string, string, error) {
 	c := f.newFusionComputeClient()
+	version := ""
 	if err := c.Connect(); err != nil {
-		return nil, err
+		return nil, version, err
 	}
 	defer func() {
 		if err := c.DisConnect(); err != nil {
@@ -39,13 +40,13 @@ func (f *fusionComputeClient) ListDatacenter() ([]string, error) {
 	sm := site.NewManager(c)
 	ss, err := sm.ListSite()
 	if err != nil {
-		return nil, err
+		return nil, version, err
 	}
 	var result []string
 	for _, s := range ss {
 		result = append(result, s.Name)
 	}
-	return result, nil
+	return result, version, nil
 }
 
 func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
@@ -382,4 +383,9 @@ func (f *fusionComputeClient) ListDatastores() ([]DatastoreResult, error) {
 		})
 	}
 	return results, nil
+}
+
+func (v *fusionComputeClient) ListFolders() ([]string, error) {
+	folders := []string{}
+	return folders, nil
 }

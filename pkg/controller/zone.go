@@ -258,3 +258,12 @@ func (z ZoneController) PostDatastores() ([]dto.CloudDatastore, error) {
 	}
 	return z.ZoneService.ListDatastores(req)
 }
+
+func (z ZoneController) PostFolders() ([]string, error) {
+	var req dto.CloudZoneRequest
+	err := z.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	return z.ZoneService.ListFolders(req)
+}

@@ -30,7 +30,7 @@ type RegionService interface {
 	Delete(name string) error
 	Create(creation dto.RegionCreate) (*dto.Region, error)
 	Batch(op dto.RegionOp) error
-	ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error)
+	ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, string, error)
 	Update(name string, update dto.RegionUpdate) (*dto.Region, error)
 }
 
@@ -186,15 +186,11 @@ func (r regionService) Batch(op dto.RegionOp) error {
 	return nil
 }
 
-func (r regionService) ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error) {
+func (r regionService) ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, string, error) {
 	cloudClient := cloud_provider.NewCloudClient(creation.RegionVars.(map[string]interface{}))
 	var result []string
 	if cloudClient != nil {
-		result, err := cloudClient.ListDatacenter()
-		if err != nil {
-			return result, err
-		}
-		return result, err
+		return cloudClient.ListDatacenter()
 	}
-	return result, nil
+	return result, "", errors.New("client is nil")
 }

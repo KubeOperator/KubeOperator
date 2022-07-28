@@ -109,6 +109,17 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 		tx.Rollback()
 	}
 
+	var user model.User
+	db.DB.Model(&model.User{}).Where("name = admin").First(&user)
+
+	subscribeUser := model.MsgSubscribeUser{
+		SubscribeID: subscribe.ID,
+		UserID:      user.ID,
+	}
+	if err := tx.Create(&subscribeUser).Error; err != nil {
+		tx.Rollback()
+	}
+
 	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		tx.Rollback()
