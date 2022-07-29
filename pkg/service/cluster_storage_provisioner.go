@@ -289,7 +289,7 @@ func (c clusterStorageProvisionerService) dosync(client *kubernetes.Clientset, p
 			}
 			c.changeStatus(provisioner, constant.StatusRunning, nil)
 		case "vsphere":
-			if err := phases.WaitForStatefulSetsRunning(provisioner.Namespace, "vsphere-csi-controller", client); err != nil {
+			if err := phases.WaitForDeployRunning(provisioner.Namespace, "vsphere-csi-controller", client); err != nil {
 				c.changeStatus(provisioner, constant.StatusFailed, err)
 				continue
 			}
