@@ -43,6 +43,8 @@ type clusterInfo struct {
 	CalicoIpv4PoolIpip      string `json:"calicoIpv4PoolIpip"`
 
 	RuntimeType          string `json:"runtimeType"`
+	DockerMirrorRegistry string `json:"dockerMirrorRegistry"`
+	DockerRemoteApi      string `json:"dockerRemoteApi"`
 	DockerSubnet         string `json:"dockerSubnet"`
 	DockerStorageDir     string `json:"dockerStorageDir"`
 	ContainerdStorageDir string `json:"containerdStorageDir"`
@@ -157,6 +159,8 @@ func (c ClusterImport) ClusterImportDto2Mo() (*model.Cluster, error) {
 	}
 	cluster.SpecRuntime = model.ClusterSpecRuntime{
 		RuntimeType:          c.KoClusterInfo.RuntimeType,
+		DockerMirrorRegistry: c.KoClusterInfo.DockerMirrorRegistry,
+		DockerRemoteApi:      c.KoClusterInfo.DockerRemoteApi,
 		DockerStorageDir:     c.KoClusterInfo.DockerStorageDir,
 		ContainerdStorageDir: c.KoClusterInfo.ContainerdStorageDir,
 		DockerSubnet:         c.KoClusterInfo.DockerSubnet,

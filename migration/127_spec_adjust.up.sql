@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS `ko_cluster_spec_runtime` (
     `id` varchar(255) NOT NULL,
     `cluster_id` varchar(255) NOT NULL,
     `runtime_type` varchar(255) DEFAULT NULL,
+    `docker_mirror_registry` varchar(255) DEFAULT NULL,
+    `docker_remote_api` varchar(255) DEFAULT NULL,
     `docker_storage_dir` varchar(255) DEFAULT NULL,
     `containerd_storage_dir` varchar(255) DEFAULT NULL,
     `docker_subnet` varchar(255) DEFAULT NULL,

@@ -29,6 +29,8 @@ type ClusterSpecRuntime struct {
 	ClusterID string `json:"-"`
 
 	RuntimeType          string `json:"runtimeType"`
+	DockerMirrorRegistry string `json:"dockerMirrorRegistry"`
+	DockerRemoteApi      string `json:"dockerRemoteApi"`
 	DockerStorageDir     string `json:"dockerStorageDir"`
 	ContainerdStorageDir string `json:"containerdStorageDir"`
 	DockerSubnet         string `json:"dockerSubnet"`

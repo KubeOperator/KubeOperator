@@ -18,6 +18,8 @@ const (
 	KubeServiceNodePortRangeFactName = "kube_service_node_port_range"
 
 	DockerVersionFactName        = "docker_version"
+	DockerMirrorRegistryFactName = "docker_mirror_registry"
+	DockerRemoteApiFactName      = "docker_remote_api"
 	ContainerdVersionFactName    = "containerd_version"
 	ContainerRuntimeFactName     = "container_runtime"
 	ContainerdStorageDirFactName = "containerd_storage_dir"
@@ -120,6 +122,8 @@ var DefaultFacts = map[string]string{
 	NodeportAddressFactName:              "",
 	KubeServiceNodePortRangeFactName:     "30000-32767",
 	KubeletRootDirFactName:               "/var/lib/kubelet",
+	DockerMirrorRegistryFactName:         "enable",
+	DockerRemoteApiFactName:              "disable",
 	DockerStorageDirFactName:             "/var/lib/docker",
 	ContainerdStorageDirFactName:         "/var/lib/containerd",
 	BinDirFactName:                       "/usr/local/bin",

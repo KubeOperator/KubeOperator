@@ -493,6 +493,12 @@ func (c Cluster) loadRuntimeVars(result map[string]string) {
 	if c.SpecRuntime.RuntimeType != "" {
 		result[facts.ContainerRuntimeFactName] = c.SpecRuntime.RuntimeType
 	}
+	if c.SpecRuntime.DockerMirrorRegistry != "" {
+		result[facts.DockerMirrorRegistryFactName] = c.SpecRuntime.DockerMirrorRegistry
+	}
+	if c.SpecRuntime.DockerRemoteApi != "" {
+		result[facts.DockerRemoteApiFactName] = c.SpecRuntime.DockerRemoteApi
+	}
 	if c.SpecRuntime.DockerStorageDir != "" {
 		result[facts.DockerStorageDirFactName] = c.SpecRuntime.DockerStorageDir
 	}

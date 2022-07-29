@@ -62,6 +62,8 @@ type ClusterCreate struct {
 	KubeServiceNodePortRange string `json:"kubeServiceNodePortRange"`
 
 	RuntimeType          string `json:"runtimeType"`
+	DockerMirrorRegistry string `json:"dockerMirrorRegistry"`
+	DockerRemoteApi      string `json:"dockerRemoteApi"`
 	DockerSubnet         string `json:"dockerSubnet"`
 	DockerStorageDir     string `json:"dockerStorageDir"`
 	ContainerdStorageDir string `json:"containerdStorageDir"`
@@ -208,6 +210,8 @@ func (c ClusterCreate) ClusterCreateDto2Mo() *model.Cluster {
 	}
 	cluster.SpecRuntime = model.ClusterSpecRuntime{
 		RuntimeType:          c.RuntimeType,
+		DockerMirrorRegistry: c.DockerMirrorRegistry,
+		DockerRemoteApi:      c.DockerRemoteApi,
 		DockerStorageDir:     c.DockerStorageDir,
 		ContainerdStorageDir: c.ContainerdStorageDir,
 		DockerSubnet:         c.DockerSubnet,
