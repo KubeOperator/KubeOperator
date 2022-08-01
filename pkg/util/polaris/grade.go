@@ -3,35 +3,61 @@ package polaris
 import (
 	"context"
 	"fmt"
+
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	conf "github.com/fairwindsops/polaris/pkg/config"
 	"github.com/fairwindsops/polaris/pkg/kube"
 	"github.com/fairwindsops/polaris/pkg/validator"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 type Config struct {
 	Host  string
 	Token string
 	Port  int
+
+	AuthenticationMode string
+	CertDataStr        string
+	KeyDataStr         string
+	ConfigContent      string
 }
 
 func NewResourceProvider(c *Config) (*kube.ResourceProvider, error) {
-
-	kubeConf := &rest.Config{
-		Host:        fmt.Sprintf("%s:%d", c.Host, c.Port),
-		BearerToken: c.Token,
-		TLSClientConfig: rest.TLSClientConfig{
-			Insecure: true,
-		},
+	var connConf rest.Config
+	connConf.Insecure = true
+	switch c.AuthenticationMode {
+	case constant.AuthenticationModeBearer:
+		connConf.Host = fmt.Sprintf("%s:%d", c.Host, c.Port)
+		connConf.BearerToken = c.Token
+	case constant.AuthenticationModeCertificate:
+		connConf.CertData = []byte(c.CertDataStr)
+		connConf.KeyData = []byte(c.KeyDataStr)
+	case constant.AuthenticationModeConfigFile:
+		apiConfig, err := cluster.PauseConfigApi(&c.ConfigContent)
+		if err != nil {
+			return nil, err
+		}
+		getter := func() (*api.Config, error) {
+			return apiConfig, nil
+		}
+		itemConfig, err := clientcmd.BuildConfigFromKubeconfigGetter("", getter)
+		if err != nil {
+			return nil, err
+		}
+		connConf = *itemConfig
 	}
-	api, err := kubernetes.NewForConfig(kubeConf)
+
+	api, err := kubernetes.NewForConfig(&connConf)
 	if err != nil {
 		return nil, err
 	}
-	dynamicInterface, err := dynamic.NewForConfig(kubeConf)
+	dynamicInterface, err := dynamic.NewForConfig(&connConf)
 	if err != nil {
 		return nil, err
 	}
