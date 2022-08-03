@@ -73,14 +73,14 @@ func (m msgService) SendMsg(name, scope string, resource interface{}, success bo
 	if success {
 		msg.Level = constant.MsgInfo
 		if name, ok := content["detailName"]; ok {
-			content["title"] = fmt.Sprintf("%s %s 成功", title, name)
+			content["title"] = fmt.Sprintf("%s成功 (%s)", title, name)
 		} else {
 			content["title"] = fmt.Sprintf("%s成功", title)
 		}
 	} else {
 		msg.Level = constant.MsgWarning
 		if name, ok := content["detailName"]; ok {
-			content["title"] = fmt.Sprintf("%s %s 失败", title, name)
+			content["title"] = fmt.Sprintf("%s失败 (%s)", title, name)
 		} else {
 			content["title"] = fmt.Sprintf("%s失败", title)
 		}

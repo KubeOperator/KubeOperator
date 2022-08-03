@@ -34,6 +34,11 @@ func (g gradeService) GetGrade(clusterName string) (*dto.ClusterGrade, error) {
 			Host:  cluster.SpecConf.LbKubeApiserverIp,
 			Port:  cluster.SpecConf.KubeApiServerPort,
 			Token: cluster.Secret.KubernetesToken,
+
+			AuthenticationMode: cluster.SpecConf.AuthenticationMode,
+			CertDataStr:        cluster.Secret.CertDataStr,
+			KeyDataStr:         cluster.Secret.KeyDataStr,
+			ConfigContent:      cluster.Secret.ConfigContent,
 		})
 		if err != nil {
 			return nil, err
