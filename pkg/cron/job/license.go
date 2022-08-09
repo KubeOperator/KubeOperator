@@ -33,10 +33,9 @@ func (l *LicenseExpire) Run() {
 	expiration := detail.LicenseInfo.Expired
 	t, _ := time.Parse("2006-01-01", expiration)
 	now := time.Now()
-	subD := now.Sub(t)
+	subD := t.Sub(now)
 	day := int(math.Floor(subD.Hours() / 24))
-	if day < 7 {
-
+	if day > 0 && (day == 7 || day == 30 || day == 3 || day == 15) {
 		message := map[string]string{}
 		message["message"] = fmt.Sprintf("License还有%d天到期，请及时处理", day)
 		err := l.msgService.SendMsg(constant.LicenseExpires, constant.System, map[string]string{"name": "license"}, true, message)
