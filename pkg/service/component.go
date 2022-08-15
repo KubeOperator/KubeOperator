@@ -173,7 +173,7 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled))
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, constant.StatusEnabled))
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		return fmt.Errorf("create ansible log writer failed, err: %v", err)
