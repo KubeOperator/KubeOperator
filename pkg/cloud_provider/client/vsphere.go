@@ -96,8 +96,8 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	}
 	networks := []string{}
 	for _, value := range nws {
-		if value.Reference().Type == "Network" {
-			network, _ := v.getNetworkName(value.Reference())
+		network, _ := v.getNetworkName(value.Reference())
+		if network != "" {
 			networks = append(networks, network)
 		}
 	}
@@ -124,12 +124,24 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 
 func (v *vSphereClient) getNetworkName(ref types.ManagedObjectReference) (string, error) {
 	pc := property.DefaultCollector(v.Client.Client)
-	ns := mo.Network{}
-	err := pc.RetrieveOne(context.TODO(), ref, []string{"summary", "name"}, &ns)
-	if err != nil {
-		return "", err
+	if ref.Type == "Network" {
+		ns := mo.Network{}
+		err := pc.RetrieveOne(context.TODO(), ref, []string{"summary", "name"}, &ns)
+		if err != nil {
+			return "", err
+		}
+		return ns.Name, nil
 	}
-	return ns.Name, nil
+	if ref.Type == "DistributedVirtualPortgroup" {
+		ns := mo.DistributedVirtualPortgroup{}
+		err := pc.RetrieveOne(context.TODO(), ref, []string{"summary", "name"}, &ns)
+		if err != nil {
+			return "", err
+		}
+		return ns.Name, nil
+	}
+
+	return "", nil
 }
 
 func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
