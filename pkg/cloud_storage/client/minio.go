@@ -2,10 +2,12 @@ package client
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
+	"net/http"
 	"os"
 )
 
@@ -18,6 +20,7 @@ func NewMinIoClient(vars map[string]interface{}) (*minIoClient, error) {
 	var endpoint string
 	var accessKeyID string
 	var secretAccessKey string
+	var ssl string
 	if _, ok := vars["endpoint"]; ok {
 		endpoint = vars["endpoint"].(string)
 	} else {
@@ -34,9 +37,24 @@ func NewMinIoClient(vars map[string]interface{}) (*minIoClient, error) {
 		return nil, errors.New(ParamEmpty)
 	}
 
+	if _, ok := vars["ssl"]; ok {
+		ssl = vars["ssl"].(string)
+	} else {
+		return nil, errors.New(ParamEmpty)
+	}
+	secure := false
+	tlsConfig := &tls.Config{}
+	if ssl == "https" {
+		secure = true
+		tlsConfig.InsecureSkipVerify = true
+	}
+	var transport http.RoundTripper = &http.Transport{
+		TLSClientConfig: tlsConfig,
+	}
 	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
+		Creds:     credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure:    secure,
+		Transport: transport,
 	})
 	if err != nil {
 		return nil, err
