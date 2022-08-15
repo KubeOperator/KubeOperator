@@ -167,17 +167,30 @@ func (c *componentService) Create(creation *dto.ComponentCreate) error {
 		LastProbeTime: time.Now().Unix(),
 		Status:        constant.TaskLogStatusRunning,
 	}
+
 	if err := c.taskLogService.StartDetail(&task); err != nil {
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
-	go c.docreate(&cluster, task, component, creation.Vars)
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled))
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		return fmt.Errorf("create ansible log writer failed, err: %v", err)
+	}
+
+	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
+		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		return err
+	}
+
+	go c.docreate(&cluster, task, component, creation.Vars, writer)
 	return nil
 }
 
-func (c componentService) docreate(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(*cluster, component, vars, constant.StatusEnabled)
+func (c componentService) docreate(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, vars map[string]interface{}, writer io.Writer) {
+	admCluster, err := c.loadAdmCluster(*cluster, component, vars, constant.StatusEnabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusDisabled, err)
@@ -230,18 +243,25 @@ func (c componentService) Delete(clusterName, name string) error {
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, constant.StatusDisabled))
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
+		return fmt.Errorf("create ansible log writer failed, err: %v", err)
+	}
+
 	if err := db.DB.Model(&model.ClusterSpecComponent{}).Where("id = ?", component.ID).
 		Updates(map[string]interface{}{"status": constant.StatusTerminating, "message": ""}).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		return err
 	}
 
-	go c.dodelete(&cluster, task, component)
+	go c.dodelete(&cluster, task, component, writer)
 
 	return nil
 }
 
-func (c componentService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent) {
-	admCluster, writer, err := c.loadAdmCluster(*cluster, component, map[string]interface{}{}, constant.StatusDisabled)
+func (c componentService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, component model.ClusterSpecComponent, writer io.Writer) {
+	admCluster, err := c.loadAdmCluster(*cluster, component, map[string]interface{}{}, constant.StatusDisabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, component.Name, "component", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerComponent(component, constant.StatusFailed, err)
@@ -407,7 +427,7 @@ func (c componentService) changeStatus(components []model.ClusterSpecComponent, 
 	}
 }
 
-func (c componentService) loadAdmCluster(cluster model.Cluster, component model.ClusterSpecComponent, vars map[string]interface{}, operation string) (*adm.AnsibleHelper, io.Writer, error) {
+func (c componentService) loadAdmCluster(cluster model.Cluster, component model.ClusterSpecComponent, vars map[string]interface{}, operation string) (*adm.AnsibleHelper, error) {
 	admCluster := adm.NewAnsibleHelper(cluster)
 
 	if len(vars) != 0 {
@@ -416,11 +436,6 @@ func (c componentService) loadAdmCluster(cluster model.Cluster, component model.
 				admCluster.Kobe.SetVar(k, fmt.Sprintf("%v", v))
 			}
 		}
-	}
-
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", component.ID, operation))
-	if err != nil {
-		return admCluster, writer, err
 	}
 
 	switch component.Name {
@@ -441,7 +456,7 @@ func (c componentService) loadAdmCluster(cluster model.Cluster, component model.
 	case "istio":
 		admCluster.Kobe.SetVar(facts.EnableIstioFactName, operation)
 	}
-	return admCluster, writer, err
+	return admCluster, nil
 }
 
 func (c componentService) loadPlayBookName(name string) string {

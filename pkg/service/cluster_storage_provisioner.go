@@ -136,18 +136,24 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", dp.ID, constant.StatusEnabled))
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
+		return fmt.Errorf("create ansible log writer failed, err: %v", err)
+	}
+
 	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", dp.ID).
 		Updates(map[string]interface{}{"status": constant.StatusInitializing, "message": ""}).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		return err
 	}
 
-	//playbook
-	go c.docreate(&cluster, task, dp, creation.Vars)
+	go c.docreate(&cluster, task, dp, creation.Vars, writer)
 	return nil
 }
 
-func (c clusterStorageProvisionerService) docreate(cluster *model.Cluster, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(*cluster, dp, vars, constant.StatusEnabled)
+func (c clusterStorageProvisionerService) docreate(cluster *model.Cluster, task model.TaskLogDetail, dp model.ClusterStorageProvisioner, vars map[string]interface{}, writer io.Writer) {
+	admCluster, err := c.loadAdmCluster(*cluster, dp, vars, constant.StatusEnabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, dp.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(dp, constant.StatusFailed, err)
@@ -210,18 +216,25 @@ func (c clusterStorageProvisionerService) DeleteStorageProvisioner(clusterName s
 		return fmt.Errorf("save tasklog failed, err: %v", err)
 	}
 
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", provisioner.ID, constant.StatusDisabled))
+	if err != nil {
+		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
+		return fmt.Errorf("create ansible log writer failed, err: %v", err)
+	}
+
 	if err := db.DB.Model(&model.ClusterStorageProvisioner{}).Where("id = ?", provisioner.ID).
 		Updates(map[string]interface{}{"status": constant.StatusTerminating, "message": ""}).Error; err != nil {
+		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		return err
 	}
 
-	go c.dodelete(&cluster, task, provisioner, Vars)
+	go c.dodelete(&cluster, task, provisioner, Vars, writer)
 
 	return nil
 }
 
-func (c clusterStorageProvisionerService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}) {
-	admCluster, writer, err := c.loadAdmCluster(*cluster, provisioner, vars, constant.StatusDisabled)
+func (c clusterStorageProvisionerService) dodelete(cluster *model.Cluster, task model.TaskLogDetail, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}, writer io.Writer) {
+	admCluster, err := c.loadAdmCluster(*cluster, provisioner, vars, constant.StatusDisabled)
 	if err != nil {
 		_ = c.taskLogService.EndDetail(&task, provisioner.Name, "provisioner", constant.TaskLogStatusFailed, err.Error())
 		c.errHandlerProvisioner(provisioner, constant.StatusFailed, err)
@@ -343,7 +356,7 @@ func (c clusterStorageProvisionerService) changeStatus(provisioner dto.ClusterSt
 	}
 }
 
-func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}, operation string) (*adm.AnsibleHelper, io.Writer, error) {
+func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, provisioner model.ClusterStorageProvisioner, vars map[string]interface{}, operation string) (*adm.AnsibleHelper, error) {
 	admCluster := adm.NewAnsibleHelper(cluster)
 
 	if len(vars) != 0 {
@@ -391,10 +404,6 @@ func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, 
 		}
 	}
 
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, fmt.Sprintf("%s (%s)", provisioner.ID, operation))
-	if err != nil {
-		return admCluster, writer, err
-	}
 	admCluster.Kobe.SetVar(facts.ProvisionerNamespaceFactName, provisioner.Namespace)
 
 	switch provisioner.Type {
@@ -415,5 +424,5 @@ func (c clusterStorageProvisionerService) loadAdmCluster(cluster model.Cluster, 
 	case "rook-ceph":
 		admCluster.Kobe.SetVar(facts.EnableRookFactName, operation)
 	}
-	return admCluster, writer, err
+	return admCluster, nil
 }

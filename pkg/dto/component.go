@@ -45,7 +45,7 @@ func (c ComponentCreate) ComponentCreate2Mo() model.ClusterSpecComponent {
 		Name:    c.Name,
 		Type:    c.Type,
 		Version: c.Version,
-		Status:  constant.StatusInitializing,
+		Status:  constant.StatusCreating,
 		Vars:    string(vars),
 	}
 }
