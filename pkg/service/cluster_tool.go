@@ -227,7 +227,9 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	port := cluster.SpecConf.KubeApiServerPort
 	for _, node := range cluster.Nodes {
 		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			if len(node.Host.Ip) != 0 {
+				hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			}
 		}
 	}
 	availableHost, err := clusterUtil.SelectAliveHost(hosts)
@@ -264,16 +266,21 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
-	var hosts []string
-	port := cluster.SpecConf.KubeApiServerPort
-	for _, node := range cluster.Nodes {
-		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+	availableHost := cluster.SpecConf.KubeRouter
+	if cluster.Source != constant.ClusterSourceExternal {
+		var hosts []string
+		port := cluster.SpecConf.KubeApiServerPort
+		for _, node := range cluster.Nodes {
+			if node.Role == constant.NodeRoleNameMaster {
+				if len(node.Host.Ip) != 0 {
+					hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+				}
+			}
 		}
-	}
-	availableHost, err := clusterUtil.SelectAliveHost(hosts)
-	if err != nil {
-		return tool, err
+		availableHost, err = clusterUtil.SelectAliveHost(hosts)
+		if err != nil {
+			return tool, err
+		}
 	}
 
 	var toolDetail model.ClusterToolDetail
@@ -303,16 +310,21 @@ func (c clusterToolService) Upgrade(clusterName string, tool dto.ClusterTool) (d
 	if err != nil {
 		return tool, err
 	}
-	var hosts []string
-	port := cluster.SpecConf.KubeApiServerPort
-	for _, node := range cluster.Nodes {
-		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+	availableHost := cluster.SpecConf.KubeRouter
+	if cluster.Source != constant.ClusterSourceExternal {
+		var hosts []string
+		port := cluster.SpecConf.KubeApiServerPort
+		for _, node := range cluster.Nodes {
+			if node.Role == constant.NodeRoleNameMaster {
+				if len(node.Host.Ip) != 0 {
+					hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+				}
+			}
 		}
-	}
-	availableHost, err := clusterUtil.SelectAliveHost(hosts)
-	if err != nil {
-		return tool, err
+		availableHost, err = clusterUtil.SelectAliveHost(hosts)
+		if err != nil {
+			return tool, err
+		}
 	}
 
 	var toolDetail model.ClusterToolDetail
