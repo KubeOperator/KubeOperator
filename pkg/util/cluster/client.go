@@ -22,7 +22,9 @@ func NewClusterClient(cluster *model.Cluster) (*kubernetes.Clientset, error) {
 	hosts = append(hosts, fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 	for _, node := range cluster.Nodes {
 		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			if len(node.Host.Ip) != 0 {
+				hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			}
 		}
 	}
 	availableHost, err := SelectAliveHost(hosts)
@@ -74,7 +76,9 @@ func LoadAvailableHost(cluster *model.Cluster) (string, error) {
 	hosts = append(hosts, fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 	for _, node := range cluster.Nodes {
 		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			if len(node.Host.Ip) != 0 {
+				hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			}
 		}
 	}
 	return SelectAliveHost(hosts)
@@ -86,7 +90,9 @@ func NewClusterExtensionClient(cluster *model.Cluster) (*extensionClientSet.Clie
 	hosts = append(hosts, fmt.Sprintf("%s:%d", cluster.SpecConf.LbKubeApiserverIp, port))
 	for _, node := range cluster.Nodes {
 		if node.Role == constant.NodeRoleNameMaster {
-			hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			if len(node.Host.Ip) != 0 {
+				hosts = append(hosts, fmt.Sprintf("%s:%d", node.Host.Ip, port))
+			}
 		}
 	}
 	availableHost, err := SelectAliveHost(hosts)
