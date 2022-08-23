@@ -263,7 +263,7 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		if vars["ssl"] != nil {
 			ssl = vars["ssl"].(string)
 		}
-		config := "region=minio,s3ForcePathStyle='true',insecureSkipTLSVerify='true',s3Url=" + ssl + "://" + vars["endpoint"].(string)
+		config := "region=minio,s3ForcePathStyle=true,insecureSkipTLSVerify=true,s3Url=" + ssl + "://" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
 	}
 	if veleroInstall.Requests.Cpu > 0 {
