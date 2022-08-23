@@ -318,11 +318,12 @@ func (v veleroBackupService) UnInstall(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	err = kubeClient.CoreV1().Namespaces().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	co := context.Background()
+	err = kubeClient.CoreV1().Namespaces().Delete(co, "velero", metav1.DeleteOptions{})
 	if err != nil {
 		return err
 	}
-	err = kubeClient.RbacV1().ClusterRoleBindings().Delete(context.Background(), "velero", metav1.DeleteOptions{})
+	err = kubeClient.RbacV1().ClusterRoleBindings().Delete(co, "velero", metav1.DeleteOptions{})
 	if err != nil {
 		return err
 	}
@@ -330,13 +331,20 @@ func (v veleroBackupService) UnInstall(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	listPvOptions := metav1.ListOptions{
+	listOptions := metav1.ListOptions{
 		LabelSelector: "component=velero",
 	}
-	err = exClient.ApiextensionsV1().CustomResourceDefinitions().DeleteCollection(context.Background(), metav1.DeleteOptions{}, listPvOptions)
+	crds, err := exClient.ApiextensionsV1().CustomResourceDefinitions().List(co, listOptions)
 	if err != nil {
 		return err
 	}
+	for _, crd := range crds.Items {
+		err = exClient.ApiextensionsV1().CustomResourceDefinitions().Delete(co, crd.Name, metav1.DeleteOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
 	if err := db.DB.Where("cluster = ?", cluster.Name).Delete(&model.ClusterVelero{}).Error; err != nil {
 		return err
 	}
