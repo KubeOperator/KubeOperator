@@ -38,7 +38,7 @@ func Get(operate string, args []string) ([]VeleroBackup, error) {
 }
 
 func GetLogs(name, operate string, args []string) ([]byte, error) {
-	logs := []string{operate, "logs", name}
+	logs := []string{operate, "logs", name, "--insecure-skip-tls-verify"}
 	args = append(logs, args...)
 	return ExecCommand(defaultVeleroPath, args)
 }

@@ -263,11 +263,8 @@ func (v veleroBackupService) Install(cluster string, veleroInstall dto.VeleroIns
 		if vars["ssl"] != nil {
 			ssl = vars["ssl"].(string)
 		}
-		config := "region=minio,s3ForcePathStyle=true,s3Url=" + ssl + "://" + vars["endpoint"].(string)
+		config := "region=minio,s3ForcePathStyle='true',insecureSkipTLSVerify='true',s3Url=" + ssl + "://" + vars["endpoint"].(string)
 		args = append(args, "--backup-location-config", config)
-		if ssl == "https" {
-			args = append(args, "--insecure-skip-tls-verify", "true")
-		}
 	}
 	if veleroInstall.Requests.Cpu > 0 {
 		args = append(args, "--velero-pod-cpu-request", strconv.Itoa(veleroInstall.Requests.Cpu)+"m")
@@ -340,7 +337,7 @@ func (v veleroBackupService) UnInstall(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	if err := db.DB.Where("cluster = ?", cluster).Delete(&model.ClusterVelero{}).Error; err != nil {
+	if err := db.DB.Where("cluster = ?", cluster.Name).Delete(&model.ClusterVelero{}).Error; err != nil {
 		return err
 	}
 	return nil
