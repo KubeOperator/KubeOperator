@@ -21,7 +21,6 @@ const (
 const (
 	ClusterInstall            = "CLUSTER_INSTALL"
 	ClusterImport             = "CLUSTER_IMPORT"
-	ClusterUnInstall          = "CLUSTER_UN_INSTALL"
 	ClusterUpgrade            = "CLUSTER_UPGRADE"
 	ClusterDelete             = "CLUSTER_DELETE"
 	ClusterScale              = "CLUSTER_SCALE"
@@ -58,7 +57,6 @@ var MsgTitle = map[string]string{
 	ClusterInstall:            "集群安装",
 	ClusterImport:             "集群导入",
 	ClusterDelete:             "集群删除",
-	ClusterUnInstall:          "集群卸载",
 	ClusterUpgrade:            "集群升级",
 	ClusterScale:              "集群伸缩",
 	ClusterAddWorker:          "集群扩容",
@@ -90,7 +88,7 @@ var Templates = map[string]map[string]string{
 		DingTalk:   "pkg/templates/cluster_op.md",
 		WorkWeiXin: "pkg/templates/cluster_op.md",
 	},
-	ClusterUnInstall: {
+	ClusterDelete: {
 		Email:      "pkg/templates/cluster_op.html",
 		DingTalk:   "pkg/templates/cluster_op.md",
 		WorkWeiXin: "pkg/templates/cluster_op.md",

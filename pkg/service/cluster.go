@@ -368,7 +368,7 @@ func (c *clusterService) errClusterDelete(cluster *model.Cluster, errStr error) 
 	_ = c.clusterRepo.Save(cluster)
 	_ = c.tasklogService.End(&cluster.TaskLog, false, errStr.Error())
 
-	_ = c.msgService.SendMsg(constant.ClusterUnInstall, constant.System, cluster, false, map[string]string{"errMsg": errStr.Error(), "detailName": cluster.Name})
+	_ = c.msgService.SendMsg(constant.ClusterDelete, constant.System, cluster, false, map[string]string{"errMsg": errStr.Error(), "detailName": cluster.Name})
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
@@ -407,7 +407,7 @@ func (c *clusterService) uninstallCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
-	_ = c.msgService.SendMsg(constant.ClusterUnInstall, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
+	_ = c.msgService.SendMsg(constant.ClusterDelete, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
 	if err := c.tasklogService.End(&cluster.TaskLog, true, ""); err != nil {
 		logger.Log.Errorf("update tasklog error %s", err.Error())
 	}
@@ -439,7 +439,7 @@ func (c *clusterService) destroyCluster(cluster *model.Cluster, force bool) {
 		}
 		return
 	}
-	_ = c.msgService.SendMsg(constant.ClusterUnInstall, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
+	_ = c.msgService.SendMsg(constant.ClusterDelete, constant.System, cluster, true, map[string]string{"detailName": cluster.Name})
 	logger.Log.Infof("start clearing cluster data %s", cluster.Name)
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		c.errClusterDelete(cluster, err)
