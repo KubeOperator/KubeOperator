@@ -12,7 +12,7 @@ require (
 	github.com/Shopify/goreferrer v0.0.0-20210305184658-1a4fe54f556d // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
-	github.com/aws/aws-sdk-go v1.33.18
+	github.com/aws/aws-sdk-go v1.43.16
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1
@@ -29,12 +29,11 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis v6.15.7+incompatible
-	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gofrs/flock v0.8.0
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gofrs/flock v0.8.1
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.1.3
+	github.com/google/uuid v1.2.0
 	github.com/gophercloud/gophercloud v0.12.0
-	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
 	github.com/icza/dyno v0.0.0-20210726202311-f1bafe5d9996
 	github.com/imkira/go-interpol v1.1.0 // indirect
@@ -53,10 +52,11 @@ require (
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/mozillazg/go-pinyin v0.18.0
+	github.com/nats-io/nats-server/v2 v2.2.1-0.20210330155036-61cbd74e213d // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
-	github.com/prometheus/client_golang v1.11.0
-	github.com/prometheus/common v0.26.0
+	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/common v0.32.1
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/robfig/cron v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -73,21 +73,20 @@ require (
 	github.com/youtube/vitess v2.1.1+incompatible // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
-	golang.org/x/text v0.3.6
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
-	helm.sh/helm/v3 v3.6.1
-	k8s.io/api v0.22.0
-	k8s.io/apiextensions-apiserver v0.22.0
-	k8s.io/apimachinery v0.22.0
-	k8s.io/cli-runtime v0.22.0
-	k8s.io/client-go v0.22.0
-	k8s.io/metrics v0.21.0
-	rsc.io/letsencrypt v0.0.3 // indirect
+	gopkg.in/yaml.v3 v3.0.1
+	helm.sh/helm/v3 v3.9.4
+	k8s.io/api v0.24.2
+	k8s.io/apiextensions-apiserver v0.24.2
+	k8s.io/apimachinery v0.24.2
+	k8s.io/cli-runtime v0.24.2
+	k8s.io/client-go v0.24.2
+	k8s.io/metrics v0.24.2
 )
 
 replace sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.7.0
