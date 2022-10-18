@@ -40,5 +40,8 @@ func Parse(content string) (*dto.License, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := cmd.Wait(); err != nil {
+		return nil, err
+	}
 	return &resp, nil
 }
