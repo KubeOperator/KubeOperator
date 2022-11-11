@@ -211,7 +211,8 @@ func (c clusterService) Page(num, size int, isPolling string, user dto.SessionUs
 	for i := 0; i < len(clusters); i++ {
 		if (clusters[i].Status == constant.StatusRunning || clusters[i].Status == constant.ClusterNotReady) && !(isPolling == "true") {
 			isOK := false
-			isOK, clusters[i].Message = GetClusterStatusByAPI(fmt.Sprintf("%s:%d", clusters[i].SpecConf.LbKubeApiserverIp, clusters[i].SpecConf.KubeApiServerPort))
+			addr := fmt.Sprintf("%s:%d", clusters[i].SpecConf.LbKubeApiserverIp, clusters[i].SpecConf.KubeApiServerPort)
+			isOK, clusters[i].Message = GetClusterStatusByAPI(addr, &clusters[i])
 			if !isOK {
 				_ = db.DB.Model(&model.Cluster{}).Where("id = ?", clusters[i].ID).Updates(map[string]interface{}{"Status": constant.ClusterNotReady, "Message": clusters[i].Message})
 			}

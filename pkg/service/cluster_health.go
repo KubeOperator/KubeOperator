@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -22,6 +21,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 var (
@@ -200,7 +200,7 @@ func checkKubernetesApi(c model.Cluster) dto.ClusterHealthHook {
 		Name:  CheckK8sAPI,
 		Level: StatusSuccess,
 	}
-	isOK, err := GetClusterStatusByAPI(fmt.Sprintf("%s:%d", c.SpecConf.LbKubeApiserverIp, c.SpecConf.KubeApiServerPort))
+	isOK, err := GetClusterStatusByAPI(fmt.Sprintf("%s:%d", c.SpecConf.LbKubeApiserverIp, c.SpecConf.KubeApiServerPort), &c)
 	if !isOK {
 		result.Msg = err
 		result.Level = StatusError
@@ -346,7 +346,7 @@ func (c clusterHealthService) recoverK8sAPI(m model.Cluster, ri *dto.ClusterReco
 		ri.Msg = fmt.Sprintf("select alive host error %s", err.Error())
 		return
 	}
-	isOk, msg := GetClusterStatusByAPI(string(aliveHost))
+	isOk, msg := GetClusterStatusByAPI(string(aliveHost), &m)
 	if isOk {
 		if err := db.DB.Model(&model.ClusterSpecConf{}).Where("cluster_id = ?", m.ID).Updates(map[string]interface{}{"lb_kube_apiserver_ip": strings.Split(string(aliveHost), ":")[0]}).Error; err != nil {
 			ri.Result = StatusFailed
@@ -466,12 +466,17 @@ func (c clusterHealthService) recoverNodeStatus(m model.Cluster, ri *dto.Cluster
 	ri.Result = StatusRecoverd
 }
 
-func GetClusterStatusByAPI(addr string) (bool, string) {
+func GetClusterStatusByAPI(addr string, cluster *model.Cluster) (bool, string) {
 	reqURL := fmt.Sprintf("https://%s/livez", addr)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	conf, err := clusterUtil.LoadConnConf(cluster, addr)
+	if err != nil {
+		_, _ = false, fmt.Sprintf("load cluster config error %s", err.Error())
 	}
-	client := &http.Client{Timeout: 1 * time.Second, Transport: tr}
+	tls2, err := rest.TransportFor(conf)
+	if err != nil {
+		_, _ = false, fmt.Sprintf("config transport error %s", err.Error())
+	}
+	client := &http.Client{Timeout: 1 * time.Second, Transport: tls2}
 	request, _ := http.NewRequest("GET", reqURL, nil)
 	response, err := client.Do(request)
 	if err != nil {
