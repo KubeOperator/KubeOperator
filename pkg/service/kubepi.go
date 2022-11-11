@@ -66,7 +66,14 @@ func (s *kubepiService) BindKubePi(req dto.BindKubePI) error {
 	if err != nil {
 		return err
 	}
-	_ = db.DB.Where("source_type = ? AND project = ? AND cluster = ?", req.SourceType, req.Project, req.Cluster).First(&record).Error
+	dbItem := db.DB.Where("source_type = ?", req.SourceType)
+	if len(req.Cluster) != 0 {
+		dbItem = dbItem.Where("cluster = ?", req.Cluster)
+	}
+	if len(req.Project) != 0 {
+		dbItem = dbItem.Where("project = ?", req.Project)
+	}
+	_ = dbItem.First(&record).Error
 	if record.ID != "" {
 		if req.BindUser != record.BindUser || password != record.BindPassword {
 			record.BindPassword = password

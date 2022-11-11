@@ -14,6 +14,8 @@ insert into
     `ko`.`ko_kubepi_bind`(
         `id`,
         `source_type`,
+        `project`,
+        `cluster`,
         `bind_user`,
         `bind_password`,
         `created_at`,
@@ -23,6 +25,8 @@ VALUES
     (
         UUID(),
         'ADMIN',
+        '',
+        '',
         'admin',
         'TVABAQEBAQEELTvAQm69N0AK2UwxQ4/6JHM2lUbG57A=',
         date_add(now(), interval 8 HOUR),
