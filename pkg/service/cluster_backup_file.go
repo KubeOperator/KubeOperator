@@ -270,14 +270,16 @@ func (c cLusterBackupFileService) Restore(restore dto.ClusterBackupFileRestore) 
 	}
 	cluster.TaskLog = *task
 	cluster.CurrentTaskID = task.ID
+
 	_ = c.clusterRepo.Save(&cluster)
 
-	go c.doRestore(restore, cluster, task)
+	go c.doRestore(restore, &cluster)
 	return nil
 }
 
-func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore, cluster model.Cluster, task *model.TaskLog) {
-	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, task.ID)
+func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore, cluster *model.Cluster) {
+
+	writer, err := ansible.CreateAnsibleLogWriterWithId(cluster.Name, cluster.TaskLog.ID)
 	if err != nil {
 		logger.Log.Errorf("create ansible log failed, error: %s", err.Error())
 	}
@@ -290,9 +292,9 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	vars["bucket"] = restore.BackupAccount.Bucket
 	client, err := cloud_storage.NewCloudStorageClient(vars)
 	if err != nil {
-		_ = c.taskLogService.End(task, false, err.Error())
+		_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 		cluster.CurrentTaskID = ""
-		_ = c.clusterRepo.Save(&cluster)
+		_ = c.clusterRepo.Save(cluster)
 		logger.Log.Errorf("cloud storage new client failed, error: %s", err.Error())
 		_ = c.msgService.SendMsg(constant.ClusterRestore, constant.Cluster, cluster, false, map[string]string{"errMsg": err.Error()})
 		return
@@ -302,28 +304,28 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
-		_ = c.taskLogService.End(task, false, err.Error())
+		_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 		cluster.CurrentTaskID = ""
-		_ = c.clusterRepo.Save(&cluster)
+		_ = c.clusterRepo.Save(cluster)
 		logger.Log.Errorf("cloud storage download failed, error: %s", err.Error())
 		_ = c.msgService.SendMsg(constant.ClusterRestore, constant.Cluster, cluster, false, map[string]string{"errMsg": err.Error()})
 		return
 	}
 
-	admCluster := adm.NewAnsibleHelper(cluster)
+	admCluster := adm.NewAnsibleHelper(*cluster)
 	p := &backup.RestoreClusterPhase{}
 
 	err = p.Run(admCluster.Kobe, writer)
 	if err != nil {
 		logger.Log.Errorf("restore cluster phase run failed, error: %s", err.Error())
-		_ = c.taskLogService.End(task, false, err.Error())
+		_ = c.taskLogService.End(&cluster.TaskLog, false, err.Error())
 		cluster.CurrentTaskID = ""
-		_ = c.clusterRepo.Save(&cluster)
+		_ = c.clusterRepo.Save(cluster)
 		_ = c.msgService.SendMsg(constant.ClusterRestore, constant.Cluster, cluster, false, map[string]string{"errMsg": err.Error()})
 	} else {
-		_ = c.taskLogService.End(task, true, "")
+		_ = c.taskLogService.End(&cluster.TaskLog, true, "")
 		cluster.CurrentTaskID = ""
-		_ = c.clusterRepo.Save(&cluster)
+		_ = c.clusterRepo.Save(cluster)
 		_ = c.msgService.SendMsg(constant.ClusterRestore, constant.Cluster, cluster, true, map[string]string{})
 	}
 }
