@@ -30,6 +30,7 @@ const (
 	gpuPlaybook               = "16-gpu-operator.yml"
 	dnsCachePlaybook          = "17-dns-cache.yml"
 	istioPlaybook             = "18-istio.yml"
+	metallbPlaybook           = "19-metallb.yml"
 )
 
 type ComponentService interface {
@@ -393,6 +394,12 @@ func (c componentService) dosync(components []model.ClusterSpecComponent, client
 				continue
 			}
 			c.changeStatus(components, name, constant.StatusEnabled)
+		case "metallb":
+			if err := phases.WaitForDeployRunning("kube-system", "kubeoperator-metallb-controller", client); err != nil {
+				c.changeStatus(components, name, constant.StatusFailed)
+				continue
+			}
+			c.changeStatus(components, name, constant.StatusEnabled)
 		}
 	}
 }
@@ -455,6 +462,8 @@ func (c componentService) loadAdmCluster(cluster model.Cluster, component model.
 		admCluster.Kobe.SetVar(facts.EnableNpdFactName, operation)
 	case "istio":
 		admCluster.Kobe.SetVar(facts.EnableIstioFactName, operation)
+	case "metallb":
+		admCluster.Kobe.SetVar(facts.EnableMetallbFactName, operation)
 	}
 	return admCluster, nil
 }
@@ -473,6 +482,8 @@ func (c componentService) loadPlayBookName(name string) string {
 		return npdPlaybook
 	case "istio":
 		return istioPlaybook
+	case "metallb":
+		return metallbPlaybook
 	}
 	return ""
 }

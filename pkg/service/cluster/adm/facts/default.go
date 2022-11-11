@@ -88,6 +88,8 @@ const (
 	SupportGpuFactName              = "enable_gpu"
 	EnableNpdFactName               = "enable_npd"
 	EnableIstioFactName             = "enable_istio"
+	EnableMetallbFactName           = "enable_metallb"
+	MetallbVersionFactName          = "metallb_version"
 
 	ProvisionerNamespaceFactName = "provisioner_namespace"
 	EnableNfsFactName            = "enable_nfs_provisioner"
@@ -179,6 +181,8 @@ var DefaultFacts = map[string]string{
 	EnableDnsCacheFactName:        "enable",
 	EnableNpdFactName:             "disable",
 	EnableIstioFactName:           "disable",
+	EnableMetallbFactName:         "disable",
+	MetallbVersionFactName:        "v0.13.7",
 
 	ProvisionerNamespaceFactName: "kube-system",
 }
