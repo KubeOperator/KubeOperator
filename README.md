@@ -82,7 +82,7 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 ### License & Copyright
 
-Copyright (c) 2014-2022 FIT2CLOUD 飞致云
+Copyright (c) 2014-2023 FIT2CLOUD 飞致云
 
 [https://www.fit2cloud.com](https://www.fit2cloud.com)<br>
 
