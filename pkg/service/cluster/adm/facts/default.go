@@ -178,7 +178,7 @@ var DefaultFacts = map[string]string{
 	EnableTraefikFactName:         "disable",
 	MetricsServerFactName:         "enable",
 	SupportGpuFactName:            "disable",
-	EnableDnsCacheFactName:        "enable",
+	EnableDnsCacheFactName:        "disable",
 	EnableNpdFactName:             "disable",
 	EnableIstioFactName:           "disable",
 	EnableMetallbFactName:         "disable",

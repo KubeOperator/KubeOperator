@@ -575,6 +575,8 @@ func (c Cluster) loadComponentVars(result map[string]string) {
 		case "gpu":
 			if c.Status == constant.StatusEnabled {
 				result[facts.SupportGpuFactName] = constant.StatusEnabled
+			} else {
+				result[facts.SupportGpuFactName] = constant.StatusDisabled
 			}
 		case "ingress-nginx":
 			if c.Status == constant.StatusEnabled {
@@ -587,6 +589,8 @@ func (c Cluster) loadComponentVars(result map[string]string) {
 		case "dns-cache":
 			if c.Status == constant.StatusEnabled {
 				result[facts.EnableDnsCacheFactName] = constant.StatusEnabled
+			} else {
+				result[facts.EnableDnsCacheFactName] = constant.StatusDisabled
 			}
 		}
 	}
