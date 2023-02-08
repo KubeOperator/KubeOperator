@@ -41,18 +41,6 @@ KubeOperator 的两个子项目(可独立部署使用)：
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
-### 在线体验
-
--   环境地址：<https://demo.kubeoperator.io/>
--   用户名：demo
--   密码：Password@123
-
-| :warning: 注意                 |
-| :--------------------------- |
-| 该环境仅作体验目的使用，我们会定时清理、重置数据！    |
-| 请勿修改体验环境用户的密码！               |
-| 请勿在环境中添加业务生产环境地址、用户名密码等敏感信息！ |
-
 ### 快速开始
 
 仅需两步快速安装 KubeOperator：
