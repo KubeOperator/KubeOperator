@@ -52,10 +52,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 - [完整文档](https://kubeoperator.io/docs/)
 - [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
 
-### 微信交流群
-
-![wechat-group](https://kubeoperator.io/docs/img/wechat-group.png)
-
 ### 致谢
 
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
