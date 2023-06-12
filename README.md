@@ -36,22 +36,6 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
-### 快速开始
-
-仅需两步快速安装 KubeOperator：
-
- 1. 准备一台不小于 8 G内存的 64位 Linux 主机；
- 2. 以 root 用户执行如下命令一键安装 KubeOperator。
-
-```sh
-curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/quick_start.sh | sh
-```
-
-文档和演示视频：
-
-- [完整文档](https://kubeoperator.io/docs/)
-- [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
-
 ### 致谢
 
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
