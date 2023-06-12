@@ -1,4 +1,5 @@
 <p align="center"><a href="https://kubeoperator.io"><img src="https://kubeoperator.oss-cn-beijing.aliyuncs.com/img/logo-red.png" alt="KubeOperator" width="300" /></a></p>
+<h3 align="center">开源的轻量级 Kubernetes 发行版</h3>
 <p align="center">
   <a href="http://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/github/license/kubeoperator/kubeoperator?color=%231890FF&style=flat-square" alt="License: Apache License v2"></a>
   <a href="https://github.com/kubeoperator/kubeoperator/releases/latest"><img src="https://img.shields.io/github/v/release/kubeoperator/kubeoperator" alt="Latest release"></a>
