@@ -2,10 +2,8 @@
 <h3 align="center">从这里开启您的 Kubernetes 之旅</h3>
 <p align="center">
   <a href="http://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/github/license/kubeoperator/kubeoperator?color=%231890FF&style=flat-square" alt="License: Apache License v2"></a>
-  <a href="https://app.codacy.com/gh/kubeoperator/kubeoperator?utm_source=github.com&utm_medium=referral&utm_content=kubeoperator/kubeoperator&utm_campaign=Badge_Grade_Dashboard"><img src="https://app.codacy.com/project/badge/Grade/da67574fd82b473992781d1386b937ef" alt="Codacy"></a>
   <a href="https://github.com/kubeoperator/kubeoperator/releases/latest"><img src="https://img.shields.io/github/v/release/kubeoperator/kubeoperator" alt="Latest release"></a>
   <a href="https://github.com/kubeoperator/kubeoperator"><img src="https://img.shields.io/github/stars/kubeoperator/kubeoperator?color=%231890FF&style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/kubeoperator/kubeoperator/releases/latest"><img src="https://img.shields.io/github/downloads/kubeoperator/kubeoperator/total" alt="Downloads"></a>
 </p>
 <hr />
 
@@ -25,8 +23,6 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -   **自我修复**: 通过重建故障节点确保集群可用性；
 -   **全栈监控**: 提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -   **Multi-AZ 支持**: 将 Master 节点分布在不同的故障域上确保集群高可用；
--   **应用商店**: 内置 [KubeApps](https://github.com/kubeapps/kubeapps) 应用商店；
--   **GPU 支持**: 支持 GPU 节点，助力运行深度学习等应用。
 
 ### UI 展示
 
@@ -39,8 +35,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 ### 致谢
 
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
-- [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
-- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 采用 Kubeapps 作为应用商店方案。
+- [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具。
 
 ### License & Copyright
 
