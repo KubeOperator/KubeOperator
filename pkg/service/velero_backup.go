@@ -68,6 +68,20 @@ func (v veleroBackupService) Create(operate string, backup dto.VeleroBackup) (st
 		if err := db.DB.Save(&cluster).Error; err != nil {
 			logger.Log.Infof("save cluster failed, err: %v", err)
 		}
+
+		backups, err := v.GetBackups(backup.Cluster)
+		if err != nil {
+			logger.Log.Infof("get backup list failed, err: %v", err)
+		} else {
+			for _, value := range backups.Items {
+				if name, ok := value.Metadata["name"]; ok && name == backup.BackupName {
+					if _, o := value.Spec["includeClusterResources"]; !o {
+						backup.IncludeClusterResources = true
+					}
+				}
+			}
+		}
+
 		go func() {
 			result, err := velero.Restore(backup.BackupName, v.handleArgs(backup))
 			cluster.CurrentTaskID = ""
