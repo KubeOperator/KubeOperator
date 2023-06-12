@@ -6,7 +6,7 @@
 </p>
 <hr />
 
-KubeOperator 是开源的轻量级 Kubernetes 发行版。KubeOperator 提供可视化的 Web UI，支持离线环境，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
+KubeOperator 是开源的轻量级 Kubernetes 发行版。KubeOperator 提供可视化的 Web UI，支持离线环境，通过 Terraform 和 Ansible 完成自动化创建、部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
 ### KubeOperator 的优势
 
