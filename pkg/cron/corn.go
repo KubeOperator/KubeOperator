@@ -21,7 +21,7 @@ func (c *InitCronPhase) Init() error {
 	nyc, _ := time.LoadLocation("Asia/Shanghai")
 	Cron = cron.New(cron.WithLocation(nyc))
 	if c.Enable {
-		_, err := Cron.AddJob("@hourly", job.NewRefreshHostInfo())
+		_, err := Cron.AddJob("0 3 * * *", job.NewRefreshHostInfo())
 		if err != nil {
 			return fmt.Errorf("can not add corn job: %s", err.Error())
 		}
