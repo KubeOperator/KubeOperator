@@ -33,8 +33,8 @@ type kubepiService struct {
 }
 
 type ConnInfo struct {
-	Name     string        `josn:"name"`
-	Password string        `josn:"password"`
+	Name     string        `json:"name"`
+	Password string        `json:"password"`
 	Cluster  model.Cluster `json:"cluster"`
 }
 
